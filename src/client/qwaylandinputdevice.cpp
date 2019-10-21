@@ -630,8 +630,8 @@ class EnterEvent : public QWaylandPointerEvent
 {
 public:
     EnterEvent(QWaylandWindow *surface, const QPointF &local, const QPointF &global)
-        : QWaylandPointerEvent(QWaylandPointerEvent::Enter, Qt::NoScrollPhase, surface, 0,
-                               local, global, nullptr, Qt::NoModifier)
+        : QWaylandPointerEvent(QEvent::Enter, Qt::NoScrollPhase, surface, 0,
+                               local, global, Qt::NoButton, Qt::NoButton, Qt::NoModifier)
     {}
 };
 
@@ -675,8 +675,8 @@ class LeaveEvent : public QWaylandPointerEvent
 {
 public:
     LeaveEvent(QWaylandWindow *surface, const QPointF &localPos, const QPointF &globalPos)
-        : QWaylandPointerEvent(QWaylandPointerEvent::Leave, Qt::NoScrollPhase, surface, 0,
-                               localPos, globalPos, nullptr, Qt::NoModifier)
+        : QWaylandPointerEvent(QEvent::Leave, Qt::NoScrollPhase, surface, 0,
+                               localPos, globalPos, Qt::NoButton, Qt::NoButton, Qt::NoModifier)
     {}
 };
 
@@ -705,8 +705,8 @@ class MotionEvent : public QWaylandPointerEvent
 public:
     MotionEvent(QWaylandWindow *surface, ulong timestamp, const QPointF &localPos,
                 const QPointF &globalPos, Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers)
-        : QWaylandPointerEvent(QWaylandPointerEvent::Motion, Qt::NoScrollPhase, surface,
-                               timestamp, localPos, globalPos, buttons, modifiers)
+        : QWaylandPointerEvent(QEvent::MouseMove, Qt::NoScrollPhase, surface,
+                               timestamp, localPos, globalPos, buttons, Qt::NoButton, modifiers)
     {
     }
 };
@@ -744,9 +744,10 @@ class PressEvent : public QWaylandPointerEvent
 {
 public:
     PressEvent(QWaylandWindow *surface, ulong timestamp, const QPointF &localPos,
-               const QPointF &globalPos, Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers)
-        : QWaylandPointerEvent(QWaylandPointerEvent::Press, Qt::NoScrollPhase, surface,
-                               timestamp, localPos, globalPos, buttons, modifiers)
+               const QPointF &globalPos, Qt::MouseButtons buttons, Qt::MouseButton button,
+               Qt::KeyboardModifiers modifiers)
+        : QWaylandPointerEvent(QEvent::MouseButtonPress, Qt::NoScrollPhase, surface,
+                               timestamp, localPos, globalPos, buttons, button, modifiers)
     {
     }
 };
@@ -755,9 +756,10 @@ class ReleaseEvent : public QWaylandPointerEvent
 {
 public:
     ReleaseEvent(QWaylandWindow *surface, ulong timestamp, const QPointF &localPos,
-                 const QPointF &globalPos, Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers)
-        : QWaylandPointerEvent(QWaylandPointerEvent::Release, Qt::NoScrollPhase, surface,
-                               timestamp, localPos, globalPos, buttons, modifiers)
+                 const QPointF &globalPos, Qt::MouseButtons buttons, Qt::MouseButton button,
+                 Qt::KeyboardModifiers modifiers)
+        : QWaylandPointerEvent(QEvent::MouseButtonRelease, Qt::NoScrollPhase, surface,
+                               timestamp, localPos, globalPos, buttons, button, modifiers)
     {
     }
 };
@@ -818,9 +820,9 @@ void QWaylandInputDevice::Pointer::pointer_button(uint32_t serial, uint32_t time
     }
 
     if (state)
-        setFrameEvent(new PressEvent(window, time, pos, global, mButtons, mParent->modifiers()));
+        setFrameEvent(new PressEvent(window, time, pos, global, mButtons, qt_button, mParent->modifiers()));
     else
-        setFrameEvent(new ReleaseEvent(window, time, pos, global, mButtons, mParent->modifiers()));
+        setFrameEvent(new ReleaseEvent(window, time, pos, global, mButtons, qt_button, mParent->modifiers()));
 }
 
 void QWaylandInputDevice::Pointer::invalidateFocus()
@@ -848,7 +850,7 @@ public:
     WheelEvent(QWaylandWindow *surface, Qt::ScrollPhase phase, ulong timestamp, const QPointF &local,
                const QPointF &global, const QPoint &pixelDelta, const QPoint &angleDelta,
                Qt::MouseEventSource source, Qt::KeyboardModifiers modifiers)
-        : QWaylandPointerEvent(QWaylandPointerEvent::Wheel, phase, surface, timestamp,
+        : QWaylandPointerEvent(QEvent::Wheel, phase, surface, timestamp,
                                local, global, pixelDelta, angleDelta, source, modifiers)
     {
     }
@@ -1084,11 +1086,13 @@ void QWaylandInputDevice::Pointer::flushFrameEvent()
     if (auto *event = mFrameData.event) {
         if (auto window = event->surface) {
             window->handleMouse(mParent, *event);
-        } else if (mFrameData.event->type == QWaylandPointerEvent::Type::Release) {
+        } else if (mFrameData.event->type == QEvent::MouseButtonRelease) {
             // If the window has been destroyed, we still need to report an up event, but it can't
             // be handled by the destroyed window (obviously), so send the event here instead.
             QWindowSystemInterface::handleMouseEvent(nullptr, event->timestamp, event->local,
-                                                     event->global, event->buttons, event->modifiers);
+                                 event->global, event->buttons,
+                                 event->button, event->type,
+                                 event->modifiers);// , Qt::MouseEventSource source = Qt::MouseEventNotSynthesized);
         }
         delete mFrameData.event;
         mFrameData.event = nullptr;

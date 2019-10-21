@@ -869,7 +869,7 @@ QWaylandWindow *QWaylandWindow::transientParent() const
 
 void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e)
 {
-    if (e.type == QWaylandPointerEvent::Leave) {
+    if (e.type == QEvent::Leave) {
         if (mWindowDecoration) {
             if (mMouseEventsInContentArea)
                 QWindowSystemInterface::handleLeaveEvent(window());
@@ -886,24 +886,26 @@ void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, const QWaylan
         handleMouseEventWithDecoration(inputDevice, e);
     } else {
         switch (e.type) {
-            case QWaylandPointerEvent::Enter:
+            case QEvent::Enter:
                 QWindowSystemInterface::handleEnterEvent(window(), e.local, e.global);
                 break;
-            case QWaylandPointerEvent::Press:
-            case QWaylandPointerEvent::Release:
-            case QWaylandPointerEvent::Motion:
-                QWindowSystemInterface::handleMouseEvent(window(), e.timestamp, e.local, e.global, e.buttons, e.modifiers);
+            case QEvent::MouseButtonPress:
+            case QEvent::MouseButtonRelease:
+            case QEvent::MouseMove:
+                QWindowSystemInterface::handleMouseEvent(window(), e.timestamp, e.local, e.global, e.buttons, e.button, e.type, e.modifiers);
                 break;
-            case QWaylandPointerEvent::Wheel:
+            case QEvent::Wheel:
                 QWindowSystemInterface::handleWheelEvent(window(), e.timestamp, e.local, e.global,
                                                          e.pixelDelta, e.angleDelta, e.modifiers,
                                                          e.phase, e.source, false);
                 break;
+        default:
+            Q_UNREACHABLE();
         }
     }
 
 #if QT_CONFIG(cursor)
-    if (e.type == QWaylandPointerEvent::Enter) {
+    if (e.type == QEvent::Enter) {
         QRect contentGeometry = windowContentGeometry().marginsRemoved(frameMargins());
         if (contentGeometry.contains(e.local.toPoint()))
             restoreMouseCursor(inputDevice);
@@ -947,21 +949,23 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
         }
 
         switch (e.type) {
-            case QWaylandPointerEvent::Enter:
+            case QEvent::Enter:
                 QWindowSystemInterface::handleEnterEvent(window(), localTranslated, globalTranslated);
                 break;
-            case QWaylandPointerEvent::Press:
-            case QWaylandPointerEvent::Release:
-            case QWaylandPointerEvent::Motion:
-                QWindowSystemInterface::handleMouseEvent(window(), e.timestamp, localTranslated, globalTranslated, e.buttons, e.modifiers);
+            case QEvent::MouseButtonPress:
+            case QEvent::MouseButtonRelease:
+            case QEvent::MouseMove:
+                QWindowSystemInterface::handleMouseEvent(window(), e.timestamp, localTranslated, globalTranslated, e.buttons, e.button, e.type, e.modifiers);
                 break;
-            case QWaylandPointerEvent::Wheel: {
+            case QEvent::Wheel: {
                 QWindowSystemInterface::handleWheelEvent(window(), e.timestamp,
                                                          localTranslated, globalTranslated,
                                                          e.pixelDelta, e.angleDelta, e.modifiers,
                                                          e.phase, e.source, false);
                 break;
             }
+            default:
+                Q_UNREACHABLE();
         }
 
         mMouseEventsInContentArea = true;

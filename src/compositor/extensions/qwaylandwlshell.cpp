@@ -466,7 +466,8 @@ QWaylandWlShellSurface::QWaylandWlShellSurface(QWaylandWlShell *shell, QWaylandS
 QWaylandWlShellSurface::~QWaylandWlShellSurface()
 {
     Q_D(QWaylandWlShellSurface);
-    QWaylandWlShellPrivate::get(d->m_shell)->unregisterShellSurface(this);
+    if (d->m_shell)
+        QWaylandWlShellPrivate::get(d->m_shell)->unregisterShellSurface(this);
 }
 
 /*!

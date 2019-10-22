@@ -472,6 +472,7 @@ void tst_primaryselectionv1::copy()
     });
     QCOMPOSITOR_TRY_VERIFY(primarySelectionDevice()->m_selectionSource);
     QCOMPOSITOR_TRY_VERIFY(mouseSerials.contains(primarySelectionDevice()->m_serial));
+    QVERIFY(QGuiApplication::clipboard()->ownsSelection());
     QByteArray pastedBuf;
     exec([&](){
         auto *source = primarySelectionDevice()->m_selectionSource;

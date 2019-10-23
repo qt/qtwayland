@@ -413,11 +413,14 @@ QWaylandSurface *QWaylandQuickItem::surface() const
 void QWaylandQuickItem::setSurface(QWaylandSurface *surface)
 {
     Q_D(QWaylandQuickItem);
+    QWaylandSurface *oldSurf = d->view->surface();
     QWaylandCompositor *oldComp = d->view->surface() ? d->view->surface()->compositor() : nullptr;
     d->view->setSurface(surface);
     QWaylandCompositor *newComp = d->view->surface() ? d->view->surface()->compositor() : nullptr;
     if (oldComp != newComp)
         emit compositorChanged();
+    if (oldSurf != surface)
+        emit surfaceChanged();
     update();
 }
 
@@ -1200,7 +1203,12 @@ bool QWaylandQuickItem::paintEnabled() const
 void QWaylandQuickItem::setPaintEnabled(bool enabled)
 {
     Q_D(QWaylandQuickItem);
-    d->paintEnabled = enabled;
+
+    if (enabled != d->paintEnabled) {
+        d->paintEnabled = enabled;
+        emit paintEnabledChanged();
+    }
+
     update();
 }
 

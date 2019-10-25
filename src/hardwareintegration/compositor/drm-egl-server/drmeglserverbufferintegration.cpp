@@ -124,47 +124,48 @@ DrmEglServerBufferIntegration::~DrmEglServerBufferIntegration()
 {
 }
 
-void DrmEglServerBufferIntegration::initializeHardware(QWaylandCompositor *compositor)
+bool DrmEglServerBufferIntegration::initializeHardware(QWaylandCompositor *compositor)
 {
     Q_ASSERT(QGuiApplication::platformNativeInterface());
 
     m_egl_display = static_cast<EGLDisplay>(QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("egldisplay"));
     if (!m_egl_display) {
         qWarning("Can't initialize drm egl server buffer integration. Missing egl display from platform plugin");
-        return;
+        return false;
     }
 
     const char *extensionString = eglQueryString(m_egl_display, EGL_EXTENSIONS);
     if (!extensionString || !strstr(extensionString, "EGL_KHR_image")) {
         qWarning("Failed to initialize drm egl server buffer integration. There is no EGL_KHR_image extension.\n");
-        return;
+        return false;
     }
     m_egl_create_image = reinterpret_cast<PFNEGLCREATEIMAGEKHRPROC>(eglGetProcAddress("eglCreateImageKHR"));
     m_egl_destroy_image = reinterpret_cast<PFNEGLDESTROYIMAGEKHRPROC>(eglGetProcAddress("eglDestroyImageKHR"));
     if (!m_egl_create_image || !m_egl_destroy_image) {
         qWarning("Failed to initialize drm egl server buffer integration. Could not resolve eglCreateImageKHR or eglDestroyImageKHR");
-        return;
+        return false;
     }
 
     if (!extensionString || !strstr(extensionString, "EGL_MESA_drm_image")) {
         qWarning("Failed to initialize drm egl server buffer integration. There is no EGL_MESA_drm_image extension.\n");
-        return;
+        return false;
     }
 
     m_egl_create_drm_image = reinterpret_cast<PFNEGLCREATEDRMIMAGEMESAPROC>(eglGetProcAddress("eglCreateDRMImageMESA"));
     m_egl_export_drm_image = reinterpret_cast<PFNEGLEXPORTDRMIMAGEMESAPROC>(eglGetProcAddress("eglExportDRMImageMESA"));
     if (!m_egl_create_drm_image || !m_egl_export_drm_image) {
         qWarning("Failed to initialize drm egl server buffer integration. Could not find eglCreateDRMImageMESA or eglExportDRMImageMESA.\n");
-        return;
+        return false;
     }
 
     m_gl_egl_image_target_texture_2d = reinterpret_cast<PFNGLEGLIMAGETARGETTEXTURE2DOESPROC>(eglGetProcAddress("glEGLImageTargetTexture2DOES"));
     if (!m_gl_egl_image_target_texture_2d) {
         qWarning("Failed to initialize drm egl server buffer integration. Could not find glEGLImageTargetTexture2DOES.\n");
-        return;
+        return false;
     }
 
     QtWaylandServer::qt_drm_egl_server_buffer::init(compositor->display(), 1);
+    return true;
 }
 
 bool DrmEglServerBufferIntegration::supportsFormat(QtWayland::ServerBuffer::Format format) const

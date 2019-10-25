@@ -93,7 +93,7 @@ public:
     ServerBufferIntegration();
     virtual ~ServerBufferIntegration();
 
-    virtual void initializeHardware(QWaylandCompositor *);
+    virtual bool initializeHardware(QWaylandCompositor *);
 
     virtual bool supportsFormat(ServerBuffer::Format format) const = 0;
     virtual ServerBuffer *createServerBufferFromImage(const QImage &qimage, ServerBuffer::Format format) = 0;

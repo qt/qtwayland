@@ -265,11 +265,12 @@ VulkanServerBufferIntegration::~VulkanServerBufferIntegration()
 {
 }
 
-void VulkanServerBufferIntegration::initializeHardware(QWaylandCompositor *compositor)
+bool VulkanServerBufferIntegration::initializeHardware(QWaylandCompositor *compositor)
 {
     Q_ASSERT(QGuiApplication::platformNativeInterface());
 
     QtWaylandServer::zqt_vulkan_server_buffer_v1::init(compositor->display(), 1);
+    return true;
 }
 
 bool VulkanServerBufferIntegration::supportsFormat(QtWayland::ServerBuffer::Format format) const

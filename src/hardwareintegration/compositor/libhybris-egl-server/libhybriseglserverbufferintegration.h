@@ -95,7 +95,7 @@ public:
     LibHybrisEglServerBufferIntegration();
     ~LibHybrisEglServerBufferIntegration();
 
-    void initializeHardware(QWaylandCompositor *);
+    bool initializeHardware(QWaylandCompositor *);
 
     bool supportsFormat(QtWayland::ServerBuffer::Format format) const override;
     QtWayland::ServerBuffer *createServerBufferFromImage(const QImage &qimage, QtWayland::ServerBuffer::Format format) override;

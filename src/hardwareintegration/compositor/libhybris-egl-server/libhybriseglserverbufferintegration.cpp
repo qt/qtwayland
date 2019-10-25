@@ -124,51 +124,52 @@ LibHybrisEglServerBufferIntegration::~LibHybrisEglServerBufferIntegration()
 {
 }
 
-void LibHybrisEglServerBufferIntegration::initializeHardware(QWaylandCompositor *compositor)
+bool LibHybrisEglServerBufferIntegration::initializeHardware(QWaylandCompositor *compositor)
 {
     Q_ASSERT(QGuiApplication::platformNativeInterface());
 
     m_egl_display = static_cast<EGLDisplay>(QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("egldisplay"));
     if (!m_egl_display) {
         qWarning("Can't initialize libhybris egl server buffer integration. Missing egl display from platform plugin");
-        return;
+        return false;
     }
 
     m_egl_create_buffer = reinterpret_cast<PFNEGLHYBRISCREATENATIVEBUFFERPROC>(eglGetProcAddress("eglHybrisCreateNativeBuffer"));
     if (!m_egl_create_buffer) {
         qWarning("Failed to initialize libhybris egl server buffer integration. Could not find eglHybrisCreateNativeBuffer.\n");
-        return;
+        return false;
     }
     m_egl_get_buffer_info = reinterpret_cast<PFNEGLHYBRISGETNATIVEBUFFERINFOPROC>(eglGetProcAddress("eglHybrisGetNativeBufferInfo"));
     if (!m_egl_get_buffer_info) {
         qWarning("Failed to initialize libhybris egl server buffer integration. Could not find eglHybrisGetNativeBufferInfo.\n");
-        return;
+        return false;
     }
     m_egl_serialize_buffer = reinterpret_cast<PFNEGLHYBRISSERIALIZENATIVEBUFFERPROC>(eglGetProcAddress("eglHybrisSerializeNativeBuffer"));
     if (!m_egl_serialize_buffer) {
         qWarning("Failed to initialize libhybris egl server buffer integration. Could not find eglHybrisSerializeNativeBuffer.\n");
-        return;
+        return false;
     }
 
     const char *extensionString = eglQueryString(m_egl_display, EGL_EXTENSIONS);
     if (!extensionString || !strstr(extensionString, "EGL_KHR_image")) {
         qWarning("Failed to initialize libhybris egl server buffer integration. There is no EGL_KHR_image extension.\n");
-        return;
+        return false;
     }
     m_egl_create_image = reinterpret_cast<PFNEGLCREATEIMAGEKHRPROC>(eglGetProcAddress("eglCreateImageKHR"));
     m_egl_destroy_image = reinterpret_cast<PFNEGLDESTROYIMAGEKHRPROC>(eglGetProcAddress("eglDestroyImageKHR"));
     if (!m_egl_create_image || !m_egl_destroy_image) {
         qWarning("Failed to initialize libhybris egl server buffer integration. Could not resolve eglCreateImageKHR or eglDestroyImageKHR");
-        return;
+        return false;
     }
 
     m_gl_egl_image_target_texture_2d = reinterpret_cast<PFNGLEGLIMAGETARGETTEXTURE2DOESPROC>(eglGetProcAddress("glEGLImageTargetTexture2DOES"));
     if (!m_gl_egl_image_target_texture_2d) {
         qWarning("Failed to initialize libhybris egl server buffer integration. Could not find glEGLImageTargetTexture2DOES.\n");
-        return;
+        return false;
     }
 
     QtWaylandServer::qt_libhybris_egl_server_buffer::init(compositor->display(), 1);
+    return true;
 }
 
 bool LibHybrisEglServerBufferIntegration::supportsFormat(QtWayland::ServerBuffer::Format format) const

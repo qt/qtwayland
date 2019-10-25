@@ -174,7 +174,6 @@ public:
     void deleteOrphanedTextures();
 
     EGLDisplay egl_display = EGL_NO_DISPLAY;
-    bool valid = false;
     bool display_bound = false;
     ::wl_display *wlDisplay = nullptr;
     QOffscreenSurface *offscreenSurface = nullptr;
@@ -453,7 +452,6 @@ bool WaylandEglClientBufferIntegration::initializeHardware(struct wl_display *di
     d->funcs = new QEGLStreamConvenience;
     d->funcs->initialize(d->egl_display);
 
-    d->valid = true;
     return true;
 }
 

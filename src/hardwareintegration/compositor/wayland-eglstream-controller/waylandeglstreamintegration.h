@@ -44,7 +44,7 @@ public:
     WaylandEglStreamClientBufferIntegration();
     ~WaylandEglStreamClientBufferIntegration() override;
 
-    void initializeHardware(struct ::wl_display *display) override;
+    bool initializeHardware(struct ::wl_display *display) override;
 
     QtWayland::ClientBuffer *createBufferFor(wl_resource *buffer) override;
 

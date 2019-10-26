@@ -93,8 +93,10 @@ QMimeData *QWaylandClipboard::mimeData(QClipboard::Mode mode)
 void QWaylandClipboard::setMimeData(QMimeData *data, QClipboard::Mode mode)
 {
     auto *seat = mDisplay->currentInputDevice();
-    if (!seat)
+    if (!seat) {
+        qCWarning(lcQpaWayland) << "Can't set clipboard contents with no wl_seats available";
         return;
+    }
 
     static const QString plain = QStringLiteral("text/plain");
     static const QString utf8 = QStringLiteral("text/plain;charset=utf-8");
@@ -135,14 +137,20 @@ bool QWaylandClipboard::supportsMode(QClipboard::Mode mode) const
 
 bool QWaylandClipboard::ownsMode(QClipboard::Mode mode) const
 {
-    if (mode != QClipboard::Clipboard)
+    QWaylandInputDevice *seat = mDisplay->currentInputDevice();
+    if (!seat)
         return false;
 
-    QWaylandInputDevice *inputDevice = mDisplay->currentInputDevice();
-    if (!inputDevice || !inputDevice->dataDevice())
+    switch (mode) {
+    case QClipboard::Clipboard:
+        return seat->dataDevice() && seat->dataDevice()->selectionSource() != nullptr;
+#if QT_CONFIG(wayland_client_primary_selection)
+    case QClipboard::Selection:
+        return seat->primarySelectionDevice() && seat->primarySelectionDevice()->selectionSource() != nullptr;
+#endif
+    default:
         return false;
-
-    return inputDevice->dataDevice()->selectionSource() != nullptr;
+    }
 }
 
 }

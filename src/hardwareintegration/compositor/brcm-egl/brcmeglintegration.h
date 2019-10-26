@@ -47,7 +47,7 @@ class BrcmEglIntegration : public QtWayland::ClientBufferIntegration, public QtW
 public:
     BrcmEglIntegration();
 
-    void initializeHardware(struct ::wl_display *display) override;
+    bool initializeHardware(struct ::wl_display *display) override;
     QtWayland::ClientBuffer *createBufferFor(wl_resource *buffer) override;
 
 protected:

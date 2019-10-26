@@ -45,7 +45,7 @@ class XCompositeEglClientBufferIntegration : public QtWayland::ClientBufferInteg
 public:
     XCompositeEglClientBufferIntegration();
 
-    void initializeHardware(struct ::wl_display *display) override;
+    bool initializeHardware(struct ::wl_display *display) override;
     QtWayland::ClientBuffer *createBufferFor(wl_resource *buffer) override;
     inline Display *xDisplay() const { return mDisplay; }
     inline EGLDisplay eglDisplay() const { return mEglDisplay; }

@@ -125,7 +125,7 @@ class QWaylandPrimarySelectionDeviceV1 : public QObject, public QtWayland::zwp_p
 public:
     ~QWaylandPrimarySelectionDeviceV1() override;
     QWaylandPrimarySelectionOfferV1 *selectionOffer() const { return m_selectionOffer.data(); }
-    void invalidateSelectionOffer() { m_selectionOffer.reset(); }
+    void invalidateSelectionOffer();
     QWaylandPrimarySelectionSourceV1 *selectionSource() const { return m_selectionSource.data(); }
     void setSelectionSource(QWaylandPrimarySelectionSourceV1 *source);
 

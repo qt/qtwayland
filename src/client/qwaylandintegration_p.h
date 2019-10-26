@@ -113,6 +113,10 @@ public:
 
     QPlatformTheme *createPlatformTheme(const QString &name) const override;
 
+#if QT_CONFIG(vulkan)
+    QPlatformVulkanInstance *createPlatformVulkanInstance(QVulkanInstance *instance) const override;
+#endif
+
     QWaylandInputDevice *createInputDevice(QWaylandDisplay *display, int version, uint32_t id);
 
     virtual QWaylandClientBufferIntegration *clientBufferIntegration() const;

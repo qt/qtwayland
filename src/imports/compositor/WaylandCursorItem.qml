@@ -63,7 +63,7 @@ WaylandQuickItem {
         x: cursorItem.hotspotX + offset.x
         y: cursorItem.hotspotY + offset.y
         z: -1
-        surface: cursorItem.seat.drag.icon
+        surface: cursorItem.seat ? cursorItem.seat.drag.icon : null
 
         Connections {
             target: dragIcon.surface

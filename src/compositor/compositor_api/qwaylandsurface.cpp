@@ -382,7 +382,8 @@ QWaylandSurface::QWaylandSurface(QWaylandSurfacePrivate &dptr)
 QWaylandSurface::~QWaylandSurface()
 {
     Q_D(QWaylandSurface);
-    QWaylandCompositorPrivate::get(d->compositor)->unregisterSurface(this);
+    if (d->compositor)
+        QWaylandCompositorPrivate::get(d->compositor)->unregisterSurface(this);
     d->notifyViewsAboutDestruction();
 }
 

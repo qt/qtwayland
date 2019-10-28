@@ -188,6 +188,18 @@ QWaylandDisplay::~QWaylandDisplay(void)
         wl_display_disconnect(mDisplay);
 }
 
+void QWaylandDisplay::ensureScreen()
+{
+    if (!mScreens.empty() || mPlaceholderScreen)
+        return; // There are real screens or we already have a fake one
+
+    qCInfo(lcQpaWayland) << "Creating a fake screen in order for Qt not to crash";
+
+    mPlaceholderScreen = new QPlatformPlaceholderScreen();
+    QWindowSystemInterface::handleScreenAdded(mPlaceholderScreen);
+    Q_ASSERT(!QGuiApplication::screens().empty());
+}
+
 void QWaylandDisplay::checkError() const
 {
     int ecode = wl_display_get_error(mDisplay);
@@ -253,8 +265,7 @@ void QWaylandDisplay::dispatchQueueWhile(wl_event_queue *queue, std::function<bo
 
 QWaylandScreen *QWaylandDisplay::screenForOutput(struct wl_output *output) const
 {
-    for (int i = 0; i < mScreens.size(); ++i) {
-        QWaylandScreen *screen = static_cast<QWaylandScreen *>(mScreens.at(i));
+    for (auto screen : qAsConst(mScreens)) {
         if (screen->output() == output)
             return screen;
     }
@@ -267,6 +278,11 @@ void QWaylandDisplay::handleScreenInitialized(QWaylandScreen *screen)
         return;
     mScreens.append(screen);
     QWindowSystemInterface::handleScreenAdded(screen);
+    if (mPlaceholderScreen) {
+        QWindowSystemInterface::handleScreenRemoved(mPlaceholderScreen);
+        // handleScreenRemoved deletes the platform screen
+        mPlaceholderScreen = nullptr;
+    }
 }
 
 void QWaylandDisplay::waitForScreens()
@@ -362,6 +378,8 @@ void QWaylandDisplay::registry_global_remove(uint32_t id)
                 for (QWaylandScreen *screen : qAsConst(mScreens)) {
                     if (screen->outputId() == id) {
                         mScreens.removeOne(screen);
+                        // If this is the last screen, we have to add a fake screen, or Qt will break.
+                        ensureScreen();
                         QWindowSystemInterface::handleScreenRemoved(screen);
                         break;
                     }

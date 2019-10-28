@@ -49,8 +49,8 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-QWaylandShmWindow::QWaylandShmWindow(QWindow *window)
-    : QWaylandWindow(window)
+QWaylandShmWindow::QWaylandShmWindow(QWindow *window, QWaylandDisplay *display)
+    : QWaylandWindow(window, display)
 {
 }
 

@@ -55,7 +55,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 QWaylandXCompositeEGLWindow::QWaylandXCompositeEGLWindow(QWindow *window, QWaylandXCompositeEGLClientBufferIntegration *glxIntegration)
-    : QWaylandWindow(window)
+    : QWaylandWindow(window, glxIntegration->waylandDisplay())
     , m_glxIntegration(glxIntegration)
     , m_config(q_configFromGLFormat(glxIntegration->eglDisplay(), window->format(), true, EGL_WINDOW_BIT | EGL_PIXMAP_BIT))
 {

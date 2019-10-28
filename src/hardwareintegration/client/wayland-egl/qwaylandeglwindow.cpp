@@ -54,8 +54,8 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-QWaylandEglWindow::QWaylandEglWindow(QWindow *window)
-    : QWaylandWindow(window)
+QWaylandEglWindow::QWaylandEglWindow(QWindow *window, QWaylandDisplay *display)
+    : QWaylandWindow(window, display)
     , m_clientBufferIntegration(static_cast<QWaylandEglClientBufferIntegration *>(mDisplay->clientBufferIntegration()))
 {
     QSurfaceFormat fmt = window->requestedFormat();

@@ -76,6 +76,7 @@ QT_BEGIN_NAMESPACE
 class QAbstractEventDispatcher;
 class QSocketNotifier;
 class QPlatformScreen;
+class QPlatformPlaceholderScreen;
 
 namespace QtWayland {
     class qt_surface_extension;
@@ -124,6 +125,8 @@ public:
 #endif
 
     QList<QWaylandScreen *> screens() const { return mScreens; }
+    QPlatformPlaceholderScreen *placeholderScreen() const { return mPlaceholderScreen; }
+    void ensureScreen();
 
     QWaylandScreen *screenForOutput(struct wl_output *output) const;
     void handleScreenInitialized(QWaylandScreen *screen);
@@ -228,6 +231,7 @@ private:
     QScopedPointer<QWaylandShm> mShm;
     QList<QWaylandScreen *> mWaitingScreens;
     QList<QWaylandScreen *> mScreens;
+    QPlatformPlaceholderScreen *mPlaceholderScreen = nullptr;
     QList<QWaylandInputDevice *> mInputDevices;
     QList<Listener> mRegistryListeners;
     QWaylandIntegration *mWaylandIntegration = nullptr;

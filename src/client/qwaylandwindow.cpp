@@ -73,9 +73,9 @@ Q_LOGGING_CATEGORY(lcWaylandBackingstore, "qt.qpa.wayland.backingstore")
 
 QWaylandWindow *QWaylandWindow::mMouseGrab = nullptr;
 
-QWaylandWindow::QWaylandWindow(QWindow *window)
+QWaylandWindow::QWaylandWindow(QWindow *window, QWaylandDisplay *display)
     : QPlatformWindow(window)
-    , mDisplay(waylandScreen()->display())
+    , mDisplay(display)
     , mFrameQueue(mDisplay->createEventQueue())
     , mResizeAfterSwap(qEnvironmentVariableIsSet("QT_WAYLAND_RESIZE_AFTER_SWAP"))
 {
@@ -177,7 +177,7 @@ void QWaylandWindow::initWindow()
         }
     }
 
-    mScale = waylandScreen()->scale();
+    mScale = waylandScreen() ? waylandScreen()->scale() : 1; // fallback to 1 if we don't have a real screen
 
     // Enable high-dpi rendering. Scale() returns the screen scale factor and will
     // typically be integer 1 (normal-dpi) or 2 (high-dpi). Call set_buffer_scale()
@@ -402,14 +402,14 @@ void QWaylandWindow::closePopups(QWaylandWindow *parent)
     }
 }
 
-QWaylandScreen *QWaylandWindow::calculateScreenFromSurfaceEvents() const
+QPlatformScreen *QWaylandWindow::calculateScreenFromSurfaceEvents() const
 {
     if (mSurface) {
         if (auto *screen = mSurface->oldestEnteredScreen())
             return screen;
     }
 
-    return waylandScreen();
+    return QPlatformWindow::screen();
 }
 
 void QWaylandWindow::setVisible(bool visible)
@@ -690,7 +690,11 @@ QWaylandSubSurface *QWaylandWindow::subSurfaceWindow() const
 
 QWaylandScreen *QWaylandWindow::waylandScreen() const
 {
-    return static_cast<QWaylandScreen *>(QPlatformWindow::screen());
+    auto *platformScreen = QPlatformWindow::screen();
+    Q_ASSERT(platformScreen);
+    if (platformScreen->isPlaceholder())
+        return nullptr;
+    return static_cast<QWaylandScreen *>(platformScreen);
 }
 
 void QWaylandWindow::handleContentOrientationChange(Qt::ScreenOrientation orientation)
@@ -962,7 +966,7 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
 
 void QWaylandWindow::handleScreensChanged()
 {
-    QWaylandScreen *newScreen = calculateScreenFromSurfaceEvents();
+    QPlatformScreen *newScreen = calculateScreenFromSurfaceEvents();
 
     if (newScreen == mLastReportedScreen)
         return;
@@ -970,7 +974,7 @@ void QWaylandWindow::handleScreensChanged()
     QWindowSystemInterface::handleWindowScreenChanged(window(), newScreen->QPlatformScreen::screen());
     mLastReportedScreen = newScreen;
 
-    int scale = newScreen->scale();
+    int scale = newScreen->isPlaceholder() ? 1 : static_cast<QWaylandScreen *>(newScreen)->scale();
     if (scale != mScale) {
         mScale = scale;
         if (mSurface && mDisplay->compositorVersion() >= 3)

@@ -93,7 +93,7 @@ public:
         Vulkan
     };
 
-    QWaylandWindow(QWindow *window);
+    QWaylandWindow(QWindow *window, QWaylandDisplay *display);
     ~QWaylandWindow() override;
 
     virtual WindowType windowType() const = 0;
@@ -241,7 +241,7 @@ protected:
     bool mSentInitialResize = false;
     QPoint mOffset;
     int mScale = 1;
-    QWaylandScreen *mLastReportedScreen = nullptr;
+    QPlatformScreen *mLastReportedScreen = nullptr;
 
     QIcon mWindowIcon;
 
@@ -262,7 +262,7 @@ private:
     void reset(bool sendDestroyEvent = true);
     void sendExposeEvent(const QRect &rect);
     static void closePopups(QWaylandWindow *parent);
-    QWaylandScreen *calculateScreenFromSurfaceEvents() const;
+    QPlatformScreen *calculateScreenFromSurfaceEvents() const;
 
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
     void handleScreensChanged();

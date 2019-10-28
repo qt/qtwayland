@@ -43,8 +43,8 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-QWaylandVulkanWindow::QWaylandVulkanWindow(QWindow *window)
-    : QWaylandWindow(window)
+QWaylandVulkanWindow::QWaylandVulkanWindow(QWindow *window, QWaylandDisplay *display)
+    : QWaylandWindow(window, display)
 {
 }
 

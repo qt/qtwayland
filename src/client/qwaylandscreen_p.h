@@ -57,7 +57,6 @@
 #include <QtWaylandClient/private/qwayland-wayland.h>
 #include <QtWaylandClient/private/qwayland-xdg-output-unstable-v1.h>
 
-
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {

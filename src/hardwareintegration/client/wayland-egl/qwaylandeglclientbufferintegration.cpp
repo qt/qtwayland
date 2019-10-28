@@ -143,7 +143,7 @@ bool QWaylandEglClientBufferIntegration::supportsWindowDecoration() const
 
 QWaylandWindow *QWaylandEglClientBufferIntegration::createEglWindow(QWindow *window)
 {
-    return new QWaylandEglWindow(window);
+    return new QWaylandEglWindow(window, m_display);
 }
 
 QPlatformOpenGLContext *QWaylandEglClientBufferIntegration::createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const

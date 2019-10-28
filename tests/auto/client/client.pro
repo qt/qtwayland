@@ -5,6 +5,7 @@ SUBDIRS += \
     datadevicev1 \
     fullscreenshellv1 \
     iviapplication \
+    nooutput \
     output \
     primaryselectionv1 \
     seatv4 \

@@ -52,7 +52,7 @@ DefaultCompositor::DefaultCompositor()
                     // Pretend we made a copy of the buffer and just release it immediately
                     surface->m_committed.buffer->send_release();
                 }
-                if (m_config.autoEnter && surface->m_outputs.empty())
+                if (m_config.autoEnter && get<Output>() && surface->m_outputs.empty())
                     surface->sendEnter(get<Output>());
                 wl_display_flush_clients(m_display);
             });

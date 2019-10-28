@@ -53,6 +53,7 @@ private slots:
     void windowScreens();
     void removePrimaryScreen();
     void screenOrder();
+    void removeAllScreens();
 };
 
 void tst_output::primaryScreen()
@@ -225,6 +226,48 @@ void tst_output::screenOrder()
         remove(output(2));
         remove(output(1));
     });
+}
+
+// This is different from tst_nooutput::noScreens because here we have a screen at platform
+// integration initialization, which we then remove.
+void tst_output::removeAllScreens()
+{
+    QRasterWindow window1;
+    window1.resize(400, 320);
+    window1.show();
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface(0) && xdgSurface(0)->m_committedConfigureSerial);
+
+    const QString wlOutputPrimaryScreenModel = QGuiApplication::primaryScreen()->model();
+
+    // Get screen info so we can restore it after
+    auto screenInfo = exec([=] { return output()->m_data; });
+    exec([=] { remove(output()); });
+
+    // Make sure the wl_output is actually removed before we continue
+    QTRY_VERIFY(!QGuiApplication::primaryScreen() || QGuiApplication::primaryScreen()->model() != wlOutputPrimaryScreenModel);
+
+    // Adding a window while there are no screens should also work
+    QRasterWindow window2;
+    window2.resize(400, 320);
+    window2.show();
+
+    exec([=] { add<Output>(screenInfo); });
+
+    // Things should be back to normal
+    QTRY_VERIFY(QGuiApplication::primaryScreen());
+    QTRY_COMPARE(QGuiApplication::primaryScreen()->model(), wlOutputPrimaryScreenModel);
+
+    // Test that we don't leave any fake screens around after we get a wl_output back.
+    QTRY_COMPARE(QGuiApplication::screens().size(), 1);
+
+    // Qt may choose to recreate/hide windows in response to changing screens, so give the client
+    // some time to potentially mess up before we verify that the windows are visible.
+    xdgPingAndWaitForPong();
+
+    // Windows should be visible after we've reconnected the screen
+    QCOMPOSITOR_TRY_VERIFY(xdgToplevel(0) && xdgToplevel(0)->m_xdgSurface->m_committedConfigureSerial);
+    QCOMPOSITOR_TRY_VERIFY(xdgToplevel(1) && xdgToplevel(1)->m_xdgSurface->m_committedConfigureSerial);
+
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_output)

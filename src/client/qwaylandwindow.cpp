@@ -1185,9 +1185,8 @@ void QWaylandWindow::propagateSizeHints()
         mShellSurface->propagateSizeHints();
 }
 
-bool QtWaylandClient::QWaylandWindow::startSystemMove(const QPoint &pos)
+bool QtWaylandClient::QWaylandWindow::startSystemMove()
 {
-    Q_UNUSED(pos);
     if (auto seat = display()->lastInputDevice())
         return mShellSurface && mShellSurface->move(seat);
     return false;

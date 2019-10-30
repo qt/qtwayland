@@ -196,7 +196,7 @@ public:
     void propagateSizeHints() override;
     void addAttachOffset(const QPoint point);
 
-    bool startSystemMove(const QPoint &pos);
+    bool startSystemMove() override;
 
     void timerEvent(QTimerEvent *event) override;
     void requestUpdate() override;

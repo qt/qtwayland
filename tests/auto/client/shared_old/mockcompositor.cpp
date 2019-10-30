@@ -312,9 +312,9 @@ void *MockCompositor::run(void *data)
     Impl::Compositor compositor(controller);
 
     controller->m_compositor = &compositor;
-    controller->m_waitCondition.wakeOne();
 
     while (!controller->m_ready) {
+        controller->m_waitCondition.wakeOne();
         controller->dispatchCommands();
         compositor.dispatchEvents(20);
     }

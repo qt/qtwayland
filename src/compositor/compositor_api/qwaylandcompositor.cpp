@@ -114,6 +114,15 @@ public:
 
         QWaylandKeyboardPrivate *keyb = QWaylandKeyboardPrivate::get(seat->keyboard());
 
+#if defined(Q_OS_QNX)
+        // The QNX platform plugin delivers scan codes that haven't been adjusted to be
+        // xkbcommon compatible. xkbcommon requires that the scan codes be bumped up by
+        // 8 because that's how evdev/XKB deliver scan codes. You might think that it
+        // would've been better to remove this (odd) requirement from xkbcommon on QNX
+        // but it turns out that conforming to it has much less impact.
+        static int offset = QGuiApplication::platformName() == QStringLiteral("qnx") ? 8 : 0;
+        ke->nativeScanCode += offset;
+#endif
         uint32_t code = ke->nativeScanCode;
         bool isDown = ke->keyType == QEvent::KeyPress;
 

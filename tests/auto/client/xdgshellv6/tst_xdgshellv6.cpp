@@ -422,7 +422,8 @@ void tst_WaylandClientXdgShellV6::dontSpamExposeEvents()
 
 int main(int argc, char **argv)
 {
-    setenv("XDG_RUNTIME_DIR", ".", 1);
+    QTemporaryDir tmpRuntimeDir;
+    setenv("XDG_RUNTIME_DIR", tmpRuntimeDir.path().toLocal8Bit(), 1);
     setenv("QT_QPA_PLATFORM", "wayland", 1); // force QGuiApplication to use wayland plugin
     setenv("QT_WAYLAND_SHELL_INTEGRATION", "xdg-shell-v6", 1);
 

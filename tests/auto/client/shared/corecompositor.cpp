@@ -43,6 +43,7 @@ CoreCompositor::CoreCompositor()
         }
     })
 {
+    qputenv("WAYLAND_DISPLAY", m_socketName);
     m_timer.start();
     Q_ASSERT(isClean());
 }

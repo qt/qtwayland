@@ -58,9 +58,10 @@ ServerBufferIntegration::ServerBufferIntegration()
 ServerBufferIntegration::~ServerBufferIntegration()
 { }
 
-void ServerBufferIntegration::initializeHardware(QWaylandCompositor *compositor)
+bool ServerBufferIntegration::initializeHardware(QWaylandCompositor *compositor)
 {
     Q_UNUSED(compositor);
+    return true;
 }
 
 }

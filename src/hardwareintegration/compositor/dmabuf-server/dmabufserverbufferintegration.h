@@ -98,7 +98,7 @@ public:
     DmaBufServerBufferIntegration();
     ~DmaBufServerBufferIntegration() override;
 
-    void initializeHardware(QWaylandCompositor *) override;
+    bool initializeHardware(QWaylandCompositor *) override;
 
     bool supportsFormat(QtWayland::ServerBuffer::Format format) const override;
     QtWayland::ServerBuffer *createServerBufferFromImage(const QImage &qimage, QtWayland::ServerBuffer::Format format) override;

@@ -113,11 +113,12 @@ ShmServerBufferIntegration::~ShmServerBufferIntegration()
 {
 }
 
-void ShmServerBufferIntegration::initializeHardware(QWaylandCompositor *compositor)
+bool ShmServerBufferIntegration::initializeHardware(QWaylandCompositor *compositor)
 {
     Q_ASSERT(QGuiApplication::platformNativeInterface());
 
     QtWaylandServer::qt_shm_emulation_server_buffer::init(compositor->display(), 1);
+    return true;
 }
 
 bool ShmServerBufferIntegration::supportsFormat(QtWayland::ServerBuffer::Format format) const

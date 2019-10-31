@@ -137,48 +137,49 @@ DmaBufServerBufferIntegration::~DmaBufServerBufferIntegration()
 {
 }
 
-void DmaBufServerBufferIntegration::initializeHardware(QWaylandCompositor *compositor)
+bool DmaBufServerBufferIntegration::initializeHardware(QWaylandCompositor *compositor)
 {
     Q_ASSERT(QGuiApplication::platformNativeInterface());
 
     m_egl_display = static_cast<EGLDisplay>(QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("egldisplay"));
     if (!m_egl_display) {
         qCWarning(qLcWaylandCompositorHardwareIntegration) << "Cannot initialize dmabuf server buffer integration. Missing egl display from platform plugin";
-        return;
+        return false;
     }
 
     const char *extensionString = eglQueryString(m_egl_display, EGL_EXTENSIONS);
     if (!extensionString || !strstr(extensionString, "EGL_KHR_image")) {
         qCWarning(qLcWaylandCompositorHardwareIntegration) << "Failed to initialize dmabuf server buffer integration. There is no EGL_KHR_image extension.";
-        return;
+        return false;
     }
 
     m_egl_create_image = reinterpret_cast<PFNEGLCREATEIMAGEKHRPROC>(eglGetProcAddress("eglCreateImageKHR"));
     m_egl_destroy_image = reinterpret_cast<PFNEGLDESTROYIMAGEKHRPROC>(eglGetProcAddress("eglDestroyImageKHR"));
     if (!m_egl_create_image || !m_egl_destroy_image) {
         qCWarning(qLcWaylandCompositorHardwareIntegration) << "Failed to initialize dmabuf server buffer integration. Could not resolve eglCreateImageKHR or eglDestroyImageKHR";
-        return;
+        return false;
     }
 
     m_gl_egl_image_target_texture_2d = reinterpret_cast<PFNGLEGLIMAGETARGETTEXTURE2DOESPROC>(eglGetProcAddress("glEGLImageTargetTexture2DOES"));
     if (!m_gl_egl_image_target_texture_2d) {
         qCWarning(qLcWaylandCompositorHardwareIntegration) << "Failed to initialize dmabuf server buffer integration. Could not find glEGLImageTargetTexture2DOES.";
-        return;
+        return false;
     }
 
     m_egl_export_dmabuf_image_query = reinterpret_cast<PFNEGLEXPORTDMABUFIMAGEQUERYMESAPROC>(eglGetProcAddress("eglExportDMABUFImageQueryMESA"));
     if (!m_egl_export_dmabuf_image_query) {
         qCWarning(qLcWaylandCompositorHardwareIntegration) << "Failed to initialize dmabuf server buffer integration. Could not find eglExportDMABUFImageQueryMESA.";
-        return;
+        return false;
     }
 
     m_egl_export_dmabuf_image = reinterpret_cast<PFNEGLEXPORTDMABUFIMAGEMESAPROC>(eglGetProcAddress("eglExportDMABUFImageMESA"));
     if (!m_egl_export_dmabuf_image) {
         qCWarning(qLcWaylandCompositorHardwareIntegration) << "Failed to initialize dmabuf server buffer integration. Could not find eglExportDMABUFImageMESA.";
-        return;
+        return false;
     }
 
     QtWaylandServer::qt_dmabuf_server_buffer::init(compositor->display(), 1);
+    return true;
 }
 
 bool DmaBufServerBufferIntegration::supportsFormat(QtWayland::ServerBuffer::Format format) const

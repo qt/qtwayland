@@ -65,7 +65,6 @@ public:
     ~DataDevice() override;
     void send_data_offer(::wl_resource *resource) = delete;
     DataOffer *sendDataOffer(::wl_client *client, const QStringList &mimeTypes = {});
-    DataOffer *sendDataOffer(const QStringList &mimeTypes = {});
 
     void send_selection(::wl_resource *resource) = delete;
     void sendSelection(DataOffer *offer);

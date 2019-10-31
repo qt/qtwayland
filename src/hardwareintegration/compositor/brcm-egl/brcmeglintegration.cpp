@@ -67,46 +67,48 @@ BrcmEglIntegration::BrcmEglIntegration()
 {
 }
 
-void BrcmEglIntegration::initializeHardware(struct ::wl_display *display)
+bool BrcmEglIntegration::initializeHardware(struct ::wl_display *display)
 {
     Q_D(BrcmEglIntegration);
 
     QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
-    if (nativeInterface) {
-        d->egl_display = nativeInterface->nativeResourceForIntegration("EglDisplay");
-        if (!d->egl_display)
-            qWarning("Failed to acquire EGL display from platform integration");
+    if (!nativeInterface)
+        return false;
 
-        d->eglQueryGlobalImageBRCM = (PFNEGLQUERYGLOBALIMAGEBRCMPROC) eglGetProcAddress("eglQueryGlobalImageBRCM");
+    d->egl_display = nativeInterface->nativeResourceForIntegration("EglDisplay");
+    if (!d->egl_display)
+        qWarning("Failed to acquire EGL display from platform integration");
 
-        if (!d->eglQueryGlobalImageBRCM) {
-            qWarning("Failed to resolve eglQueryGlobalImageBRCM");
-            return;
-        }
+    d->eglQueryGlobalImageBRCM = (PFNEGLQUERYGLOBALIMAGEBRCMPROC) eglGetProcAddress("eglQueryGlobalImageBRCM");
 
-        d->glEGLImageTargetTexture2DOES = (PFNGLEGLIMAGETARGETTEXTURE2DOESPROC)eglGetProcAddress("glEGLImageTargetTexture2DOES");
-
-        if (!d->glEGLImageTargetTexture2DOES) {
-            qWarning("Failed to resolve glEGLImageTargetTexture2DOES");
-            return;
-        }
-
-        d->eglCreateImageKHR = (PFNEGLCREATEIMAGEKHRPROC)eglGetProcAddress("eglCreateImageKHR");
-
-        if (!d->eglCreateImageKHR) {
-            qWarning("Failed to resolve eglCreateImageKHR");
-            return;
-        }
-
-        d->eglDestroyImageKHR = (PFNEGLDESTROYIMAGEKHRPROC)eglGetProcAddress("eglDestroyImageKHR");
-
-        if (!d->eglDestroyImageKHR) {
-            qWarning("Failed to resolve eglDestroyImageKHR");
-            return;
-        }
-        d->valid = true;
-        init(display, 1);
+    if (!d->eglQueryGlobalImageBRCM) {
+        qWarning("Failed to resolve eglQueryGlobalImageBRCM");
+        return false;
     }
+
+    d->glEGLImageTargetTexture2DOES = (PFNGLEGLIMAGETARGETTEXTURE2DOESPROC)eglGetProcAddress("glEGLImageTargetTexture2DOES");
+
+    if (!d->glEGLImageTargetTexture2DOES) {
+        qWarning("Failed to resolve glEGLImageTargetTexture2DOES");
+        return false;
+    }
+
+    d->eglCreateImageKHR = (PFNEGLCREATEIMAGEKHRPROC)eglGetProcAddress("eglCreateImageKHR");
+
+    if (!d->eglCreateImageKHR) {
+        qWarning("Failed to resolve eglCreateImageKHR");
+        return false;
+    }
+
+    d->eglDestroyImageKHR = (PFNEGLDESTROYIMAGEKHRPROC)eglGetProcAddress("eglDestroyImageKHR");
+
+    if (!d->eglDestroyImageKHR) {
+        qWarning("Failed to resolve eglDestroyImageKHR");
+        return false;
+    }
+    d->valid = true;
+    init(display, 1);
+    return true;
 }
 
 QtWayland::ClientBuffer *BrcmEglIntegration::createBufferFor(wl_resource *buffer)

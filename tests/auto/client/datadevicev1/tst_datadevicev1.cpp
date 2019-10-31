@@ -59,6 +59,7 @@ private slots:
     void pasteUtf8();
     void destroysPreviousSelection();
     void destroysSelectionWithSurface();
+    void destroysSelectionOnLeave();
     void dragWithoutFocus();
 };
 
@@ -213,6 +214,35 @@ void tst_datadevicev1::destroysSelectionWithSurface()
     window->destroy();
 
     QCOMPOSITOR_TRY_COMPARE(dataDevice()->m_sentSelectionOffers.size(), 0);
+}
+
+void tst_datadevicev1::destroysSelectionOnLeave()
+{
+    QRasterWindow window;
+    window.resize(64, 64);
+    window.show();
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+
+    exec([&] {
+        auto *offer = dataDevice()->sendDataOffer(client(), {"text/plain"});
+        dataDevice()->sendSelection(offer);
+
+        auto *surface = xdgSurface()->m_surface;
+        keyboard()->sendEnter(surface); // Need to set keyboard focus according to protocol
+    });
+
+    QTRY_VERIFY(QGuiApplication::clipboard()->mimeData(QClipboard::Clipboard));
+    QTRY_VERIFY(QGuiApplication::clipboard()->mimeData(QClipboard::Clipboard)->hasText());
+
+    QSignalSpy dataChangedSpy(QGuiApplication::clipboard(), &QClipboard::dataChanged);
+
+    exec([&] {
+        auto *surface = xdgSurface()->m_surface;
+        keyboard()->sendLeave(surface);
+    });
+
+    QTRY_COMPARE(dataChangedSpy.count(), 1);
+    QVERIFY(!QGuiApplication::clipboard()->mimeData(QClipboard::Clipboard)->hasText());
 }
 
 // The application should not crash if it attempts to start a drag operation

@@ -96,6 +96,15 @@ QWaylandPrimarySelectionDeviceV1::~QWaylandPrimarySelectionDeviceV1()
     destroy();
 }
 
+void QWaylandPrimarySelectionDeviceV1::invalidateSelectionOffer()
+{
+    if (!m_selectionOffer)
+        return;
+
+    m_selectionOffer.reset();
+    QGuiApplicationPrivate::platformIntegration()->clipboard()->emitChanged(QClipboard::Selection);
+}
+
 void QWaylandPrimarySelectionDeviceV1::setSelectionSource(QWaylandPrimarySelectionSourceV1 *source)
 {
     if (source) {

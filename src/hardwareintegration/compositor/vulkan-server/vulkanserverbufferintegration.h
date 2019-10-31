@@ -86,7 +86,7 @@ public:
 
     VulkanWrapper *vulkanWrapper() const { return m_vulkanWrapper; }
 
-    void initializeHardware(QWaylandCompositor *) override;
+    bool initializeHardware(QWaylandCompositor *) override;
 
     bool supportsFormat(QtWayland::ServerBuffer::Format format) const override;
     QtWayland::ServerBuffer *createServerBufferFromImage(const QImage &qimage, QtWayland::ServerBuffer::Format format) override;

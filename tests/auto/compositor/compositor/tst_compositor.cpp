@@ -121,10 +121,15 @@ private slots:
     void idleInhibit();
 
     void xdgOutput();
+
+private:
+    QTemporaryDir m_tmpRuntimeDir;
 };
 
 void tst_WaylandCompositor::init() {
-    qputenv("XDG_RUNTIME_DIR", ".");
+    // We need to set a test specific runtime dir so we don't conflict with other tests'
+    // compositors by accident.
+    qputenv("XDG_RUNTIME_DIR", m_tmpRuntimeDir.path().toLocal8Bit());
 }
 
 void tst_WaylandCompositor::singleClient()

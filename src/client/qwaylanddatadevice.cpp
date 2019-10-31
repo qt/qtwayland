@@ -81,7 +81,14 @@ QWaylandDataOffer *QWaylandDataDevice::selectionOffer() const
 
 void QWaylandDataDevice::invalidateSelectionOffer()
 {
+    if (m_selectionOffer.isNull())
+        return;
+
     m_selectionOffer.reset();
+
+#if QT_CONFIG(clipboard)
+    QGuiApplicationPrivate::platformIntegration()->clipboard()->emitChanged(QClipboard::Clipboard);
+#endif
 }
 
 QWaylandDataSource *QWaylandDataDevice::selectionSource() const

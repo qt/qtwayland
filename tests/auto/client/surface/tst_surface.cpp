@@ -42,7 +42,9 @@ private slots:
     void waitForFrameCallbackGl();
     void negotiateShmFormat();
 
+    // Subsurfaces
     void createSubsurface();
+    void createSubsurfaceForHiddenParent();
 };
 
 void tst_surface::createDestroySurface()
@@ -170,6 +172,27 @@ void tst_surface::createSubsurface()
     subWindow.resize(64, 64);
     subWindow.show();
     QCOMPOSITOR_TRY_VERIFY(subSurface());
+}
+
+// Used to cause a crash in libwayland (QTBUG-79674)
+void tst_surface::createSubsurfaceForHiddenParent()
+{
+    QRasterWindow window;
+    window.resize(64, 64);
+    window.show();
+    QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
+    exec([=] { xdgToplevel()->sendCompleteConfigure(); });
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface()->m_committedConfigureSerial);
+
+    window.hide();
+
+    QRasterWindow subWindow;
+    subWindow.setParent(&window);
+    subWindow.resize(64, 64);
+    subWindow.show();
+
+    // Make sure the client doesn't quit before it has a chance to crash
+    xdgPingAndWaitForPong();
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_surface)

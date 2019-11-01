@@ -41,6 +41,8 @@ private slots:
     void waitForFrameCallbackRaster();
     void waitForFrameCallbackGl();
     void negotiateShmFormat();
+
+    void createSubsurface();
 };
 
 void tst_surface::createDestroySurface()
@@ -152,6 +154,22 @@ void tst_surface::negotiateShmFormat()
         qDebug() << "shmBuffer->m_format" << shmBuffer->m_format;
         QCOMPARE(shmBuffer->m_format, Shm::format_xrgb8888);
     });
+}
+
+void tst_surface::createSubsurface()
+{
+    QRasterWindow window;
+    window.resize(64, 64);
+    window.show();
+    QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
+    exec([=] { xdgToplevel()->sendCompleteConfigure(); });
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface()->m_committedConfigureSerial);
+
+    QRasterWindow subWindow;
+    subWindow.setParent(&window);
+    subWindow.resize(64, 64);
+    subWindow.show();
+    QCOMPOSITOR_TRY_VERIFY(subSurface());
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_surface)

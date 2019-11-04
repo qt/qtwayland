@@ -1062,7 +1062,10 @@ void QWaylandInputDevice::handleTouchPoint(int id, Qt::TouchPointState state, co
         tp.area.moveCenter(globalPosition);
     }
 
-    tp.state = state;
+    // If the touch point was pressed earlier this frame, we don't want to overwrite its state.
+    if (tp.state != Qt::TouchPointPressed)
+        tp.state = state;
+
     tp.pressure = tp.state == Qt::TouchPointReleased ? 0 : 1;
 }
 

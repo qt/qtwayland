@@ -71,6 +71,7 @@ private slots:
     void singleTapFloat();
     void multiTouch();
     void multiTouchUpAndMotionFrame();
+    void tapAndMoveInSameFrame();
 };
 
 void tst_seatv5::bindsToSeat()
@@ -584,6 +585,38 @@ void tst_seatv5::multiTouchUpAndMotionFrame()
         QCOMPARE(e.touchPoints[0].state(), Qt::TouchPointState::TouchPointReleased);
     }
     QVERIFY(window.m_events.empty());
+}
+
+void tst_seatv5::tapAndMoveInSameFrame()
+{
+    TouchWindow window;
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+
+    exec([=] {
+        auto *t = touch();
+        auto *c = client();
+
+        t->sendDown(xdgToplevel()->surface(), {32, 32}, 0);
+        t->sendMotion(c, {33, 33}, 0);
+        t->sendFrame(c);
+
+        // Don't leave touch in a weird state
+        t->sendUp(c, 0);
+        t->sendFrame(c);
+    });
+
+    QTRY_VERIFY(!window.m_events.empty());
+    {
+        auto e = window.m_events.takeFirst();
+        QCOMPARE(e.type, QEvent::TouchBegin);
+        QCOMPARE(e.touchPoints.size(), 1);
+        QCOMPARE(e.touchPoints[0].state(), Qt::TouchPointState::TouchPointPressed);
+        // Position isn't that important, we just want to make sure we actually get the pressed event
+    }
+
+    // Make sure we eventually release
+    QTRY_VERIFY(!window.m_events.empty());
+    QTRY_COMPARE(window.m_events.last().touchPoints.first().state(), Qt::TouchPointState::TouchPointReleased);
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_seatv5)

@@ -4,6 +4,7 @@
         "qtwayland-compositor": [
             "**/*compositor*",
             "**/*Compositor*/**/*",
+            "**/*Compositor*",
             "**/wayland-graphics-integration-server/*",
             "**/wayland-hardware-layer-integration/*"
         ]

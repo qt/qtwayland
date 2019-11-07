@@ -58,13 +58,10 @@ DefaultCompositor::DefaultCompositor()
             });
         });
 
-        QObject::connect(get<XdgWmBase>(), &XdgWmBase::toplevelCreated, [&] (XdgToplevel *toplevel) {
-            // Needed because lambdas don't support Qt::DirectConnection
-            exec([&]{
-                if (m_config.autoConfigure)
-                    toplevel->sendCompleteConfigure();
-            });
-        });
+        QObject::connect(get<XdgWmBase>(), &XdgWmBase::toplevelCreated, get<XdgWmBase>(), [&] (XdgToplevel *toplevel) {
+            if (m_config.autoConfigure)
+                toplevel->sendCompleteConfigure();
+        }, Qt::DirectConnection);
     }
     Q_ASSERT(isClean());
 }

@@ -184,6 +184,7 @@ private slots:
     void glWindow();
 #endif // QT_CONFIG(opengl)
     void longWindowTitle();
+    void longWindowTitleWithUtf16Characters();
 
 private:
     MockCompositor *compositor = nullptr;
@@ -502,9 +503,20 @@ void tst_WaylandClient::longWindowTitle()
     QTRY_VERIFY(compositor->surface());
 }
 
+void tst_WaylandClient::longWindowTitleWithUtf16Characters()
+{
+    QWindow window;
+    QString absurdlyLongTitle = QString("三").repeated(10000);
+    Q_ASSERT(absurdlyLongTitle.length() == 10000); // just making sure the test isn't broken
+    window.setTitle(absurdlyLongTitle);
+    window.show();
+    QTRY_VERIFY(compositor->surface());
+}
+
 int main(int argc, char **argv)
 {
-    setenv("XDG_RUNTIME_DIR", ".", 1);
+    QTemporaryDir tmpRuntimeDir;
+    setenv("XDG_RUNTIME_DIR", tmpRuntimeDir.path().toLocal8Bit(), 1);
     setenv("QT_QPA_PLATFORM", "wayland", 1); // force QGuiApplication to use wayland plugin
 
     MockCompositor compositor;

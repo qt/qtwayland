@@ -5,7 +5,7 @@
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:GPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -14,24 +14,14 @@
 ** and conditions see https://www.qt.io/terms-conditions. For further
 ** information use the contact form at https://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
-**
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or (at your option) the GNU General
-** Public license version 3 or any later version approved by the KDE Free
-** Qt Foundation. The licenses are as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** General Public License version 3 or (at your option) any later version
+** approved by the KDE Free Qt Foundation. The licenses are as published by
+** the Free Software Foundation and appearing in the file LICENSE.GPL3
 ** included in the packaging of this file. Please review the following
 ** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-2.0.html and
-** https://www.gnu.org/licenses/gpl-3.0.html.
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -184,7 +174,6 @@ public:
     void deleteOrphanedTextures();
 
     EGLDisplay egl_display = EGL_NO_DISPLAY;
-    bool valid = false;
     bool display_bound = false;
     ::wl_display *wlDisplay = nullptr;
     QOffscreenSurface *offscreenSurface = nullptr;
@@ -231,7 +220,8 @@ void WaylandEglClientBufferIntegrationPrivate::initEglTexture(WaylandEglClientBu
         gl_egl_image_target_texture_2d = reinterpret_cast<PFNGLEGLIMAGETARGETTEXTURE2DOESPROC>(eglGetProcAddress("glEGLImageTargetTexture2DOES"));
 
     if (!gl_egl_image_target_texture_2d) {
-        qWarning("QtCompositor: bindTextureToBuffer() failed. Could not find glEGLImageTargetTexture2DOES.");
+        qCWarning(qLcWaylandCompositorHardwareIntegration)
+                << "BindTextureToBuffer() failed. Could not find glEGLImageTargetTexture2DOES.";
         return;
     }
 
@@ -276,8 +266,10 @@ void WaylandEglClientBufferIntegrationPrivate::initEglTexture(WaylandEglClientBu
                                              buffer->waylandBufferHandle(),
                                              attribs);
 
-        if (image == EGL_NO_IMAGE_KHR)
-            qWarning("failed to create EGL image for plane %d", i);
+        if (image == EGL_NO_IMAGE_KHR) {
+            qCWarning(qLcWaylandCompositorHardwareIntegration)
+                    << "Failed to create EGL image for plane" << i;
+        }
 
         state.egl_images << image;
         state.textures[i] = nullptr;
@@ -326,13 +318,14 @@ bool WaylandEglClientBufferIntegrationPrivate::initEglStream(WaylandEglClientBuf
     }
 
     if (state.egl_stream == EGL_NO_STREAM_KHR) {
-        qWarning("%s:%d: eglCreateStreamFromFileDescriptorKHR failed: 0x%x", Q_FUNC_INFO, __LINE__, eglGetError());
+        qCWarning(qLcWaylandCompositorHardwareIntegration, "%s:%d: eglCreateStreamFromFileDescriptorKHR failed: 0x%x", Q_FUNC_INFO, __LINE__, eglGetError());
         return false;
     }
     state.eglMode = BufferState::ModeEGLStream;
 
     if (!QOpenGLContext::currentContext()) {
-        qWarning("EglClientBufferIntegration: creating texture with no current context");
+        qCWarning(qLcWaylandCompositorHardwareIntegration)
+                << "EglClientBufferIntegration: creating texture with no current context";
         return false;
     }
 
@@ -345,7 +338,7 @@ bool WaylandEglClientBufferIntegrationPrivate::initEglStream(WaylandEglClientBuf
     auto newStream = funcs->stream_consumer_gltexture(egl_display, state.egl_stream);
     if (!newStream) {
         EGLint code = eglGetError();
-        qWarning() << "Could not initialize EGLStream:" << egl_error_string(code) << Qt::hex << (long)code;
+        qCWarning(qLcWaylandCompositorHardwareIntegration) << "Could not initialize EGLStream:" << egl_error_string(code) << Qt::hex << (long)code;
         funcs->destroy_stream(egl_display, state.egl_stream);
         state.egl_stream = EGL_NO_STREAM_KHR;
         return false;
@@ -373,7 +366,9 @@ void WaylandEglClientBufferIntegrationPrivate::handleEglstreamTexture(WaylandEgl
 
     if (stream_state == EGL_STREAM_STATE_NEW_FRAME_AVAILABLE_KHR) {
         if (funcs->stream_consumer_acquire(egl_display, state.egl_stream) != EGL_TRUE)
-            qWarning("%s:%d: eglStreamConsumerAcquireKHR failed: 0x%x", Q_FUNC_INFO, __LINE__, eglGetError());
+            qCWarning(qLcWaylandCompositorHardwareIntegration,
+                      "%s:%d: eglStreamConsumerAcquireKHR failed: 0x%x", Q_FUNC_INFO, __LINE__,
+                      eglGetError());
     }
 
     if (usingLocalContext)
@@ -399,11 +394,11 @@ WaylandEglClientBufferIntegration::~WaylandEglClientBufferIntegration()
     if (d->egl_unbind_wayland_display && d->display_bound) {
         Q_ASSERT(d->wlDisplay);
         if (!d->egl_unbind_wayland_display(d->egl_display, d->wlDisplay))
-            qWarning() << "Qt Wayland Compositor: eglUnbindWaylandDisplayWL failed";
+            qCWarning(qLcWaylandCompositorHardwareIntegration) << "eglUnbindWaylandDisplayWL failed";
     }
 }
 
-void WaylandEglClientBufferIntegration::initializeHardware(struct wl_display *display)
+bool WaylandEglClientBufferIntegration::initializeHardware(struct wl_display *display)
 {
     Q_D(WaylandEglClientBufferIntegration);
 
@@ -411,50 +406,57 @@ void WaylandEglClientBufferIntegration::initializeHardware(struct wl_display *di
 
     QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
     if (!nativeInterface) {
-        qWarning("QtCompositor: Failed to initialize EGL display. No native platform interface available.");
-        return;
+        qCWarning(qLcWaylandCompositorHardwareIntegration)
+                << "Failed to initialize EGL display. No native platform interface available.";
+        return false;
     }
 
     d->egl_display = nativeInterface->nativeResourceForIntegration("EglDisplay");
     if (!d->egl_display) {
-        qWarning("QtCompositor: Failed to initialize EGL display. Could not get EglDisplay for window.");
-        return;
+        qCWarning(qLcWaylandCompositorHardwareIntegration)
+                << "Failed to initialize EGL display. Could not get EglDisplay for window.";
+        return false;
     }
 
     const char *extensionString = eglQueryString(d->egl_display, EGL_EXTENSIONS);
     if ((!extensionString || !strstr(extensionString, "EGL_WL_bind_wayland_display")) && !ignoreBindDisplay) {
-        qWarning("QtCompositor: Failed to initialize EGL display. There is no EGL_WL_bind_wayland_display extension.");
-        return;
+        qCWarning(qLcWaylandCompositorHardwareIntegration)
+                << "Failed to initialize EGL display. There is no EGL_WL_bind_wayland_display extension.";
+        return false;
     }
 
     d->egl_bind_wayland_display = reinterpret_cast<PFNEGLBINDWAYLANDDISPLAYWL>(eglGetProcAddress("eglBindWaylandDisplayWL"));
     d->egl_unbind_wayland_display = reinterpret_cast<PFNEGLUNBINDWAYLANDDISPLAYWL>(eglGetProcAddress("eglUnbindWaylandDisplayWL"));
     if ((!d->egl_bind_wayland_display || !d->egl_unbind_wayland_display) && !ignoreBindDisplay) {
-        qWarning("QtCompositor: Failed to initialize EGL display. Could not find eglBindWaylandDisplayWL and eglUnbindWaylandDisplayWL.");
-        return;
+        qCWarning(qLcWaylandCompositorHardwareIntegration)
+                << "Failed to initialize EGL display. Could not find eglBindWaylandDisplayWL and eglUnbindWaylandDisplayWL.";
+        return false;
     }
 
     d->egl_query_wayland_buffer = reinterpret_cast<PFNEGLQUERYWAYLANDBUFFERWL_compat>(eglGetProcAddress("eglQueryWaylandBufferWL"));
     if (!d->egl_query_wayland_buffer) {
-        qWarning("QtCompositor: Failed to initialize EGL display. Could not find eglQueryWaylandBufferWL.");
-        return;
+        qCWarning(qLcWaylandCompositorHardwareIntegration)
+                << "Failed to initialize EGL display. Could not find eglQueryWaylandBufferWL.";
+        return false;
     }
 
     d->egl_create_image = reinterpret_cast<PFNEGLCREATEIMAGEKHRPROC>(eglGetProcAddress("eglCreateImageKHR"));
     d->egl_destroy_image = reinterpret_cast<PFNEGLDESTROYIMAGEKHRPROC>(eglGetProcAddress("eglDestroyImageKHR"));
     if (!d->egl_create_image || !d->egl_destroy_image) {
-        qWarning("QtCompositor: Failed to initialize EGL display. Could not find eglCreateImageKHR and eglDestroyImageKHR.");
-        return;
+        qCWarning(qLcWaylandCompositorHardwareIntegration)
+                << "Failed to initialize EGL display. Could not find eglCreateImageKHR and eglDestroyImageKHR.";
+        return false;
     }
 
     if (d->egl_bind_wayland_display && d->egl_unbind_wayland_display) {
         d->display_bound = d->egl_bind_wayland_display(d->egl_display, display);
         if (!d->display_bound) {
             if (!ignoreBindDisplay) {
-                qWarning("QtCompositor: Failed to initialize EGL display. Could not bind Wayland display.");
-                return;
+                qCWarning(qLcWaylandCompositorHardwareIntegration)
+                        << "Failed to initialize EGL display. Could not bind Wayland display.";
+                return false;
             } else {
-                qWarning("QtCompositor: Could not bind Wayland display. Ignoring.");
+                qCWarning(qLcWaylandCompositorHardwareIntegration) << "Could not bind Wayland display. Ignoring.";
             }
         }
         d->wlDisplay = display;
@@ -463,7 +465,7 @@ void WaylandEglClientBufferIntegration::initializeHardware(struct wl_display *di
     d->funcs = new QEGLStreamConvenience;
     d->funcs->initialize(d->egl_display);
 
-    d->valid = true;
+    return true;
 }
 
 QtWayland::ClientBuffer *WaylandEglClientBufferIntegration::createBufferFor(wl_resource *buffer)

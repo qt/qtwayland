@@ -5,7 +5,7 @@
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:GPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -14,24 +14,14 @@
 ** and conditions see https://www.qt.io/terms-conditions. For further
 ** information use the contact form at https://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
-**
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or (at your option) the GNU General
-** Public license version 3 or any later version approved by the KDE Free
-** Qt Foundation. The licenses are as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** General Public License version 3 or (at your option) any later version
+** approved by the KDE Free Qt Foundation. The licenses are as published by
+** the Free Software Foundation and appearing in the file LICENSE.GPL3
 ** included in the packaging of this file. Please review the following
 ** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-2.0.html and
-** https://www.gnu.org/licenses/gpl-3.0.html.
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -80,16 +70,19 @@ XCompositeGLXClientBufferIntegration::~XCompositeGLXClientBufferIntegration()
     delete mHandler;
 }
 
-void XCompositeGLXClientBufferIntegration::initializeHardware(struct ::wl_display *)
+bool XCompositeGLXClientBufferIntegration::initializeHardware(struct ::wl_display *)
 {
     qDebug() << "Initializing GLX integration";
     QPlatformNativeInterface *nativeInterface = QGuiApplicationPrivate::platformIntegration()->nativeInterface();
     if (nativeInterface) {
         mDisplay = static_cast<Display *>(nativeInterface->nativeResourceForIntegration("Display"));
-        if (!mDisplay)
-            qFatal("could not retrieve Display from platform integration");
+        if (!mDisplay) {
+            qCWarning(qLcWaylandCompositorHardwareIntegration) << "could not retrieve Display from platform integration";
+            return false;
+        }
     } else {
-        qFatal("Platform integration doesn't have native interface");
+        qCWarning(qLcWaylandCompositorHardwareIntegration) << "Platform integration doesn't have native interface";
+        return false;
     }
     mScreen = XDefaultScreen(mDisplay);
 
@@ -100,7 +93,8 @@ void XCompositeGLXClientBufferIntegration::initializeHardware(struct ::wl_displa
 
     m_glxBindTexImageEXT = reinterpret_cast<PFNGLXBINDTEXIMAGEEXTPROC>(glContext->getProcAddress("glXBindTexImageEXT"));
     if (!m_glxBindTexImageEXT) {
-        qDebug() << "Did not find glxBindTexImageExt, everything will FAIL!";
+        qCWarning(qLcWaylandCompositorHardwareIntegration) << "Did not find glxBindTexImageExt, everything will FAIL!";
+        return false;
     }
     m_glxReleaseTexImageEXT = reinterpret_cast<PFNGLXRELEASETEXIMAGEEXTPROC>(glContext->getProcAddress("glXReleaseTexImageEXT"));
     if (!m_glxReleaseTexImageEXT) {
@@ -108,6 +102,7 @@ void XCompositeGLXClientBufferIntegration::initializeHardware(struct ::wl_displa
     }
 
     delete glContext;
+    return true;
 }
 
 QtWayland::ClientBuffer *XCompositeGLXClientBufferIntegration::createBufferFor(wl_resource *buffer)

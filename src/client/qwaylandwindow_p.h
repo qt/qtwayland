@@ -89,7 +89,8 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandWindow : public QObject, public QPlatformW
 public:
     enum WindowType {
         Shm,
-        Egl
+        Egl,
+        Vulkan
     };
 
     QWaylandWindow(QWindow *window);
@@ -229,7 +230,6 @@ protected:
 
     // True when we have called deliverRequestUpdate, but the client has not yet attached a new buffer
     bool mWaitingForUpdate = false;
-    int mFallbackUpdateTimerId = -1; // Started when waiting for app to commit
 
     QMutex mResizeLock;
     bool mWaitingToApplyConfigure = false;

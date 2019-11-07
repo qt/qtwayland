@@ -51,6 +51,9 @@
 #include <QtGui/private/qguiapplication_p.h>
 #include <QtGui/QScreen>
 #include <QtWaylandClient/private/qwaylandclientbufferintegration_p.h>
+#if QT_CONFIG(vulkan)
+#include <QtWaylandClient/private/qwaylandvulkanwindow_p.h>
+#endif
 
 #include <QtPlatformHeaders/qwaylandwindowfunctions.h>
 
@@ -116,6 +119,15 @@ void *QWaylandNativeInterface::nativeResourceForWindow(const QByteArray &resourc
 
     if (lowerCaseResource == "egldisplay" && m_integration->clientBufferIntegration())
         return m_integration->clientBufferIntegration()->nativeResource(QWaylandClientBufferIntegration::EglDisplay);
+
+#if QT_CONFIG(vulkan)
+    if (lowerCaseResource == "vksurface") {
+        if (window->surfaceType() == QSurface::VulkanSurface && window->handle()) {
+            // return a pointer to the VkSurfaceKHR value, not the value itself
+            return static_cast<QWaylandVulkanWindow *>(window->handle())->surface();
+        }
+    }
+#endif
 
     if (auto shellIntegration = m_integration->shellIntegration())
         return shellIntegration->nativeResourceForWindow(resourceString, window);

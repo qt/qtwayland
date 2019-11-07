@@ -6,7 +6,7 @@
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:GPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -15,24 +15,14 @@
 ** and conditions see https://www.qt.io/terms-conditions. For further
 ** information use the contact form at https://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
-**
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or (at your option) the GNU General
-** Public license version 3 or any later version approved by the KDE Free
-** Qt Foundation. The licenses are as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** General Public License version 3 or (at your option) any later version
+** approved by the KDE Free Qt Foundation. The licenses are as published by
+** the Free Software Foundation and appearing in the file LICENSE.GPL3
 ** included in the packaging of this file. Please review the following
 ** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-2.0.html and
-** https://www.gnu.org/licenses/gpl-3.0.html.
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -206,11 +196,11 @@ void QWaylandCompositorPrivate::init()
 
     if (!socket_name.isEmpty()) {
         if (wl_display_add_socket(display, socket_name.constData()))
-            qFatal("Fatal: Failed to open server socket\n");
+            qFatal("Fatal: Failed to open server socket: \"%s\". XDG_RUNTIME_DIR is: \"%s\"\n", socket_name.constData(), getenv("XDG_RUNTIME_DIR"));
     } else {
         const char *autoSocketName = wl_display_add_socket_auto(display);
         if (!autoSocketName)
-            qFatal("Fatal: Failed to open server socket\n");
+            qFatal("Fatal: Failed to open default server socket. XDG_RUNTIME_DIR is: \"%s\"\n", getenv("XDG_RUNTIME_DIR"));
         socket_name = autoSocketName;
         emit q->socketNameChanged(socket_name);
     }
@@ -375,11 +365,6 @@ void QWaylandCompositorPrivate::initializeHardwareIntegration()
 
     loadClientBufferIntegration();
     loadServerBufferIntegration();
-
-    if (client_buffer_integration)
-        client_buffer_integration->initializeHardware(display);
-    if (server_buffer_integration)
-        server_buffer_integration->initializeHardware(q);
 #endif
 }
 
@@ -409,18 +394,39 @@ void QWaylandCompositorPrivate::loadClientBufferIntegration()
     if (!targetKey.isEmpty()) {
         client_buffer_integration.reset(QtWayland::ClientBufferIntegrationFactory::create(targetKey, QStringList()));
         if (client_buffer_integration) {
+            qCDebug(qLcWaylandCompositorHardwareIntegration) << "Loaded client buffer integration:" << targetKey;
             client_buffer_integration->setCompositor(q);
-            if (hw_integration)
-                hw_integration->setClientBufferIntegration(targetKey);
+            if (!client_buffer_integration->initializeHardware(display)) {
+                qCWarning(qLcWaylandCompositorHardwareIntegration)
+                        << "Failed to initialize hardware for client buffer integration:" << targetKey;
+                client_buffer_integration.reset();
+            }
+        } else {
+            qCWarning(qLcWaylandCompositorHardwareIntegration)
+                    << "Failed to load client buffer integration:" << targetKey;
         }
     }
-    //BUG: if there is no client buffer integration, bad things will happen when opengl is used
+
+    if (!client_buffer_integration) {
+        qCWarning(qLcWaylandCompositorHardwareIntegration)
+                << "No client buffer integration was loaded, this means that clients will fall back"
+                << "to use CPU buffers (wl_shm) for transmitting buffers instead of using zero-copy"
+                << "GPU buffer handles. Expect serious performance impact with OpenGL clients due"
+                << "to potentially multiple copies between CPU and GPU memory per buffer.\n"
+                << "See the QtWayland readme for more info about how to build and configure Qt for"
+                << "your device.";
+        return;
+    }
+
+    if (client_buffer_integration && hw_integration)
+        hw_integration->setClientBufferIntegration(targetKey);
 #endif
 }
 
 void QWaylandCompositorPrivate::loadServerBufferIntegration()
 {
 #if QT_CONFIG(opengl)
+    Q_Q(QWaylandCompositor);
     QStringList keys = QtWayland::ServerBufferIntegrationFactory::keys();
     QString targetKey;
     QByteArray serverBufferIntegration = qgetenv("QT_WAYLAND_SERVER_BUFFER_INTEGRATION");
@@ -429,9 +435,22 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
     }
     if (!targetKey.isEmpty()) {
         server_buffer_integration.reset(QtWayland::ServerBufferIntegrationFactory::create(targetKey, QStringList()));
-        if (hw_integration)
-            hw_integration->setServerBufferIntegration(targetKey);
+        if (server_buffer_integration) {
+            qCDebug(qLcWaylandCompositorHardwareIntegration)
+                    << "Loaded server buffer integration:" << targetKey;
+            if (!server_buffer_integration->initializeHardware(q)) {
+                qCWarning(qLcWaylandCompositorHardwareIntegration)
+                        << "Failed to initialize hardware for server buffer integration:" << targetKey;
+                server_buffer_integration.reset();
+            }
+        } else {
+            qCWarning(qLcWaylandCompositorHardwareIntegration)
+                    << "Failed to load server buffer integration:" << targetKey;
+        }
     }
+
+    if (server_buffer_integration && hw_integration)
+        hw_integration->setServerBufferIntegration(targetKey);
 #endif
 }
 

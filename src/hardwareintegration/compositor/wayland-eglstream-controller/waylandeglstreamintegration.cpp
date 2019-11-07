@@ -5,7 +5,7 @@
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
 **
-** $QT_BEGIN_LICENSE:LGPL$
+** $QT_BEGIN_LICENSE:GPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -14,24 +14,14 @@
 ** and conditions see https://www.qt.io/terms-conditions. For further
 ** information use the contact form at https://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
-**
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or (at your option) the GNU General
-** Public license version 3 or any later version approved by the KDE Free
-** Qt Foundation. The licenses are as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
+** General Public License version 3 or (at your option) any later version
+** approved by the KDE Free Qt Foundation. The licenses are as published by
+** the Free Software Foundation and appearing in the file LICENSE.GPL3
 ** included in the packaging of this file. Please review the following
 ** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-2.0.html and
-** https://www.gnu.org/licenses/gpl-3.0.html.
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -308,7 +298,7 @@ void WaylandEglStreamClientBufferIntegration::attachEglStreamConsumer(struct ::w
     d->initEglStream(clientBuffer, wl_buffer);
 }
 
-void WaylandEglStreamClientBufferIntegration::initializeHardware(struct wl_display *display)
+bool WaylandEglStreamClientBufferIntegration::initializeHardware(struct wl_display *display)
 {
     Q_D(WaylandEglStreamClientBufferIntegration);
 
@@ -317,32 +307,32 @@ void WaylandEglStreamClientBufferIntegration::initializeHardware(struct wl_displ
     QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
     if (!nativeInterface) {
         qWarning("QtCompositor: Failed to initialize EGL display. No native platform interface available.");
-        return;
+        return false;
     }
 
     d->egl_display = nativeInterface->nativeResourceForIntegration("EglDisplay");
     if (!d->egl_display) {
         qWarning("QtCompositor: Failed to initialize EGL display. Could not get EglDisplay for window.");
-        return;
+        return false;
     }
 
     const char *extensionString = eglQueryString(d->egl_display, EGL_EXTENSIONS);
     if ((!extensionString || !strstr(extensionString, "EGL_WL_bind_wayland_display")) && !ignoreBindDisplay) {
         qWarning("QtCompositor: Failed to initialize EGL display. There is no EGL_WL_bind_wayland_display extension.");
-        return;
+        return false;
     }
 
     d->egl_bind_wayland_display = reinterpret_cast<PFNEGLBINDWAYLANDDISPLAYWL>(eglGetProcAddress("eglBindWaylandDisplayWL"));
     d->egl_unbind_wayland_display = reinterpret_cast<PFNEGLUNBINDWAYLANDDISPLAYWL>(eglGetProcAddress("eglUnbindWaylandDisplayWL"));
     if ((!d->egl_bind_wayland_display || !d->egl_unbind_wayland_display) && !ignoreBindDisplay) {
         qWarning("QtCompositor: Failed to initialize EGL display. Could not find eglBindWaylandDisplayWL and eglUnbindWaylandDisplayWL.");
-        return;
+        return false;
     }
 
     d->egl_query_wayland_buffer = reinterpret_cast<PFNEGLQUERYWAYLANDBUFFERWL_compat>(eglGetProcAddress("eglQueryWaylandBufferWL"));
     if (!d->egl_query_wayland_buffer) {
         qWarning("QtCompositor: Failed to initialize EGL display. Could not find eglQueryWaylandBufferWL.");
-        return;
+        return false;
     }
 
     if (d->egl_bind_wayland_display && d->egl_unbind_wayland_display) {
@@ -350,7 +340,7 @@ void WaylandEglStreamClientBufferIntegration::initializeHardware(struct wl_displ
         if (!d->display_bound) {
             if (!ignoreBindDisplay) {
                 qWarning("QtCompositor: Failed to initialize EGL display. Could not bind Wayland display.");
-                return;
+                return false;
             } else {
                 qWarning("QtCompositor: Could not bind Wayland display. Ignoring.");
             }
@@ -361,6 +351,12 @@ void WaylandEglStreamClientBufferIntegration::initializeHardware(struct wl_displ
 
     d->funcs = new QEGLStreamConvenience;
     d->funcs->initialize(d->egl_display);
+    if (!d->funcs->initialized) {
+        qWarning(qLcWaylandCompositorHardwareIntegration) << "Failed to initialize eglstreams API";
+        return false;
+    }
+
+    return true;
 }
 
 QtWayland::ClientBuffer *WaylandEglStreamClientBufferIntegration::createBufferFor(wl_resource *buffer)

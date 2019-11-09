@@ -164,6 +164,16 @@ protected:
     }
 };
 
+class Subsurface : public QObject, public QtWaylandServer::wl_subsurface
+{
+    Q_OBJECT
+public:
+    explicit Subsurface(wl_client *client, int id, int version)
+        : QtWaylandServer::wl_subsurface(client, id, version)
+    {
+    }
+};
+
 class SubCompositor : public Global, public QtWaylandServer::wl_subcompositor
 {
     Q_OBJECT
@@ -171,7 +181,20 @@ public:
     explicit SubCompositor(CoreCompositor *compositor, int version = 1)
         : QtWaylandServer::wl_subcompositor(compositor->m_display, version)
     {}
-    // TODO
+    QVector<Subsurface *> m_subsurfaces;
+
+signals:
+    void subsurfaceCreated(Subsurface *subsurface);
+
+protected:
+    void subcompositor_get_subsurface(Resource *resource, uint32_t id, ::wl_resource *surface, ::wl_resource *parent) override
+    {
+        QTRY_VERIFY(parent);
+        QTRY_VERIFY(surface);
+        auto *subsurface = new Subsurface(resource->client(), id, resource->version());
+        m_subsurfaces.append(subsurface); // TODO: clean up?
+        emit subsurfaceCreated(subsurface);
+    }
 };
 
 struct OutputMode {

@@ -56,6 +56,7 @@ public:
     // Convenience functions
     Output *output(int i = 0) { return getAll<Output>().value(i, nullptr); }
     Surface *surface(int i = 0) { return get<WlCompositor>()->m_surfaces.value(i, nullptr); }
+    Subsurface *subSurface(int i = 0) { return get<SubCompositor>()->m_subsurfaces.value(i, nullptr); }
     XdgSurface *xdgSurface(int i = 0) { return get<XdgWmBase>()->m_xdgSurfaces.value(i, nullptr); }
     XdgToplevel *xdgToplevel(int i = 0) { return get<XdgWmBase>()->toplevel(i); }
     XdgPopup *xdgPopup(int i = 0) { return get<XdgWmBase>()->popup(i); }

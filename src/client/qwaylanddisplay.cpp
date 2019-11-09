@@ -114,6 +114,10 @@ struct ::wl_region *QWaylandDisplay::createRegion(const QRegion &qregion)
         return nullptr;
     }
 
+    // Make sure we don't pass NULL surfaces to libwayland (crashes)
+    Q_ASSERT(parent->wlSurface());
+    Q_ASSERT(window->wlSurface());
+
     return mSubCompositor->get_subsurface(window->wlSurface(), parent->wlSurface());
 }
 

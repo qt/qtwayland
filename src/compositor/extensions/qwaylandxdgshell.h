@@ -153,7 +153,12 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgToplevel : public QObject
     Q_PROPERTY(bool fullscreen READ fullscreen NOTIFY fullscreenChanged)
     Q_PROPERTY(bool resizing READ resizing NOTIFY resizingChanged)
     Q_PROPERTY(bool activated READ activated NOTIFY activatedChanged)
+// QDoc fails to parse the property type that includes the keyword 'enum'
+#ifndef Q_CLANG_QDOC
     Q_PROPERTY(enum DecorationMode decorationMode READ decorationMode NOTIFY decorationModeChanged)
+#else
+    Q_PROPERTY(DecorationMode decorationMode READ decorationMode NOTIFY decorationModeChanged)
+#endif
 public:
     enum State : uint {
         MaximizedState  = 1,

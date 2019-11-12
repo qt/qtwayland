@@ -64,7 +64,7 @@
  * \fn QWaylandQuickShellIntegration *QWaylandShellSurface::createIntegration(QWaylandQuickShellSurfaceItem *item)
  *
  * Creates a QWaylandQuickShellIntegration for this QWaylandQuickShellSurface. It's called
- * automatically when QWaylandQuickShellSurfaceItem::shellSurface is assigned.
+ * automatically when \a {item}'s \l {QWaylandQuickShellSurfaceItem::}{shellSurface} is assigned.
  *
  * \sa QWaylandQuickShellSurfaceItem
  */

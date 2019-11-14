@@ -912,7 +912,7 @@ void QWaylandInputDevice::Touch::touch_cancel()
 void QWaylandInputDevice::handleTouchPoint(int id, Qt::TouchPointState state, const QPointF &surfacePosition)
 {
     auto end = mTouch->mPendingTouchPoints.end();
-    auto it = std::find_if(mTouch->mPendingTouchPoints.begin(), end, [id](auto tp){ return tp.id == id; });
+    auto it = std::find_if(mTouch->mPendingTouchPoints.begin(), end, [id](const QWindowSystemInterface::TouchPoint &tp){ return tp.id == id; });
     if (it == end) {
         it = mTouch->mPendingTouchPoints.insert(end, QWindowSystemInterface::TouchPoint());
         it->id = id;

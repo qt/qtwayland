@@ -216,3 +216,6 @@ qt_add_docs(WaylandCompositor
     doc/qtwaylandcompositor.qdocconf
 )
 
+# special case begin
+qt_record_extra_qt_package_dependency(WaylandCompositor WaylandScannerTools "")
+# special case end

@@ -146,3 +146,7 @@ qt_extend_target(WaylandClient CONDITION QT_FEATURE_draganddrop
     SOURCES
         qwaylanddnd.cpp qwaylanddnd_p.h
 )
+
+# special case begin
+qt_record_extra_qt_package_dependency(WaylandClient WaylandScannerTools "")
+# special case end

@@ -1,6 +1,6 @@
 INCLUDEPATH += $$PWD
 
-QMAKE_USE_PRIVATE += egl wayland-server
+QMAKE_USE_PRIVATE += egl drm wayland-server
 
 SOURCES += \
     $$PWD/dmabufserverbufferintegration.cpp

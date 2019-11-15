@@ -80,13 +80,13 @@
             "label": "Linux dma-buf Buffer Sharing",
             "type": "compile",
             "test": "dmabuf_server_buffer",
-            "use": "egl"
+            "use": "egl drm"
         },
         "dmabuf-client-buffer": {
             "label": "Linux Client dma-buf Buffer Sharing",
             "type": "compile",
             "test": "dmabuf_client_buffer",
-            "use": "egl"
+            "use": "egl drm"
         },
         "vulkan-server-buffer": {
             "label": "Vulkan Buffer Sharing",

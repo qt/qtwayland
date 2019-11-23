@@ -47,7 +47,7 @@ QT_BEGIN_NAMESPACE
  * \qmltype XdgOutputManagerV1
  * \inqmlmodule QtWayland.Compositor
  * \since 5.14
- * \brief Provides an extension for describing outputs in a desktop oriented fashion
+ * \brief Provides an extension for describing outputs in a desktop oriented fashion.
  *
  * The XdgOutputManagerV1 extension provides a way for a compositor to describe outputs in a way
  * that is more in line with the concept of an output on desktop oriented systems.
@@ -104,7 +104,7 @@ QT_BEGIN_NAMESPACE
  * \class QWaylandXdgOutputManagerV1
  * \inmodule QtWaylandCompositor
  * \since 5.14
- * \brief Provides an extension for describing outputs in a desktop oriented fashion
+ * \brief Provides an extension for describing outputs in a desktop oriented fashion.
  *
  * The QWaylandXdgOutputManagerV1 extension provides a way for a compositor to describe outputs in a way
  * that is more in line with the concept of an output on desktop oriented systems.

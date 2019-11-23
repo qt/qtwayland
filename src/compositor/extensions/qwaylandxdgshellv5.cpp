@@ -591,7 +591,7 @@ QByteArray QWaylandXdgShellV5::interfaceName()
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::XdgShellV5::ping()
+ * \qmlmethod void QtWaylandCompositor::XdgShellV5::ping(WaylandClient client)
  *
  * Sends a ping event to the \a client. If the client replies to the event, the
  * pong signal will be emitted.
@@ -784,10 +784,47 @@ void QWaylandXdgShellV5::handleFocusChanged(QWaylandSurface *newSurface, QWaylan
  */
 
 /*!
+    \enum QWaylandXdgSurfaceV5::ResizeEdge
+
+    \value NoneEdge
+           No edge defined.
+    \value TopEdge
+           Top egde.
+    \value BottomEdge
+           Bottom edge.
+    \value LeftEdge
+           Left edge.
+    \value TopLeftEdge
+           Top-left edge.
+    \value BottomLeftEdge
+           Bottom-left edge.
+    \value RightEdge
+           Right edge.
+    \value TopRightEdge
+           Top-right edge.
+    \value BottomRightEdge
+           Bottom-right edge.
+ */
+
+/*!
+ * \fn QWaylandXdgSurfaceV5::setTopLevel()
+ *
+ * This signal is emitted when the parent surface is unset, effectively
+ * making the window top level.
+ */
+
+/*!
  * \qmlsignal QtWaylandCompositor::XdgSurfaceV5::setTopLevel()
  *
  * This signal is emitted when the parent surface is unset, effectively
  * making the window top level.
+ */
+
+/*!
+ * \fn QWaylandXdgSurfaceV5::setTransient()
+ *
+ * This signal is emitted when the parent surface is set, effectively
+ * making the window transient.
  */
 
 /*!

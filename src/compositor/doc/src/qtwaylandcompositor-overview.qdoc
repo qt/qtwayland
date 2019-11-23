@@ -54,7 +54,7 @@
   Communication (IPC). Qt provides the APIs that can be used to develop the
   remaining parts of an application manager in other modules. The
   \l {https://www.qt.io/qt-automotive-suite/}{Qt Automotive Suite} provides
-  \l{Qt Application Manager}, which is a complete application manager that
+  \l{https://doc.qt.io/QtApplicationManager}{Qt Application Manager}, which is a complete application manager that
   includes a compositor developed using Qt Wayland Compositor.
 
   For more information on Wayland, see \l{Wayland and Qt}.

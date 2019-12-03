@@ -75,7 +75,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandCursorTheme
 public:
     static QWaylandCursorTheme *create(QWaylandShm *shm, int size, const QString &themeName);
     ~QWaylandCursorTheme();
-    ::wl_cursor_image *cursorImage(Qt::CursorShape shape, uint millisecondsIntoAnimation = 0);
+    ::wl_cursor *cursor(Qt::CursorShape shape);
 
 private:
     enum WaylandCursor {
@@ -129,7 +129,6 @@ public:
     void setPos(const QPoint &pos) override;
 
     static QSharedPointer<QWaylandBuffer> cursorBitmapBuffer(QWaylandDisplay *display, const QCursor *cursor);
-    struct wl_cursor_image *cursorImage(Qt::CursorShape shape);
 
 private:
     QWaylandDisplay *mDisplay = nullptr;

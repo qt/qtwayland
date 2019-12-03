@@ -283,8 +283,8 @@ void QWaylandInputDevice::Pointer::updateCursorTheme()
     if (!mCursor.theme)
         return; // A warning has already been printed in loadCursorTheme
 
-    if (auto *arrow = mCursor.theme->cursorImage(Qt::ArrowCursor)) {
-        int arrowPixelSize = qMax(arrow->width, arrow->height); // Not all cursor themes are square
+    if (auto *arrow = mCursor.theme->cursor(Qt::ArrowCursor)) {
+        int arrowPixelSize = qMax(arrow->images[0]->width, arrow->images[0]->height); // Not all cursor themes are square
         while (scale > 1 && arrowPixelSize / scale < cursorSize())
             --scale;
     } else {
@@ -326,12 +326,20 @@ void QWaylandInputDevice::Pointer::updateCursor()
 
     // Set from shape using theme
     uint time = seat()->mCursor.animationTimer.elapsed();
-    if (struct ::wl_cursor_image *image = mCursor.theme->cursorImage(shape, time)) {
+
+    if (struct ::wl_cursor *waylandCursor = mCursor.theme->cursor(shape)) {
+        int frame = wl_cursor_frame(waylandCursor, time);
+        ::wl_cursor_image *image = waylandCursor->images[frame];
+
         struct wl_buffer *buffer = wl_cursor_image_get_buffer(image);
+        if (!buffer) {
+            qCWarning(lcQpaWayland) << "Could not find buffer for cursor" << shape;
+            return;
+        }
         int bufferScale = mCursor.themeBufferScale;
         QPoint hotspot = QPoint(image->hotspot_x, image->hotspot_y) / bufferScale;
         QSize size = QSize(image->width, image->height) / bufferScale;
-        bool animated = image->delay > 0;
+        bool animated = waylandCursor->image_count > 1 && image->delay > 0;
         getOrCreateCursorSurface()->update(buffer, hotspot, size, bufferScale, animated);
         return;
     }

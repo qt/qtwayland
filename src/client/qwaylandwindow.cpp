@@ -424,8 +424,7 @@ void QWaylandWindow::setVisible(bool visible)
         // QWaylandShmBackingStore::beginPaint().
     } else {
         sendExposeEvent(QRect());
-        if (window()->type() == Qt::Popup)
-            closePopups(this);
+        closePopups(this);
         reset();
     }
 }

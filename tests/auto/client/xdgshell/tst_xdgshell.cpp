@@ -219,8 +219,8 @@ void tst_xdgshell::popup()
         p->sendFrame(c);
         uint serial = p->sendButton(client(), BTN_LEFT, Pointer::button_state_pressed);
         p->sendButton(c, BTN_LEFT, Pointer::button_state_released);
-        return serial;
         p->sendFrame(c);
+        return serial;
     });
 
     QTRY_VERIFY(window.m_popup);

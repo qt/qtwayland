@@ -88,7 +88,7 @@ QWaylandInputDevice::Keyboard::Keyboard(QWaylandInputDevice *p)
             // or the server didn't send an enter event first.
             return;
         }
-        mRepeatTimer.setInterval(mRepeatRate);
+        mRepeatTimer.setInterval(1000 / mRepeatRate);
         handleKey(mRepeatKey.time, QEvent::KeyRelease, mRepeatKey.key, mRepeatKey.modifiers,
                   mRepeatKey.code, mRepeatKey.nativeVirtualKey, mRepeatKey.nativeModifiers,
                   mRepeatKey.text, true);

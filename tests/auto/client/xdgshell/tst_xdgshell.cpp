@@ -46,6 +46,7 @@ private slots:
     void popup();
     void tooltipOnPopup();
     void switchPopups();
+    void hidePopupParent();
     void pongs();
     void minMaxSize();
     void windowGeometry();
@@ -219,8 +220,8 @@ void tst_xdgshell::popup()
         p->sendFrame(c);
         uint serial = p->sendButton(client(), BTN_LEFT, Pointer::button_state_pressed);
         p->sendButton(c, BTN_LEFT, Pointer::button_state_released);
-        return serial;
         p->sendFrame(c);
+        return serial;
     });
 
     QTRY_VERIFY(window.m_popup);
@@ -427,6 +428,50 @@ void tst_xdgshell::switchPopups()
     // For good measure just check that configuring works as usual
     exec([=] { xdgPopup()->sendCompleteConfigure(QRect(100, 100, 100, 100)); });
     QCOMPOSITOR_TRY_VERIFY(xdgPopup()->m_xdgSurface->m_committedConfigureSerial);
+}
+
+void tst_xdgshell::hidePopupParent()
+{
+    class Window : public QRasterWindow {
+    public:
+        void mousePressEvent(QMouseEvent *event) override
+        {
+            QRasterWindow::mousePressEvent(event);
+            m_popup.reset(new QRasterWindow);
+            m_popup->setTransientParent(this);
+            m_popup->setFlags(Qt::Popup);
+            m_popup->resize(100, 100);
+            m_popup->show();
+        }
+        QScopedPointer<QRasterWindow> m_popup;
+    };
+    Window window;
+    window.resize(200, 200);
+    window.show();
+
+    QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
+    exec([=] { xdgToplevel()->sendCompleteConfigure(); });
+    QCOMPOSITOR_TRY_VERIFY(xdgToplevel()->m_xdgSurface->m_committedConfigureSerial);
+
+    exec([=] {
+        auto *surface = xdgToplevel()->surface();
+        auto *p = pointer();
+        auto *c = client();
+        p->sendEnter(surface, {100, 100});
+        p->sendFrame(c);
+        p->sendButton(c, BTN_LEFT, Pointer::button_state_pressed);
+        p->sendButton(c, BTN_LEFT, Pointer::button_state_released);
+        p->sendFrame(c);
+    });
+    QCOMPOSITOR_TRY_VERIFY(xdgPopup());
+    exec([=] {
+        xdgPopup()->sendConfigure(QRect(100, 100, 100, 100));
+        xdgPopup()->m_xdgSurface->sendConfigure();
+    });
+    QCOMPOSITOR_TRY_VERIFY(xdgPopup()->m_xdgSurface->m_committedConfigureSerial);
+
+    window.hide();
+    QCOMPOSITOR_TRY_VERIFY(!xdgToplevel());
 }
 
 void tst_xdgshell::pongs()

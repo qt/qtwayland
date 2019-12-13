@@ -286,6 +286,8 @@ public:
     int idealCursorScale() const;
     void updateCursorTheme();
     void updateCursor();
+    void cursorTimerCallback();
+    void cursorFrameCallback();
     CursorSurface *getOrCreateCursorSurface();
 #endif
     QWaylandInputDevice *seat() const { return mParent; }
@@ -325,6 +327,9 @@ public:
         QWaylandCursorTheme *theme = nullptr;
         int themeBufferScale = 0;
         QScopedPointer<CursorSurface> surface;
+        QTimer frameTimer;
+        bool gotFrameCallback = false;
+        bool gotTimerCallback = false;
     } mCursor;
 #endif
     QPointF mSurfacePos;

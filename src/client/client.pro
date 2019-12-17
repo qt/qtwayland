@@ -36,6 +36,7 @@ WAYLANDCLIENTSOURCES += \
             ../extensions/qt-key-unstable-v1.xml \
             ../extensions/qt-windowmanager.xml \
             ../3rdparty/protocol/wp-primary-selection-unstable-v1.xml \
+            ../3rdparty/protocol/tablet-unstable-v2.xml \
             ../3rdparty/protocol/text-input-unstable-v2.xml \
             ../3rdparty/protocol/xdg-output-unstable-v1.xml \
             ../3rdparty/protocol/wayland.xml
@@ -52,6 +53,7 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandextendedsurface.cpp \
             qwaylandsubsurface.cpp \
             qwaylandsurface.cpp \
+            qwaylandtabletv2.cpp \
             qwaylandtouch.cpp \
             qwaylandqtkey.cpp \
             ../shared/qwaylandmimehelper.cpp \
@@ -77,6 +79,7 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylandextendedsurface_p.h \
             qwaylandsubsurface_p.h \
             qwaylandsurface_p.h \
+            qwaylandtabletv2_p.h \
             qwaylandtouch_p.h \
             qwaylandqtkey_p.h \
             qwaylandabstractdecoration_p.h \

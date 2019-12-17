@@ -50,6 +50,7 @@
 #if QT_CONFIG(wayland_client_primary_selection)
 #include "qwaylandprimaryselectionv1_p.h"
 #endif
+#include "qwaylandtabletv2_p.h"
 #include "qwaylandtouch_p.h"
 #include "qwaylandscreen_p.h"
 #include "qwaylandcursor_p.h"
@@ -418,6 +419,8 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, 
     if (mQDisplay->textInputManager())
         mTextInput.reset(new QWaylandTextInput(mQDisplay, mQDisplay->textInputManager()->get_text_input(wl_seat())));
 
+    if (auto *tm = mQDisplay->tabletManager())
+        mTabletSeat.reset(new QWaylandTabletSeatV2(tm, this));
 }
 
 QWaylandInputDevice::~QWaylandInputDevice()

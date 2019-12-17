@@ -11,6 +11,7 @@ SUBDIRS += \
     seatv4 \
     seatv5 \
     surface \
+    tabletv2 \
     wl_connect \
     xdgdecorationv1 \
     xdgoutput \

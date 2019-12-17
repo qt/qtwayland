@@ -425,6 +425,8 @@ void QWaylandIntegration::initializeShellIntegration()
         qCWarning(lcQpaWayland) << "Loading shell integration failed.";
         qCWarning(lcQpaWayland) << "Attempted to load the following shells" << preferredShells;
     }
+
+    QWindowSystemInterfacePrivate::TabletEvent::setPlatformSynthesizesMouse(false);
 }
 
 QWaylandInputDevice *QWaylandIntegration::createInputDevice(QWaylandDisplay *display, int version, uint32_t id)

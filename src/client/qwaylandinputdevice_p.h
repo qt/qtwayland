@@ -89,6 +89,7 @@ class QWaylandDisplay;
 #if QT_CONFIG(wayland_client_primary_selection)
 class QWaylandPrimarySelectionDeviceV1;
 #endif
+class QWaylandTabletSeatV2;
 class QWaylandTextInput;
 #if QT_CONFIG(cursor)
 class QWaylandCursorTheme;
@@ -126,6 +127,9 @@ public:
     void setPrimarySelectionDevice(QWaylandPrimarySelectionDeviceV1 *primarySelectionDevice);
     QWaylandPrimarySelectionDeviceV1 *primarySelectionDevice() const;
 #endif
+
+    void setTabletSeat(QWaylandTabletSeatV2 *tabletSeat);
+    QWaylandTabletSeatV2* tabletSeat() const;
 
     void setTextInput(QWaylandTextInput *textInput);
     QWaylandTextInput *textInput() const;
@@ -183,6 +187,7 @@ private:
     Touch *mTouch = nullptr;
 
     QScopedPointer<QWaylandTextInput> mTextInput;
+    QScopedPointer<QWaylandTabletSeatV2> mTabletSeat;
 
     uint32_t mTime = 0;
     uint32_t mSerial = 0;

@@ -129,6 +129,7 @@ public:
     QMargins frameMargins() const override;
     QSize surfaceSize() const;
     QRect windowContentGeometry() const;
+    QPointF mapFromWlSurface(const QPointF &surfacePosition) const;
 
     QWaylandSurface *waylandSurface() const { return mSurface.data(); }
     ::wl_surface *wlSurface();

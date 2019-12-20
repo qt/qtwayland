@@ -672,6 +672,19 @@ QRect QWaylandWindow::windowContentGeometry() const
     return QRect(QPoint(), surfaceSize());
 }
 
+/*!
+ * Converts from wl_surface coordinates to Qt window coordinates. Qt window
+ * coordinates start inside (not including) the window decorations, while
+ * wl_surface coordinates start at the first pixel of the buffer. Potentially,
+ * this should be in the window shadow, although we don't have those. So for
+ * now, it's the first pixel of the decorations.
+ */
+QPointF QWaylandWindow::mapFromWlSurface(const QPointF &surfacePosition) const
+{
+    const QMargins margins = frameMargins();
+    return QPointF(surfacePosition.x() - margins.left(), surfacePosition.y() - margins.top());
+}
+
 wl_surface *QWaylandWindow::wlSurface()
 {
     return mSurface ? mSurface->object() : nullptr;
@@ -922,10 +935,8 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
                      geometry().size().width() - marg.right(),
                      geometry().size().height() - marg.bottom());
     if (windowRect.contains(e.local.toPoint()) || mMousePressedInContentArea != Qt::NoButton) {
-        QPointF localTranslated = e.local;
+        const QPointF localTranslated = mapFromWlSurface(e.local);
         QPointF globalTranslated = e.global;
-        localTranslated.setX(localTranslated.x() - marg.left());
-        localTranslated.setY(localTranslated.y() - marg.top());
         globalTranslated.setX(globalTranslated.x() - marg.left());
         globalTranslated.setY(globalTranslated.y() - marg.top());
         if (!mMouseEventsInContentArea) {

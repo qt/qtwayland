@@ -1408,8 +1408,7 @@ void QWaylandInputDevice::handleTouchPoint(int id, Qt::TouchPointState state, co
             return;
 
         tp.area = QRectF(0, 0, 8, 8);
-        QMargins margins = win->frameMargins();
-        QPointF localPosition = surfacePosition - QPointF(margins.left(), margins.top());
+        QPointF localPosition = win->mapFromWlSurface(surfacePosition);
         // TODO: This doesn't account for high dpi scaling for the delta, but at least it matches
         // what we have for mouse input.
         QPointF delta = localPosition - localPosition.toPoint();

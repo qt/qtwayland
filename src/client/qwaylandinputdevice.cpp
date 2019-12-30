@@ -88,7 +88,7 @@ QWaylandInputDevice::Keyboard::Keyboard(QWaylandInputDevice *p)
             // or the server didn't send an enter event first.
             return;
         }
-        mRepeatTimer.setInterval(mRepeatRate);
+        mRepeatTimer.setInterval(1000 / mRepeatRate);
         handleKey(mRepeatKey.time, QEvent::KeyRelease, mRepeatKey.key, mRepeatKey.modifiers,
                   mRepeatKey.code, mRepeatKey.nativeVirtualKey, mRepeatKey.nativeModifiers,
                   mRepeatKey.text, true);
@@ -143,6 +143,12 @@ QWaylandWindow *QWaylandInputDevice::Keyboard::focusWindow() const
 QWaylandInputDevice::Pointer::Pointer(QWaylandInputDevice *seat)
     : mParent(seat)
 {
+#if QT_CONFIG(cursor)
+    mCursor.frameTimer.setSingleShot(true);
+    mCursor.frameTimer.callOnTimeout([&]() {
+        cursorTimerCallback();
+    });
+#endif
 }
 
 QWaylandInputDevice::Pointer::~Pointer()
@@ -224,7 +230,7 @@ public:
         if (animated) {
             m_frameCallback.reset(new WlCallback(frame(), [this](uint32_t time){
                Q_UNUSED(time);
-               m_pointer->updateCursor();
+               m_pointer->cursorFrameCallback();
             }));
         }
         commit();
@@ -328,7 +334,8 @@ void QWaylandInputDevice::Pointer::updateCursor()
     uint time = seat()->mCursor.animationTimer.elapsed();
 
     if (struct ::wl_cursor *waylandCursor = mCursor.theme->cursor(shape)) {
-        int frame = wl_cursor_frame(waylandCursor, time);
+        uint duration = 0;
+        int frame = wl_cursor_frame_and_duration(waylandCursor, time, &duration);
         ::wl_cursor_image *image = waylandCursor->images[frame];
 
         struct wl_buffer *buffer = wl_cursor_image_get_buffer(image);
@@ -339,7 +346,12 @@ void QWaylandInputDevice::Pointer::updateCursor()
         int bufferScale = mCursor.themeBufferScale;
         QPoint hotspot = QPoint(image->hotspot_x, image->hotspot_y) / bufferScale;
         QSize size = QSize(image->width, image->height) / bufferScale;
-        bool animated = waylandCursor->image_count > 1 && image->delay > 0;
+        bool animated = duration > 0;
+        if (animated) {
+            mCursor.gotFrameCallback = false;
+            mCursor.gotTimerCallback = false;
+            mCursor.frameTimer.start(duration);
+        }
         getOrCreateCursorSurface()->update(buffer, hotspot, size, bufferScale, animated);
         return;
     }
@@ -352,6 +364,22 @@ CursorSurface *QWaylandInputDevice::Pointer::getOrCreateCursorSurface()
     if (!mCursor.surface)
         mCursor.surface.reset(new CursorSurface(this, seat()->mQDisplay));
     return mCursor.surface.get();
+}
+
+void QWaylandInputDevice::Pointer::cursorTimerCallback()
+{
+    mCursor.gotTimerCallback = true;
+    if (mCursor.gotFrameCallback) {
+        updateCursor();
+    }
+}
+
+void QWaylandInputDevice::Pointer::cursorFrameCallback()
+{
+    mCursor.gotFrameCallback = true;
+    if (mCursor.gotTimerCallback) {
+        updateCursor();
+    }
 }
 
 #endif // QT_CONFIG(cursor)

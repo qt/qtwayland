@@ -1006,6 +1006,8 @@ bool QWaylandInputDevice::Pointer::FrameData::hasPixelDelta() const
     case axis_source_finger:
     case axis_source_continuous:
         return !delta.isNull();
+    default:
+        return false;
     }
 }
 

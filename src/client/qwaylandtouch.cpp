@@ -165,7 +165,7 @@ void QWaylandTouchExtension::sendTouchEvent()
 
     QWindowSystemInterface::handleTouchEvent(mTargetWindow, mTimestamp, mTouchDevice, mTouchPoints);
 
-    Qt::TouchPointStates states = 0;
+    Qt::TouchPointStates states = {};
     for (int i = 0; i < mTouchPoints.count(); ++i)
         states |= mTouchPoints.at(i).state;
 

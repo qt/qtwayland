@@ -74,7 +74,7 @@ static const struct {
     QSGMaterialType materialType;
 } bufferTypes[] = {
     // BufferFormatEgl_Null
-    { "", "", 0, 0, false, 0, {} },
+    { "", "", 0, 0, false, {}, {} },
 
     // BufferFormatEgl_RGB
     {

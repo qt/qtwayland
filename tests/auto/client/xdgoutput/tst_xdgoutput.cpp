@@ -26,70 +26,14 @@
 **
 ****************************************************************************/
 
+#include "xdgoutputv1.h"
 #include "mockcompositor.h"
+
 #include <QtGui/QRasterWindow>
 #include <QtGui/QOpenGLWindow>
 #include <QtGui/QScreen>
 
-#include <qwayland-server-xdg-output-unstable-v1.h>
-
 using namespace MockCompositor;
-
-// TODO: move to shared folder?
-class XdgOutputV1 : public QObject, public QtWaylandServer::zxdg_output_v1
-{
-public:
-    explicit XdgOutputV1(Output *output)
-        : m_output(output)
-        , m_logicalGeometry(m_output->m_data.position, QSize(m_output->m_data.mode.resolution / m_output->m_data.scale))
-        , m_name(QString("WL-%1").arg(s_nextId++))
-    {}
-
-    void addResource(wl_client *client, int id, int version)
-    {
-        auto *resource = add(client, id, version)->handle;
-        send_logical_size(resource, m_logicalGeometry.width(), m_logicalGeometry.height());
-        send_logical_position(resource, m_logicalGeometry.x(), m_logicalGeometry.y());
-        if (version >= ZXDG_OUTPUT_V1_NAME_SINCE_VERSION)
-            send_name(resource, m_name);
-        if (version >= ZXDG_OUTPUT_V1_DESCRIPTION_SINCE_VERSION)
-            send_description(resource, m_description);
-        send_done(resource);
-    }
-    Output *m_output = nullptr;
-    QRect m_logicalGeometry;
-    QString m_name;
-    QString m_description = "This is an Xdg Output description";
-    static int s_nextId;
-};
-
-int XdgOutputV1::s_nextId = 1;
-
-class XdgOutputManagerV1 : public Global, public QtWaylandServer::zxdg_output_manager_v1
-{
-    Q_OBJECT
-public:
-    explicit XdgOutputManagerV1(CoreCompositor *compositor, int version = 2)
-        : QtWaylandServer::zxdg_output_manager_v1(compositor->m_display, version)
-        , m_version(version)
-    {}
-    int m_version = 1; // TODO: remove on libwayland upgrade
-    QMap<Output *, XdgOutputV1 *> m_xdgOutputs;
-    XdgOutputV1 *getXdgOutput(Output *output)
-    {
-        if (auto *xdgOutput = m_xdgOutputs.value(output))
-            return xdgOutput;
-        return m_xdgOutputs[output] = new XdgOutputV1(output); // TODO: free memory
-    }
-
-protected:
-    void zxdg_output_manager_v1_get_xdg_output(Resource *resource, uint32_t id, wl_resource *outputResource) override
-    {
-        auto *output = fromResource<Output>(outputResource);
-        auto *xdgOutput = getXdgOutput(output);
-        xdgOutput->addResource(resource->client(), id, resource->version());
-    }
-};
 
 class XdgOutputV1Compositor : public DefaultCompositor {
 public:

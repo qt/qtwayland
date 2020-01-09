@@ -72,8 +72,12 @@ QWaylandSurface *QWaylandSurface::fromWlSurface(::wl_surface *surface)
 
 void QWaylandSurface::handleScreenRemoved(QScreen *qScreen)
 {
-    auto *screen = static_cast<QWaylandScreen *>(qScreen->handle());
-    if (m_screens.removeOne(screen))
+    auto *platformScreen = qScreen->handle();
+    if (platformScreen->isPlaceholder())
+        return;
+
+    auto *waylandScreen = static_cast<QWaylandScreen *>(qScreen->handle());
+    if (m_screens.removeOne(waylandScreen))
         emit screensChanged();
 }
 

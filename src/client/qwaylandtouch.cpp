@@ -165,22 +165,28 @@ void QWaylandTouchExtension::sendTouchEvent()
 
     QWindowSystemInterface::handleTouchEvent(mTargetWindow, mTimestamp, mTouchDevice, mTouchPoints);
 
-    Qt::TouchPointStates states = 0;
+    Qt::TouchPointStates states = {};
     for (int i = 0; i < mTouchPoints.count(); ++i)
         states |= mTouchPoints.at(i).state;
 
     if (mFlags & QT_TOUCH_EXTENSION_FLAGS_MOUSE_FROM_TOUCH) {
-        if (states == Qt::TouchPointPressed)
+        const bool firstPress = states == Qt::TouchPointPressed;
+        if (firstPress)
             mMouseSourceId = mTouchPoints.first().id;
         for (int i = 0; i < mTouchPoints.count(); ++i) {
             const QWindowSystemInterface::TouchPoint &tp(mTouchPoints.at(i));
             if (tp.id == mMouseSourceId) {
-                Qt::MouseButtons buttons = tp.state == Qt::TouchPointReleased ? Qt::NoButton : Qt::LeftButton;
+                const bool released = tp.state == Qt::TouchPointReleased;
+                Qt::MouseButtons buttons = released ? Qt::NoButton : Qt::LeftButton;
+                QEvent::Type eventType = firstPress ? QEvent::MouseButtonPress
+                                                    : released ? QEvent::MouseButtonRelease
+                                                               : QEvent::MouseMove;
                 mLastMouseGlobal = tp.area.center();
                 QPoint globalPoint = mLastMouseGlobal.toPoint();
                 QPointF delta = mLastMouseGlobal - globalPoint;
                 mLastMouseLocal = mTargetWindow->mapFromGlobal(globalPoint) + delta;
-                QWindowSystemInterface::handleMouseEvent(mTargetWindow, mTimestamp, mLastMouseLocal, mLastMouseGlobal, buttons);
+                QWindowSystemInterface::handleMouseEvent(mTargetWindow, mTimestamp, mLastMouseLocal, mLastMouseGlobal,
+                                                         buttons, Qt::LeftButton, eventType);
                 if (buttons == Qt::NoButton)
                     mMouseSourceId = -1;
                 break;
@@ -200,7 +206,7 @@ void QWaylandTouchExtension::touchCanceled()
     mTouchPoints.clear();
     mPrevTouchPoints.clear();
     if (mMouseSourceId != -1)
-        QWindowSystemInterface::handleMouseEvent(mTargetWindow, mTimestamp, mLastMouseLocal, mLastMouseGlobal, Qt::NoButton);
+        QWindowSystemInterface::handleMouseEvent(mTargetWindow, mTimestamp, mLastMouseLocal, mLastMouseGlobal, Qt::NoButton, Qt::LeftButton, QEvent::MouseButtonRelease);
 }
 
 void QWaylandTouchExtension::touch_extension_configure(uint32_t flags)

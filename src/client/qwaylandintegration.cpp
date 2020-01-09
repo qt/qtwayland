@@ -165,10 +165,10 @@ QPlatformWindow *QWaylandIntegration::createPlatformWindow(QWindow *window) cons
 
 #if QT_CONFIG(vulkan)
     if (window->surfaceType() == QSurface::VulkanSurface)
-        return new QWaylandVulkanWindow(window);
+        return new QWaylandVulkanWindow(window, mDisplay.data());
 #endif // QT_CONFIG(vulkan)
 
-    return new QWaylandShmWindow(window);
+    return new QWaylandShmWindow(window, mDisplay.data());
 }
 
 #if QT_CONFIG(opengl)
@@ -182,7 +182,7 @@ QPlatformOpenGLContext *QWaylandIntegration::createPlatformOpenGLContext(QOpenGL
 
 QPlatformBackingStore *QWaylandIntegration::createPlatformBackingStore(QWindow *window) const
 {
-    return new QWaylandShmBackingStore(window);
+    return new QWaylandShmBackingStore(window, mDisplay.data());
 }
 
 QAbstractEventDispatcher *QWaylandIntegration::createEventDispatcher() const
@@ -200,10 +200,8 @@ void QWaylandIntegration::initialize()
     QSocketNotifier *sn = new QSocketNotifier(fd, QSocketNotifier::Read, mDisplay.data());
     QObject::connect(sn, SIGNAL(activated(int)), mDisplay.data(), SLOT(flushRequests()));
 
-    if (mDisplay->screens().isEmpty()) {
-        qWarning() << "Running on a compositor with no screens is not supported";
-        ::exit(EXIT_FAILURE);
-    }
+    // Qt does not support running with no screens
+    mDisplay->ensureScreen();
 }
 
 QPlatformFontDatabase *QWaylandIntegration::fontDatabase() const
@@ -427,6 +425,8 @@ void QWaylandIntegration::initializeShellIntegration()
         qCWarning(lcQpaWayland) << "Loading shell integration failed.";
         qCWarning(lcQpaWayland) << "Attempted to load the following shells" << preferredShells;
     }
+
+    QWindowSystemInterfacePrivate::TabletEvent::setPlatformSynthesizesMouse(false);
 }
 
 QWaylandInputDevice *QWaylandIntegration::createInputDevice(QWaylandDisplay *display, int version, uint32_t id)

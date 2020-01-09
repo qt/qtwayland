@@ -88,7 +88,7 @@ private:
 class Q_WAYLAND_CLIENT_EXPORT QWaylandShmBackingStore : public QPlatformBackingStore
 {
 public:
-    QWaylandShmBackingStore(QWindow *window);
+    QWaylandShmBackingStore(QWindow *window, QWaylandDisplay *display);
     ~QWaylandShmBackingStore() override;
 
     QPaintDevice *paintDevice() override;

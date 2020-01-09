@@ -165,11 +165,18 @@ QList<QPlatformScreen *> QWaylandScreen::virtualSiblings() const
 {
     QList<QPlatformScreen *> list;
     const QList<QWaylandScreen*> screens = mWaylandDisplay->screens();
-    list.reserve(screens.count());
+    auto *placeholder = mWaylandDisplay->placeholderScreen();
+
+    list.reserve(screens.count() + (placeholder ? 1 : 0));
+
     for (QWaylandScreen *screen : qAsConst(screens)) {
         if (screen->screen())
             list << screen;
     }
+
+    if (placeholder)
+        list << placeholder;
+
     return list;
 }
 
@@ -210,9 +217,11 @@ QPlatformCursor *QWaylandScreen::cursor() const
 }
 #endif // QT_CONFIG(cursor)
 
-QWaylandScreen * QWaylandScreen::waylandScreenFromWindow(QWindow *window)
+QWaylandScreen *QWaylandScreen::waylandScreenFromWindow(QWindow *window)
 {
     QPlatformScreen *platformScreen = QPlatformScreen::platformScreenForWindow(window);
+    if (platformScreen->isPlaceholder())
+        return nullptr;
     return static_cast<QWaylandScreen *>(platformScreen);
 }
 

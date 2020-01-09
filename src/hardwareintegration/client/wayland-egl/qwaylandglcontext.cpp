@@ -312,7 +312,7 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *dis
 
     // Create an EGL context for the decorations blitter. By using a dedicated context we don't need to make sure to not
     // change the context state and we also use OpenGL ES 2 API independently to what the app is using to draw.
-    QVector<EGLint> eglDecorationsContextAttrs = { EGL_CONTEXT_CLIENT_VERSION, 1, EGL_NONE };
+    QVector<EGLint> eglDecorationsContextAttrs = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
     m_decorationsContext = eglCreateContext(m_eglDisplay, m_config, m_context, eglDecorationsContextAttrs.constData());
     if (m_decorationsContext == EGL_NO_CONTEXT)
         qWarning("QWaylandGLContext: Failed to create the decorations EGLContext. Decorations will not be drawn.");

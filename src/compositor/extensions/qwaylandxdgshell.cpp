@@ -1725,7 +1725,7 @@ Qt::Orientations QWaylandXdgPopup::slideConstraints() const
     Q_D(const QWaylandXdgPopup);
     const uint flags = d->m_positionerData.constraintAdjustments;
 
-    Qt::Orientations constraints = 0;
+    Qt::Orientations constraints = {};
 
     if (flags & XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_SLIDE_X)
         constraints |= Qt::Horizontal;
@@ -1755,7 +1755,7 @@ Qt::Orientations QWaylandXdgPopup::flipConstraints() const
     Q_D(const QWaylandXdgPopup);
     const uint flags = d->m_positionerData.constraintAdjustments;
 
-    Qt::Orientations constraints = 0;
+    Qt::Orientations constraints = {};
 
     if (flags & XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_FLIP_X)
         constraints |= Qt::Horizontal;
@@ -1785,7 +1785,7 @@ Qt::Orientations QWaylandXdgPopup::resizeConstraints() const
     Q_D(const QWaylandXdgPopup);
     const uint flags = d->m_positionerData.constraintAdjustments;
 
-    Qt::Orientations constraints = 0;
+    Qt::Orientations constraints = {};
 
     if (flags & XDG_POSITIONER_CONSTRAINT_ADJUSTMENT_RESIZE_X)
         constraints |= Qt::Horizontal;

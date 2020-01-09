@@ -74,7 +74,7 @@ static const struct {
     QSGMaterialType materialType;
 } bufferTypes[] = {
     // BufferFormatEgl_Null
-    { "", "", 0, 0, false, 0, {} },
+    { "", "", 0, 0, false, {}, {} },
 
     // BufferFormatEgl_RGB
     {
@@ -289,8 +289,9 @@ public:
                 }
 
                 auto texture = buffer.toOpenGLTexture();
+                GLuint textureId = texture->textureId();
                 auto size = surface->bufferSize();
-                m_sgTex = surfaceItem->window()->createTextureFromId(texture->textureId(), size, opt);
+                m_sgTex = surfaceItem->window()->createTextureFromNativeObject(QQuickWindow::NativeObjectTexture, &textureId, 0, size, opt);
 #else
                 qCWarning(qLcWaylandCompositor) << "Without OpenGL support only shared memory textures are supported";
 #endif
@@ -1136,9 +1137,11 @@ QVariant QWaylandQuickItem::inputMethodQuery(Qt::InputMethodQuery query, QVarian
 */
 
 /*!
-    Returns true if the item is hidden, though the texture
+    \property QWaylandQuickItem::paintEnabled
+
+    Holds \c true if the item is hidden, though the texture
     is still updated. As opposed to hiding the item by
-    setting \l{Item::visible}{visible} to \c false, setting this property to \c false
+    setting \l{QQuickItem::}{visible} to \c false, setting this property to \c false
     will not prevent mouse or keyboard input from reaching item.
 */
 bool QWaylandQuickItem::paintEnabled() const
@@ -1154,6 +1157,19 @@ void QWaylandQuickItem::setPaintEnabled(bool enabled)
     update();
 }
 
+/*!
+    \qmlproperty  bool QtWaylandCompositor::WaylandQuickItem::touchEventsEnabled
+
+    This property holds \c true if touch events are forwarded to the client
+    surface, \c false otherwise.
+*/
+
+/*!
+    \property QWaylandQuickItem::touchEventsEnabled
+
+    This property holds \c true if touch events are forwarded to the client
+    surface, \c false otherwise.
+*/
 bool QWaylandQuickItem::touchEventsEnabled() const
 {
     Q_D(const QWaylandQuickItem);

@@ -149,12 +149,15 @@
                     "#endif"
                 ]
             },
-            "use": "egl"
+            "use": "egl drm"
         },
         "vulkan-server-buffer": {
             "label": "Vulkan Buffer Sharing",
             "type": "compile",
             "test": {
+                "head": [
+                    "#define VK_USE_PLATFORM_WAYLAND_KHR 1"
+                ],
                 "include": [
                     "vulkan/vulkan.h"
                 ],
@@ -250,7 +253,7 @@
         },
         "wayland-vulkan-server-buffer": {
             "label": "Vulkan-based server buffer integration",
-            "condition": "features.wayland-client && features.opengl && features.egl && tests.vulkan-server-buffer",
+            "condition": "features.wayland-client && features.vulkan && features.opengl && features.egl && tests.vulkan-server-buffer",
             "output": [ "privateFeature" ]
         },
         "wayland-shm-emulation-server-buffer": {

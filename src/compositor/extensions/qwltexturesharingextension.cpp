@@ -301,13 +301,13 @@ QString QWaylandTextureSharingExtension::getExistingFilePath(const QString &key)
     if (key.contains(QLatin1String("../")))
         return QString();
 
-    for (auto dir : m_image_dirs) {
+    for (auto dir : qAsConst(m_image_dirs)) {
         QString path = dir + key;
         if (QFileInfo::exists(path))
             return path;
     }
 
-    for (auto dir : m_image_dirs) {
+    for (auto dir : qAsConst(m_image_dirs)) {
         for (auto ext : m_image_suffixes) {
             QString fp = dir + key + ext;
             //qDebug() << "trying" << fp;

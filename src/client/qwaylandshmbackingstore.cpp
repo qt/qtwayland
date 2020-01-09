@@ -151,9 +151,9 @@ QImage *QWaylandShmBuffer::imageInsideMargins(const QMargins &marginsIn)
 
 }
 
-QWaylandShmBackingStore::QWaylandShmBackingStore(QWindow *window)
+QWaylandShmBackingStore::QWaylandShmBackingStore(QWindow *window, QWaylandDisplay *display)
     : QPlatformBackingStore(window)
-    , mDisplay(QWaylandScreen::waylandScreenFromWindow(window)->display())
+    , mDisplay(display)
 {
 
 }

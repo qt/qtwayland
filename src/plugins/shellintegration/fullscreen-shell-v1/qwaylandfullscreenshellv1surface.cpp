@@ -50,10 +50,11 @@ QWaylandFullScreenShellV1Surface::QWaylandFullScreenShellV1Surface(QtWayland::zw
     , m_shell(shell)
     , m_window(window)
 {
-    auto screen = static_cast<QWaylandScreen *>(m_window->screen());
+    auto *screen = m_window->waylandScreen();
+    auto *output = screen ? screen->output() : nullptr;
     m_shell->present_surface(m_window->wlSurface(),
                              QtWayland::zwp_fullscreen_shell_v1::present_method_default,
-                             screen->output());
+                             output);
 }
 
 } // namespace QtWaylandClient

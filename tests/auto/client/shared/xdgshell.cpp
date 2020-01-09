@@ -83,7 +83,7 @@ XdgSurface::XdgSurface(XdgWmBase *xdgWmBase, Surface *surface, wl_client *client
 {
     QVERIFY(!surface->m_pending.buffer);
     QVERIFY(!surface->m_committed.buffer);
-    connect(this, &XdgSurface::toplevelCreated, xdgWmBase, &XdgWmBase::toplevelCreated);
+    connect(this, &XdgSurface::toplevelCreated, xdgWmBase, &XdgWmBase::toplevelCreated, Qt::DirectConnection);
     connect(surface, &Surface::attach, this, &XdgSurface::verifyConfigured);
     connect(surface, &Surface::commit, this, [this] {
         m_committed = m_pending;

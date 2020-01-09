@@ -89,6 +89,7 @@ class QWaylandDisplay;
 #if QT_CONFIG(wayland_client_primary_selection)
 class QWaylandPrimarySelectionDeviceV1;
 #endif
+class QWaylandTabletSeatV2;
 class QWaylandTextInput;
 #if QT_CONFIG(cursor)
 class QWaylandCursorTheme;
@@ -126,6 +127,9 @@ public:
     void setPrimarySelectionDevice(QWaylandPrimarySelectionDeviceV1 *primarySelectionDevice);
     QWaylandPrimarySelectionDeviceV1 *primarySelectionDevice() const;
 #endif
+
+    void setTabletSeat(QWaylandTabletSeatV2 *tabletSeat);
+    QWaylandTabletSeatV2* tabletSeat() const;
 
     void setTextInput(QWaylandTextInput *textInput);
     QWaylandTextInput *textInput() const;
@@ -183,6 +187,7 @@ private:
     Touch *mTouch = nullptr;
 
     QScopedPointer<QWaylandTextInput> mTextInput;
+    QScopedPointer<QWaylandTabletSeatV2> mTabletSeat;
 
     uint32_t mTime = 0;
     uint32_t mSerial = 0;
@@ -286,6 +291,8 @@ public:
     int idealCursorScale() const;
     void updateCursorTheme();
     void updateCursor();
+    void cursorTimerCallback();
+    void cursorFrameCallback();
     CursorSurface *getOrCreateCursorSurface();
 #endif
     QWaylandInputDevice *seat() const { return mParent; }
@@ -325,6 +332,9 @@ public:
         QWaylandCursorTheme *theme = nullptr;
         int themeBufferScale = 0;
         QScopedPointer<CursorSurface> surface;
+        QTimer frameTimer;
+        bool gotFrameCallback = false;
+        bool gotTimerCallback = false;
     } mCursor;
 #endif
     QPointF mSurfacePos;
@@ -396,29 +406,21 @@ class QWaylandPointerEvent
 {
     Q_GADGET
 public:
-    enum Type {
-        Enter,
-        Leave,
-        Motion,
-        Press,
-        Release,
-        Wheel
-    };
-    Q_ENUM(Type)
-
-    inline QWaylandPointerEvent(Type type, Qt::ScrollPhase phase, QWaylandWindow *surface,
+    inline QWaylandPointerEvent(QEvent::Type type, Qt::ScrollPhase phase, QWaylandWindow *surface,
                                 ulong timestamp, const QPointF &localPos, const QPointF &globalPos,
-                                Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers)
+                                Qt::MouseButtons buttons, Qt::MouseButton button,
+                                Qt::KeyboardModifiers modifiers)
         : type(type)
         , phase(phase)
         , timestamp(timestamp)
         , local(localPos)
         , global(globalPos)
         , buttons(buttons)
+        , button(button)
         , modifiers(modifiers)
         , surface(surface)
     {}
-    inline QWaylandPointerEvent(Type type, Qt::ScrollPhase phase, QWaylandWindow *surface,
+    inline QWaylandPointerEvent(QEvent::Type type, Qt::ScrollPhase phase, QWaylandWindow *surface,
                                 ulong timestamp, const QPointF &local, const QPointF &global,
                                 const QPoint &pixelDelta, const QPoint &angleDelta,
                                 Qt::MouseEventSource source,
@@ -435,12 +437,13 @@ public:
         , surface(surface)
     {}
 
-    Type type;
+    QEvent::Type type = QEvent::None;
     Qt::ScrollPhase phase = Qt::NoScrollPhase;
     ulong timestamp = 0;
     QPointF local;
     QPointF global;
     Qt::MouseButtons buttons;
+    Qt::MouseButton button = Qt::NoButton; // Button that caused the event (QMouseEvent::button)
     Qt::KeyboardModifiers modifiers;
     QPoint pixelDelta;
     QPoint angleDelta;

@@ -52,7 +52,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 QWaylandXCompositeGLXWindow::QWaylandXCompositeGLXWindow(QWindow *window, QWaylandXCompositeGLXIntegration *glxIntegration)
-    : QWaylandWindow(window)
+    : QWaylandWindow(window, glxIntegration->waylandDisplay())
     , m_glxIntegration(glxIntegration)
     , m_config(qglx_findConfig(glxIntegration->xDisplay(), glxIntegration->screen(), window->format(), GLX_WINDOW_BIT | GLX_PIXMAP_BIT))
 {

@@ -44,17 +44,12 @@ public:
         , m_name(QString("WL-%1").arg(s_nextId++))
     {}
 
-    void addResource(wl_client *client, int id, int version)
-    {
-        auto *resource = add(client, id, version)->handle;
-        send_logical_size(resource, m_logicalGeometry.width(), m_logicalGeometry.height());
-        send_logical_position(resource, m_logicalGeometry.x(), m_logicalGeometry.y());
-        if (version >= ZXDG_OUTPUT_V1_NAME_SINCE_VERSION)
-            send_name(resource, m_name);
-        if (version >= ZXDG_OUTPUT_V1_DESCRIPTION_SINCE_VERSION)
-            send_description(resource, m_description);
-        send_done(resource);
-    }
+    void send_logical_size(int32_t width, int32_t height) = delete;
+    void sendLogicalSize(const QSize &size);
+
+    void send_done() = delete; // zxdg_output_v1.done has been deprecated (in protocol version 3)
+
+    void addResource(wl_client *client, int id, int version);
     Output *m_output = nullptr;
     QRect m_logicalGeometry;
     QString m_name;
@@ -66,7 +61,7 @@ class XdgOutputManagerV1 : public Global, public QtWaylandServer::zxdg_output_ma
 {
     Q_OBJECT
 public:
-    explicit XdgOutputManagerV1(CoreCompositor *compositor, int version = 2)
+    explicit XdgOutputManagerV1(CoreCompositor *compositor, int version = 3)
         : QtWaylandServer::zxdg_output_manager_v1(compositor->m_display, version)
         , m_version(version)
     {}

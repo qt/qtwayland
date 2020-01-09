@@ -351,7 +351,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
             forceRoundTrip();
         }
     } else if (interface == QLatin1String("zxdg_output_manager_v1")) {
-        mXdgOutputManager.reset(new QtWayland::zxdg_output_manager_v1(registry, id, qMin(2, int(version))));
+        mXdgOutputManager.reset(new QWaylandXdgOutputManagerV1(this, id, version));
         for (auto *screen : qAsConst(mWaitingScreens))
             screen->initXdgOutput(xdgOutputManager());
         forceRoundTrip();

@@ -236,9 +236,12 @@ void QWaylandCompositorPrivate::init()
 
 QWaylandCompositorPrivate::~QWaylandCompositorPrivate()
 {
-    qDeleteAll(clients);
+    // Take copies, since the lists will get modified as elements are deleted
+    const auto clientsToDelete = clients;
+    qDeleteAll(clientsToDelete);
 
-    qDeleteAll(outputs);
+    const auto outputsToDelete = outputs;
+    qDeleteAll(outputsToDelete);
 
 #if QT_CONFIG(wayland_datadevice)
     delete data_device_manager;

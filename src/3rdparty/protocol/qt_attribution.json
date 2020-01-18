@@ -150,8 +150,8 @@ Copyright 2015-2016 © Red Hat, Inc."
 
         "Description": "The XDG Output protocol is an extended way to describe output regions under Wayland",
         "Homepage": "https://wayland.freedesktop.org",
-        "Version": "unstable v1, version 2",
-        "DownloadLocation": "https://gitlab.freedesktop.org/wayland/wayland-protocols/raw/1.17/unstable/xdg-output/xdg-output-unstable-v1.xml",
+        "Version": "unstable v1, version 3",
+        "DownloadLocation": "https://gitlab.freedesktop.org/wayland/wayland-protocols/raw/1.18/unstable/xdg-output/xdg-output-unstable-v1.xml",
         "LicenseId": "MIT",
         "License": "MIT License",
         "LicenseFile": "MIT_LICENSE.txt",

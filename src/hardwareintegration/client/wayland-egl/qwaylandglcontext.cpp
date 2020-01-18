@@ -346,7 +346,11 @@ void QWaylandGLContext::updateGLFormat()
 
     wl_surface *wlSurface = m_display->createSurface(nullptr);
     wl_egl_window *eglWindow = wl_egl_window_create(wlSurface, 1, 1);
-    EGLSurface eglSurface = eglCreateWindowSurface(m_eglDisplay, m_config, eglWindow, 0);
+#if defined(EGL_VERSION_1_5)
+    EGLSurface eglSurface = eglCreatePlatformWindowSurface(m_eglDisplay, m_config, eglWindow, nullptr);
+#else
+    EGLSurface eglSurface = eglCreateWindowSurface(m_eglDisplay, m_config, eglWindow, nullptr);
+#endif
 
     if (eglMakeCurrent(m_eglDisplay, eglSurface, eglSurface, m_context)) {
         if (m_format.renderableType() == QSurfaceFormat::OpenGL

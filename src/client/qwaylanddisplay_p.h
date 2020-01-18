@@ -81,7 +81,6 @@ class QPlatformPlaceholderScreen;
 namespace QtWayland {
     class qt_surface_extension;
     class zwp_text_input_manager_v2;
-    class zxdg_output_manager_v1;
 }
 
 namespace QtWaylandClient {
@@ -91,6 +90,7 @@ Q_WAYLAND_CLIENT_EXPORT Q_DECLARE_LOGGING_CATEGORY(lcQpaWayland);
 class QWaylandInputDevice;
 class QWaylandBuffer;
 class QWaylandScreen;
+class QWaylandXdgOutputManagerV1;
 class QWaylandClientBufferIntegration;
 class QWaylandWindowManagerIntegration;
 class QWaylandDataDeviceManager;
@@ -165,7 +165,7 @@ public:
     QWaylandTouchExtension *touchExtension() const { return mTouchExtension.data(); }
     QtWayland::zwp_text_input_manager_v2 *textInputManager() const { return mTextInputManager.data(); }
     QWaylandHardwareIntegration *hardwareIntegration() const { return mHardwareIntegration.data(); }
-    QtWayland::zxdg_output_manager_v1 *xdgOutputManager() const { return mXdgOutputManager.data(); }
+    QWaylandXdgOutputManagerV1 *xdgOutputManager() const { return mXdgOutputManager.data(); }
 
     bool usingInputContextFromCompositor() const { return mUsingInputContextFromCompositor; }
 
@@ -255,7 +255,7 @@ private:
 #endif
     QScopedPointer<QtWayland::zwp_text_input_manager_v2> mTextInputManager;
     QScopedPointer<QWaylandHardwareIntegration> mHardwareIntegration;
-    QScopedPointer<QtWayland::zxdg_output_manager_v1> mXdgOutputManager;
+    QScopedPointer<QWaylandXdgOutputManagerV1> mXdgOutputManager;
     QSocketNotifier *mReadNotifier = nullptr;
     int mFd = -1;
     int mWritableNotificationFd = -1;

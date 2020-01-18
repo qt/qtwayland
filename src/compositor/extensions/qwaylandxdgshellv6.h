@@ -215,8 +215,8 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPopupV6 : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandXdgPopupV6)
-    Q_PROPERTY(QWaylandXdgSurfaceV6 *xdgSurface READ xdgSurface)
-    Q_PROPERTY(QWaylandXdgSurfaceV6 *parentXdgSurface READ parentXdgSurface)
+    Q_PROPERTY(QWaylandXdgSurfaceV6 *xdgSurface READ xdgSurface CONSTANT)
+    Q_PROPERTY(QWaylandXdgSurfaceV6 *parentXdgSurface READ parentXdgSurface CONSTANT)
     Q_PROPERTY(QRect configuredGeometry READ configuredGeometry NOTIFY configuredGeometryChanged)
 
     // Positioner properties

@@ -33,8 +33,8 @@
 
 #include <qpa/qplatformnativeinterface.h>
 #include <qpa/qplatformintegration.h>
+#include <QtOpenGL/QOpenGLTexture>
 #include <QtGui/QOpenGLContext>
-#include <QtGui/QOpenGLTexture>
 
 #include "xcompositebuffer.h"
 #include "xcompositehandler.h"

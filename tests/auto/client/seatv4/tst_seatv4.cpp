@@ -28,8 +28,8 @@
 
 #include "mockcompositor.h"
 
+#include <QtOpenGL/QOpenGLWindow>
 #include <QtGui/QRasterWindow>
-#include <QtGui/QOpenGLWindow>
 #if QT_CONFIG(cursor)
 #include <wayland-cursor.h>
 #include <QtGui/private/qguiapplication_p.h>

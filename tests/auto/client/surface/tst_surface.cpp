@@ -29,7 +29,7 @@
 #include "mockcompositor.h"
 #include <QtGui/QRasterWindow>
 #if QT_CONFIG(opengl)
-#include <QtGui/QOpenGLWindow>
+#include <QtOpenGL/QOpenGLWindow>
 #endif
 
 using namespace MockCompositor;

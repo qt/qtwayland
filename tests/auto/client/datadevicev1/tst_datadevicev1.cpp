@@ -28,8 +28,8 @@
 
 #include "mockcompositor.h"
 
+#include <QtOpenGL/QOpenGLWindow>
 #include <QtGui/QRasterWindow>
-#include <QtGui/QOpenGLWindow>
 #include <QtGui/QClipboard>
 #include <QtGui/QDrag>
 

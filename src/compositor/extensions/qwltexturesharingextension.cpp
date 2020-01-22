@@ -40,7 +40,8 @@
 #include <QTimer>
 
 #include <QtGui/private/qtexturefilereader_p.h>
-#include <QtGui/QOpenGLTexture>
+
+#include <QtOpenGL/QOpenGLTexture>
 #include <QtGui/QImageReader>
 
 #include <QtQuick/QSGTexture>

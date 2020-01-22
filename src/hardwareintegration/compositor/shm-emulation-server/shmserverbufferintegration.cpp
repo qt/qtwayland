@@ -29,8 +29,8 @@
 
 #include "shmserverbufferintegration.h"
 
+#include <QtOpenGL/QOpenGLTexture>
 #include <QtGui/QOpenGLContext>
-#include <QtGui/QOpenGLTexture>
 #include <QtCore/QSharedMemory>
 
 #include <QtCore/QDebug>

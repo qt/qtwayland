@@ -27,8 +27,8 @@
 ****************************************************************************/
 
 #include "mockcompositor.h"
+#include <QtOpenGL/QOpenGLWindow>
 #include <QtGui/QRasterWindow>
-#include <QtGui/QOpenGLWindow>
 #include <QtGui/QScreen>
 
 #include <qwayland-server-xdg-output-unstable-v1.h>

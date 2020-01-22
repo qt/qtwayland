@@ -29,8 +29,8 @@
 
 #include "drmeglserverbufferintegration.h"
 
+#include <QtOpenGL/QOpenGLTexture>
 #include <QtGui/QOpenGLContext>
-#include <QtGui/QOpenGLTexture>
 
 QT_BEGIN_NAMESPACE
 

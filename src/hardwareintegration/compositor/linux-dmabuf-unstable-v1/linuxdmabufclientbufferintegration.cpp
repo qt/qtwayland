@@ -33,9 +33,9 @@
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 #include <qpa/qplatformnativeinterface.h>
+#include <QtOpenGL/QOpenGLTexture>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QOpenGLContext>
-#include <QtGui/QOpenGLTexture>
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>

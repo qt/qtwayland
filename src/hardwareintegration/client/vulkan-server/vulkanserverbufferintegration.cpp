@@ -40,8 +40,8 @@
 #include "vulkanserverbufferintegration.h"
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QDebug>
+#include <QtOpenGL/QOpenGLTexture>
 #include <QtGui/QOpenGLContext>
-#include <QtGui/QOpenGLTexture>
 #include <QtGui/qopengl.h>
 #include <QtGui/QImage>
 #include <QtCore/QCoreApplication>

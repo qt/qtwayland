@@ -29,8 +29,8 @@
 
 #include "dmabufserverbufferintegration.h"
 
+#include <QtOpenGL/QOpenGLTexture>
 #include <QtGui/QOpenGLContext>
-#include <QtGui/QOpenGLTexture>
 
 #include <drm_fourcc.h>
 #include <unistd.h>

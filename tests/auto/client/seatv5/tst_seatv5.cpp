@@ -27,8 +27,8 @@
 ****************************************************************************/
 
 #include "mockcompositor.h"
+#include <QtOpenGL/QOpenGLWindow>
 #include <QtGui/QRasterWindow>
-#include <QtGui/QOpenGLWindow>
 
 using namespace MockCompositor;
 
@@ -397,9 +397,9 @@ public:
             , touchPoints(event->touchPoints())
         {
         }
-        const QEvent::Type type{};
-        const Qt::TouchPointStates touchPointStates{};
-        const QList<QTouchEvent::TouchPoint> touchPoints;
+        QEvent::Type type{};
+        Qt::TouchPointStates touchPointStates{};
+        QList<QTouchEvent::TouchPoint> touchPoints;
     };
     QVector<Event> m_events;
 };

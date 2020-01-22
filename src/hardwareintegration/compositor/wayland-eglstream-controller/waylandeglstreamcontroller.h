@@ -35,11 +35,11 @@
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 #include <QtWaylandCompositor/private/qwlclientbufferintegration_p.h>
 
+#include <QtOpenGL/QOpenGLTexture>
 #include <QtCore/QObject>
 #include <QtCore/QHash>
 #include <QtCore/QSize>
 #include <QtCore/QTextStream>
-#include <QtGui/QOpenGLTexture>
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>

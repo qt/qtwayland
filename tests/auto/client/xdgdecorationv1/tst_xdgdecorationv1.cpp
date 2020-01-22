@@ -30,8 +30,8 @@
 
 #include <qwayland-server-xdg-decoration-unstable-v1.h>
 
+#include <QtOpenGL/QOpenGLWindow>
 #include <QtGui/QRasterWindow>
-#include <QtGui/QOpenGLWindow>
 #include <QtGui/QClipboard>
 #include <QtCore/private/qcore_unix_p.h>
 

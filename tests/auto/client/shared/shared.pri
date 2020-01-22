@@ -1,4 +1,4 @@
-QT += testlib waylandclient-private
+QT += testlib waylandclient-private opengl
 CONFIG += testcase wayland-scanner
 QMAKE_USE += wayland-server
 

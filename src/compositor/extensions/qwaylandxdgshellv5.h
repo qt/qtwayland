@@ -42,6 +42,8 @@ struct wl_resource;
 
 QT_BEGIN_NAMESPACE
 
+#if QT_DEPRECATED_SINCE(5, 15)
+
 class QWaylandXdgShellV5Private;
 class QWaylandXdgSurfaceV5;
 class QWaylandXdgSurfaceV5Private;
@@ -246,6 +248,8 @@ Q_SIGNALS:
 private:
     void initialize() override;
 };
+
+#endif // QT_DEPRECATED_SINCE(5, 15)
 
 QT_END_NAMESPACE
 

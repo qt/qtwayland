@@ -49,6 +49,8 @@ struct wl_resource;
 
 QT_BEGIN_NAMESPACE
 
+#if QT_DEPRECATED_SINCE(5, 15)
+
 class QWaylandClient;
 class QWaylandOutput;
 class QWaylandSeat;
@@ -258,6 +260,8 @@ private:
                        QWaylandXdgPositionerV6 *positioner, QWaylandResource &resource);
     friend class QWaylandXdgSurfaceV6Private;
 };
+
+#endif // QT_DEPRECATED_SINCE(5, 15)
 
 QT_END_NAMESPACE
 

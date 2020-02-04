@@ -54,6 +54,8 @@
 
 QT_BEGIN_NAMESPACE
 
+#if QT_DEPRECATED_SINCE(5, 15)
+
 QWaylandXdgShellV6Private::QWaylandXdgShellV6Private()
 {
 }
@@ -148,6 +150,7 @@ void QWaylandXdgShellV6Private::zxdg_shell_v6_pong(Resource *resource, uint32_t 
  * \qmltype XdgShellV6
  * \inqmlmodule QtWayland.Compositor
  * \since 5.10
+ * \obsolete
  * \brief Provides an extension for desktop-style user interfaces.
  *
  * The XdgShellV6 extension provides a way to associate a XdgToplevelV6 or XdgPopupV6
@@ -175,6 +178,7 @@ void QWaylandXdgShellV6Private::zxdg_shell_v6_pong(Resource *resource, uint32_t 
  * \class QWaylandXdgShellV6
  * \inmodule QtWaylandCompositor
  * \since 5.10
+ * \obsolete
  * \brief The QWaylandXdgShellV6 class is an extension for desktop-style user interfaces.
  *
  * The QWaylandXdgShellV6 extension provides a way to associate a QWaylandXdgToplevelV6 or
@@ -468,6 +472,7 @@ void QWaylandXdgSurfaceV6Private::zxdg_surface_v6_set_window_geometry(QtWaylandS
  * \qmltype XdgSurfaceV6
  * \inqmlmodule QtWayland.Compositor
  * \since 5.10
+ * \obsolete
  * \brief XdgSurfaceV6 provides desktop-style compositor-specific features to an xdg surface.
  *
  * This type is part of the \l{XdgShellV6} extension and provides a way to
@@ -482,6 +487,7 @@ void QWaylandXdgSurfaceV6Private::zxdg_surface_v6_set_window_geometry(QtWaylandS
  * \class QWaylandXdgSurfaceV6
  * \inmodule QtWaylandCompositor
  * \since 5.10
+ * \obsolete
  * \brief The QWaylandXdgSurfaceV6 class provides desktop-style compositor-specific features to an xdg surface.
  *
  * This class is part of the QWaylandXdgShellV6 extension and provides a way to
@@ -717,6 +723,7 @@ QWaylandQuickShellIntegration *QWaylandXdgSurfaceV6::createIntegration(QWaylandQ
  * \qmltype XdgToplevelV6
  * \inqmlmodule QtWayland.Compositor
  * \since 5.10
+ * \obsolete
  * \brief XdgToplevelV6 represents the toplevel window specific parts of an xdg surface.
  *
  * This type is part of the \l{XdgShellV6} extension and provides a way to
@@ -730,6 +737,7 @@ QWaylandQuickShellIntegration *QWaylandXdgSurfaceV6::createIntegration(QWaylandQ
  * \class QWaylandXdgToplevelV6
  * \inmodule QtWaylandCompositor
  * \since 5.10
+ * \obsolete
  * \brief The QWaylandXdgToplevelV6 class represents the toplevel window specific parts of an xdg surface.
  *
  * This class is part of the QWaylandXdgShellV6 extension and provides a way to
@@ -1480,6 +1488,7 @@ void QWaylandXdgToplevelV6Private::zxdg_toplevel_v6_set_minimized(QtWaylandServe
  * \qmltype XdgPopupV6
  * \inqmlmodule QtWayland.Compositor
  * \since 5.10
+ * \obsolete
  * \brief XdgPopupV6 represents the popup specific parts of and xdg surface.
  *
  * This type is part of the \l{XdgShellV6} extension and provides a way to extend
@@ -1493,6 +1502,7 @@ void QWaylandXdgToplevelV6Private::zxdg_toplevel_v6_set_minimized(QtWaylandServe
  * \class QWaylandXdgPopupV6
  * \inmodule QtWaylandCompositor
  * \since 5.10
+ * \obsolete
  * \brief The QWaylandXdgPopupV6 class represents the popup specific parts of an xdg surface.
  *
  * This class is part of the QWaylandXdgShellV6 extension and provides a way to
@@ -2029,5 +2039,7 @@ QWaylandXdgPositionerV6 *QWaylandXdgPositionerV6::fromResource(wl_resource *reso
 {
     return QtWayland::fromResource<QWaylandXdgPositionerV6 *>(resource);
 }
+
+#endif // QT_DEPRECATED_SINCE(5, 15)
 
 QT_END_NAMESPACE

@@ -58,6 +58,8 @@
 
 QT_BEGIN_NAMESPACE
 
+#if QT_DEPRECATED_SINCE(5, 15)
+
 struct Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPositionerV6Data {
     QSize size;
     QRect anchorRect;
@@ -240,6 +242,8 @@ protected:
 public:
     QWaylandXdgPositionerV6Data m_data;
 };
+
+#endif // QT_DEPRECATED_SINCE(5, 15)
 
 QT_END_NAMESPACE
 

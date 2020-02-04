@@ -170,10 +170,12 @@ public:
 #endif
         qmlRegisterType<QWaylandTextInputManagerQuickExtension>(uri, 1, 0, "TextInputManager");
 
+#if QT_DEPRECATED_SINCE(5, 15)
         qmlRegisterType<QWaylandXdgShellV6QuickExtension>(uri, 1, 1, "XdgShellV6");
         qmlRegisterType<QWaylandXdgSurfaceV6>(uri, 1, 1, "XdgSurfaceV6");
         qmlRegisterUncreatableType<QWaylandXdgToplevelV6>(uri, 1, 1, "XdgToplevelV6", QObject::tr("Cannot create instance of XdgShellToplevelV6"));
         qmlRegisterUncreatableType<QWaylandXdgPopupV6>(uri, 1, 1, "XdgPopupV6", QObject::tr("Cannot create instance of XdgShellPopupV6"));
+#endif
 
         qmlRegisterType<QWaylandXdgShellQuickExtension>(uri, 1, 3, "XdgShell");
         qmlRegisterType<QWaylandXdgSurface>(uri, 1, 3, "XdgSurface");

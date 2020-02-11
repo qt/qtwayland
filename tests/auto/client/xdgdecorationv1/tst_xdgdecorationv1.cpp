@@ -153,6 +153,7 @@ private slots:
     void initTestCase();
     void cleanup() { QTRY_VERIFY2(isClean(), qPrintable(dirtyMessage())); }
     void clientSidePreferredByCompositor();
+    void initialFramelessWindowHint();
 };
 
 void tst_xdgdecorationv1::initTestCase()
@@ -180,6 +181,23 @@ void tst_xdgdecorationv1::clientSidePreferredByCompositor()
         xdgToplevel()->sendCompleteConfigure();
     });
     QTRY_VERIFY(!window.frameMargins().isNull());
+}
+
+void tst_xdgdecorationv1::initialFramelessWindowHint()
+{
+    QRasterWindow window;
+    window.setFlag(Qt::FramelessWindowHint, true);
+    window.show();
+    QCOMPOSITOR_TRY_COMPARE(get<XdgDecorationManagerV1>()->resourceMap().size(), 1);
+    QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
+    exec([=]{
+        xdgToplevel()->sendCompleteConfigure();
+    });
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface()->m_committedConfigureSerial);
+
+    // The client should not have create a decoration object, because that allows the compositor
+    // to override our decision and add server side decorations to our window.
+    QCOMPOSITOR_TRY_VERIFY(!toplevelDecoration());
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_xdgdecorationv1)

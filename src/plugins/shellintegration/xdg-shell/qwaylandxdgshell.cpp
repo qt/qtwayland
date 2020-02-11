@@ -56,10 +56,11 @@ QWaylandXdgSurface::Toplevel::Toplevel(QWaylandXdgSurface *xdgSurface)
     : QtWayland::xdg_toplevel(xdgSurface->get_toplevel())
     , m_xdgSurface(xdgSurface)
 {
-    if (auto *decorationManager = m_xdgSurface->m_shell->decorationManager())
-        m_decoration = decorationManager->createToplevelDecoration(object());
-
     QWindow *window = xdgSurface->window()->window();
+    if (auto *decorationManager = m_xdgSurface->m_shell->decorationManager()) {
+        if (!(window->flags() & Qt::FramelessWindowHint))
+            m_decoration = decorationManager->createToplevelDecoration(object());
+    }
     requestWindowStates(window->windowStates());
     requestWindowFlags(window->flags());
 }

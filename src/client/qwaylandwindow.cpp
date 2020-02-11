@@ -414,6 +414,11 @@ QPlatformScreen *QWaylandWindow::calculateScreenFromSurfaceEvents() const
 
 void QWaylandWindow::setVisible(bool visible)
 {
+    // Workaround for issue where setVisible may be called with the same value twice
+    if (lastVisible == visible)
+        return;
+    lastVisible = visible;
+
     if (visible) {
         if (window()->type() == Qt::Popup || window()->type() == Qt::ToolTip)
             activePopups << this;

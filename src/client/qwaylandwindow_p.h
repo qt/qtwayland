@@ -270,6 +270,7 @@ private:
     void handleScreensChanged();
 
     bool mInResizeFromApplyConfigure = false;
+    bool lastVisible = false;
     QRect mLastExposeGeometry;
 
     static const wl_callback_listener callbackListener;

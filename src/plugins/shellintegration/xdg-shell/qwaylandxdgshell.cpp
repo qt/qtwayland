@@ -156,10 +156,12 @@ void QWaylandXdgSurface::Toplevel::xdg_toplevel_close()
 void QWaylandXdgSurface::Toplevel::requestWindowFlags(Qt::WindowFlags flags)
 {
     if (m_decoration) {
-        if (flags & Qt::FramelessWindowHint)
-            m_decoration->requestMode(QWaylandXdgToplevelDecorationV1::mode_client_side);
-        else
+        if (flags & Qt::FramelessWindowHint) {
+            delete m_decoration;
+            m_decoration = nullptr;
+        } else {
             m_decoration->unsetMode();
+        }
     }
 }
 

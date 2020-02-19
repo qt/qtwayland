@@ -156,10 +156,10 @@ public:
             , source(event->source())
         {
         }
-        const Qt::ScrollPhase phase{};
-        const QPoint pixelDelta;
-        const QPoint angleDelta; // eights of a degree, positive is upwards, left
-        const Qt::MouseEventSource source{};
+        Qt::ScrollPhase phase{};
+        QPoint pixelDelta;
+        QPoint angleDelta; // eights of a degree, positive is upwards, left
+        Qt::MouseEventSource source{};
     };
     QVector<Event> m_events;
 };

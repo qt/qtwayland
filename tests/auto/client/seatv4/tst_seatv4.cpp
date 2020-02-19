@@ -289,8 +289,8 @@ void tst_seatv4::simpleAxis()
         {
             Event() = default;
 
-            const QPoint pixelDelta;
-            const QPoint angleDelta; // eights of a degree, positive is upwards, left
+            QPoint pixelDelta;
+            QPoint angleDelta; // eights of a degree, positive is upwards, left
         };
         QVector<Event> m_events;
     };

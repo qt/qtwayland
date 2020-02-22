@@ -1148,7 +1148,7 @@ QVariant QWaylandQuickItem::inputMethodQuery(Qt::InputMethodQuery query, QVarian
     setting \l{QQuickItem::}{visible} to \c false, setting this property to \c false
     will not prevent mouse or keyboard input from reaching item.
 */
-bool QWaylandQuickItem::paintEnabled() const
+bool QWaylandQuickItem::isPaintEnabled() const
 {
     Q_D(const QWaylandQuickItem);
     return d->paintEnabled;

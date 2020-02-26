@@ -231,9 +231,14 @@
             "condition": "features.wayland-client",
             "output": [ "privateFeature" ]
         },
+        "egl-extension-platform-wayland": {
+            "label": "EGL wayland platform extension",
+            "condition": "features.wayland-client && features.opengl && features.egl && tests.egl_1_5-wayland",
+            "output": [ "privateFeature" ]
+        },
         "wayland-egl": {
             "label": "EGL",
-            "condition": "features.wayland-client && features.opengl && features.egl && libs.wayland-egl && (!config.qnx || tests.egl_1_5-wayland)",
+            "condition": "features.wayland-client && features.opengl && features.egl && libs.wayland-egl && (!config.qnx || features.egl-extension-platform-wayland)",
             "output": [ "privateFeature" ]
         },
         "wayland-brcm": {
@@ -253,7 +258,7 @@
         },
         "wayland-drm-egl-server-buffer": {
             "label": "DRM EGL",
-            "condition": "features.wayland-client && features.opengl && features.egl && tests.drm-egl-server && (!config.qnx || tests.egl_1_5-wayland)",
+            "condition": "features.wayland-client && features.opengl && features.egl && tests.drm-egl-server && (!config.qnx || features.egl-extension-platform-wayland)",
             "output": [ "privateFeature" ]
         },
         "wayland-libhybris-egl-server-buffer": {

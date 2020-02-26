@@ -125,7 +125,7 @@ void DrmEglServerBufferIntegration::initializeEgl()
         return;
     m_egl_initialized = true;
 
-#if defined(EGL_VERSION_1_5) && defined(EGL_PLATFORM_WAYLAND_EXT)
+#if QT_CONFIG(egl_extension_platform_wayland)
     m_egl_display = eglGetPlatformDisplay(EGL_PLATFORM_WAYLAND_EXT, m_display->wl_display(), nullptr);
 #else
     m_egl_display = eglGetDisplay((EGLNativeDisplayType) m_display->wl_display());

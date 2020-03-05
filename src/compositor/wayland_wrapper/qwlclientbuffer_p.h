@@ -86,6 +86,8 @@ public:
     virtual void setCommitted(QRegion &damage);
     bool isDestroyed() { return m_destroyed; }
 
+    virtual bool isProtected() { return false; }
+
     inline struct ::wl_resource *waylandBufferHandle() const { return m_buffer; }
 
     bool isSharedMemory() const { return wl_shm_buffer_get(m_buffer); }
@@ -95,6 +97,7 @@ public:
 #endif
 
     static bool hasContent(ClientBuffer *buffer) { return buffer && buffer->waylandBufferHandle(); }
+    static bool hasProtectedContent(ClientBuffer *buffer) { return buffer && buffer->isProtected(); }
 
 protected:
     void ref();

@@ -67,6 +67,7 @@ public:
     virtual void initializeHardware(struct ::wl_display *display) = 0;
 
     virtual ClientBuffer *createBufferFor(struct ::wl_resource *buffer) = 0;
+    virtual bool isProtected(struct ::wl_resource *buffer) { Q_UNUSED(buffer); return false; }
 
 protected:
     QWaylandCompositor *m_compositor = nullptr;

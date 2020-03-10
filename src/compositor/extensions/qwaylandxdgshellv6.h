@@ -100,6 +100,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgSurfaceV6 : public QWaylandShellSur
     Q_PROPERTY(QWaylandXdgToplevelV6 *toplevel READ toplevel NOTIFY toplevelCreated)
     Q_PROPERTY(QWaylandXdgPopupV6 *popup READ popup NOTIFY popupCreated)
     Q_PROPERTY(QRect windowGeometry READ windowGeometry NOTIFY windowGeometryChanged)
+    Q_MOC_INCLUDE("qwaylandsurface.h")
 
 public:
     QWaylandXdgSurfaceV6();

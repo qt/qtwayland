@@ -96,6 +96,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgSurfaceV5 : public QWaylandShellSur
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(QString appId READ appId NOTIFY appIdChanged)
     Q_PROPERTY(QRect windowGeometry READ windowGeometry NOTIFY windowGeometryChanged)
+    Q_MOC_INCLUDE("qwaylandsurface.h")
 
     Q_PROPERTY(QList<int> states READ statesAsInts NOTIFY statesChanged)
     Q_PROPERTY(bool maximized READ maximized NOTIFY maximizedChanged)

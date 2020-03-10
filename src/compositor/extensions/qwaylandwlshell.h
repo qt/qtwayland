@@ -83,6 +83,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellSurface : public QWaylandShellS
     Q_PROPERTY(QWaylandWlShell *shell READ shell NOTIFY shellChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)
     Q_PROPERTY(QString className READ className NOTIFY classNameChanged)
+    Q_MOC_INCLUDE("qwaylandsurface.h")
 
 public:
     enum FullScreenMethod {

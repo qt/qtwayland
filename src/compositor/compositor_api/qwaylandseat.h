@@ -59,8 +59,10 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSeat : public QWaylandObject
 
 #if QT_CONFIG(draganddrop)
     Q_PROPERTY(QWaylandDrag *drag READ drag CONSTANT)
+    Q_MOC_INCLUDE("qwaylanddrag.h")
 #endif
     Q_PROPERTY(QWaylandKeymap *keymap READ keymap CONSTANT)
+    Q_MOC_INCLUDE("qwaylandkeymap.h")
 public:
     enum CapabilityFlag {
         // The order should match the enum WL_SEAT_CAPABILITY_*

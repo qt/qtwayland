@@ -50,6 +50,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandDrag : public QObject
 
     Q_PROPERTY(QWaylandSurface *icon READ icon NOTIFY iconChanged)
     Q_PROPERTY(bool visible READ visible NOTIFY iconChanged)
+    Q_MOC_INCLUDE("qwaylandsurface.h")
 
 public:
     explicit QWaylandDrag(QWaylandSeat *seat);

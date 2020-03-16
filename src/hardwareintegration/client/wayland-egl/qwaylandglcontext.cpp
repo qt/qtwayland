@@ -54,7 +54,7 @@
 
 #include <qpa/qplatformopenglcontext.h>
 #include <QtGui/QSurfaceFormat>
-#include <QtGui/QOpenGLShaderProgram>
+#include <QtOpenGL/QOpenGLShaderProgram>
 #include <QtGui/QOpenGLFunctions>
 #include <QOpenGLBuffer>
 

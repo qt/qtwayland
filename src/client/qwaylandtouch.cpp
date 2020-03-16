@@ -42,6 +42,8 @@
 #include "qwaylanddisplay_p.h"
 #include "qwaylandsurface_p.h"
 
+#include <QtGui/QTouchDevice>
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {

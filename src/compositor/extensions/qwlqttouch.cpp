@@ -30,6 +30,7 @@
 #include "qwlqttouch_p.h"
 #include "qwaylandview.h"
 #include <QTouchEvent>
+#include <QTouchDevice>
 #include <QWindow>
 
 QT_BEGIN_NAMESPACE

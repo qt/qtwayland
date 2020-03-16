@@ -73,6 +73,7 @@
 #endif
 
 #include <QtGui/QGuiApplication>
+#include <QtGui/QTouchDevice>
 
 QT_BEGIN_NAMESPACE
 

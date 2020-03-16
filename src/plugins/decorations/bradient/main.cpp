@@ -42,6 +42,7 @@
 #include <QtGui/QPainter>
 #include <QtGui/QPalette>
 #include <QtGui/QLinearGradient>
+#include <QtGui/QPainterPath>
 
 #include <qpa/qwindowsysteminterface.h>
 

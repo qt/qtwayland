@@ -465,7 +465,7 @@ protected:
         case QEvent::TabletEnterProximity:
         case QEvent::TabletLeaveProximity: {
             auto *e = static_cast<QTabletEvent *>(event);
-            auto *ev = new QTabletEvent(e->type(), e->posF(), e->globalPosF(), e->device(),
+            auto *ev = new QTabletEvent(e->type(), e->posF(), e->globalPosF(), e->deviceType(),
                                         e->pointerType(), e->pressure(), e->xTilt(), e->yTilt(),
                                         e->tangentialPressure(), e->rotation(), e->z(),
                                         Qt::KeyboardModifier::NoModifier, e->uniqueId(),
@@ -600,7 +600,7 @@ public:
 
     void tabletEvent(QTabletEvent *e) override
     {
-        m_events << new QTabletEvent(e->type(), e->posF(), e->globalPosF(), e->device(),
+        m_events << new QTabletEvent(e->type(), e->posF(), e->globalPosF(), e->deviceType(),
                                      e->pointerType(), e->pressure(), e->xTilt(), e->yTilt(),
                                      e->tangentialPressure(), e->rotation(), e->z(),
                                      Qt::KeyboardModifier::NoModifier, e->uniqueId(), e->button(),
@@ -705,12 +705,12 @@ void tst_tabletv2::pointerType()
     QTRY_COMPARE(filter.numEvents(), 1);
     QTabletEvent *event = filter.popEvent();
     QCOMPARE(event->pointerType(), pointerType);
-    QCOMPARE(event->device(), tabletDevice);
+    QCOMPARE(event->deviceType(), tabletDevice);
 
     QTRY_VERIFY(window.numEvents());
     event = window.popEvent();
     QCOMPARE(event->pointerType(), pointerType);
-    QCOMPARE(event->device(), tabletDevice);
+    QCOMPARE(event->deviceType(), tabletDevice);
 
     exec([&] {
         tabletTool()->sendProximityOut();
@@ -720,7 +720,7 @@ void tst_tabletv2::pointerType()
     QTRY_VERIFY(filter.numEvents());
     event = filter.popEvent();
     QCOMPARE(event->pointerType(), pointerType);
-    QCOMPARE(event->device(), tabletDevice);
+    QCOMPARE(event->deviceType(), tabletDevice);
 }
 
 void tst_tabletv2::hardwareSerial()

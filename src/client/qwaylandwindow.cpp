@@ -76,7 +76,6 @@ QWaylandWindow *QWaylandWindow::mMouseGrab = nullptr;
 QWaylandWindow::QWaylandWindow(QWindow *window, QWaylandDisplay *display)
     : QPlatformWindow(window)
     , mDisplay(display)
-    , mFrameQueue(mDisplay->createFrameQueue())
     , mResizeAfterSwap(qEnvironmentVariableIsSet("QT_WAYLAND_RESIZE_AFTER_SWAP"))
 {
     {
@@ -95,8 +94,6 @@ QWaylandWindow::QWaylandWindow(QWindow *window, QWaylandDisplay *display)
 
 QWaylandWindow::~QWaylandWindow()
 {
-    mDisplay->destroyFrameQueue(mFrameQueue);
-
     delete mWindowDecoration;
 
     if (mSurface)
@@ -673,6 +670,8 @@ const wl_callback_listener QWaylandWindow::callbackListener = {
 
 void QWaylandWindow::handleFrameCallback()
 {
+    QMutexLocker locker(&mFrameSyncMutex);
+
     mWaitingForFrameCallback = false;
     mFrameCallbackElapsedTimer.invalidate();
 
@@ -683,6 +682,8 @@ void QWaylandWindow::handleFrameCallback()
         mWaitingForUpdateDelivery = true;
         QMetaObject::invokeMethod(this, &QWaylandWindow::doHandleFrameCallback, Qt::QueuedConnection);
     }
+
+    mFrameSyncWait.notify_all();
 }
 
 void QWaylandWindow::doHandleFrameCallback()
@@ -699,8 +700,10 @@ void QWaylandWindow::doHandleFrameCallback()
 
 bool QWaylandWindow::waitForFrameSync(int timeout)
 {
-    QMutexLocker locker(mFrameQueue.mutex);
-    mDisplay->dispatchQueueWhile(mFrameQueue.queue, [&]() { return mWaitingForFrameCallback; }, timeout);
+    QMutexLocker locker(&mFrameSyncMutex);
+
+    QDeadlineTimer deadline(timeout);
+    while (mWaitingForFrameCallback && mFrameSyncWait.wait(&mFrameSyncMutex, deadline)) { }
 
     if (mWaitingForFrameCallback) {
         qCDebug(lcWaylandBackingstore) << "Didn't receive frame callback in time, window should now be inexposed";
@@ -1340,8 +1343,11 @@ void QWaylandWindow::requestUpdate()
     Q_ASSERT(hasPendingUpdateRequest()); // should be set by QPA
 
     // If we have a frame callback all is good and will be taken care of there
-    if (mWaitingForFrameCallback)
-        return;
+    {
+        QMutexLocker locker(&mFrameSyncMutex);
+        if (mWaitingForFrameCallback)
+            return;
+    }
 
     // If we've already called deliverUpdateRequest(), but haven't seen any attach+commit/swap yet
     // This is a somewhat redundant behavior and might indicate a bug in the calling code, so log
@@ -1354,7 +1360,12 @@ void QWaylandWindow::requestUpdate()
     // so use invokeMethod to delay the delivery a bit.
     QMetaObject::invokeMethod(this, [this] {
         // Things might have changed in the meantime
-        if (hasPendingUpdateRequest() && !mWaitingForFrameCallback)
+        {
+            QMutexLocker locker(&mFrameSyncMutex);
+            if (mWaitingForFrameCallback)
+                return;
+        }
+        if (hasPendingUpdateRequest())
             deliverUpdateRequest();
     }, Qt::QueuedConnection);
 }
@@ -1374,9 +1385,10 @@ void QWaylandWindow::handleUpdate()
     if (!mSurface)
         return;
 
-    QMutexLocker locker(mFrameQueue.mutex);
+    QMutexLocker locker(&mFrameSyncMutex);
+
     struct ::wl_surface *wrappedSurface = reinterpret_cast<struct ::wl_surface *>(wl_proxy_create_wrapper(mSurface->object()));
-    wl_proxy_set_queue(reinterpret_cast<wl_proxy *>(wrappedSurface), mFrameQueue.queue);
+    wl_proxy_set_queue(reinterpret_cast<wl_proxy *>(wrappedSurface), mDisplay->frameEventQueue());
     mFrameCallback = wl_surface_frame(wrappedSurface);
     wl_proxy_wrapper_destroy(wrappedSurface);
     wl_callback_add_listener(mFrameCallback, &QWaylandWindow::callbackListener, this);
@@ -1386,6 +1398,8 @@ void QWaylandWindow::handleUpdate()
     // Start a timer for handling the case when the compositor stops sending frame callbacks.
     if (mFrameCallbackTimeout > 0) {
         QMetaObject::invokeMethod(this, [this] {
+            QMutexLocker locker(&mFrameSyncMutex);
+
             if (mWaitingForFrameCallback) {
                 if (mFrameCallbackCheckIntervalTimerId < 0)
                     mFrameCallbackCheckIntervalTimerId = startTimer(mFrameCallbackTimeout);

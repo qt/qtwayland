@@ -274,7 +274,7 @@ protected:
     int mFrameCallbackCheckIntervalTimerId = -1;
     QElapsedTimer mFrameCallbackElapsedTimer;
     struct ::wl_callback *mFrameCallback = nullptr;
-    QWaylandDisplay::FrameQueue mFrameQueue;
+    QMutex mFrameSyncMutex;
     QWaitCondition mFrameSyncWait;
 
     // True when we have called deliverRequestUpdate, but the client has not yet attached a new buffer

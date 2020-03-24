@@ -64,7 +64,7 @@ public:
     void setCompositor(QWaylandCompositor *compositor) { m_compositor = compositor; }
     QWaylandCompositor *compositor() const { return m_compositor; }
 
-    virtual bool initializeHardware(struct ::wl_display *display) = 0;
+    virtual void initializeHardware(struct ::wl_display *display) = 0;
 
     virtual ClientBuffer *createBufferFor(struct ::wl_resource *buffer) = 0;
 

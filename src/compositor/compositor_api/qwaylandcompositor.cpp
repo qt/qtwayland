@@ -368,6 +368,9 @@ void QWaylandCompositorPrivate::initializeHardwareIntegration()
 
     loadClientBufferIntegration();
     loadServerBufferIntegration();
+
+    if (client_buffer_integration)
+        client_buffer_integration->initializeHardware(display);
 #endif
 }
 
@@ -397,32 +400,12 @@ void QWaylandCompositorPrivate::loadClientBufferIntegration()
     if (!targetKey.isEmpty()) {
         client_buffer_integration.reset(QtWayland::ClientBufferIntegrationFactory::create(targetKey, QStringList()));
         if (client_buffer_integration) {
-            qCDebug(qLcWaylandCompositorHardwareIntegration) << "Loaded client buffer integration:" << targetKey;
             client_buffer_integration->setCompositor(q);
-            if (!client_buffer_integration->initializeHardware(display)) {
-                qCWarning(qLcWaylandCompositorHardwareIntegration)
-                        << "Failed to initialize hardware for client buffer integration:" << targetKey;
-                client_buffer_integration.reset();
-            }
-        } else {
-            qCWarning(qLcWaylandCompositorHardwareIntegration)
-                    << "Failed to load client buffer integration:" << targetKey;
+            if (hw_integration)
+                hw_integration->setClientBufferIntegration(targetKey);
         }
     }
-
-    if (!client_buffer_integration) {
-        qCWarning(qLcWaylandCompositorHardwareIntegration)
-                << "No client buffer integration was loaded, this means that clients will fall back"
-                << "to use CPU buffers (wl_shm) for transmitting buffers instead of using zero-copy"
-                << "GPU buffer handles. Expect serious performance impact with OpenGL clients due"
-                << "to potentially multiple copies between CPU and GPU memory per buffer.\n"
-                << "See the QtWayland readme for more info about how to build and configure Qt for"
-                << "your device.";
-        return;
-    }
-
-    if (client_buffer_integration && hw_integration)
-        hw_integration->setClientBufferIntegration(targetKey);
+    //BUG: if there is no client buffer integration, bad things will happen when opengl is used
 #endif
 }
 

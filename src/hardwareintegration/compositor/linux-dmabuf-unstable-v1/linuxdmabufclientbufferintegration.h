@@ -67,7 +67,7 @@ public:
     LinuxDmabufClientBufferIntegration();
     ~LinuxDmabufClientBufferIntegration() override;
 
-    bool initializeHardware(struct ::wl_display *display) override;
+    void initializeHardware(struct ::wl_display *display) override;
     QtWayland::ClientBuffer *createBufferFor(wl_resource *resource) override;
     bool importBuffer(wl_resource *resource, LinuxDmabufWlBuffer *linuxDmabufBuffer);
     void removeBuffer(wl_resource *resource);

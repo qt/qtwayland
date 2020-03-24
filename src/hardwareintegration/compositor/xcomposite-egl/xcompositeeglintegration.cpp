@@ -62,26 +62,20 @@ XCompositeEglClientBufferIntegration::XCompositeEglClientBufferIntegration()
 
 }
 
-bool XCompositeEglClientBufferIntegration::initializeHardware(struct ::wl_display *)
+void XCompositeEglClientBufferIntegration::initializeHardware(struct ::wl_display *)
 {
     QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
     if (nativeInterface) {
         mDisplay = static_cast<Display *>(nativeInterface->nativeResourceForIntegration("Display"));
-        if (!mDisplay) {
-            qCWarning(qLcWaylandCompositorHardwareIntegration) << "could not retrieve Display from platform integration";
-            return false;
-        }
+        if (!mDisplay)
+            qFatal("could not retrieve Display from platform integration");
         mEglDisplay = static_cast<EGLDisplay>(nativeInterface->nativeResourceForIntegration("EGLDisplay"));
-        if (!mEglDisplay) {
-            qCWarning(qLcWaylandCompositorHardwareIntegration) << "could not retrieve EGLDisplay from platform integration";
-            return false;
-        }
+        if (!mEglDisplay)
+            qFatal("could not retrieve EGLDisplay from platform integration");
     } else {
-        qCWarning(qLcWaylandCompositorHardwareIntegration) << "Platform integration doesn't have native interface";
-        return false;
+        qFatal("Platform integration doesn't have native interface");
     }
     new XCompositeHandler(m_compositor, mDisplay);
-    return true;
 }
 
 QtWayland::ClientBuffer *XCompositeEglClientBufferIntegration::createBufferFor(wl_resource *buffer)

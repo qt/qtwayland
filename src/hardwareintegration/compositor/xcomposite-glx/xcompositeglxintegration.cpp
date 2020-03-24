@@ -70,19 +70,16 @@ XCompositeGLXClientBufferIntegration::~XCompositeGLXClientBufferIntegration()
     delete mHandler;
 }
 
-bool XCompositeGLXClientBufferIntegration::initializeHardware(struct ::wl_display *)
+void XCompositeGLXClientBufferIntegration::initializeHardware(struct ::wl_display *)
 {
     qDebug() << "Initializing GLX integration";
     QPlatformNativeInterface *nativeInterface = QGuiApplicationPrivate::platformIntegration()->nativeInterface();
     if (nativeInterface) {
         mDisplay = static_cast<Display *>(nativeInterface->nativeResourceForIntegration("Display"));
-        if (!mDisplay) {
-            qCWarning(qLcWaylandCompositorHardwareIntegration) << "could not retrieve Display from platform integration";
-            return false;
-        }
+        if (!mDisplay)
+            qFatal("could not retrieve Display from platform integration");
     } else {
-        qCWarning(qLcWaylandCompositorHardwareIntegration) << "Platform integration doesn't have native interface";
-        return false;
+        qFatal("Platform integration doesn't have native interface");
     }
     mScreen = XDefaultScreen(mDisplay);
 
@@ -93,8 +90,7 @@ bool XCompositeGLXClientBufferIntegration::initializeHardware(struct ::wl_displa
 
     m_glxBindTexImageEXT = reinterpret_cast<PFNGLXBINDTEXIMAGEEXTPROC>(glContext->getProcAddress("glXBindTexImageEXT"));
     if (!m_glxBindTexImageEXT) {
-        qCWarning(qLcWaylandCompositorHardwareIntegration) << "Did not find glxBindTexImageExt, everything will FAIL!";
-        return false;
+        qDebug() << "Did not find glxBindTexImageExt, everything will FAIL!";
     }
     m_glxReleaseTexImageEXT = reinterpret_cast<PFNGLXRELEASETEXIMAGEEXTPROC>(glContext->getProcAddress("glXReleaseTexImageEXT"));
     if (!m_glxReleaseTexImageEXT) {
@@ -102,7 +98,6 @@ bool XCompositeGLXClientBufferIntegration::initializeHardware(struct ::wl_displa
     }
 
     delete glContext;
-    return true;
 }
 
 QtWayland::ClientBuffer *XCompositeGLXClientBufferIntegration::createBufferFor(wl_resource *buffer)

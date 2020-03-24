@@ -1,28 +1,26 @@
 # Generated from libhybris-egl-server.pro.
 
 #####################################################################
-## libhybris-egl-server Plugin:
+## LibHybrisEglServerBufferPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(libhybris-egl-server
+qt_add_plugin(LibHybrisEglServerBufferPlugin
+    OUTPUT_NAME libhybris-egl-server
     TYPE wayland-graphics-integration-client
-    CLASS_NAME LibHybrisEglServerBufferPlugin
     SOURCES
         ../../../../hardwareintegration/client/libhybris-egl-server/libhybriseglserverbufferintegration.cpp ../../../../hardwareintegration/client/libhybris-egl-server/libhybriseglserverbufferintegration.h
         main.cpp
     INCLUDE_DIRECTORIES
         ../../../../hardwareintegration/client/libhybris-egl-server
-    LIBRARIES
-        Qt::WaylandClientPrivate
     PUBLIC_LIBRARIES
         EGL::EGL
         Qt::Core
         Qt::Gui
-        Qt::WaylandClient
+        Qt::WaylandClientPrivate
         Wayland::Client
 )
 
-qt6_generate_wayland_protocol_client_sources(libhybris-egl-server
+qt6_generate_wayland_protocol_client_sources(LibHybrisEglServerBufferPlugin
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../hardwareintegration/client/libhybris-egl-server/../../../extensions/libhybris-egl-server-buffer.xml
 )

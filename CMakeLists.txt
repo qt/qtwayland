@@ -26,6 +26,7 @@ find_package(Qt6 ${PROJECT_VERSION} CONFIG OPTIONAL_COMPONENTS
     EglSupport
     GlxSupport
     LinuxAccessibilitySupport
+    PlatformCompositorSupport
     Quick
     ServiceSupport
     VulkanSupport
@@ -33,8 +34,8 @@ find_package(Qt6 ${PROJECT_VERSION} CONFIG OPTIONAL_COMPONENTS
 )
 # special case end
 
-if(NOT APPLE_OSX AND (ANDROID OR NOT LINUX))
-    message(NOTICE "Skipping the build as the condition \"APPLE_OSX OR LINUX\" is not met.")
+if(NOT MACOS AND NOT QNX AND (ANDROID OR NOT LINUX))
+    message(NOTICE "Skipping the build as the condition \"LINUX OR MACOS OR QNX\" is not met.")
     return()
 endif()
 if(NOT TARGET Qt::Gui)

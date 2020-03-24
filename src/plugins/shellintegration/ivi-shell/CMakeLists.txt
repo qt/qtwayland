@@ -1,27 +1,25 @@
 # Generated from ivi-shell.pro.
 
 #####################################################################
-## ivi-shell Plugin:
+## QWaylandIviShellIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(ivi-shell
+qt_add_plugin(QWaylandIviShellIntegrationPlugin
+    OUTPUT_NAME ivi-shell
     TYPE wayland-shell-integration
-    CLASS_NAME QWaylandIviShellIntegrationPlugin
     SOURCES
         main.cpp
         qwaylandivishellintegration.cpp qwaylandivishellintegration.h
         qwaylandivisurface.cpp qwaylandivisurface_p.h
-    LIBRARIES
-        Qt::GuiPrivate
-        Qt::WaylandClientPrivate
     PUBLIC_LIBRARIES
         Qt::Core
         Qt::Gui
-        Qt::WaylandClient
+        Qt::GuiPrivate
+        Qt::WaylandClientPrivate
         Wayland::Client
 )
 
-qt6_generate_wayland_protocol_client_sources(ivi-shell
+qt6_generate_wayland_protocol_client_sources(QWaylandIviShellIntegrationPlugin
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../3rdparty/protocol/ivi-application.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../3rdparty/protocol/ivi-controller.xml
@@ -33,7 +31,7 @@ qt6_generate_wayland_protocol_client_sources(ivi-shell
 ## Scopes:
 #####################################################################
 
-qt_extend_target(ivi-shell CONDITION QT_FEATURE_xkbcommon
+qt_extend_target(QWaylandIviShellIntegrationPlugin CONDITION QT_FEATURE_xkbcommon
     PUBLIC_LIBRARIES
         XKB::XKB
 )

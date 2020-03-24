@@ -40,6 +40,7 @@ qt_add_module(WaylandClient
         qwaylandshmwindow.cpp qwaylandshmwindow_p.h
         qwaylandsubsurface.cpp qwaylandsubsurface_p.h
         qwaylandsurface.cpp qwaylandsurface_p.h
+        qwaylandtabletv2.cpp qwaylandtabletv2_p.h
         qwaylandtouch.cpp qwaylandtouch_p.h
         qwaylandwindow.cpp qwaylandwindow_p.h
         qwaylandwindowmanagerintegration.cpp qwaylandwindowmanagerintegration_p.h
@@ -63,10 +64,15 @@ qt_add_module(WaylandClient
         Qt::Core
         Qt::Gui
         Wayland::Client
+    PRIVATE_MODULE_INTERFACE
+        Qt::CorePrivate
+        Qt::GuiPrivate
+        Qt::ServiceSupportPrivate # special case QTBUG-83063
 )
 
 qt6_generate_wayland_protocol_client_sources(WaylandClient
     FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/tablet-unstable-v2.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input-unstable-v2.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/wayland.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/wp-primary-selection-unstable-v1.xml
@@ -97,11 +103,18 @@ qt_extend_target(WaylandClient CONDITION QT_FEATURE_vulkan
 qt_extend_target(WaylandClient CONDITION QT_FEATURE_xkbcommon
     LIBRARIES
         Qt::XkbCommonSupportPrivate
+    PRIVATE_MODULE_INTERFACE # special case QTBUG-83063
+        Qt::XkbCommonSupportPrivate # special case
 )
 
-qt_extend_target(WaylandClient CONDITION TARGET Qt::LinuxAccessibilitySupportPrivate # special case
+qt_extend_target(WaylandClient CONDITION TARGET Qt::PlatformCompositorSupportPrivate
     LIBRARIES
-        Qt::LinuxAccessibilitySupportPrivate # special case
+        Qt::PlatformCompositorSupportPrivate
+)
+
+qt_extend_target(WaylandClient CONDITION TARGET Qt::LinuxAccessibilitySupportPrivate
+    LIBRARIES
+        Qt::LinuxAccessibilitySupportPrivate
 )
 
 qt_extend_target(WaylandClient CONDITION QT_FEATURE_clipboard

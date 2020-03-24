@@ -1,12 +1,12 @@
 # Generated from wayland-egl.pro.
 
 #####################################################################
-## qt-plugin-wayland-egl Plugin:
+## QWaylandEglClientBufferPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(qt-plugin-wayland-egl
+qt_add_plugin(QWaylandEglClientBufferPlugin
+    OUTPUT_NAME qt-plugin-wayland-egl
     TYPE wayland-graphics-integration-client
-    CLASS_NAME QWaylandEglClientBufferPlugin
     SOURCES
         ../../../../hardwareintegration/client/wayland-egl/qwaylandeglclientbufferintegration.cpp ../../../../hardwareintegration/client/wayland-egl/qwaylandeglclientbufferintegration.h
         ../../../../hardwareintegration/client/wayland-egl/qwaylandeglinclude.h
@@ -15,15 +15,13 @@ qt_add_plugin(qt-plugin-wayland-egl
         main.cpp
     INCLUDE_DIRECTORIES
         ../../../../hardwareintegration/client/wayland-egl
-    LIBRARIES
-        Qt::EglSupportPrivate
-        Qt::WaylandClientPrivate
     PUBLIC_LIBRARIES
         EGL::EGL
         Qt::Core
-        Qt::EglSupport
+        Qt::EglSupportPrivate
         Qt::Gui
-        Qt::WaylandClient
+        Qt::OpenGLPrivate
+        Qt::WaylandClientPrivate
         Wayland::Client
         Wayland::Egl
 )

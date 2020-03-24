@@ -1,12 +1,12 @@
 # Generated from xdg-shell-v5.pro.
 
 #####################################################################
-## xdg-shell-v5 Plugin:
+## QWaylandXdgShellV5IntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(xdg-shell-v5
+qt_add_plugin(QWaylandXdgShellV5IntegrationPlugin
+    OUTPUT_NAME xdg-shell-v5
     TYPE wayland-shell-integration
-    CLASS_NAME QWaylandXdgShellV5IntegrationPlugin
     SOURCES
         main.cpp
         pregenerated/3rdparty/qwayland-xdg-shell-unstable-v5.cpp pregenerated/3rdparty/qwayland-xdg-shell-unstable-v5_p.h
@@ -18,13 +18,11 @@ qt_add_plugin(xdg-shell-v5
         qwaylandxdgsurfacev5.cpp qwaylandxdgsurfacev5_p.h
     INCLUDE_DIRECTORIES
         pregenerated/3rdparty
-    LIBRARIES
-        Qt::GuiPrivate
-        Qt::WaylandClientPrivate
     PUBLIC_LIBRARIES
         Qt::Core
         Qt::Gui
-        Qt::WaylandClient
+        Qt::GuiPrivate
+        Qt::WaylandClientPrivate
         Wayland::Client
 )
 
@@ -34,7 +32,7 @@ qt_add_plugin(xdg-shell-v5
 ## Scopes:
 #####################################################################
 
-qt_extend_target(xdg-shell-v5 CONDITION QT_FEATURE_xkbcommon
+qt_extend_target(QWaylandXdgShellV5IntegrationPlugin CONDITION QT_FEATURE_xkbcommon
     PUBLIC_LIBRARIES
         XKB::XKB
 )

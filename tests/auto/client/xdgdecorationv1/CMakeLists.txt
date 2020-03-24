@@ -15,11 +15,10 @@ qt_add_test(tst_xdgdecorationv1
         tst_xdgdecorationv1.cpp
     INCLUDE_DIRECTORIES
         ../shared
-    LIBRARIES
-        Qt::WaylandClientPrivate
     PUBLIC_LIBRARIES
         Qt::Gui
-        Qt::WaylandClient
+        Qt::OpenGL
+        Qt::WaylandClientPrivate
         Wayland::Server
         Threads::Threads # special case
 )

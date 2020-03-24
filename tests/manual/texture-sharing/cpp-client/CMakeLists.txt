@@ -11,12 +11,10 @@ qt_add_manual_test(cpp-client
         main.cpp
     INCLUDE_DIRECTORIES
         ../../../../src/imports/texture-sharing
-    LIBRARIES
-        Qt::GuiPrivate
-        Qt::WaylandClientPrivate
     PUBLIC_LIBRARIES
         Qt::Gui
-        Qt::WaylandClient
+        Qt::GuiPrivate
+        Qt::WaylandClientPrivate
 )
 
 qt6_generate_wayland_protocol_client_sources(cpp-client

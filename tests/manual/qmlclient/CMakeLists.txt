@@ -8,11 +8,10 @@ qt_add_manual_test(qmlclient
     GUI
     SOURCES
         main.cpp
-    LIBRARIES
-        Qt::CorePrivate
-        Qt::GuiPrivate
     PUBLIC_LIBRARIES
+        Qt::CorePrivate
         Qt::Gui
+        Qt::GuiPrivate
         Qt::Quick
         Qt::WaylandClient
 )

@@ -19,15 +19,11 @@ find_package(Qt6 COMPONENTS WaylandCompositor)
 add_qt_gui_executable(texture-sharing-custom-compositor
     main.cpp
 )
-target_link_libraries(texture-sharing-custom-compositor PRIVATE
-    Qt::WaylandCompositorPrivate
-)
-
 target_link_libraries(texture-sharing-custom-compositor PUBLIC
     Qt::Core
     Qt::Gui
     Qt::Qml
-    Qt::WaylandCompositor
+    Qt::WaylandCompositorPrivate
 )
 
 

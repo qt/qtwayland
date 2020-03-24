@@ -273,3 +273,6 @@ void QWaylandClient::close()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandclient.cpp"
+

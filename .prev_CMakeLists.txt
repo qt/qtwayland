@@ -12,8 +12,8 @@ project(wayland_FIXME
 find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS BuildInternals Core SET_ME_TO_SOMETHING_USEFUL)
 find_package(Qt6 ${PROJECT_VERSION} CONFIG OPTIONAL_COMPONENTS SET_ME_TO_SOMETHING_USEFUL)
 
-if(NOT APPLE_OSX AND (ANDROID OR NOT LINUX))
-    message(NOTICE "Skipping the build as the condition \"APPLE_OSX OR LINUX\" is not met.")
+if(NOT MACOS AND NOT QNX AND (ANDROID OR NOT LINUX))
+    message(NOTICE "Skipping the build as the condition \"LINUX OR MACOS OR QNX\" is not met.")
     return()
 endif()
 if(NOT TARGET Qt::Gui)

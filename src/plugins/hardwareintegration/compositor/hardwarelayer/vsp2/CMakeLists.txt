@@ -1,12 +1,12 @@
 # Generated from vsp2.pro.
 
 #####################################################################
-## qt-wayland-compositor-vsp2 Plugin:
+## Vsp2HardwareLayerIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(qt-wayland-compositor-vsp2
+qt_add_plugin(Vsp2HardwareLayerIntegrationPlugin
+    OUTPUT_NAME qt-wayland-compositor-vsp2
     TYPE wayland-hardware-layer-integration
-    CLASS_NAME Vsp2HardwareLayerIntegrationPlugin
     SOURCES
         ../../../../../hardwareintegration/compositor/hardwarelayer/vsp2/vsp2hardwarelayerintegration.cpp ../../../../../hardwareintegration/compositor/hardwarelayer/vsp2/vsp2hardwarelayerintegration.h
         main.cpp
@@ -14,14 +14,12 @@ qt_add_plugin(qt-wayland-compositor-vsp2
         ../../../../../hardwareintegration/compositor/hardwarelayer/vsp2
     LIBRARIES
         PkgConfig::Waylandkms
-        Qt::CorePrivate
-        Qt::GuiPrivate
-        Qt::WaylandCompositorPrivate
         Wayland::Server
     PUBLIC_LIBRARIES
-        Qt::Core
-        Qt::Gui
+        Qt::CorePrivate
+        Qt::GuiPrivate
         Qt::WaylandCompositor
+        Qt::WaylandCompositorPrivate
 )
 
 #### Keys ignored in scope 1:.:.:vsp2.pro:<TRUE>:

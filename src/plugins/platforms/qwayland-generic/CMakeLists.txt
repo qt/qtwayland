@@ -1,21 +1,19 @@
 # Generated from qwayland-generic.pro.
 
 #####################################################################
-## qwayland-generic Plugin:
+## QWaylandIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(qwayland-generic
+qt_add_plugin(QWaylandIntegrationPlugin
+    OUTPUT_NAME qwayland-generic
     TYPE platforms
-    CLASS_NAME QWaylandIntegrationPlugin
     DEFAULT_IF ${QT_QPA_DEFAULT_PLATFORM} MATCHES wayland # special case
     SOURCES
         main.cpp
-    LIBRARIES
-        Qt::WaylandClientPrivate
     PUBLIC_LIBRARIES
         Qt::Core
         Qt::Gui
-        Qt::WaylandClient
+        Qt::WaylandClientPrivate
 )
 
 #### Keys ignored in scope 1:.:.:qwayland-generic.pro:<TRUE>:

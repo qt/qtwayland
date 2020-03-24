@@ -15,11 +15,10 @@ qt_add_test(tst_seatv4
         tst_seatv4.cpp
     INCLUDE_DIRECTORIES
         ../shared
-    LIBRARIES
-        Qt::WaylandClientPrivate
     PUBLIC_LIBRARIES
         Qt::Gui
-        Qt::WaylandClient
+        Qt::OpenGL
+        Qt::WaylandClientPrivate
         Wayland::Server
         Threads::Threads # special case
 )
@@ -35,9 +34,7 @@ qt6_generate_wayland_protocol_server_sources(tst_seatv4
 #####################################################################
 
 qt_extend_target(tst_seatv4 CONDITION QT_FEATURE_cursor
-    LIBRARIES
-        Qt::GuiPrivate
     PUBLIC_LIBRARIES
-        Qt::Gui
+        Qt::GuiPrivate
         Wayland::Cursor
 )

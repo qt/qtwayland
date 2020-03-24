@@ -24,13 +24,10 @@ qt6_generate_wayland_protocol_client_sources(custom-extension-cpp-client
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../protocol/custom.xml
 )
-target_link_libraries(custom-extension-cpp-client PRIVATE
-    Qt::GuiPrivate
-)
-
 target_link_libraries(custom-extension-cpp-client PUBLIC
     Qt::Core
     Qt::Gui
+    Qt::GuiPrivate
     Qt::WaylandClient
 )
 

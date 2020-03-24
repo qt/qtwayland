@@ -1,12 +1,12 @@
 # Generated from xcomposite-egl.pro.
 
 #####################################################################
-## qt-wayland-compositor-xcomposite-egl Plugin:
+## QWaylandXCompositeEglClientBufferIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(qt-wayland-compositor-xcomposite-egl
+qt_add_plugin(QWaylandXCompositeEglClientBufferIntegrationPlugin
+    OUTPUT_NAME qt-wayland-compositor-xcomposite-egl
     TYPE wayland-graphics-integration-server
-    CLASS_NAME QWaylandXCompositeEglClientBufferIntegrationPlugin
     SOURCES
         ../../../../hardwareintegration/compositor/xcomposite-egl/xcompositeeglintegration.cpp ../../../../hardwareintegration/compositor/xcomposite-egl/xcompositeeglintegration.h
         ../../../../hardwareintegration/compositor/xcomposite_share/xcompositebuffer.cpp ../../../../hardwareintegration/compositor/xcomposite_share/xcompositebuffer.h
@@ -18,19 +18,19 @@ qt_add_plugin(qt-wayland-compositor-xcomposite-egl
         ../../../../hardwareintegration/compositor/xcomposite_share
     LIBRARIES
         EGL::EGL
-        Qt::CorePrivate
-        Qt::GuiPrivate
-        Qt::WaylandCompositorPrivate
         Wayland::Server
         X11::X11
     PUBLIC_LIBRARIES
         PkgConfig::XComposite
         Qt::Core
+        Qt::CorePrivate
         Qt::Gui
+        Qt::GuiPrivate
         Qt::WaylandCompositor
+        Qt::WaylandCompositorPrivate
 )
 
-qt6_generate_wayland_protocol_server_sources(qt-wayland-compositor-xcomposite-egl
+qt6_generate_wayland_protocol_server_sources(QWaylandXCompositeEglClientBufferIntegrationPlugin
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../hardwareintegration/compositor/xcomposite_share/../../../3rdparty/protocol/wayland.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../hardwareintegration/compositor/xcomposite_share/../../../extensions/xcomposite.xml

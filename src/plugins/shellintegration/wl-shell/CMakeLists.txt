@@ -1,27 +1,25 @@
 # Generated from wl-shell.pro.
 
 #####################################################################
-## wl-shell Plugin:
+## QWaylandWlShellIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(wl-shell
+qt_add_plugin(QWaylandWlShellIntegrationPlugin
+    OUTPUT_NAME wl-shell
     TYPE wayland-shell-integration
-    CLASS_NAME QWaylandWlShellIntegrationPlugin
     SOURCES
         main.cpp
         qwaylandwlshellintegration.cpp qwaylandwlshellintegration_p.h
         qwaylandwlshellsurface.cpp qwaylandwlshellsurface_p.h
-    LIBRARIES
-        Qt::GuiPrivate
-        Qt::WaylandClientPrivate
     PUBLIC_LIBRARIES
         Qt::Core
         Qt::Gui
-        Qt::WaylandClient
+        Qt::GuiPrivate
+        Qt::WaylandClientPrivate
         Wayland::Client
 )
 
-qt6_generate_wayland_protocol_client_sources(wl-shell
+qt6_generate_wayland_protocol_client_sources(QWaylandWlShellIntegrationPlugin
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../3rdparty/protocol/wayland.xml
 )
@@ -32,7 +30,7 @@ qt6_generate_wayland_protocol_client_sources(wl-shell
 ## Scopes:
 #####################################################################
 
-qt_extend_target(wl-shell CONDITION QT_FEATURE_xkbcommon
+qt_extend_target(QWaylandWlShellIntegrationPlugin CONDITION QT_FEATURE_xkbcommon
     LIBRARIES
         XKB::XKB
 )

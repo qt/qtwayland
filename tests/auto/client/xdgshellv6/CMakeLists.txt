@@ -17,13 +17,12 @@ qt_add_test(tst_client_xdgshellv6
         tst_xdgshellv6.cpp
     INCLUDE_DIRECTORIES
         ../shared_old
-    LIBRARIES
-        Qt::CorePrivate
-        Qt::GuiPrivate
-        Qt::WaylandClientPrivate
     PUBLIC_LIBRARIES
+        Qt::CorePrivate
         Qt::Gui
-        Qt::WaylandClient
+        Qt::GuiPrivate
+        Qt::OpenGL
+        Qt::WaylandClientPrivate
         Wayland::Client
         Wayland::Server
         Threads::Threads # special case

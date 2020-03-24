@@ -1,12 +1,12 @@
 # Generated from dmabuf-server.pro.
 
 #####################################################################
-## qt-wayland-compositor-dmabuf-server-buffer Plugin:
+## DmaBufServerBufferIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(qt-wayland-compositor-dmabuf-server-buffer
+qt_add_plugin(DmaBufServerBufferIntegrationPlugin
+    OUTPUT_NAME qt-wayland-compositor-dmabuf-server-buffer
     TYPE wayland-graphics-integration-server
-    CLASS_NAME DmaBufServerBufferIntegrationPlugin
     SOURCES
         ../../../../hardwareintegration/compositor/dmabuf-server/dmabufserverbufferintegration.cpp ../../../../hardwareintegration/compositor/dmabuf-server/dmabufserverbufferintegration.h
         main.cpp
@@ -14,17 +14,16 @@ qt_add_plugin(qt-wayland-compositor-dmabuf-server-buffer
         ../../../../hardwareintegration/compositor/dmabuf-server
     LIBRARIES
         EGL::EGL
-        Qt::CorePrivate
-        Qt::GuiPrivate
-        Qt::WaylandCompositorPrivate
+        Libdrm::Libdrm
         Wayland::Server
     PUBLIC_LIBRARIES
-        Qt::Core
-        Qt::Gui
+        Qt::CorePrivate
+        Qt::GuiPrivate
         Qt::WaylandCompositor
+        Qt::WaylandCompositorPrivate
 )
 
-qt6_generate_wayland_protocol_server_sources(qt-wayland-compositor-dmabuf-server-buffer
+qt6_generate_wayland_protocol_server_sources(DmaBufServerBufferIntegrationPlugin
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../hardwareintegration/compositor/dmabuf-server/../../../extensions/qt-dmabuf-server-buffer.xml
 )

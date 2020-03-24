@@ -1,12 +1,12 @@
 # Generated from xcomposite-egl.pro.
 
 #####################################################################
-## xcomposite-egl Plugin:
+## QWaylandXCompositeEglClientBufferPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(xcomposite-egl
+qt_add_plugin(QWaylandXCompositeEglClientBufferPlugin
+    OUTPUT_NAME xcomposite-egl
     TYPE wayland-graphics-integration-client
-    CLASS_NAME QWaylandXCompositeEglClientBufferPlugin
     SOURCES
         ../../../../hardwareintegration/client/xcomposite-egl/qwaylandxcompositeeglclientbufferintegration.cpp ../../../../hardwareintegration/client/xcomposite-egl/qwaylandxcompositeeglclientbufferintegration.h
         ../../../../hardwareintegration/client/xcomposite-egl/qwaylandxcompositeeglcontext.cpp ../../../../hardwareintegration/client/xcomposite-egl/qwaylandxcompositeeglcontext.h
@@ -16,21 +16,18 @@ qt_add_plugin(xcomposite-egl
     INCLUDE_DIRECTORIES
         ../../../../hardwareintegration/client/xcomposite-egl
         ../../../../hardwareintegration/client/xcomposite_share
-    LIBRARIES
-        Qt::EglSupportPrivate
-        Qt::WaylandClientPrivate
     PUBLIC_LIBRARIES
         EGL::EGL
         PkgConfig::XComposite
         Qt::Core
-        Qt::EglSupport
+        Qt::EglSupportPrivate
         Qt::Gui
-        Qt::WaylandClient
+        Qt::WaylandClientPrivate
         Wayland::Client
         X11::X11
 )
 
-qt6_generate_wayland_protocol_client_sources(xcomposite-egl
+qt6_generate_wayland_protocol_client_sources(QWaylandXCompositeEglClientBufferPlugin
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../hardwareintegration/client/xcomposite_share/../../../extensions/xcomposite.xml
 )

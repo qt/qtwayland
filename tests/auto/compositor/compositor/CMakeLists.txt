@@ -15,13 +15,12 @@ qt_add_test(tst_compositor
         testkeyboardgrabber.cpp testkeyboardgrabber.h
         testseat.cpp testseat.h
         tst_compositor.cpp
-    LIBRARIES
-        Qt::CorePrivate
-        Qt::GuiPrivate
-        Qt::WaylandCompositorPrivate
     PUBLIC_LIBRARIES
+        Qt::CorePrivate
         Qt::Gui
+        Qt::GuiPrivate
         Qt::WaylandCompositor
+        Qt::WaylandCompositorPrivate
         Wayland::Client
         Wayland::Server
 )

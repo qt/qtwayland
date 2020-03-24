@@ -9,11 +9,10 @@ qt_add_manual_test(subsurface
     SOURCES
         main.cpp
         shmwindow.cpp shmwindow.h
-    LIBRARIES
-        Qt::CorePrivate
-        Qt::GuiPrivate
     PUBLIC_LIBRARIES
+        Qt::CorePrivate
         Qt::Gui
+        Qt::GuiPrivate
         Qt::Quick
         Qt::WaylandClient
 )

@@ -37,7 +37,11 @@ function(qt6_generate_wayland_protocol_client_sources target)
         # TODO: We need this hack in order to get the xcomposite plugins to build...
         # unfortunately, it's not going to work outside QtWayland because we're using waylandclient-private includes
         set(qtwaylandscanner_code_include "")
-        set (targets_that_need_include "xcomposite-egl" "xcomposite-glx" "qwayland-xcomposite-egl" "qwayland-xcomposite-glx")
+        set (targets_that_need_include
+            "QWaylandXCompositeEglClientBufferPlugin"
+            "QWaylandXCompositeGlxClientBufferPlugin"
+            "QWaylandXCompositeEglPlatformIntegrationPlugin"
+            "QWaylandXCompositeGlxPlatformIntegrationPlugin")
         if ("${target}" IN_LIST targets_that_need_include OR is_for_module)
             set(qtwaylandscanner_code_include "<QtWaylandClient/private/wayland-wayland-client-protocol.h>")
         endif()

@@ -120,3 +120,5 @@ QWaylandKeymapPrivate::QWaylandKeymapPrivate(const QString &layout, const QStrin
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandkeymap.cpp"

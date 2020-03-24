@@ -11,17 +11,15 @@ qt_add_qml_module(qwaylandtexturesharingextension
     SKIP_TYPE_REGISTRATION
     SOURCES
         plugin.cpp
-    LIBRARIES
-        Qt::CorePrivate
-        Qt::GuiPrivate
-        Qt::QuickPrivate
-        Qt::WaylandCompositorPrivate
     PUBLIC_LIBRARIES
         Qt::Core
+        Qt::CorePrivate
         Qt::Gui
+        Qt::GuiPrivate
         Qt::Qml
-        Qt::Quick
+        Qt::QuickPrivate
         Qt::WaylandCompositor
+        Qt::WaylandCompositorPrivate
 )
 
 #### Keys ignored in scope 1:.:.:texture-sharing-extension.pro:<TRUE>:

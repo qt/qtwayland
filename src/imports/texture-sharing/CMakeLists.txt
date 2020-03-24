@@ -13,17 +13,16 @@ qt_add_qml_module(qwaylandtexturesharing
         plugin.cpp
         sharedtextureprovider.cpp sharedtextureprovider.h
         texturesharingextension.cpp texturesharingextension.h
-    LIBRARIES
-        Qt::CorePrivate
-        Qt::GuiPrivate
-        Qt::QuickPrivate
-        Qt::WaylandClientPrivate
     PUBLIC_LIBRARIES
         Qt::Core
+        Qt::CorePrivate
         Qt::Gui
+        Qt::GuiPrivate
+        Qt::OpenGL
         Qt::Qml
-        Qt::Quick
+        Qt::QuickPrivate
         Qt::WaylandClient
+        Qt::WaylandClientPrivate
 )
 
 qt6_generate_wayland_protocol_client_sources(qwaylandtexturesharing

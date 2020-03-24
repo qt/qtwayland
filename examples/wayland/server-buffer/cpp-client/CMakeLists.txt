@@ -14,6 +14,7 @@ set(INSTALL_EXAMPLEDIR "examples/wayland/server-buffer/cpp-client")
 find_package(Qt6 COMPONENTS Core)
 find_package(Qt6 COMPONENTS Gui)
 find_package(Qt6 COMPONENTS WaylandClient)
+find_package(Qt6 COMPONENTS OpenGL)
 
 add_qt_gui_executable(server-buffer-cpp-client
     main.cpp
@@ -24,15 +25,12 @@ qt6_generate_wayland_protocol_client_sources(server-buffer-cpp-client
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../share-buffer.xml
 )
-target_link_libraries(server-buffer-cpp-client PRIVATE
-    Qt::GuiPrivate
-    Qt::WaylandClientPrivate
-)
-
 target_link_libraries(server-buffer-cpp-client PUBLIC
     Qt::Core
     Qt::Gui
-    Qt::WaylandClient
+    Qt::GuiPrivate
+    Qt::OpenGL
+    Qt::WaylandClientPrivate
 )
 
 install(TARGETS server-buffer-cpp-client

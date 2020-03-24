@@ -589,3 +589,5 @@ uint QWaylandKeyboard::keyToScanCode(int qtKey) const
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandkeyboard.cpp"

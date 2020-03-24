@@ -1,27 +1,26 @@
 # Generated from vulkan-server.pro.
 
 #####################################################################
-## vulkan-server Plugin:
+## VulkanServerBufferPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(vulkan-server
+qt_add_plugin(VulkanServerBufferPlugin
+    OUTPUT_NAME vulkan-server
     TYPE wayland-graphics-integration-client
-    CLASS_NAME VulkanServerBufferPlugin
     SOURCES
         ../../../../hardwareintegration/client/vulkan-server/vulkanserverbufferintegration.cpp ../../../../hardwareintegration/client/vulkan-server/vulkanserverbufferintegration.h
         main.cpp
     INCLUDE_DIRECTORIES
         ../../../../hardwareintegration/client/vulkan-server
-    LIBRARIES
-        Qt::WaylandClientPrivate
     PUBLIC_LIBRARIES
         Qt::Core
         Qt::Gui
-        Qt::WaylandClient
+        Qt::OpenGL
+        Qt::WaylandClientPrivate
         Wayland::Client
 )
 
-qt6_generate_wayland_protocol_client_sources(vulkan-server
+qt6_generate_wayland_protocol_client_sources(VulkanServerBufferPlugin
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../hardwareintegration/client/vulkan-server/../../../extensions/qt-vulkan-server-buffer-unstable-v1.xml
 )

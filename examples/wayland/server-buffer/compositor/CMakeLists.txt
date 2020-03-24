@@ -25,15 +25,11 @@ qt6_generate_wayland_protocol_server_sources(compositor
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../share-buffer.xml
 )
-target_link_libraries(compositor PRIVATE
-    Qt::WaylandCompositorPrivate
-)
-
 target_link_libraries(compositor PUBLIC
     Qt::Core
     Qt::Gui
     Qt::Qml
-    Qt::WaylandCompositor
+    Qt::WaylandCompositorPrivate
 )
 
 

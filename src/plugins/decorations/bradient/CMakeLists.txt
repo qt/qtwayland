@@ -1,20 +1,18 @@
 # Generated from bradient.pro.
 
 #####################################################################
-## bradient Plugin:
+## QWaylandBradientDecorationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(bradient
+qt_add_plugin(QWaylandBradientDecorationPlugin
+    OUTPUT_NAME bradient
     TYPE wayland-decoration-client
-    CLASS_NAME QWaylandBradientDecorationPlugin
     SOURCES
         main.cpp
-    LIBRARIES
-        Qt::WaylandClientPrivate
     PUBLIC_LIBRARIES
         Qt::Core
         Qt::Gui
-        Qt::WaylandClient
+        Qt::WaylandClientPrivate
         Wayland::Client
 )
 

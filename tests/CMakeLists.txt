@@ -1,5 +1,6 @@
 # Generated from tests.pro.
 
+qt_find_package(Threads REQUIRED) # special case
 if(QT_BUILD_STANDALONE_TESTS)
     # Add qt_find_package calls for extra dependencies that need to be found when building
     # the standalone tests here.
@@ -18,5 +19,4 @@ if(QT_BUILD_STANDALONE_TESTS)
     qt_find_package(WaylandScanner PROVIDED_TARGETS Wayland::Scanner)
     # special case end
 endif()
-qt_find_package(Threads REQUIRED) # special case
 qt_build_tests()

@@ -1,28 +1,27 @@
 # Generated from dmabuf-server.pro.
 
 #####################################################################
-## dmabuf-server Plugin:
+## DmaBufServerBufferPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(dmabuf-server
+qt_add_plugin(DmaBufServerBufferPlugin
+    OUTPUT_NAME dmabuf-server
     TYPE wayland-graphics-integration-client
-    CLASS_NAME DmaBufServerBufferPlugin
     SOURCES
         ../../../../hardwareintegration/client/dmabuf-server/dmabufserverbufferintegration.cpp ../../../../hardwareintegration/client/dmabuf-server/dmabufserverbufferintegration.h
         main.cpp
     INCLUDE_DIRECTORIES
         ../../../../hardwareintegration/client/dmabuf-server
-    LIBRARIES
-        Qt::WaylandClientPrivate
     PUBLIC_LIBRARIES
         EGL::EGL
         Qt::Core
         Qt::Gui
-        Qt::WaylandClient
+        Qt::OpenGL
+        Qt::WaylandClientPrivate
         Wayland::Client
 )
 
-qt6_generate_wayland_protocol_client_sources(dmabuf-server
+qt6_generate_wayland_protocol_client_sources(DmaBufServerBufferPlugin
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../hardwareintegration/client/dmabuf-server/../../../extensions/qt-dmabuf-server-buffer.xml
 )

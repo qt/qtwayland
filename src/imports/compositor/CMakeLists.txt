@@ -12,18 +12,15 @@ qt_add_qml_module(qwaylandcompositorplugin
     SOURCES
         qwaylandmousetracker.cpp qwaylandmousetracker_p.h
         qwaylandquickcompositorplugin.cpp
-    LIBRARIES
+    PUBLIC_LIBRARIES
+        Qt::Core
         Qt::CorePrivate
+        Qt::Gui
         Qt::GuiPrivate
         Qt::QmlPrivate
         Qt::QuickPrivate
-        Qt::WaylandCompositorPrivate
-    PUBLIC_LIBRARIES
-        Qt::Core
-        Qt::Gui
-        Qt::Qml
-        Qt::Quick
         Qt::WaylandCompositor
+        Qt::WaylandCompositorPrivate
 )
 #### Ignored generated resource: ${CMAKE_CURRENT_BINARY_DIR}/compositor.qrc
 #### Keys ignored in scope 1:.:.:compositor.pro:<TRUE>:

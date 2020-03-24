@@ -1,12 +1,12 @@
 # Generated from brcm-egl.pro.
 
 #####################################################################
-## brcm-egl Plugin:
+## QWaylandBrcmEglClientBufferPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(brcm-egl
+qt_add_plugin(QWaylandBrcmEglClientBufferPlugin
+    OUTPUT_NAME brcm-egl
     TYPE wayland-graphics-integration-client
-    CLASS_NAME QWaylandBrcmEglClientBufferPlugin
     SOURCES
         ../../../../hardwareintegration/client/brcm-egl/qwaylandbrcmeglintegration.cpp ../../../../hardwareintegration/client/brcm-egl/qwaylandbrcmeglintegration.h
         ../../../../hardwareintegration/client/brcm-egl/qwaylandbrcmeglwindow.cpp ../../../../hardwareintegration/client/brcm-egl/qwaylandbrcmeglwindow.h
@@ -14,20 +14,17 @@ qt_add_plugin(brcm-egl
         main.cpp
     INCLUDE_DIRECTORIES
         ../../../../hardwareintegration/client/brcm-egl
-    LIBRARIES
-        Qt::EglSupportPrivate
-        Qt::WaylandClientPrivate
     PUBLIC_LIBRARIES
         ${CMAKE_DL_LIBS}
         EGL::EGL
         Qt::Core
-        Qt::EglSupport
+        Qt::EglSupportPrivate
         Qt::Gui
-        Qt::WaylandClient
+        Qt::WaylandClientPrivate
         Wayland::Client
 )
 
-qt6_generate_wayland_protocol_client_sources(brcm-egl
+qt6_generate_wayland_protocol_client_sources(QWaylandBrcmEglClientBufferPlugin
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../hardwareintegration/client/brcm-egl/../../../extensions/brcm.xml
 )

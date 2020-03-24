@@ -1,12 +1,12 @@
 # Generated from xcomposite-glx.pro.
 
 #####################################################################
-## xcomposite-glx Plugin:
+## QWaylandXCompositeGlxClientBufferPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(xcomposite-glx
+qt_add_plugin(QWaylandXCompositeGlxClientBufferPlugin
+    OUTPUT_NAME xcomposite-glx
     TYPE wayland-graphics-integration-client
-    CLASS_NAME QWaylandXCompositeGlxClientBufferPlugin
     SOURCES
         ../../../../hardwareintegration/client/xcomposite-glx/qwaylandxcompositeglxcontext.cpp ../../../../hardwareintegration/client/xcomposite-glx/qwaylandxcompositeglxcontext.h
         ../../../../hardwareintegration/client/xcomposite-glx/qwaylandxcompositeglxintegration.cpp ../../../../hardwareintegration/client/xcomposite-glx/qwaylandxcompositeglxintegration.h
@@ -16,21 +16,18 @@ qt_add_plugin(xcomposite-glx
     INCLUDE_DIRECTORIES
         ../../../../hardwareintegration/client/xcomposite-glx
         ../../../../hardwareintegration/client/xcomposite_share
-    LIBRARIES
-        Qt::GlxSupportPrivate
-        Qt::WaylandClientPrivate
     PUBLIC_LIBRARIES
         ${CMAKE_DL_LIBS}
         PkgConfig::XComposite
         Qt::Core
-        Qt::GlxSupport
+        Qt::GlxSupportPrivate
         Qt::Gui
-        Qt::WaylandClient
+        Qt::WaylandClientPrivate
         Wayland::Client
         X11::X11
 )
 
-qt6_generate_wayland_protocol_client_sources(xcomposite-glx
+qt6_generate_wayland_protocol_client_sources(QWaylandXCompositeGlxClientBufferPlugin
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../hardwareintegration/client/xcomposite_share/../../../extensions/xcomposite.xml
 )

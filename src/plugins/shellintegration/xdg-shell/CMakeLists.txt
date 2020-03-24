@@ -1,28 +1,26 @@
 # Generated from xdg-shell.pro.
 
 #####################################################################
-## xdg-shell Plugin:
+## QWaylandXdgShellIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(xdg-shell
+qt_add_plugin(QWaylandXdgShellIntegrationPlugin
+    OUTPUT_NAME xdg-shell
     TYPE wayland-shell-integration
-    CLASS_NAME QWaylandXdgShellIntegrationPlugin
     SOURCES
         main.cpp
         qwaylandxdgdecorationv1.cpp qwaylandxdgdecorationv1_p.h
         qwaylandxdgshell.cpp qwaylandxdgshell_p.h
         qwaylandxdgshellintegration.cpp qwaylandxdgshellintegration_p.h
-    LIBRARIES
-        Qt::GuiPrivate
-        Qt::WaylandClientPrivate
     PUBLIC_LIBRARIES
         Qt::Core
         Qt::Gui
-        Qt::WaylandClient
+        Qt::GuiPrivate
+        Qt::WaylandClientPrivate
         Wayland::Client
 )
 
-qt6_generate_wayland_protocol_client_sources(xdg-shell
+qt6_generate_wayland_protocol_client_sources(QWaylandXdgShellIntegrationPlugin
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../3rdparty/protocol/xdg-decoration-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../3rdparty/protocol/xdg-shell.xml
@@ -34,7 +32,7 @@ qt6_generate_wayland_protocol_client_sources(xdg-shell
 ## Scopes:
 #####################################################################
 
-qt_extend_target(xdg-shell CONDITION QT_FEATURE_xkbcommon
+qt_extend_target(QWaylandXdgShellIntegrationPlugin CONDITION QT_FEATURE_xkbcommon
     LIBRARIES
         XKB::XKB
 )

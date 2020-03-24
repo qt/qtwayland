@@ -223,7 +223,7 @@ void QWaylandCompositorPrivate::init()
     int fd = wl_event_loop_get_fd(loop);
 
     QSocketNotifier *sockNot = new QSocketNotifier(fd, QSocketNotifier::Read, q);
-    QObject::connect(sockNot, SIGNAL(activated(int)), q, SLOT(processWaylandEvents()));
+    QObject::connect(sockNot, SIGNAL(activated(QSocketDescriptor)), q, SLOT(processWaylandEvents()));
 
     QAbstractEventDispatcher *dispatcher = QGuiApplicationPrivate::eventDispatcher;
     QObject::connect(dispatcher, SIGNAL(aboutToBlock()), q, SLOT(processWaylandEvents()));

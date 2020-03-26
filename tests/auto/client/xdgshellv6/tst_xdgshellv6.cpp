@@ -403,7 +403,7 @@ void tst_WaylandClientXdgShellV6::flushUnconfiguredXdgSurface()
     m_compositor->sendShellSurfaceConfigure(surface);
     QTRY_COMPARE(surface->image.size(), window.frameGeometry().size());
     QTRY_COMPARE(surface->image.pixel(window.frameMargins().left(), window.frameMargins().top()), color.rgba());
-    QVERIFY(window.isExposed());
+    QTRY_VERIFY(window.isExposed());
 }
 
 void tst_WaylandClientXdgShellV6::dontSpamExposeEvents()

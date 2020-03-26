@@ -31,9 +31,9 @@
 
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <qpa/qplatformnativeinterface.h>
+#include <QtOpenGL/QOpenGLTexture>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QOpenGLContext>
-#include <QtGui/QOpenGLTexture>
 #include <QtGui/QOffscreenSurface>
 #include <qpa/qplatformscreen.h>
 #include <QtGui/QWindow>

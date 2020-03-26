@@ -96,7 +96,6 @@ WaylandCompositor {
                     ShellSurfaceItem {
                         id: shellSurfaceItem
                         moveItem: parent
-                        autoCreatePopupItems: true
                         shellSurface: modelData
                         onSurfaceDestroyed: shellSurfaces.remove(index)
                     }

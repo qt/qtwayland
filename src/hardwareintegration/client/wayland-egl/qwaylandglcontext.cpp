@@ -49,12 +49,12 @@
 #include <QDebug>
 #include <QtEglSupport/private/qeglconvenience_p.h>
 #include <QtGui/private/qopenglcontext_p.h>
-#include <QtGui/private/qopengltexturecache_p.h>
+#include <QtOpenGL/private/qopengltexturecache_p.h>
 #include <QtGui/private/qguiapplication_p.h>
 
 #include <qpa/qplatformopenglcontext.h>
 #include <QtGui/QSurfaceFormat>
-#include <QtGui/QOpenGLShaderProgram>
+#include <QtOpenGL/QOpenGLShaderProgram>
 #include <QtGui/QOpenGLFunctions>
 #include <QOpenGLBuffer>
 
@@ -312,7 +312,7 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *dis
 
     // Create an EGL context for the decorations blitter. By using a dedicated context we don't need to make sure to not
     // change the context state and we also use OpenGL ES 2 API independently to what the app is using to draw.
-    QVector<EGLint> eglDecorationsContextAttrs = { EGL_CONTEXT_CLIENT_VERSION, 1, EGL_NONE };
+    QVector<EGLint> eglDecorationsContextAttrs = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
     m_decorationsContext = eglCreateContext(m_eglDisplay, m_config, m_context, eglDecorationsContextAttrs.constData());
     if (m_decorationsContext == EGL_NO_CONTEXT)
         qWarning("QWaylandGLContext: Failed to create the decorations EGLContext. Decorations will not be drawn.");
@@ -346,7 +346,11 @@ void QWaylandGLContext::updateGLFormat()
 
     wl_surface *wlSurface = m_display->createSurface(nullptr);
     wl_egl_window *eglWindow = wl_egl_window_create(wlSurface, 1, 1);
-    EGLSurface eglSurface = eglCreateWindowSurface(m_eglDisplay, m_config, eglWindow, 0);
+#if defined(EGL_VERSION_1_5)
+    EGLSurface eglSurface = eglCreatePlatformWindowSurface(m_eglDisplay, m_config, eglWindow, nullptr);
+#else
+    EGLSurface eglSurface = eglCreateWindowSurface(m_eglDisplay, m_config, eglWindow, nullptr);
+#endif
 
     if (eglMakeCurrent(m_eglDisplay, eglSurface, eglSurface, m_context)) {
         if (m_format.renderableType() == QSurfaceFormat::OpenGL

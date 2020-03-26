@@ -40,8 +40,8 @@
 #include "shmserverbufferintegration.h"
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QDebug>
+#include <QtOpenGL/QOpenGLTexture>
 #include <QtGui/QOpenGLContext>
-#include <QtGui/QOpenGLTexture>
 #include <QtGui/QImage>
 #include <QtCore/QSharedMemory>
 

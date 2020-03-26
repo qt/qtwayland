@@ -45,7 +45,7 @@ QT_BEGIN_NAMESPACE
     \class QWaylandIdleInhibitManagerV1
     \inmodule QtWaylandCompositor
     \since 5.14
-    \brief Provides an extension that allows to inhibit the idle behavior of the compositor
+    \brief Provides an extension that allows to inhibit the idle behavior of the compositor.
     \sa QWaylandSurface::inhibitsIdle
 
     The QWaylandIdleInhibitV1 extension provides a way for a client to inhibit the idle behavior of
@@ -60,7 +60,7 @@ QT_BEGIN_NAMESPACE
     \qmltype IdleInhibitManagerV1
     \inqmlmodule QtWayland.Compositor
     \since 5.14
-    \brief Provides an extension that allows to inhibit the idle behavior of the compositor
+    \brief Provides an extension that allows to inhibit the idle behavior of the compositor.
     \sa WaylandSurface::inhibitsIdle
 
     The IdleInhibitManagerV1 extension provides a way for a client to inhibit the idle behavior of

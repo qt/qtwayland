@@ -100,6 +100,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgSurfaceV6 : public QWaylandShellSur
     Q_PROPERTY(QWaylandXdgToplevelV6 *toplevel READ toplevel NOTIFY toplevelCreated)
     Q_PROPERTY(QWaylandXdgPopupV6 *popup READ popup NOTIFY popupCreated)
     Q_PROPERTY(QRect windowGeometry READ windowGeometry NOTIFY windowGeometryChanged)
+    Q_MOC_INCLUDE("qwaylandsurface.h")
 
 public:
     QWaylandXdgSurfaceV6();
@@ -215,8 +216,8 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPopupV6 : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandXdgPopupV6)
-    Q_PROPERTY(QWaylandXdgSurfaceV6 *xdgSurface READ xdgSurface)
-    Q_PROPERTY(QWaylandXdgSurfaceV6 *parentXdgSurface READ parentXdgSurface)
+    Q_PROPERTY(QWaylandXdgSurfaceV6 *xdgSurface READ xdgSurface CONSTANT)
+    Q_PROPERTY(QWaylandXdgSurfaceV6 *parentXdgSurface READ parentXdgSurface CONSTANT)
     Q_PROPERTY(QRect configuredGeometry READ configuredGeometry NOTIFY configuredGeometryChanged)
 
     // Positioner properties

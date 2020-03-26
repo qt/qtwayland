@@ -99,8 +99,6 @@ WaylandCompositor {
                         ShellSurfaceItem {
                             anchors.fill: parent
                             shellSurface: xdgSurface
-                            autoCreatePopupItems: true
-                            sizeFollowsSurface: false
                             onSurfaceDestroyed: toplevels.remove(index)
                         }
                         MouseArea {

@@ -9,7 +9,7 @@
         "Description": "A Wayland shell for displaying a single surface per output",
         "Homepage": "https://wayland.freedesktop.org",
         "Version": "unstable v1",
-        "DownloadLocation": "https://cgit.freedesktop.org/wayland/wayland-protocols",
+        "DownloadLocation": "https://gitlab.freedesktop.org/wayland/wayland-protocols/raw/1.18/unstable/fullscreen-shell/fullscreen-shell-unstable-v1.xml",
         "LicenseId": "MIT",
         "License": "MIT License",
         "LicenseFile": "MIT_LICENSE.txt",
@@ -65,11 +65,11 @@ Copyright (c) 2013 BMW Car IT GmbH"
         "Description": "The primary selection extension allows copying text by selecting it and pasting it with the middle mouse button.",
         "Homepage": "https://wayland.freedesktop.org",
         "Version": "1",
-        "DownloadLocation": "https://cgit.freedesktop.org/wayland/wayland-protocols/plain/unstable/primary-selection/primary-selection-unstable-v1.xml",
+        "DownloadLocation": "https://gitlab.freedesktop.org/wayland/wayland-protocols/raw/1.18/unstable/primary-selection/primary-selection-unstable-v1.xml",
         "LicenseId": "MIT",
         "License": "MIT License",
         "LicenseFile": "MIT_LICENSE.txt",
-        "Copyright": "Copyright © 2015 2016 Red Hat"
+        "Copyright": "Copyright © 2015, 2016 Red Hat"
     },
 
     {
@@ -82,11 +82,29 @@ Copyright (c) 2013 BMW Car IT GmbH"
         "Description": "The Wayland scaler extension allows a client to scale or crop a surface without modifying the buffer",
         "Homepage": "https://wayland.freedesktop.org",
         "Version": "2",
-        "DownloadLocation": "https://cgit.freedesktop.org/wayland/weston/plain/protocol/scaler.xml?h=1.11.1",
+        "DownloadLocation": "https://gitlab.freedesktop.org/wayland/weston/raw/1.11/protocol/scaler.xml",
         "LicenseId": "MIT",
         "License": "MIT License",
         "LicenseFile": "MIT_LICENSE.txt",
         "Copyright": "Copyright © 2013-2014 Collabora, Ltd."
+    },
+
+    {
+        "Id": "wayland-tablet-protocol",
+        "Name": "Wayland Tablet Protocol",
+        "QDocModule": "qtwaylandcompositor",
+        "QtUsage": "Used in the Qt Wayland platform plugin",
+        "Files": "tablet-unstable-v2.xml",
+
+        "Description": "",
+        "Homepage": "https://wayland.freedesktop.org",
+        "Version": "unstable v2, version 1",
+        "DownloadLocation": "https://cgit.freedesktop.org/wayland/wayland-protocols/plain/unstable/tablet/tablet-unstable-v2.xml",
+        "LicenseId": "MIT",
+        "License": "MIT License",
+        "LicenseFile": "MIT_LICENSE.txt",
+        "Copyright": "Copyright 2014 © Stephen "Lyude" Chandler Paul
+Copyright 2015-2016 © Red Hat, Inc."
     },
 
     {
@@ -99,7 +117,7 @@ Copyright (c) 2013 BMW Car IT GmbH"
         "Description": "The Wayland viewporter extension allows a client to scale or crop a surface without modifying the buffer",
         "Homepage": "https://wayland.freedesktop.org",
         "Version": "1",
-        "DownloadLocation": "https://cgit.freedesktop.org/wayland/wayland-protocols/plain/stable/viewporter/viewporter.xml",
+        "DownloadLocation": "https://gitlab.freedesktop.org/wayland/wayland-protocols/raw/1.18/stable/viewporter/viewporter.xml",
         "LicenseId": "MIT",
         "License": "MIT License",
         "LicenseFile": "MIT_LICENSE.txt",
@@ -116,7 +134,7 @@ Copyright (c) 2013 BMW Car IT GmbH"
         "Description": "The xdg-decoration protocol allows a compositor to announce support for server-side decorations.",
         "Homepage": "https://wayland.freedesktop.org",
         "Version": "unstable v1, version 1",
-        "DownloadLocation": "https://cgit.freedesktop.org/wayland/wayland-protocols/plain/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml?h=1.16",
+        "DownloadLocation": "https://gitlab.freedesktop.org/wayland/wayland-protocols/raw/1.18/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml",
         "LicenseId": "MIT",
         "License": "MIT License",
         "LicenseFile": "MIT_LICENSE.txt",
@@ -132,8 +150,8 @@ Copyright (c) 2013 BMW Car IT GmbH"
 
         "Description": "The XDG Output protocol is an extended way to describe output regions under Wayland",
         "Homepage": "https://wayland.freedesktop.org",
-        "Version": "unstable v1, version 2",
-        "DownloadLocation": "https://cgit.freedesktop.org/wayland/wayland-protocols/plain/unstable/xdg-output/xdg-output-unstable-v1.xml?h=1.16",
+        "Version": "unstable v1, version 3",
+        "DownloadLocation": "https://gitlab.freedesktop.org/wayland/wayland-protocols/raw/1.18/unstable/xdg-output/xdg-output-unstable-v1.xml",
         "LicenseId": "MIT",
         "License": "MIT License",
         "LicenseFile": "MIT_LICENSE.txt",
@@ -148,20 +166,23 @@ Copyright (c) 2013 BMW Car IT GmbH"
         "Files": " xdg-shell-unstable-v5.xml xdg-shell-unstable-v6.xml xdg-shell.xml ../../compositor/extensions/pregenerated/3rdparty/qwayland-server-xdg-shell-unstable-v5.cpp ../../compositor/extensions/pregenerated/3rdparty/qwayland-server-xdg-shell-unstable-v5_p.h ../../compositor/extensions/pregenerated/3rdparty/wayland-xdg-shell-unstable-v5-protocol.c ../../compositor/extensions/pregenerated/3rdparty/wayland-xdg-shell-unstable-v5-server-protocol_p.h ../../plugins/shellintegration/xdg-shell-v5/pregenerated/3rdparty/qwayland-xdg-shell-unstable-v5.cpp ../../plugins/shellintegration/xdg-shell-v5/pregenerated/3rdparty/qwayland-xdg-shell-unstable-v5_p.h ../../plugins/shellintegration/xdg-shell-v5/pregenerated/3rdparty/wayland-xdg-shell-unstable-v5-client-protocol_p.h ../../plugins/shellintegration/xdg-shell-v5/pregenerated/3rdparty/wayland-xdg-shell-unstable-v5-protocol.c",
 
         "Description": "The XDG-Shell protocol is an extended way to manage surfaces under Wayland compositors.",
-        "Homepage": "https://wayland.freedesktop.org",
-        "Version": "1.9.0",
-        "DownloadLocation": "https://cgit.freedesktop.org/wayland/weston/tag/?id=1.9.0",
+        "Homepage": "https://gitlab.freedesktop.org/wayland/wayland-protocols/",
+        "Version": "1.18",
+        "DownloadLocation": "https://gitlab.freedesktop.org/wayland/wayland-protocols/tree/1.18/",
         "LicenseId": "MIT",
         "License": "MIT License",
         "LicenseFile": "MIT_LICENSE.txt",
         "Copyright": "Copyright © 2008-2013 Kristian Høgsberg
 Copyright © 2013      Rafael Antognolli
 Copyright © 2013      Jasper St. Pierre
-Copyright © 2010-2013 Intel Corporation"
+Copyright © 2010-2013 Intel Corporation
+Copyright © 2015-2017 Samsung Electronics Co., Ltd
+Copyright © 2015-2017 Red Hat Inc.
+"
     },
 
     {
-        "Id": "wayland-txt-input-unstable",
+        "Id": "wayland-text-input-unstable",
         "Name": "Wayland Text Input Protocol",
         "QDocModule": "qtwaylandcompositor",
         "QtUsage": "Used in the Qt Wayland Compositor, and the Qt Wayland platform plugin.",
@@ -169,6 +190,7 @@ Copyright © 2010-2013 Intel Corporation"
 
         "Description": "Adds support for text input and input methods to applications.",
         "Homepage": "https://wayland.freedesktop.org",
+        "Version": "unstable v2",
         "LicenseId": "HPND",
         "License": "HPND License",
         "LicenseFile": "HPND_LICENSE.txt",
@@ -185,6 +207,8 @@ Copyright © 2015, 2016 Jan Arne Petersen"
 
         "Description": "The linux dmabuf protocol is a way to create dmabuf-based wl_buffers",
         "Homepage": "https://wayland.freedesktop.org",
+        "Version": "unstable v1, version 3",
+        "DownloadLocation": "https://gitlab.freedesktop.org/wayland/wayland-protocols/raw/1.18/unstable/linux-dmabuf/linux-dmabuf-unstable-v1.xml",
         "LicenseId": "MIT",
         "License": "MIT License",
         "LicenseFile": "MIT_LICENSE.txt",
@@ -200,6 +224,8 @@ Copyright © 2015, 2016 Jan Arne Petersen"
 
         "Description": "Allows clients to request that the compositor creates its EGLStream.",
         "Homepage": "https://github.com/NVIDIA/egl-wayland",
+        "Version": "1.1.1",
+        "DownloadLocation": "https://raw.githubusercontent.com/NVIDIA/egl-wayland/1.1.1/wayland-eglstream/wayland-eglstream-controller.xml",
         "LicenseId": "MIT",
         "License": "MIT License",
         "LicenseFile": "MIT_LICENSE.txt",

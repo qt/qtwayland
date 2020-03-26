@@ -33,7 +33,7 @@
  * \class QWaylandQuickShellIntegration
  * \inmodule QtWaylandCompositor
  * \since 5.14
- * \brief Provides support for shell surface integration with QtQuick
+ * \brief Provides support for shell surface integration with QtQuick.
  *
  * Shell surface implementations should inherit from this class in order to provide
  * an integration between the shell surface and QtQuick.

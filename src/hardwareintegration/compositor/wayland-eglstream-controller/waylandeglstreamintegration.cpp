@@ -31,9 +31,9 @@
 #include "waylandeglstreamcontroller.h"
 
 #include <QtWaylandCompositor/QWaylandCompositor>
+#include <QtOpenGL/QOpenGLTexture>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QOpenGLContext>
-#include <QtGui/QOpenGLTexture>
 #include <QtGui/QOffscreenSurface>
 
 #include <QtEglSupport/private/qeglstreamconvenience_p.h>

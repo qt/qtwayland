@@ -47,6 +47,7 @@
 #include <QtCore/qstandardpaths.h>
 #include <QtCore/qtemporaryfile.h>
 #include <QtGui/QPainter>
+#include <QtGui/QTransform>
 #include <QMutexLocker>
 
 #include <QtWaylandClient/private/wayland-wayland-client-protocol.h>
@@ -151,9 +152,9 @@ QImage *QWaylandShmBuffer::imageInsideMargins(const QMargins &marginsIn)
 
 }
 
-QWaylandShmBackingStore::QWaylandShmBackingStore(QWindow *window)
+QWaylandShmBackingStore::QWaylandShmBackingStore(QWindow *window, QWaylandDisplay *display)
     : QPlatformBackingStore(window)
-    , mDisplay(QWaylandScreen::waylandScreenFromWindow(window)->display())
+    , mDisplay(display)
 {
 
 }
@@ -328,7 +329,7 @@ void QWaylandShmBackingStore::updateDecorations()
     qreal dp = sourceImage.devicePixelRatio();
     int dpWidth = int(sourceImage.width() / dp);
     int dpHeight = int(sourceImage.height() / dp);
-    QMatrix sourceMatrix;
+    QTransform sourceMatrix;
     sourceMatrix.scale(dp, dp);
     QRect target; // needs to be in device independent pixels
 

@@ -52,19 +52,16 @@ DefaultCompositor::DefaultCompositor()
                     // Pretend we made a copy of the buffer and just release it immediately
                     surface->m_committed.buffer->send_release();
                 }
-                if (m_config.autoEnter && surface->m_outputs.empty())
+                if (m_config.autoEnter && get<Output>() && surface->m_outputs.empty())
                     surface->sendEnter(get<Output>());
                 wl_display_flush_clients(m_display);
             });
         });
 
-        QObject::connect(get<XdgWmBase>(), &XdgWmBase::toplevelCreated, [&] (XdgToplevel *toplevel) {
-            // Needed because lambdas don't support Qt::DirectConnection
-            exec([&]{
-                if (m_config.autoConfigure)
-                    toplevel->sendCompleteConfigure();
-            });
-        });
+        QObject::connect(get<XdgWmBase>(), &XdgWmBase::toplevelCreated, get<XdgWmBase>(), [&] (XdgToplevel *toplevel) {
+            if (m_config.autoConfigure)
+                toplevel->sendCompleteConfigure();
+        }, Qt::DirectConnection);
     }
     Q_ASSERT(isClean());
 }

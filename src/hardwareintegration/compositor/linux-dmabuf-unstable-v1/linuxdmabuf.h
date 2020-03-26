@@ -35,11 +35,11 @@
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 #include <QtWaylandCompositor/private/qwlclientbufferintegration_p.h>
 
+#include <QtOpenGL/QOpenGLTexture>
 #include <QtCore/QObject>
 #include <QtCore/QHash>
 #include <QtCore/QSize>
 #include <QtCore/QTextStream>
-#include <QtGui/QOpenGLTexture>
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -56,6 +56,12 @@
 #endif
 #ifndef DRM_FORMAT_MOD_INVALID
 #define DRM_FORMAT_MOD_INVALID  fourcc_mod_code(NONE, DRM_FORMAT_RESERVED)
+#endif
+
+// Copied from eglmesaext.h
+#ifndef EGL_WL_bind_wayland_display
+typedef EGLBoolean (EGLAPIENTRYP PFNEGLBINDWAYLANDDISPLAYWL) (EGLDisplay dpy, struct wl_display *display);
+typedef EGLBoolean (EGLAPIENTRYP PFNEGLUNBINDWAYLANDDISPLAYWL) (EGLDisplay dpy, struct wl_display *display);
 #endif
 
 QT_BEGIN_NAMESPACE

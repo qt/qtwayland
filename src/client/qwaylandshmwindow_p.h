@@ -61,7 +61,7 @@ namespace QtWaylandClient {
 class Q_WAYLAND_CLIENT_EXPORT QWaylandShmWindow : public QWaylandWindow
 {
 public:
-    QWaylandShmWindow(QWindow *window);
+    QWaylandShmWindow(QWindow *window, QWaylandDisplay *display);
     ~QWaylandShmWindow() override;
 
     WindowType windowType() const override;

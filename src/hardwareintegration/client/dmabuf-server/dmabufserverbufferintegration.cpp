@@ -40,8 +40,8 @@
 #include "dmabufserverbufferintegration.h"
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QDebug>
+#include <QtOpenGL/QOpenGLTexture>
 #include <QtGui/QOpenGLContext>
-#include <QtGui/QOpenGLTexture>
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>

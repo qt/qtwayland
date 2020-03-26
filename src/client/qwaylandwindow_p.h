@@ -93,7 +93,7 @@ public:
         Vulkan
     };
 
-    QWaylandWindow(QWindow *window);
+    QWaylandWindow(QWindow *window, QWaylandDisplay *display);
     ~QWaylandWindow() override;
 
     virtual WindowType windowType() const = 0;
@@ -129,6 +129,7 @@ public:
     QMargins frameMargins() const override;
     QSize surfaceSize() const;
     QRect windowContentGeometry() const;
+    QPointF mapFromWlSurface(const QPointF &surfacePosition) const;
 
     QWaylandSurface *waylandSurface() const { return mSurface.data(); }
     ::wl_surface *wlSurface();
@@ -195,7 +196,7 @@ public:
     void propagateSizeHints() override;
     void addAttachOffset(const QPoint point);
 
-    bool startSystemMove(const QPoint &pos) override;
+    bool startSystemMove(const QPoint &pos);
 
     void timerEvent(QTimerEvent *event) override;
     void requestUpdate() override;
@@ -241,7 +242,7 @@ protected:
     bool mSentInitialResize = false;
     QPoint mOffset;
     int mScale = 1;
-    QWaylandScreen *mLastReportedScreen = nullptr;
+    QPlatformScreen *mLastReportedScreen = nullptr;
 
     QIcon mWindowIcon;
 
@@ -262,7 +263,7 @@ private:
     void reset(bool sendDestroyEvent = true);
     void sendExposeEvent(const QRect &rect);
     static void closePopups(QWaylandWindow *parent);
-    QWaylandScreen *calculateScreenFromSurfaceEvents() const;
+    QPlatformScreen *calculateScreenFromSurfaceEvents() const;
 
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
     void handleScreensChanged();

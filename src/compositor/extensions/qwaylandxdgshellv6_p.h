@@ -61,8 +61,8 @@ QT_BEGIN_NAMESPACE
 struct Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPositionerV6Data {
     QSize size;
     QRect anchorRect;
-    Qt::Edges anchorEdges = 0;
-    Qt::Edges gravityEdges = 0;
+    Qt::Edges anchorEdges = {};
+    Qt::Edges gravityEdges = {};
     uint constraintAdjustments = ZXDG_POSITIONER_V6_CONSTRAINT_ADJUSTMENT_NONE;
     QPoint offset;
     QWaylandXdgPositionerV6Data();

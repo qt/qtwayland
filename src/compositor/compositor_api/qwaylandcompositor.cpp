@@ -114,6 +114,15 @@ public:
 
         QWaylandKeyboardPrivate *keyb = QWaylandKeyboardPrivate::get(seat->keyboard());
 
+#if defined(Q_OS_QNX)
+        // The QNX platform plugin delivers scan codes that haven't been adjusted to be
+        // xkbcommon compatible. xkbcommon requires that the scan codes be bumped up by
+        // 8 because that's how evdev/XKB deliver scan codes. You might think that it
+        // would've been better to remove this (odd) requirement from xkbcommon on QNX
+        // but it turns out that conforming to it has much less impact.
+        static int offset = QGuiApplication::platformName() == QStringLiteral("qnx") ? 8 : 0;
+        ke->nativeScanCode += offset;
+#endif
         uint32_t code = ke->nativeScanCode;
         bool isDown = ke->keyType == QEvent::KeyPress;
 
@@ -236,9 +245,12 @@ void QWaylandCompositorPrivate::init()
 
 QWaylandCompositorPrivate::~QWaylandCompositorPrivate()
 {
-    qDeleteAll(clients);
+    // Take copies, since the lists will get modified as elements are deleted
+    const auto clientsToDelete = clients;
+    qDeleteAll(clientsToDelete);
 
-    qDeleteAll(outputs);
+    const auto outputsToDelete = outputs;
+    qDeleteAll(outputsToDelete);
 
 #if QT_CONFIG(wayland_datadevice)
     delete data_device_manager;
@@ -489,33 +501,35 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
 /*!
   \qmlsignal void QtWaylandCompositor::WaylandCompositor::surfaceRequested(WaylandClient client, int id, int version)
 
-  This signal is emitted when a client has created a surface.
-  The slot connecting to this signal may create and initialize
-  a WaylandSurface instance in the scope of the slot.
-  Otherwise a default surface is created.
+  This signal is emitted when a \a client has created a surface with id \a id.
+  The interface \a version is also available.
+
+  The slot connecting to this signal may create and initialize a WaylandSurface
+  instance in the scope of the slot. Otherwise a default surface is created.
 */
 
 /*!
   \fn void QWaylandCompositor::surfaceRequested(QWaylandClient *client, uint id, int version)
 
-  This signal is emitted when a client has created a surface.
-  The slot connecting to this signal may create and initialize
-  a QWaylandSurface instance in the scope of the slot.
-  Otherwise a default surface is created.
+  This signal is emitted when a \a client has created a surface with id \a id.
+  The interface \a version is also available.
+
+  The slot connecting to this signal may create and initialize a QWaylandSurface
+  instance in the scope of the slot. Otherwise a default surface is created.
 
   Connections to this signal must be of Qt::DirectConnection connection type.
 */
 
 /*!
-  \qmlsignal void QtWaylandCompositor::WaylandCompositor::surfaceCreated(QWaylandSurface *surface)
+  \qmlsignal void QtWaylandCompositor::WaylandCompositor::surfaceCreated(WaylandSurface surface)
 
-  This signal is emitted when a new WaylandSurface instance has been created.
+  This signal is emitted when a new WaylandSurface instance \a surface has been created.
 */
 
 /*!
   \fn void QWaylandCompositor::surfaceCreated(QWaylandSurface *surface)
 
-  This signal is emitted when a new QWaylandSurface instance has been created.
+  This signal is emitted when a new QWaylandSurface instance \a surface has been created.
 */
 
 /*!

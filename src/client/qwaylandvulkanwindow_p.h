@@ -50,7 +50,7 @@ namespace QtWaylandClient {
 class QWaylandVulkanWindow : public QWaylandWindow
 {
 public:
-    explicit QWaylandVulkanWindow(QWindow *window);
+    explicit QWaylandVulkanWindow(QWindow *window, QWaylandDisplay *display);
     ~QWaylandVulkanWindow() override;
 
     WindowType windowType() const override;

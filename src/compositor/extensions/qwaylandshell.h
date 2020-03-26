@@ -60,10 +60,6 @@ Q_SIGNALS:
 protected:
     explicit QWaylandShell(QWaylandShellPrivate &dd);
     explicit QWaylandShell(QWaylandObject *container, QWaylandShellPrivate &dd);
-
-    //Qt 6: remove
-    Q_DECL_DEPRECATED QWaylandShell(QWaylandCompositorExtensionPrivate &dd);
-    Q_DECL_DEPRECATED QWaylandShell(QWaylandObject *container, QWaylandCompositorExtensionPrivate &dd);
 };
 
 template <typename T>

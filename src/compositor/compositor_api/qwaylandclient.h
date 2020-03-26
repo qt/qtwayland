@@ -52,6 +52,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandClient : public QObject
     Q_PROPERTY(qint64 userId READ userId CONSTANT)
     Q_PROPERTY(qint64 groupId READ groupId CONSTANT)
     Q_PROPERTY(qint64 processId READ processId CONSTANT)
+    Q_MOC_INCLUDE("qwaylandcompositor.h")
 public:
     ~QWaylandClient() override;
 

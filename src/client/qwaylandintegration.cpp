@@ -66,7 +66,10 @@
 #include <qpa/qwindowsysteminterface.h>
 #include <qpa/qplatformcursor.h>
 #include <QtGui/QSurfaceFormat>
+#if QT_CONFIG(opengl)
 #include <QtGui/QOpenGLContext>
+#include <QtPlatformCompositorSupport/qpa/qplatformbackingstoreopenglsupport.h>
+#endif // QT_CONFIG(opengl)
 #include <QSocketNotifier>
 
 #include <qpa/qplatforminputcontextfactory_p.h>
@@ -165,10 +168,10 @@ QPlatformWindow *QWaylandIntegration::createPlatformWindow(QWindow *window) cons
 
 #if QT_CONFIG(vulkan)
     if (window->surfaceType() == QSurface::VulkanSurface)
-        return new QWaylandVulkanWindow(window);
+        return new QWaylandVulkanWindow(window, mDisplay.data());
 #endif // QT_CONFIG(vulkan)
 
-    return new QWaylandShmWindow(window);
+    return new QWaylandShmWindow(window, mDisplay.data());
 }
 
 #if QT_CONFIG(opengl)
@@ -182,7 +185,11 @@ QPlatformOpenGLContext *QWaylandIntegration::createPlatformOpenGLContext(QOpenGL
 
 QPlatformBackingStore *QWaylandIntegration::createPlatformBackingStore(QWindow *window) const
 {
-    return new QWaylandShmBackingStore(window);
+    auto *backingStore = new QWaylandShmBackingStore(window, mDisplay.data());
+#if QT_CONFIG(opengl)
+    backingStore->setOpenGLSupport(new QPlatformBackingStoreOpenGLSupport(backingStore));
+#endif
+    return backingStore;
 }
 
 QAbstractEventDispatcher *QWaylandIntegration::createEventDispatcher() const
@@ -200,10 +207,8 @@ void QWaylandIntegration::initialize()
     QSocketNotifier *sn = new QSocketNotifier(fd, QSocketNotifier::Read, mDisplay.data());
     QObject::connect(sn, SIGNAL(activated(int)), mDisplay.data(), SLOT(flushRequests()));
 
-    if (mDisplay->screens().isEmpty()) {
-        qWarning() << "Running on a compositor with no screens is not supported";
-        ::exit(EXIT_FAILURE);
-    }
+    // Qt does not support running with no screens
+    mDisplay->ensureScreen();
 }
 
 QPlatformFontDatabase *QWaylandIntegration::fontDatabase() const
@@ -427,6 +432,8 @@ void QWaylandIntegration::initializeShellIntegration()
         qCWarning(lcQpaWayland) << "Loading shell integration failed.";
         qCWarning(lcQpaWayland) << "Attempted to load the following shells" << preferredShells;
     }
+
+    QWindowSystemInterfacePrivate::TabletEvent::setPlatformSynthesizesMouse(false);
 }
 
 QWaylandInputDevice *QWaylandIntegration::createInputDevice(QWaylandDisplay *display, int version, uint32_t id)

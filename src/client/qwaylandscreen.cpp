@@ -53,6 +53,12 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
+QWaylandXdgOutputManagerV1::QWaylandXdgOutputManagerV1(QWaylandDisplay* display, uint id, uint version)
+    : QtWayland::zxdg_output_manager_v1(display->wl_registry(), id, qMin(3u, version))
+    , m_version(qMin(3u, version))
+{
+}
+
 QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uint32_t id)
     : QtWayland::wl_output(waylandDisplay->wl_registry(), id, qMin(version, 2))
     , m_outputId(id)
@@ -95,7 +101,7 @@ void QWaylandScreen::maybeInitialize()
         updateXdgOutputProperties();
 }
 
-void QWaylandScreen::initXdgOutput(QtWayland::zxdg_output_manager_v1 *xdgOutputManager)
+void QWaylandScreen::initXdgOutput(QWaylandXdgOutputManagerV1 *xdgOutputManager)
 {
     Q_ASSERT(xdgOutputManager);
     if (zxdg_output_v1::isInitialized())
@@ -165,11 +171,18 @@ QList<QPlatformScreen *> QWaylandScreen::virtualSiblings() const
 {
     QList<QPlatformScreen *> list;
     const QList<QWaylandScreen*> screens = mWaylandDisplay->screens();
-    list.reserve(screens.count());
+    auto *placeholder = mWaylandDisplay->placeholderScreen();
+
+    list.reserve(screens.count() + (placeholder ? 1 : 0));
+
     for (QWaylandScreen *screen : qAsConst(screens)) {
         if (screen->screen())
             list << screen;
     }
+
+    if (placeholder)
+        list << placeholder;
+
     return list;
 }
 
@@ -210,9 +223,11 @@ QPlatformCursor *QWaylandScreen::cursor() const
 }
 #endif // QT_CONFIG(cursor)
 
-QWaylandScreen * QWaylandScreen::waylandScreenFromWindow(QWindow *window)
+QWaylandScreen *QWaylandScreen::waylandScreenFromWindow(QWindow *window)
 {
     QPlatformScreen *platformScreen = QPlatformScreen::platformScreenForWindow(window);
+    if (platformScreen->isPlaceholder())
+        return nullptr;
     return static_cast<QWaylandScreen *>(platformScreen);
 }
 
@@ -262,10 +277,15 @@ void QWaylandScreen::output_scale(int32_t factor)
 void QWaylandScreen::output_done()
 {
     mOutputDone = true;
-    if (mInitialized)
+    if (zxdg_output_v1::isInitialized() && mWaylandDisplay->xdgOutputManager()->version() >= 3)
+        mXdgOutputDone = true;
+    if (mInitialized) {
         updateOutputProperties();
-    else
+        if (zxdg_output_v1::isInitialized())
+            updateXdgOutputProperties();
+    } else {
         maybeInitialize();
+    }
 }
 
 void QWaylandScreen::updateOutputProperties()
@@ -316,6 +336,9 @@ void QWaylandScreen::zxdg_output_v1_logical_size(int32_t width, int32_t height)
 
 void QWaylandScreen::zxdg_output_v1_done()
 {
+    if (Q_UNLIKELY(mWaylandDisplay->xdgOutputManager()->version() >= 3))
+        qWarning(lcQpaWayland) << "zxdg_output_v1.done received on version 3 or newer, this is most likely a bug in the compositor";
+
     mXdgOutputDone = true;
     if (mInitialized)
         updateXdgOutputProperties();

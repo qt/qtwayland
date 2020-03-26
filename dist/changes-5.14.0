@@ -1,0 +1,64 @@
+Qt 5.14 introduces many new features and improvements as well as bugfixes
+over the 5.13.x series. For more details, refer to the online documentation
+included in this distribution. The documentation is also available online:
+
+https://doc.qt.io/qt-5/index.html
+
+The Qt version 5.14 series is binary compatible with the 5.13.x series.
+Applications compiled for 5.13 will continue to run with 5.14.
+
+Some of the changes listed in this file include issue tracking numbers
+corresponding to tasks in the Qt Bug Tracker:
+
+https://bugreports.qt.io/
+
+Each of these identifiers can be entered in the bug tracker to obtain more
+information about a particular change.
+
+****************************************************************************
+*                                 General                                  *
+****************************************************************************
+
+ - Added Vulkan-based server buffer integration for
+   NVIDIA EGLStreams.
+ - [QTBUG-73822] Added protocol and Qt Quick image provider for sharing
+   textures in graphics memory between compositor and multiple clients.
+
+****************************************************************************
+*                                Compositor                                *
+****************************************************************************
+
+ - The compositor module is no longer available under the GPLv2 and LGPLv3
+   licenses, but is still available under GPLv3 and commercial licenses.
+ - Make QWaylandQuickShellIntegration public so that compositors can
+   provide their code to integrate shell surfaces with QtQuick.
+ - Added QWaylandXdgPopup::sendPopupDone, which will dismiss a popup.
+ - Added support for the idle-inhibit unstable v1 Wayland extension.
+ - The compositor module no longer depends on the client module.
+ - Added support for xdg-output unstable v1 Wayland extension.
+ - Fixed a bug where compositors would advertise support for numerous
+   wl_shm pixel formats and then blindly assume everything to be
+   ARGB32_Premultiplied.
+ - Fixed a crash when destroying WaylandSurfaces and WlShellSurfaces which
+   had not yet been initialized.
+ - The compositor API now works without OpenGL support.
+ - Added a floating point version of QWaylandSurface::inputRegionContains.
+
+****************************************************************************
+*                                QPA plugin                                *
+****************************************************************************
+
+ - Pixel delta is now set for mouse scrolling events if originating from an
+   appropriate device such as a touch pad (requires compositor support for
+   wl_seat version 5 or later).
+ - Added support for animated cursors.
+ - Added support for middle mouse pasting through the
+   primary-selection-unstable-v1 protocol.
+ - Expose default input device to clients through the QPA API.
+ - Fixed a 100 ms freeze that would occur if applications did not draw
+   after receiving a deliverUpdateRequest().
+ - Fixed a crash when showing a window with a hidden parent.
+ - Fixed several crashes when mixing Qt with other wayland code.
+   qtwaylandscanner generated types now have a fromObject function which
+   will return nullptr if the object isn't wrapped by the type.
+

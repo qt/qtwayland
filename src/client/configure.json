@@ -134,12 +134,15 @@
                     "#endif"
                 ]
             },
-            "use": "egl"
+            "use": "egl drm"
         },
         "vulkan-server-buffer": {
             "label": "Vulkan Buffer Sharing",
             "type": "compile",
             "test": {
+                "head": [
+                    "#define VK_USE_PLATFORM_WAYLAND_KHR 1"
+                ],
                 "include": [
                     "vulkan/vulkan.h"
                 ],
@@ -150,6 +153,21 @@
                     "return 0;"
                 ]
             }
+        },
+        "egl_1_5-wayland": {
+            "label": "EGL 1.5 with Wayland Platform",
+            "type": "compile",
+            "test": {
+                "include": [
+                    "EGL/egl.h",
+                    "EGL/eglext.h",
+                    "wayland-client.h"
+                ],
+                "main": [
+                    "eglGetPlatformDisplay(EGL_PLATFORM_WAYLAND_EXT, (struct wl_display *)(nullptr), nullptr);"
+                ]
+            },
+            "use": "egl"
         }
     },
 
@@ -200,7 +218,7 @@
         },
         "wayland-egl": {
             "label": "EGL",
-            "condition": "features.wayland-client && features.opengl && features.egl && libs.wayland-egl",
+            "condition": "features.wayland-client && features.opengl && features.egl && libs.wayland-egl && (!config.qnx || tests.egl_1_5-wayland)",
             "output": [ "privateFeature" ]
         },
         "wayland-brcm": {
@@ -220,7 +238,7 @@
         },
         "wayland-drm-egl-server-buffer": {
             "label": "DRM EGL",
-            "condition": "features.wayland-client && features.opengl && features.egl && tests.drm-egl-server",
+            "condition": "features.wayland-client && features.opengl && features.egl && tests.drm-egl-server && (!config.qnx || tests.egl_1_5-wayland)",
             "output": [ "privateFeature" ]
         },
         "wayland-libhybris-egl-server-buffer": {
@@ -235,7 +253,7 @@
         },
         "wayland-vulkan-server-buffer": {
             "label": "Vulkan-based server buffer integration",
-            "condition": "features.wayland-client && features.opengl && features.egl && tests.vulkan-server-buffer",
+            "condition": "features.wayland-client && features.vulkan && features.opengl && features.egl && tests.vulkan-server-buffer",
             "output": [ "privateFeature" ]
         },
         "wayland-shm-emulation-server-buffer": {

@@ -42,11 +42,12 @@
 #include <QtWaylandCompositor/private/qwlclientbufferintegration_p.h>
 #include <QtWaylandCompositor/private/qwaylandsurface_p.h>
 
+#include <QtOpenGL/QOpenGLTexture>
+
 #include <QtGui/QKeyEvent>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QScreen>
 #include <QtGui/QOpenGLFunctions>
-#include <QtGui/QOpenGLTexture>
 
 #include <QtQuick/QSGSimpleTextureNode>
 #include <QtQuick/QQuickWindow>
@@ -74,7 +75,7 @@ static const struct {
     QSGMaterialType materialType;
 } bufferTypes[] = {
     // BufferFormatEgl_Null
-    { "", "", 0, 0, false, 0, {} },
+    { "", "", 0, 0, false, {}, {} },
 
     // BufferFormatEgl_RGB
     {
@@ -289,8 +290,9 @@ public:
                 }
 
                 auto texture = buffer.toOpenGLTexture();
+                GLuint textureId = texture->textureId();
                 auto size = surface->bufferSize();
-                m_sgTex = surfaceItem->window()->createTextureFromId(texture->textureId(), size, opt);
+                m_sgTex = surfaceItem->window()->createTextureFromNativeObject(QQuickWindow::NativeObjectTexture, &textureId, 0, size, opt);
 #else
                 qCWarning(qLcWaylandCompositor) << "Without OpenGL support only shared memory textures are supported";
 #endif
@@ -412,11 +414,14 @@ QWaylandSurface *QWaylandQuickItem::surface() const
 void QWaylandQuickItem::setSurface(QWaylandSurface *surface)
 {
     Q_D(QWaylandQuickItem);
+    QWaylandSurface *oldSurf = d->view->surface();
     QWaylandCompositor *oldComp = d->view->surface() ? d->view->surface()->compositor() : nullptr;
     d->view->setSurface(surface);
     QWaylandCompositor *newComp = d->view->surface() ? d->view->surface()->compositor() : nullptr;
     if (oldComp != newComp)
         emit compositorChanged();
+    if (oldSurf != surface)
+        emit surfaceChanged();
     update();
 }
 
@@ -1009,8 +1014,6 @@ void QWaylandQuickItem::updateSize()
         size = surface()->destinationSize() * d->scaleFactor();
 
     setImplicitSize(size.width(), size.height());
-    if (d->sizeFollowsSurface)
-        setSize(size);
 }
 
 /*!
@@ -1055,16 +1058,6 @@ bool QWaylandQuickItem::inputRegionContains(const QPointF &localPosition) const
     if (QWaylandSurface *s = surface())
         return s->inputRegionContains(mapToSurface(localPosition));
     return false;
-}
-
-// Qt 6: Remove the non-const version
-/*!
- * Returns \c true if the input region of this item's surface contains the
- * position given by \a localPosition.
- */
-bool QWaylandQuickItem::inputRegionContains(const QPointF &localPosition)
-{
-    return const_cast<const QWaylandQuickItem *>(this)->inputRegionContains(localPosition);
 }
 
 /*!
@@ -1118,41 +1111,6 @@ QPointF QWaylandQuickItem::mapFromSurface(const QPointF &point) const
     return QPointF(point.x() * xScale, point.y() * yScale);
 }
 
-/*!
- * \qmlproperty bool QtWaylandCompositor::WaylandQuickItem::sizeFollowsSurface
- *
- * This property specifies whether the size of the item should always match
- * the size of its surface.
- *
- * The default is \c true.
- */
-
-/*!
- * \property QWaylandQuickItem::sizeFollowsSurface
- *
- * This property specifies whether the size of the item should always match
- * the size of its surface.
- *
- * The default is \c true.
- */
-bool QWaylandQuickItem::sizeFollowsSurface() const
-{
-    Q_D(const QWaylandQuickItem);
-    return d->sizeFollowsSurface;
-}
-
-//TODO: sizeFollowsSurface became obsolete when we added an implementation for
-//implicit size. The property is here for compatibility reasons only and should
-//be removed or at least default to false in Qt 6.
-void QWaylandQuickItem::setSizeFollowsSurface(bool sizeFollowsSurface)
-{
-    Q_D(QWaylandQuickItem);
-    if (d->sizeFollowsSurface == sizeFollowsSurface)
-        return;
-    d->sizeFollowsSurface = sizeFollowsSurface;
-    emit sizeFollowsSurfaceChanged();
-}
-
 #if QT_CONFIG(im)
 QVariant QWaylandQuickItem::inputMethodQuery(Qt::InputMethodQuery query) const
 {
@@ -1183,9 +1141,11 @@ QVariant QWaylandQuickItem::inputMethodQuery(Qt::InputMethodQuery query, QVarian
 */
 
 /*!
-    Returns true if the item is hidden, though the texture
+    \property QWaylandQuickItem::paintEnabled
+
+    Holds \c true if the item is hidden, though the texture
     is still updated. As opposed to hiding the item by
-    setting \l{Item::visible}{visible} to \c false, setting this property to \c false
+    setting \l{QQuickItem::}{visible} to \c false, setting this property to \c false
     will not prevent mouse or keyboard input from reaching item.
 */
 bool QWaylandQuickItem::paintEnabled() const
@@ -1197,10 +1157,28 @@ bool QWaylandQuickItem::paintEnabled() const
 void QWaylandQuickItem::setPaintEnabled(bool enabled)
 {
     Q_D(QWaylandQuickItem);
-    d->paintEnabled = enabled;
+
+    if (enabled != d->paintEnabled) {
+        d->paintEnabled = enabled;
+        emit paintEnabledChanged();
+    }
+
     update();
 }
 
+/*!
+    \qmlproperty  bool QtWaylandCompositor::WaylandQuickItem::touchEventsEnabled
+
+    This property holds \c true if touch events are forwarded to the client
+    surface, \c false otherwise.
+*/
+
+/*!
+    \property QWaylandQuickItem::touchEventsEnabled
+
+    This property holds \c true if touch events are forwarded to the client
+    surface, \c false otherwise.
+*/
 bool QWaylandQuickItem::touchEventsEnabled() const
 {
     Q_D(const QWaylandQuickItem);

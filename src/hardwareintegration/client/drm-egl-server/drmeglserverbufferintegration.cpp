@@ -40,8 +40,8 @@
 #include "drmeglserverbufferintegration.h"
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QDebug>
+#include <QtOpenGL/QOpenGLTexture>
 #include <QtGui/QOpenGLContext>
-#include <QtGui/QOpenGLTexture>
 
 #include <EGL/egl.h>
 
@@ -125,7 +125,11 @@ void DrmEglServerBufferIntegration::initializeEgl()
         return;
     m_egl_initialized = true;
 
+#if defined(EGL_VERSION_1_5) && defined(EGL_PLATFORM_WAYLAND_EXT)
+    m_egl_display = eglGetPlatformDisplay(EGL_PLATFORM_WAYLAND_EXT, m_display->wl_display(), nullptr);
+#else
     m_egl_display = eglGetDisplay((EGLNativeDisplayType) m_display->wl_display());
+#endif
     if (m_egl_display == EGL_NO_DISPLAY) {
         qWarning("Failed to initialize drm egl server buffer integration. Could not get egl display from wl_display.");
         return;

@@ -100,6 +100,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgSurface : public QWaylandShellSurfa
     Q_PROPERTY(QWaylandXdgToplevel *toplevel READ toplevel NOTIFY toplevelCreated)
     Q_PROPERTY(QWaylandXdgPopup *popup READ popup NOTIFY popupCreated)
     Q_PROPERTY(QRect windowGeometry READ windowGeometry NOTIFY windowGeometryChanged)
+    Q_MOC_INCLUDE("qwaylandsurface.h")
 
 public:
     explicit QWaylandXdgSurface();
@@ -153,7 +154,12 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgToplevel : public QObject
     Q_PROPERTY(bool fullscreen READ fullscreen NOTIFY fullscreenChanged)
     Q_PROPERTY(bool resizing READ resizing NOTIFY resizingChanged)
     Q_PROPERTY(bool activated READ activated NOTIFY activatedChanged)
+// QDoc fails to parse the property type that includes the keyword 'enum'
+#ifndef Q_CLANG_QDOC
     Q_PROPERTY(enum DecorationMode decorationMode READ decorationMode NOTIFY decorationModeChanged)
+#else
+    Q_PROPERTY(DecorationMode decorationMode READ decorationMode NOTIFY decorationModeChanged)
+#endif
 public:
     enum State : uint {
         MaximizedState  = 1,
@@ -229,8 +235,8 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPopup : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandXdgPopup)
-    Q_PROPERTY(QWaylandXdgSurface *xdgSurface READ xdgSurface)
-    Q_PROPERTY(QWaylandXdgSurface *parentXdgSurface READ parentXdgSurface)
+    Q_PROPERTY(QWaylandXdgSurface *xdgSurface READ xdgSurface CONSTANT)
+    Q_PROPERTY(QWaylandXdgSurface *parentXdgSurface READ parentXdgSurface CONSTANT)
     Q_PROPERTY(QRect configuredGeometry READ configuredGeometry NOTIFY configuredGeometryChanged)
 
     // Positioner properties

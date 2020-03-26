@@ -498,11 +498,13 @@ void QWaylandSeat::sendFullKeyEvent(QKeyEvent *event)
  * \qmlmethod void QtWaylandCompositor::WaylandSeat::sendKeyEvent(int qtKey, bool pressed)
  * \since 5.12
  *
- * Sends a key press or release to the keyboard device.
+ * Sends a key press (if \a pressed is \c true) or release (if \a pressed is \c false)
+ * event of a key \a qtKey to the keyboard device.
  */
 
 /*!
- * Sends a key press or release to the keyboard device.
+ * Sends a key press (if \a pressed is \c true) or release (if \a pressed is \c false)
+ * event of a key \a qtKey to the keyboard device.
  *
  * \since 5.12
  */
@@ -734,6 +736,10 @@ void QWaylandSeat::handleMouseFocusDestroyed()
  * This signal is emitted when the client has requested for a specific \a surface to be the mouse
  * cursor. For example, when the user hovers over a particular surface, and you want the cursor
  * to change into a resize arrow.
+ *
+ * Both \a hotspotX and \a hotspotY are offsets from the top-left of a pointer surface, where a
+ * click should happen. For example, if the requested cursor surface is an arrow, the parameters
+ * indicate where the arrow's tip is, on that surface.
  */
 
 /*!

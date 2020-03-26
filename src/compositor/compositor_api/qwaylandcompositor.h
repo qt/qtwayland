@@ -74,6 +74,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositor : public QWaylandObject
     Q_PROPERTY(QWaylandOutput *defaultOutput READ defaultOutput WRITE setDefaultOutput NOTIFY defaultOutputChanged)
     Q_PROPERTY(bool useHardwareIntegrationExtension READ useHardwareIntegrationExtension WRITE setUseHardwareIntegrationExtension NOTIFY useHardwareIntegrationExtensionChanged)
     Q_PROPERTY(QWaylandSeat *defaultSeat READ defaultSeat NOTIFY defaultSeatChanged)
+    Q_MOC_INCLUDE("qwaylandseat.h")
 
 public:
     QWaylandCompositor(QObject *parent = nullptr);

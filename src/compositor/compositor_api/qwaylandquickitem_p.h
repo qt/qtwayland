@@ -161,7 +161,6 @@ public:
     bool isDragging = false;
     bool newTexture = false;
     bool focusOnClick = true;
-    bool sizeFollowsSurface = true;
     bool belowParent = false;
     QPointF hoverPos;
     QMatrix4x4 lastMatrix;

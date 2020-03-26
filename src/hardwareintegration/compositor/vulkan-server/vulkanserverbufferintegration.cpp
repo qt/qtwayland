@@ -31,8 +31,8 @@
 
 #include "vulkanwrapper.h"
 
+#include <QtOpenGL/QOpenGLTexture>
 #include <QtGui/QOpenGLContext>
-#include <QtGui/QOpenGLTexture>
 #include <QtGui/QOffscreenSurface>
 #include <QtGui/qopengl.h>
 

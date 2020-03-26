@@ -12,7 +12,7 @@ SOURCES += \
     sharedtextureprovider.cpp \
     texturesharingextension.cpp
 
-QT += quick-private qml gui-private core-private waylandclient waylandclient-private
+QT += quick-private qml gui-private core-private waylandclient waylandclient-private opengl
 CONFIG += wayland-scanner
 
 WAYLANDCLIENTSOURCES += ../../extensions/qt-texture-sharing-unstable-v1.xml

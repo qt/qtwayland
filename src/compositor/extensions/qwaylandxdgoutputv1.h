@@ -74,6 +74,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgOutputV1 : public QObject
     Q_PROPERTY(QPoint logicalPosition READ logicalPosition WRITE setLogicalPosition NOTIFY logicalPositionChanged)
     Q_PROPERTY(QSize logicalSize READ logicalSize WRITE setLogicalSize NOTIFY logicalSizeChanged)
     Q_PROPERTY(QRect logicalGeometry READ logicalGeometry NOTIFY logicalGeometryChanged)
+    Q_MOC_INCLUDE("qwaylandoutput.h")
 public:
     QWaylandXdgOutputV1();
     QWaylandXdgOutputV1(QWaylandOutput *output, QWaylandXdgOutputManagerV1 *manager);

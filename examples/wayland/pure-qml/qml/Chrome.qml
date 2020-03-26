@@ -58,9 +58,6 @@ ShellSurfaceItem {
 
     signal destroyAnimationFinished
 
-    // If the client asks to show popups on this surface, automatically create child ShellSurfaceItems
-    autoCreatePopupItems: true
-
     onSurfaceDestroyed: {
         bufferLocked = true;
         destroyAnimation.start();

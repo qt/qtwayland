@@ -545,11 +545,6 @@ void tst_WaylandCompositor::mapSurfaceHiDpi()
     QObject::connect(waylandSurface, &QWaylandSurface::hasContentChanged, verifyComittedState);
     QSignalSpy hasContentSpy(waylandSurface, SIGNAL(hasContentChanged()));
 
-#if QT_DEPRECATED_SINCE(5, 13)
-    QObject::connect(waylandSurface, &QWaylandSurface::sizeChanged, verifyComittedState);
-    QSignalSpy sizeSpy(waylandSurface, SIGNAL(sizeChanged()));
-#endif
-
     QObject::connect(waylandSurface, &QWaylandSurface::bufferSizeChanged, verifyComittedState);
     QSignalSpy bufferSizeSpy(waylandSurface, SIGNAL(bufferSizeChanged()));
 
@@ -575,9 +570,6 @@ void tst_WaylandCompositor::mapSurfaceHiDpi()
     wl_surface_commit(surface);
 
     QTRY_COMPARE(hasContentSpy.count(), 1);
-#if QT_DEPRECATED_SINCE(5, 13)
-    QTRY_COMPARE(sizeSpy.count(), 1);
-#endif
     QTRY_COMPARE(bufferSizeSpy.count(), 1);
     QTRY_COMPARE(destinationSizeSpy.count(), 1);
     QTRY_COMPARE(bufferScaleSpy.count(), 1);

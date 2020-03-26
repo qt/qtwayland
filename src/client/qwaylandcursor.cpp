@@ -74,7 +74,7 @@ QWaylandCursorTheme::~QWaylandCursorTheme()
 
 wl_cursor *QWaylandCursorTheme::requestCursor(WaylandCursor shape)
 {
-    if (struct wl_cursor *cursor = m_cursors.value(shape, nullptr))
+    if (struct wl_cursor *cursor = m_cursors[shape])
         return cursor;
 
     static Q_CONSTEXPR struct ShapeAndName {
@@ -206,7 +206,7 @@ wl_cursor *QWaylandCursorTheme::requestCursor(WaylandCursor shape)
                                     ShapeAndName{shape, ""}, byShape);
     for (auto it = p.first; it != p.second; ++it) {
         if (wl_cursor *cursor = wl_cursor_theme_get_cursor(m_theme, it->name)) {
-            m_cursors.insert(shape, cursor);
+            m_cursors[shape] = cursor;
             return cursor;
         }
     }
@@ -219,7 +219,7 @@ wl_cursor *QWaylandCursorTheme::requestCursor(WaylandCursor shape)
     return nullptr;
 }
 
-::wl_cursor_image *QWaylandCursorTheme::cursorImage(Qt::CursorShape shape, uint millisecondsIntoAnimation)
+::wl_cursor *QWaylandCursorTheme::cursor(Qt::CursorShape shape)
 {
     struct wl_cursor *waylandCursor = nullptr;
 
@@ -237,15 +237,7 @@ wl_cursor *QWaylandCursorTheme::requestCursor(WaylandCursor shape)
         return nullptr;
     }
 
-    int frame = wl_cursor_frame(waylandCursor, millisecondsIntoAnimation);
-    ::wl_cursor_image *image = waylandCursor->images[frame];
-    ::wl_buffer *buffer = wl_cursor_image_get_buffer(image);
-    if (!buffer) {
-        qCWarning(lcQpaWayland) << "Could not find buffer for cursor";
-        return nullptr;
-    }
-
-    return image;
+    return waylandCursor;
 }
 
 QWaylandCursor::QWaylandCursor(QWaylandDisplay *display)

@@ -92,14 +92,4 @@ QWaylandShell::QWaylandShell(QWaylandObject *container, QWaylandShellPrivate &dd
 {
 }
 
-QWaylandShell::QWaylandShell(QWaylandCompositorExtensionPrivate &dd)
-    : QWaylandShell(static_cast<QWaylandShellPrivate &>(dd))
-{
-}
-
-QWaylandShell::QWaylandShell(QWaylandObject *container, QWaylandCompositorExtensionPrivate &dd)
-    : QWaylandShell(container, static_cast<QWaylandShellPrivate &>(dd))
-{
-}
-
 QT_END_NAMESPACE

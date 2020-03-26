@@ -57,13 +57,20 @@
 #include <QtWaylandClient/private/qwayland-wayland.h>
 #include <QtWaylandClient/private/qwayland-xdg-output-unstable-v1.h>
 
-
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
 class QWaylandDisplay;
 class QWaylandCursor;
+
+class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgOutputManagerV1 : public QtWayland::zxdg_output_manager_v1 {
+public:
+    QWaylandXdgOutputManagerV1(QWaylandDisplay *display, uint id, uint version);
+    uint version() const { return m_version; }
+private:
+    uint m_version = 1; // TODO: remove when we upgrade minimum libwayland requriement to 1.10
+};
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandScreen : public QPlatformScreen, QtWayland::wl_output, QtWayland::zxdg_output_v1
 {
@@ -73,7 +80,7 @@ public:
 
     void maybeInitialize();
 
-    void initXdgOutput(QtWayland::zxdg_output_manager_v1 *xdgOutputManager);
+    void initXdgOutput(QWaylandXdgOutputManagerV1 *xdgOutputManager);
 
     QWaylandDisplay *display() const;
 

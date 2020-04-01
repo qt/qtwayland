@@ -18,7 +18,7 @@ WAYLANDSERVERSOURCES += \
 
 RESOURCES += compositor.qrc
 
-TARGET = custom-compositor
+TARGET = custom-extension-compositor
 
 HEADERS += \
     customextension.h

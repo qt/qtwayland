@@ -150,3 +150,5 @@ QWaylandTextInput *QWaylandInputMethodControlPrivate::textInput() const
 {
     return QWaylandTextInput::findIn(seat);
 }
+
+#include "moc_qwaylandinputmethodcontrol.cpp"

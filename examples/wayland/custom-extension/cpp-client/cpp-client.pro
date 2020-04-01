@@ -9,5 +9,7 @@ SOURCES += main.cpp \
 HEADERS += \
     ../client-common/customextension.h
 
+TARGET = custom-extension-cpp-client
+
 target.path = $$[QT_INSTALL_EXAMPLES]/wayland/custom-extension/cpp-client
 INSTALLS += target

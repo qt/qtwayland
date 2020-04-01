@@ -1,0 +1,13 @@
+# Generated from src.pro.
+
+if(QT_FEATURE_wayland_client OR QT_FEATURE_wayland_server)
+    add_subdirectory(qtwaylandscanner)
+    add_subdirectory(plugins)
+    add_subdirectory(imports)
+endif()
+if(QT_FEATURE_wayland_client)
+    add_subdirectory(client)
+endif()
+if(QT_FEATURE_wayland_server)
+    add_subdirectory(compositor)
+endif()

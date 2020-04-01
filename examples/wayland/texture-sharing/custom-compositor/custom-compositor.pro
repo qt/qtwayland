@@ -12,7 +12,7 @@ OTHER_FILES = \
 
 RESOURCES += compositor.qrc
 
-TARGET = custom-compositor
+TARGET = texture-sharing-custom-compositor
 
 target.path = $$[QT_INSTALL_EXAMPLES]/wayland/texture-sharing/custom-compositor
 INSTALLS += target

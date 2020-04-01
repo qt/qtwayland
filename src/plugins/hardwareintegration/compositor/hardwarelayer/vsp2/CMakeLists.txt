@@ -1,0 +1,26 @@
+# Generated from vsp2.pro.
+
+#####################################################################
+## Vsp2HardwareLayerIntegrationPlugin Plugin:
+#####################################################################
+
+qt_add_plugin(Vsp2HardwareLayerIntegrationPlugin
+    OUTPUT_NAME qt-wayland-compositor-vsp2
+    TYPE wayland-hardware-layer-integration
+    SOURCES
+        ../../../../../hardwareintegration/compositor/hardwarelayer/vsp2/vsp2hardwarelayerintegration.cpp ../../../../../hardwareintegration/compositor/hardwarelayer/vsp2/vsp2hardwarelayerintegration.h
+        main.cpp
+    INCLUDE_DIRECTORIES
+        ../../../../../hardwareintegration/compositor/hardwarelayer/vsp2
+    LIBRARIES
+        PkgConfig::Waylandkms
+        Wayland::Server
+    PUBLIC_LIBRARIES
+        Qt::CorePrivate
+        Qt::GuiPrivate
+        Qt::WaylandCompositor
+        Qt::WaylandCompositorPrivate
+)
+
+#### Keys ignored in scope 1:.:.:vsp2.pro:<TRUE>:
+# OTHER_FILES = "vsp2.json"

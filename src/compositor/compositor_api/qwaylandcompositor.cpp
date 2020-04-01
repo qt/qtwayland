@@ -1044,3 +1044,5 @@ void QWaylandCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const QWay
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandcompositor.cpp"

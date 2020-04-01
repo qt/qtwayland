@@ -130,3 +130,5 @@ void QWaylandDrag::cancelDrag()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylanddrag.cpp"

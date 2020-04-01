@@ -67,21 +67,6 @@
                 { "type": "pkgConfig", "args": "xcomposite" },
                 "-lxcomposite"
             ]
-        },
-        "glx": {
-            "label": "GLX",
-            "headers": "GL/glx.h",
-            "test": {
-                "main": [
-                    "Display *dpy = XOpenDisplay(0);",
-                    "int items = 0;",
-                    "GLXFBConfig *fbc = glXChooseFBConfig(dpy, DefaultScreen(dpy), 0 , &items);"
-                ]
-            },
-            "sources": [
-                { "type": "pkgConfig", "args": "x11 gl" },
-                "-lX11 -lGl"
-            ]
         }
     },
 
@@ -248,7 +233,7 @@
         },
         "xcomposite-glx": {
             "label": "XComposite GLX",
-            "condition": "features.wayland-client && features.opengl && !features.opengles2 && features.xlib && libs.xcomposite && libs.glx",
+            "condition": "features.wayland-client && features.opengl && !features.opengles2 && features.xlib && libs.xcomposite",
             "output": [ "privateFeature" ]
         },
         "wayland-drm-egl-server-buffer": {

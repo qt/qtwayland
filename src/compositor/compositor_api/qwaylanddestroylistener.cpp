@@ -63,3 +63,5 @@ void QWaylandDestroyListenerPrivate::handler(wl_listener *listener, void *data)
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylanddestroylistener.cpp"

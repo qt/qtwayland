@@ -63,6 +63,10 @@
 
 #include "QtWaylandCompositor/private/qwltexturesharingextension_p.h"
 
+#ifndef GL_RGBA8
+#define GL_RGBA8 0x8058
+#endif
+
 class CustomSharingExtension : public QWaylandTextureSharingExtension
 {
     Q_OBJECT

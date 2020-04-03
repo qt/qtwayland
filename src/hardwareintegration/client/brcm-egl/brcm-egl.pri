@@ -11,5 +11,5 @@ HEADERS += $$PWD/qwaylandbrcmeglintegration.h \
            $$PWD/qwaylandbrcmglcontext.h \
            $$PWD/qwaylandbrcmeglwindow.h
 
-CONFIG += wayland-scanner
+CONFIG += wayland-scanner-client-wayland-protocol-include
 WAYLANDCLIENTSOURCES += $$PWD/../../../extensions/brcm.xml

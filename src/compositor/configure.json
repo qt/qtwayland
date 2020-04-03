@@ -137,7 +137,8 @@
                     "#endif"
                 ]
             },
-            "use": "egl drm"
+            "libs": "-ldrm",
+            "use": "egl"
         },
         "dmabuf-client-buffer": {
             "label": "Linux Client dma-buf Buffer Sharing",
@@ -161,7 +162,8 @@
                     "return 0;"
                 ]
             },
-            "use": "egl drm"
+            "libs": "-ldrm",
+            "use": "egl"
         },
         "vulkan-server-buffer": {
             "label": "Vulkan Buffer Sharing",

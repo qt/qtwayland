@@ -134,7 +134,8 @@
                     "#endif"
                 ]
             },
-            "use": "egl drm"
+            "libs": "-ldrm",
+            "use": "egl"
         },
         "vulkan-server-buffer": {
             "label": "Vulkan Buffer Sharing",

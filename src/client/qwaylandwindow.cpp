@@ -79,6 +79,13 @@ QWaylandWindow::QWaylandWindow(QWindow *window, QWaylandDisplay *display)
     , mFrameQueue(mDisplay->createEventQueue())
     , mResizeAfterSwap(qEnvironmentVariableIsSet("QT_WAYLAND_RESIZE_AFTER_SWAP"))
 {
+    {
+        bool ok;
+        int frameCallbackTimeout = qEnvironmentVariableIntValue("QT_WAYLAND_FRAME_CALLBACK_TIMEOUT", &ok);
+        if (ok)
+            mFrameCallbackTimeout = frameCallbackTimeout;
+    }
+
     static WId id = 1;
     mWindowId = id++;
     initializeWlSurface();
@@ -1096,7 +1103,7 @@ void QWaylandWindow::timerEvent(QTimerEvent *event)
     if (event->timerId() != mFrameCallbackCheckIntervalTimerId)
         return;
 
-    bool callbackTimerExpired = mFrameCallbackElapsedTimer.hasExpired(100);
+    bool callbackTimerExpired = mFrameCallbackElapsedTimer.hasExpired(mFrameCallbackTimeout);
     if (!mFrameCallbackElapsedTimer.isValid() || callbackTimerExpired ) {
         killTimer(mFrameCallbackCheckIntervalTimerId);
         mFrameCallbackCheckIntervalTimerId = -1;
@@ -1157,13 +1164,15 @@ void QWaylandWindow::handleUpdate()
     mWaitingForUpdate = false;
 
     // Start a timer for handling the case when the compositor stops sending frame callbacks.
-    QMetaObject::invokeMethod(this, [this] {
-        if (mWaitingForFrameCallback) {
-            if (mFrameCallbackCheckIntervalTimerId < 0)
-                mFrameCallbackCheckIntervalTimerId = startTimer(100);
-            mFrameCallbackElapsedTimer.start();
-        }
-    }, Qt::QueuedConnection);
+    if (mFrameCallbackTimeout > 0) {
+        QMetaObject::invokeMethod(this, [this] {
+            if (mWaitingForFrameCallback) {
+                if (mFrameCallbackCheckIntervalTimerId < 0)
+                    mFrameCallbackCheckIntervalTimerId = startTimer(mFrameCallbackTimeout);
+                mFrameCallbackElapsedTimer.start();
+            }
+        }, Qt::QueuedConnection);
+    }
 }
 
 void QWaylandWindow::deliverUpdateRequest()

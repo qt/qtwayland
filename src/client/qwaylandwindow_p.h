@@ -240,6 +240,7 @@ protected:
     bool mCanResize = true;
     bool mResizeDirty = false;
     bool mResizeAfterSwap;
+    int mFrameCallbackTimeout = 100;
     QVariantMap m_properties;
 
     bool mSentInitialResize = false;

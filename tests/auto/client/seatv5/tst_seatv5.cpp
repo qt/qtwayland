@@ -63,6 +63,7 @@ private slots:
     void simpleAxis();
     void fingerScroll();
     void fingerScrollSlow();
+    void continuousScroll();
     void wheelDiscreteScroll();
 
     // Touch tests
@@ -252,7 +253,7 @@ void tst_seatv5::fingerScroll()
         QCOMPARE(e.phase, Qt::ScrollUpdate);
         QVERIFY(qAbs(e.angleDelta.x()) <= qAbs(e.angleDelta.y())); // Vertical scroll
 //        QCOMPARE(e.angleDelta, angleDelta); // TODO: what should this be?
-        QCOMPARE(e.pixelDelta, QPoint(0, 10));
+        QCOMPARE(e.pixelDelta, QPoint(0, -10));
         QCOMPARE(e.source, Qt::MouseEventSynthesizedBySystem); // A finger is not a wheel
     }
 
@@ -269,7 +270,7 @@ void tst_seatv5::fingerScroll()
         auto e = window.m_events.takeFirst();
         QCOMPARE(e.phase, Qt::ScrollUpdate);
         QVERIFY(qAbs(e.angleDelta.x()) > qAbs(e.angleDelta.y())); // Horizontal scroll
-        QCOMPARE(e.pixelDelta, QPoint(10, 0));
+        QCOMPARE(e.pixelDelta, QPoint(-10, 0));
         QCOMPARE(e.source, Qt::MouseEventSynthesizedBySystem); // A finger is not a wheel
     }
 
@@ -284,7 +285,7 @@ void tst_seatv5::fingerScroll()
     {
         auto e = window.m_events.takeFirst();
         QCOMPARE(e.phase, Qt::ScrollUpdate);
-        QCOMPARE(e.pixelDelta, QPoint(10, 10));
+        QCOMPARE(e.pixelDelta, QPoint(-10, -10));
         QCOMPARE(e.source, Qt::MouseEventSynthesizedBySystem); // A finger is not a wheel
     }
 
@@ -338,7 +339,7 @@ void tst_seatv5::fingerScrollSlow()
         accumulated += e.pixelDelta;
         QTRY_VERIFY(!window.m_events.empty());
     }
-    QCOMPARE(accumulated.y(), 1);
+    QCOMPARE(accumulated.y(), -1);
 }
 void tst_seatv5::wheelDiscreteScroll()
 {
@@ -368,6 +369,32 @@ void tst_seatv5::wheelDiscreteScroll()
         // Click scrolls are not continuous and should not have a pixel delta
         QCOMPARE(e.pixelDelta, QPoint(0, 0));
     }
+}
+
+void tst_seatv5::continuousScroll()
+{
+    WheelWindow window;
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+
+    exec([=] {
+        auto *p = pointer();
+        auto *c = client();
+        p->sendEnter(xdgToplevel()->surface(), {32, 32});
+        p->sendFrame(c);
+        p->sendAxisSource(c, Pointer::axis_source_continuous);
+        p->sendAxis(c, Pointer::axis_vertical_scroll, 10);
+        p->sendAxis(c, Pointer::axis_horizontal_scroll, -5);
+        p->sendFrame(c);
+    });
+
+    QTRY_VERIFY(!window.m_events.empty());
+    {
+        auto e = window.m_events.takeFirst();
+        QCOMPARE(e.phase, Qt::NoScrollPhase);
+        QCOMPARE(e.pixelDelta, QPoint(5, -10));
+        QCOMPARE(e.source, Qt::MouseEventSynthesizedBySystem); // touchpads are not wheels
+    }
+    // Sending axis_stop is not mandatory when axis source != finger
 }
 
 void tst_seatv5::createsTouch()

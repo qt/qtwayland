@@ -1041,6 +1041,12 @@ QPoint QWaylandInputDevice::Pointer::FrameData::pixelDeltaAndError(QPointF *accu
     *accumulatedError += delta - pixelDelta;
     Q_ASSERT(qAbs(accumulatedError->x()) < 1.0);
     Q_ASSERT(qAbs(accumulatedError->y()) < 1.0);
+
+    // for continuous scroll events things should be
+    // in the same direction
+    // i.e converted so downwards surface co-ordinates (positive axis_value)
+    // goes to downwards in wheel event (negative value)
+    pixelDelta *= -1;
     return pixelDelta;
 }
 

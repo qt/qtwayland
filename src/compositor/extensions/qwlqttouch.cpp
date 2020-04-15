@@ -94,8 +94,8 @@ bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, QWaylandSurface *s
             int y = toFixed(tp.pos().y());
             int nx = toFixed(tp.normalizedPos().x());
             int ny = toFixed(tp.normalizedPos().y());
-            int w = toFixed(tp.rect().width());
-            int h = toFixed(tp.rect().height());
+            int w = toFixed(tp.ellipseDiameters().width());
+            int h = toFixed(tp.ellipseDiameters().height());
             int vx = toFixed(tp.velocity().x());
             int vy = toFixed(tp.velocity().y());
             uint32_t pressure = uint32_t(tp.pressure() * 255);

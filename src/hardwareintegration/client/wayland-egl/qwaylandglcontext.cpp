@@ -283,7 +283,7 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *dis
         m_api = EGL_OPENVG_API;
         break;
 #ifdef EGL_VERSION_1_4
-#  if !defined(QT_OPENGL_ES_2)
+#  if !QT_CONFIG(opengles2)
     case QSurfaceFormat::DefaultRenderableType:
 #  endif
     case QSurfaceFormat::OpenGL:

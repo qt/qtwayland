@@ -275,7 +275,7 @@ LinuxDmabufClientBufferIntegration::~LinuxDmabufClientBufferIntegration()
     m_importedBuffers.clear();
 }
 
-bool LinuxDmabufClientBufferIntegration::initializeHardware(struct ::wl_display *display)
+void LinuxDmabufClientBufferIntegration::initializeHardware(struct ::wl_display *display)
 {
     m_linuxDmabuf.reset(new LinuxDmabuf(display, this));
 
@@ -286,40 +286,40 @@ bool LinuxDmabufClientBufferIntegration::initializeHardware(struct ::wl_display 
     egl_query_dmabuf_formats_ext = reinterpret_cast<PFNEGLQUERYDMABUFFORMATSEXTPROC>(eglGetProcAddress("eglQueryDmaBufFormatsEXT"));
     if (!egl_query_dmabuf_modifiers_ext || !egl_query_dmabuf_formats_ext) {
         qCWarning(qLcWaylandCompositorHardwareIntegration) << "Failed to initialize EGL display. Could not find eglQueryDmaBufModifiersEXT and eglQueryDmaBufFormatsEXT.";
-        return false;
+        return;
     }
 
     egl_bind_wayland_display = reinterpret_cast<PFNEGLBINDWAYLANDDISPLAYWL>(eglGetProcAddress("eglBindWaylandDisplayWL"));
     egl_unbind_wayland_display = reinterpret_cast<PFNEGLUNBINDWAYLANDDISPLAYWL>(eglGetProcAddress("eglUnbindWaylandDisplayWL"));
     if ((!egl_bind_wayland_display || !egl_unbind_wayland_display) && !ignoreBindDisplay) {
         qCWarning(qLcWaylandCompositorHardwareIntegration) << "Failed to initialize EGL display. Could not find eglBindWaylandDisplayWL and eglUnbindWaylandDisplayWL.";
-        return false;
+        return;
     }
 
     egl_create_image = reinterpret_cast<PFNEGLCREATEIMAGEKHRPROC>(eglGetProcAddress("eglCreateImageKHR"));
     egl_destroy_image = reinterpret_cast<PFNEGLDESTROYIMAGEKHRPROC>(eglGetProcAddress("eglDestroyImageKHR"));
     if (!egl_create_image || !egl_destroy_image) {
         qCWarning(qLcWaylandCompositorHardwareIntegration) << "Failed to initialize EGL display. Could not find eglCreateImageKHR and eglDestroyImageKHR.";
-        return false;
+        return;
     }
 
     // initialize EGL display
     QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
     if (!nativeInterface) {
         qCWarning(qLcWaylandCompositorHardwareIntegration) << "Failed to initialize EGL display. No native platform interface available.";
-        return false;
+        return;
     }
 
     m_eglDisplay = nativeInterface->nativeResourceForIntegration("EglDisplay");
     if (!m_eglDisplay) {
         qCWarning(qLcWaylandCompositorHardwareIntegration) << "Failed to initialize EGL display. Could not get EglDisplay for window.";
-        return false;
+        return;
     }
 
     const char *extensionString = eglQueryString(m_eglDisplay, EGL_EXTENSIONS);
     if (!extensionString || !strstr(extensionString, "EGL_EXT_image_dma_buf_import")) {
         qCWarning(qLcWaylandCompositorHardwareIntegration) << "Failed to initialize EGL display. There is no EGL_EXT_image_dma_buf_import extension.";
-        return false;
+        return;
     }
     if (strstr(extensionString, "EGL_EXT_image_dma_buf_import_modifiers"))
         m_supportsDmabufModifiers = true;
@@ -331,7 +331,7 @@ bool LinuxDmabufClientBufferIntegration::initializeHardware(struct ::wl_display 
                 qCWarning(qLcWaylandCompositorHardwareIntegration) << "Could not bind Wayland display. Ignoring.";
             } else {
                 qCWarning(qLcWaylandCompositorHardwareIntegration) << "Failed to initialize EGL display. Could not bind Wayland display.";
-                return false;
+                return;
             }
         }
     }
@@ -342,7 +342,6 @@ bool LinuxDmabufClientBufferIntegration::initializeHardware(struct ::wl_display 
         modifiers[format] = supportedDrmModifiers(format);
     }
     m_linuxDmabuf->setSupportedModifiers(modifiers);
-    return true;
 }
 
 QVector<uint32_t> LinuxDmabufClientBufferIntegration::supportedDrmFormats()

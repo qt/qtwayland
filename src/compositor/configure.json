@@ -265,7 +265,7 @@
         "wayland-compositor-quick": {
             "label": "QtQuick integration for wayland compositor",
             "purpose": "Allows QtWayland compositor types to be used with QtQuick",
-            "condition": "features.wayland-server && module.quick && features.opengl",
+            "condition": "features.wayland-server && module.quick",
             "output": [ "publicFeature" ]
         }
     },

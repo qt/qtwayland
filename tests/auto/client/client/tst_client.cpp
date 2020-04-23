@@ -149,7 +149,7 @@ public:
         : compositor(c)
     {
         QSocketNotifier *notifier = new QSocketNotifier(compositor->waylandFileDescriptor(), QSocketNotifier::Read, this);
-        connect(notifier, SIGNAL(activated(int)), this, SLOT(processWaylandEvents()));
+        connect(notifier, SIGNAL(activated(QSocketDescriptor)), this, SLOT(processWaylandEvents()));
         // connect to the event dispatcher to make sure to flush out the outgoing message queue
         connect(QCoreApplication::eventDispatcher(), &QAbstractEventDispatcher::awake, this, &tst_WaylandClient::processWaylandEvents);
         connect(QCoreApplication::eventDispatcher(), &QAbstractEventDispatcher::aboutToBlock, this, &tst_WaylandClient::processWaylandEvents);

@@ -298,7 +298,7 @@ void WaylandEglStreamClientBufferIntegration::attachEglStreamConsumer(struct ::w
     d->initEglStream(clientBuffer, wl_buffer);
 }
 
-bool WaylandEglStreamClientBufferIntegration::initializeHardware(struct wl_display *display)
+void WaylandEglStreamClientBufferIntegration::initializeHardware(struct wl_display *display)
 {
     Q_D(WaylandEglStreamClientBufferIntegration);
 
@@ -307,32 +307,32 @@ bool WaylandEglStreamClientBufferIntegration::initializeHardware(struct wl_displ
     QPlatformNativeInterface *nativeInterface = QGuiApplication::platformNativeInterface();
     if (!nativeInterface) {
         qWarning("QtCompositor: Failed to initialize EGL display. No native platform interface available.");
-        return false;
+        return;
     }
 
     d->egl_display = nativeInterface->nativeResourceForIntegration("EglDisplay");
     if (!d->egl_display) {
         qWarning("QtCompositor: Failed to initialize EGL display. Could not get EglDisplay for window.");
-        return false;
+        return;
     }
 
     const char *extensionString = eglQueryString(d->egl_display, EGL_EXTENSIONS);
     if ((!extensionString || !strstr(extensionString, "EGL_WL_bind_wayland_display")) && !ignoreBindDisplay) {
         qWarning("QtCompositor: Failed to initialize EGL display. There is no EGL_WL_bind_wayland_display extension.");
-        return false;
+        return;
     }
 
     d->egl_bind_wayland_display = reinterpret_cast<PFNEGLBINDWAYLANDDISPLAYWL>(eglGetProcAddress("eglBindWaylandDisplayWL"));
     d->egl_unbind_wayland_display = reinterpret_cast<PFNEGLUNBINDWAYLANDDISPLAYWL>(eglGetProcAddress("eglUnbindWaylandDisplayWL"));
     if ((!d->egl_bind_wayland_display || !d->egl_unbind_wayland_display) && !ignoreBindDisplay) {
         qWarning("QtCompositor: Failed to initialize EGL display. Could not find eglBindWaylandDisplayWL and eglUnbindWaylandDisplayWL.");
-        return false;
+        return;
     }
 
     d->egl_query_wayland_buffer = reinterpret_cast<PFNEGLQUERYWAYLANDBUFFERWL_compat>(eglGetProcAddress("eglQueryWaylandBufferWL"));
     if (!d->egl_query_wayland_buffer) {
         qWarning("QtCompositor: Failed to initialize EGL display. Could not find eglQueryWaylandBufferWL.");
-        return false;
+        return;
     }
 
     if (d->egl_bind_wayland_display && d->egl_unbind_wayland_display) {
@@ -340,7 +340,7 @@ bool WaylandEglStreamClientBufferIntegration::initializeHardware(struct wl_displ
         if (!d->display_bound) {
             if (!ignoreBindDisplay) {
                 qWarning("QtCompositor: Failed to initialize EGL display. Could not bind Wayland display.");
-                return false;
+                return;
             } else {
                 qWarning("QtCompositor: Could not bind Wayland display. Ignoring.");
             }
@@ -351,12 +351,6 @@ bool WaylandEglStreamClientBufferIntegration::initializeHardware(struct wl_displ
 
     d->funcs = new QEGLStreamConvenience;
     d->funcs->initialize(d->egl_display);
-    if (!d->funcs->initialized) {
-        qWarning(qLcWaylandCompositorHardwareIntegration) << "Failed to initialize eglstreams API";
-        return false;
-    }
-
-    return true;
 }
 
 QtWayland::ClientBuffer *WaylandEglStreamClientBufferIntegration::createBufferFor(wl_resource *buffer)

@@ -8,7 +8,6 @@ WAYLANDSERVERSOURCES += \
     ../extensions/touch-extension.xml \
     ../extensions/qt-key-unstable-v1.xml \
     ../extensions/qt-windowmanager.xml \
-    ../extensions/qt-texture-sharing-unstable-v1.xml \
     ../3rdparty/protocol/text-input-unstable-v2.xml \
     ../3rdparty/protocol/viewporter.xml \
     ../3rdparty/protocol/scaler.xml \
@@ -75,6 +74,8 @@ SOURCES += \
     extensions/qwaylandivisurface.cpp \
 
 qtHaveModule(quick) {
+    QT += quick quick-private
+
     HEADERS += \
         extensions/qwaylandquickshellintegration.h \
         extensions/qwaylandquickshellsurfaceitem.h \
@@ -97,6 +98,9 @@ qtHaveModule(quick) {
         extensions/qwaylandxdgshellintegration.cpp \
 
     qtConfig(opengl) {
+        WAYLANDSERVERSOURCES += \
+            ../extensions/qt-texture-sharing-unstable-v1.xml
+
         HEADERS += \
             extensions/qwltexturesharingextension_p.h
 

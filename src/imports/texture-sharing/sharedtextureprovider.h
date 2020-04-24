@@ -100,6 +100,7 @@ public:
     SharedTexture(QtWaylandClient::QWaylandServerBuffer *buffer);
 
     int textureId() const override;
+    int comparisonKey() const override;
     QSize textureSize() const override;
     bool hasAlphaChannel() const override;
     bool hasMipmaps() const override;

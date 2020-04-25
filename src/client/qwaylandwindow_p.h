@@ -63,6 +63,7 @@
 #include <qpa/qplatformwindow.h>
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
+#include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 
 struct wl_egl_window;
@@ -226,10 +227,11 @@ protected:
     WId mWindowId;
     bool mWaitingForFrameCallback = false;
     bool mFrameCallbackTimedOut = false; // Whether the frame callback has timed out
+    bool mWaitingForUpdateDelivery = false;
     int mFrameCallbackCheckIntervalTimerId = -1;
     QElapsedTimer mFrameCallbackElapsedTimer;
     struct ::wl_callback *mFrameCallback = nullptr;
-    struct ::wl_event_queue *mFrameQueue = nullptr;
+    QWaylandDisplay::FrameQueue mFrameQueue;
     QWaitCondition mFrameSyncWait;
 
     // True when we have called deliverRequestUpdate, but the client has not yet attached a new buffer
@@ -280,7 +282,6 @@ private:
     static const wl_callback_listener callbackListener;
     void handleFrameCallback();
 
-    static QMutex mFrameSyncMutex;
     static QWaylandWindow *mMouseGrab;
 
     QReadWriteLock mSurfaceLock;

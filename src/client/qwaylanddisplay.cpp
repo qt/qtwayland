@@ -225,6 +225,17 @@ void QWaylandDisplay::flushRequests()
     if (wl_display_dispatch_pending(mDisplay) < 0)
         checkError();
 
+    {
+        QReadLocker locker(&m_frameQueueLock);
+        for (const FrameQueue &q : mExternalQueues) {
+            QMutexLocker locker(q.mutex);
+            while (wl_display_prepare_read_queue(mDisplay, q.queue) != 0)
+                wl_display_dispatch_queue_pending(mDisplay, q.queue);
+            wl_display_read_events(mDisplay);
+            wl_display_dispatch_queue_pending(mDisplay, q.queue);
+        }
+    }
+
     wl_display_flush(mDisplay);
 }
 
@@ -232,6 +243,27 @@ void QWaylandDisplay::blockingReadEvents()
 {
     if (wl_display_dispatch(mDisplay) < 0)
         checkError();
+}
+
+void QWaylandDisplay::destroyFrameQueue(const QWaylandDisplay::FrameQueue &q)
+{
+    QWriteLocker locker(&m_frameQueueLock);
+    auto it = std::find_if(mExternalQueues.begin(),
+                           mExternalQueues.end(),
+                           [&q] (const QWaylandDisplay::FrameQueue &other){ return other.queue == q.queue; });
+    Q_ASSERT(it != mExternalQueues.end());
+    mExternalQueues.erase(it);
+    if (q.queue != nullptr)
+        wl_event_queue_destroy(q.queue);
+    delete q.mutex;
+}
+
+QWaylandDisplay::FrameQueue QWaylandDisplay::createFrameQueue()
+{
+    QWriteLocker locker(&m_frameQueueLock);
+    FrameQueue q{createEventQueue()};
+    mExternalQueues.append(q);
+    return q;
 }
 
 wl_event_queue *QWaylandDisplay::createEventQueue()

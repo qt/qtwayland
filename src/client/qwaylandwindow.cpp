@@ -76,7 +76,7 @@ QWaylandWindow *QWaylandWindow::mMouseGrab = nullptr;
 QWaylandWindow::QWaylandWindow(QWindow *window, QWaylandDisplay *display)
     : QPlatformWindow(window)
     , mDisplay(display)
-    , mFrameQueue(mDisplay->createEventQueue())
+    , mFrameQueue(mDisplay->createFrameQueue())
     , mResizeAfterSwap(qEnvironmentVariableIsSet("QT_WAYLAND_RESIZE_AFTER_SWAP"))
 {
     {
@@ -95,6 +95,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window, QWaylandDisplay *display)
 
 QWaylandWindow::~QWaylandWindow()
 {
+    mDisplay->destroyFrameQueue(mFrameQueue);
     mDisplay->handleWindowDestroyed(this);
 
     delete mWindowDecoration;
@@ -624,33 +625,29 @@ void QWaylandWindow::handleFrameCallback()
     mFrameCallbackElapsedTimer.invalidate();
 
     // The rest can wait until we can run it on the correct thread
-    auto doHandleExpose = [this]() {
-        bool wasExposed = isExposed();
-        mFrameCallbackTimedOut = false;
-        if (!wasExposed && isExposed()) // Did setting mFrameCallbackTimedOut make the window exposed?
-            sendExposeEvent(QRect(QPoint(), geometry().size()));
-        if (wasExposed && hasPendingUpdateRequest())
-            deliverUpdateRequest();
-    };
+    if (!mWaitingForUpdateDelivery) {
+        auto doHandleExpose = [this]() {
+            bool wasExposed = isExposed();
+            mFrameCallbackTimedOut = false;
+            if (!wasExposed && isExposed()) // Did setting mFrameCallbackTimedOut make the window exposed?
+                sendExposeEvent(QRect(QPoint(), geometry().size()));
+            if (wasExposed && hasPendingUpdateRequest())
+                deliverUpdateRequest();
 
-    if (thread() != QThread::currentThread()) {
-        QMetaObject::invokeMethod(this, doHandleExpose);
-    } else {
-        doHandleExpose();
+            mWaitingForUpdateDelivery = false;
+        };
+
+        // Queued connection, to make sure we don't call handleUpdate() from inside waitForFrameSync()
+        // in the single-threaded case.
+        mWaitingForUpdateDelivery = true;
+        QMetaObject::invokeMethod(this, doHandleExpose, Qt::QueuedConnection);
     }
 }
 
-QMutex QWaylandWindow::mFrameSyncMutex;
-
 bool QWaylandWindow::waitForFrameSync(int timeout)
 {
-    if (!mWaitingForFrameCallback)
-        return true;
-
-    QMutexLocker locker(&mFrameSyncMutex);
-
-    wl_proxy_set_queue(reinterpret_cast<wl_proxy *>(mFrameCallback), mFrameQueue);
-    mDisplay->dispatchQueueWhile(mFrameQueue, [&]() { return mWaitingForFrameCallback; }, timeout);
+    QMutexLocker locker(mFrameQueue.mutex);
+    mDisplay->dispatchQueueWhile(mFrameQueue.queue, [&]() { return mWaitingForFrameCallback; }, timeout);
 
     if (mWaitingForFrameCallback) {
         qCDebug(lcWaylandBackingstore) << "Didn't receive frame callback in time, window should now be inexposed";
@@ -1124,6 +1121,7 @@ void QWaylandWindow::timerEvent(QTimerEvent *event)
     }
     if (mFrameCallbackElapsedTimer.isValid() && callbackTimerExpired) {
         mFrameCallbackElapsedTimer.invalidate();
+
         qCDebug(lcWaylandBackingstore) << "Didn't receive frame callback in time, window should now be inexposed";
         mFrameCallbackTimedOut = true;
         mWaitingForUpdate = false;
@@ -1172,7 +1170,11 @@ void QWaylandWindow::handleUpdate()
         mFrameCallback = nullptr;
     }
 
-    mFrameCallback = mSurface->frame();
+    QMutexLocker locker(mFrameQueue.mutex);
+    struct ::wl_surface *wrappedSurface = reinterpret_cast<struct ::wl_surface *>(wl_proxy_create_wrapper(mSurface->object()));
+    wl_proxy_set_queue(reinterpret_cast<wl_proxy *>(wrappedSurface), mFrameQueue.queue);
+    mFrameCallback = wl_surface_frame(wrappedSurface);
+    wl_proxy_wrapper_destroy(wrappedSurface);
     wl_callback_add_listener(mFrameCallback, &QWaylandWindow::callbackListener, this);
     mWaitingForFrameCallback = true;
     mWaitingForUpdate = false;

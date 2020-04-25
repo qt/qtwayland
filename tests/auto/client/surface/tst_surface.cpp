@@ -64,7 +64,6 @@ void tst_surface::createDestroySurface()
 
 void tst_surface::waitForFrameCallbackRaster()
 {
-    QSKIP("TODO: This currently fails, needs a fix");
     class TestWindow : public QRasterWindow {
     public:
         explicit TestWindow() { resize(40, 40); }
@@ -100,7 +99,6 @@ void tst_surface::waitForFrameCallbackRaster()
 #if QT_CONFIG(opengl)
 void tst_surface::waitForFrameCallbackGl()
 {
-    QSKIP("TODO: This currently fails, needs a fix");
     class TestWindow : public QOpenGLWindow {
     public:
         explicit TestWindow()

@@ -4,7 +4,7 @@
 ## QWaylandXCompositeEglPlatformIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(QWaylandXCompositeEglPlatformIntegrationPlugin
+qt_internal_add_plugin(QWaylandXCompositeEglPlatformIntegrationPlugin
     OUTPUT_NAME qwayland-xcomposite-egl
     TYPE platforms
     SOURCES

@@ -4,7 +4,7 @@
 ## QWaylandWlShellIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(QWaylandWlShellIntegrationPlugin
+qt_internal_add_plugin(QWaylandWlShellIntegrationPlugin
     OUTPUT_NAME wl-shell
     TYPE wayland-shell-integration
     SOURCES

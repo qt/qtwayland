@@ -74,6 +74,7 @@ qt_config_compile_test(dmabuf_server_buffer
     LABEL "Linux dma-buf Buffer Sharing"
     LIBRARIES
         EGL::EGL
+        Libdrm::Libdrm
     CODE
 "
 #include <EGL/egl.h>
@@ -100,6 +101,7 @@ qt_config_compile_test(dmabuf_client_buffer
     LABEL "Linux Client dma-buf Buffer Sharing"
     LIBRARIES
         EGL::EGL
+        Libdrm::Libdrm
     CODE
 "
 #include <EGL/egl.h>
@@ -129,7 +131,7 @@ return 0;
 qt_config_compile_test(vulkan_server_buffer
     LABEL "Vulkan Buffer Sharing"
     CODE
-"
+"#define VK_USE_PLATFORM_WAYLAND_KHR 1
 #include <vulkan/vulkan.h>
 
 int main(int argc, char **argv)
@@ -149,59 +151,63 @@ return 0;
 
 #### Features
 
-qt_feature("wayland_server" PRIVATE
+qt_feature("wayland-server" PRIVATE
     LABEL "Qt Wayland Compositor"
     CONDITION NOT WIN32 AND Wayland_FOUND AND WaylandScanner_FOUND
 )
-qt_feature("wayland_datadevice" PRIVATE
+qt_feature("wayland-datadevice" PRIVATE
     CONDITION QT_FEATURE_draganddrop OR QT_FEATURE_clipboard
 )
-qt_feature("wayland_egl" PRIVATE
+qt_feature("wayland-egl" PRIVATE
     LABEL "EGL"
     CONDITION QT_FEATURE_wayland_server AND QT_FEATURE_opengl AND QT_FEATURE_egl AND Wayland_FOUND
 )
-qt_feature("wayland_brcm" PRIVATE
+qt_feature("wayland-brcm" PRIVATE
     LABEL "Raspberry Pi"
     CONDITION QT_FEATURE_wayland_server AND QT_FEATURE_eglfs_brcm
 )
-qt_feature("xcomposite_egl" PRIVATE
+qt_feature("xcomposite-egl" PRIVATE
     LABEL "XComposite EGL"
     CONDITION QT_FEATURE_wayland_server AND QT_FEATURE_egl AND QT_FEATURE_opengl AND XComposite_FOUND
 )
-qt_feature("xcomposite_glx" PRIVATE
+qt_feature("xcomposite-glx" PRIVATE
     LABEL "XComposite EGL"
     CONDITION QT_FEATURE_wayland_server AND QT_FEATURE_opengl AND NOT QT_FEATURE_opengles2 AND QT_FEATURE_xlib AND XComposite_FOUND
 )
-qt_feature("wayland_drm_egl_server_buffer" PRIVATE
+qt_feature("wayland-drm-egl-server-buffer" PRIVATE
     LABEL "DRM EGL"
     CONDITION QT_FEATURE_wayland_server AND QT_FEATURE_opengl AND QT_FEATURE_egl AND TEST_drm_egl_server
 )
-qt_feature("wayland_libhybris_egl_server_buffer" PRIVATE
+qt_feature("wayland-libhybris-egl-server-buffer" PRIVATE
     LABEL "libhybris EGL"
     CONDITION QT_FEATURE_wayland_server AND QT_FEATURE_opengl AND QT_FEATURE_egl AND TEST_libhybris_egl_server
 )
-qt_feature("wayland_dmabuf_server_buffer" PRIVATE
+qt_feature("wayland-dmabuf-server-buffer" PRIVATE
     LABEL "Linux dma-buf server buffer integration"
     CONDITION QT_FEATURE_wayland_server AND QT_FEATURE_opengl AND QT_FEATURE_egl AND TEST_dmabuf_server_buffer
 )
-qt_feature("wayland_dmabuf_client_buffer" PRIVATE
+qt_feature("wayland-dmabuf-client-buffer" PRIVATE
     LABEL "Linux dma-buf client buffer integration"
     CONDITION QT_FEATURE_wayland_server AND QT_FEATURE_opengl AND QT_FEATURE_egl AND TEST_dmabuf_client_buffer
 )
-qt_feature("wayland_vulkan_server_buffer" PRIVATE
+qt_feature("wayland-vulkan-server-buffer" PRIVATE
     LABEL "Vulkan-based server buffer integration"
-    CONDITION QT_FEATURE_wayland_server AND QT_FEATURE_opengl AND QT_FEATURE_egl AND TEST_vulkan_server_buffer
+    CONDITION QT_FEATURE_wayland_server AND QT_FEATURE_vulkan AND QT_FEATURE_opengl AND QT_FEATURE_egl AND TEST_vulkan_server_buffer
 )
-qt_feature("wayland_shm_emulation_server_buffer" PRIVATE
+qt_feature("wayland-shm-emulation-server-buffer" PRIVATE
     LABEL "Shm emulation server buffer"
     CONDITION QT_FEATURE_wayland_server AND QT_FEATURE_opengl
 )
-qt_feature("wayland_layer_integration_vsp2" PRIVATE
+qt_feature("wayland-layer-integration-vsp2" PRIVATE
     LABEL "VSP2 hardware layer integration"
     CONDITION QT_FEATURE_wayland_server AND QT_FEATURE_eglfs_vsp2 AND Waylandkms_FOUND
 )
-qt_feature("wayland_compositor_quick" PUBLIC
+qt_feature("wayland-compositor-quick" PUBLIC
     LABEL "QtQuick integration for wayland compositor"
     PURPOSE "Allows QtWayland compositor types to be used with QtQuick"
-    CONDITION QT_FEATURE_wayland_server AND TARGET Qt::Quick AND QT_FEATURE_opengl
+    CONDITION QT_FEATURE_wayland_server AND TARGET Qt::Quick
 )
+qt_configure_add_summary_entry(ARGS "wayland-server")
+qt_configure_add_summary_section(NAME "Qt Wayland Compositor Layer Plugins")
+qt_configure_add_summary_entry(ARGS "wayland-layer-integration-vsp2")
+qt_configure_end_summary_section() # end of "Qt Wayland Compositor Layer Plugins" section

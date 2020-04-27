@@ -43,6 +43,8 @@
 
 QT_BEGIN_NAMESPACE
 
+#if QT_DEPRECATED_SINCE(5, 15)
+
 //
 //  W A R N I N G
 //  -------------
@@ -142,6 +144,8 @@ private:
 };
 
 }
+
+#endif // QT_DEPRECATED_SINCE(5, 15)
 
 QT_END_NAMESPACE
 

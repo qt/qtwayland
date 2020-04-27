@@ -4,7 +4,7 @@
 ## QWaylandDmabufClientBufferIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(QWaylandDmabufClientBufferIntegrationPlugin
+qt_internal_add_plugin(QWaylandDmabufClientBufferIntegrationPlugin
     OUTPUT_NAME qt-wayland-compositor-linux-dmabuf-unstable-v1
     TYPE wayland-graphics-integration-server
     SOURCES

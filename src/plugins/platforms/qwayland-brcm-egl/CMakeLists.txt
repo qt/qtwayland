@@ -4,7 +4,7 @@
 ## QWaylandBrcmEglPlatformIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(QWaylandBrcmEglPlatformIntegrationPlugin
+qt_internal_add_plugin(QWaylandBrcmEglPlatformIntegrationPlugin
     OUTPUT_NAME qwayland-brcm-egl
     TYPE platforms
     SOURCES

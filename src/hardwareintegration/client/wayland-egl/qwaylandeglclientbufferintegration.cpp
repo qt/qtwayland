@@ -76,7 +76,7 @@ QWaylandEglClientBufferIntegration::~QWaylandEglClientBufferIntegration()
 
 void QWaylandEglClientBufferIntegration::initialize(QWaylandDisplay *display)
 {
-#if defined(EGL_VERSION_1_5) && defined(EGL_PLATFORM_WAYLAND_EXT)
+#if QT_CONFIG(egl_extension_platform_wayland)
     m_eglDisplay = eglGetPlatformDisplay(EGL_PLATFORM_WAYLAND_EXT, display->wl_display(), nullptr);
 #else
     if (q_hasEglExtension(EGL_NO_DISPLAY, "EGL_EXT_platform_base")) {

@@ -76,10 +76,11 @@ QWaylandWlShellSurface::~QWaylandWlShellSurface()
     delete m_extendedWindow;
 }
 
-void QWaylandWlShellSurface::resize(QWaylandInputDevice *inputDevice, Qt::Edges edges)
+bool QWaylandWlShellSurface::resize(QWaylandInputDevice *inputDevice, Qt::Edges edges)
 {
     enum resize resizeEdges = convertToResizeEdges(edges);
     resize(inputDevice->wl_seat(), inputDevice->serial(), resizeEdges);
+    return true;
 }
 
 bool QWaylandWlShellSurface::move(QWaylandInputDevice *inputDevice)

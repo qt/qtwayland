@@ -4,7 +4,7 @@
 ## QWaylandEglStreamBufferIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(QWaylandEglStreamBufferIntegrationPlugin
+qt_internal_add_plugin(QWaylandEglStreamBufferIntegrationPlugin
     OUTPUT_NAME qt-wayland-compositor-wayland-eglstream-controller
     TYPE wayland-graphics-integration-server
     SOURCES

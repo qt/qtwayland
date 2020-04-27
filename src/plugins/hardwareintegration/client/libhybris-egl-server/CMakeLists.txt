@@ -4,7 +4,7 @@
 ## LibHybrisEglServerBufferPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(LibHybrisEglServerBufferPlugin
+qt_internal_add_plugin(LibHybrisEglServerBufferPlugin
     OUTPUT_NAME libhybris-egl-server
     TYPE wayland-graphics-integration-client
     SOURCES

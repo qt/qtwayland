@@ -39,7 +39,7 @@
 
   \qml \QtMinorVersion
   import QtWayland.Compositor 1.\1
-  \endcode
+  \endqml
 
   To link against the module, add this line to your \l qmake \c .pro file:
 

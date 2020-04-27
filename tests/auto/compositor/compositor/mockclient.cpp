@@ -57,7 +57,7 @@ MockClient::MockClient()
     fd = wl_display_get_fd(display);
 
     QSocketNotifier *readNotifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
-    connect(readNotifier, SIGNAL(activated(int)), this, SLOT(readEvents()));
+    connect(readNotifier, SIGNAL(activated(QSocketDescriptor)), this, SLOT(readEvents()));
 
     QAbstractEventDispatcher *dispatcher = QGuiApplicationPrivate::eventDispatcher;
     connect(dispatcher, SIGNAL(awake()), this, SLOT(flushDisplay()));

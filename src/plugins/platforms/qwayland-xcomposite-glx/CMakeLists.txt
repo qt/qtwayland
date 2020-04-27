@@ -4,7 +4,7 @@
 ## QWaylandXCompositeGlxPlatformIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(QWaylandXCompositeGlxPlatformIntegrationPlugin
+qt_internal_add_plugin(QWaylandXCompositeGlxPlatformIntegrationPlugin
     OUTPUT_NAME qwayland-xcomposite-glx
     TYPE platforms
     SOURCES

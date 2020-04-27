@@ -4,7 +4,7 @@
 ## QWaylandIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(QWaylandIntegrationPlugin
+qt_internal_add_plugin(QWaylandIntegrationPlugin
     OUTPUT_NAME qwayland-generic
     TYPE platforms
     SOURCES

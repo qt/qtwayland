@@ -4,7 +4,7 @@
 ## Vsp2HardwareLayerIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(Vsp2HardwareLayerIntegrationPlugin
+qt_internal_add_plugin(Vsp2HardwareLayerIntegrationPlugin
     OUTPUT_NAME qt-wayland-compositor-vsp2
     TYPE wayland-hardware-layer-integration
     SOURCES

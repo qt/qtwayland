@@ -159,8 +159,12 @@ qt_extend_target(WaylandCompositor CONDITION TARGET Qt::Quick
         extensions/qwaylandxdgshellintegration.cpp extensions/qwaylandxdgshellintegration_p.h
         extensions/qwaylandxdgshellv5integration.cpp extensions/qwaylandxdgshellv5integration_p.h
         extensions/qwaylandxdgshellv6integration.cpp extensions/qwaylandxdgshellv6integration_p.h
+    LIBRARIES
+        Qt::QuickPrivate
     PUBLIC_LIBRARIES
         Qt::Quick
+    PRIVATE_MODULE_INTERFACE
+        Qt::QuickPrivate
 )
 
 qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_wayland_datadevice

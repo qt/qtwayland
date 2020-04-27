@@ -4,7 +4,7 @@
 ## QWaylandEglClientBufferPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(QWaylandEglClientBufferPlugin
+qt_internal_add_plugin(QWaylandEglClientBufferPlugin
     OUTPUT_NAME qt-plugin-wayland-egl
     TYPE wayland-graphics-integration-client
     SOURCES

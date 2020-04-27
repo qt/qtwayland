@@ -74,6 +74,8 @@ SOURCES += \
     extensions/qwaylandivisurface.cpp \
 
 qtHaveModule(quick) {
+    QT += quick quick-private
+
     HEADERS += \
         extensions/qwaylandquickshellintegration.h \
         extensions/qwaylandquickshellsurfaceitem.h \

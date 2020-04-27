@@ -4,7 +4,7 @@
 ## QWaylandBrcmEglClientBufferPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(QWaylandBrcmEglClientBufferPlugin
+qt_internal_add_plugin(QWaylandBrcmEglClientBufferPlugin
     OUTPUT_NAME brcm-egl
     TYPE wayland-graphics-integration-client
     SOURCES

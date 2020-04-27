@@ -4,7 +4,7 @@
 ## QWaylandXCompositeGlxClientBufferIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(QWaylandXCompositeGlxClientBufferIntegrationPlugin
+qt_internal_add_plugin(QWaylandXCompositeGlxClientBufferIntegrationPlugin
     OUTPUT_NAME qt-wayland-compositor-xcomposite-glx
     TYPE wayland-graphics-integration-server
     SOURCES

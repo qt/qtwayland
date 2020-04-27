@@ -4,7 +4,7 @@
 ## QWaylandXdgShellIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(QWaylandXdgShellIntegrationPlugin
+qt_internal_add_plugin(QWaylandXdgShellIntegrationPlugin
     OUTPUT_NAME xdg-shell
     TYPE wayland-shell-integration
     SOURCES

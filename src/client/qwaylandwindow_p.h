@@ -196,7 +196,8 @@ public:
     void propagateSizeHints() override;
     void addAttachOffset(const QPoint point);
 
-    bool startSystemMove(const QPoint &pos);
+    bool startSystemResize(Qt::Edges edges) override;
+    bool startSystemMove() override;
 
     void timerEvent(QTimerEvent *event) override;
     void requestUpdate() override;
@@ -269,6 +270,7 @@ private:
     void handleScreensChanged();
 
     bool mInResizeFromApplyConfigure = false;
+    bool lastVisible = false;
     QRect mLastExposeGeometry;
 
     static const wl_callback_listener callbackListener;

@@ -4,7 +4,7 @@
 ## QWaylandEglClientBufferIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(QWaylandEglClientBufferIntegrationPlugin
+qt_internal_add_plugin(QWaylandEglClientBufferIntegrationPlugin
     OUTPUT_NAME qt-wayland-compositor-wayland-egl
     TYPE wayland-graphics-integration-server
     SOURCES

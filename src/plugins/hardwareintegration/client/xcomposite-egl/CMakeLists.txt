@@ -4,7 +4,7 @@
 ## QWaylandXCompositeEglClientBufferPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(QWaylandXCompositeEglClientBufferPlugin
+qt_internal_add_plugin(QWaylandXCompositeEglClientBufferPlugin
     OUTPUT_NAME xcomposite-egl
     TYPE wayland-graphics-integration-client
     SOURCES

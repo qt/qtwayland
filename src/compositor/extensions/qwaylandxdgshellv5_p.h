@@ -51,6 +51,8 @@
 
 QT_BEGIN_NAMESPACE
 
+#if QT_DEPRECATED_SINCE(5, 15)
+
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgShellV5Private
         : public QWaylandShellPrivate
         , public QtWaylandServer::xdg_shell_v5
@@ -167,6 +169,8 @@ public:
 
     static QWaylandSurfaceRole s_role;
 };
+
+#endif // QT_DEPRECATED_SINCE(5, 15)
 
 QT_END_NAMESPACE
 

@@ -13,6 +13,13 @@ project(QtWayland # special case
 # TODO: Fix warnings and remove this
 set(QT_REPO_NOT_WARNINGS_CLEAN TRUE)
 
+# TODO: Remove this after qtbase revert of
+# dd7e40b1086020f6a054957f4972720cd684.
+# Needed for correct dependency tracking of Wayland::Client
+# and Wayland::Server in the separate qt_find_package() calls
+# so that standalone tests configure successfully.
+set(QT_FIND_PACKAGE_DISABLE_DEBUG_BEHAVIOR TRUE)
+
 find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS
     BuildInternals
     Core

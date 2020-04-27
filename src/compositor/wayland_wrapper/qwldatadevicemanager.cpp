@@ -107,7 +107,7 @@ void DataDeviceManager::retain()
     fcntl(fd[0], F_SETFL, fcntl(fd[0], F_GETFL, 0) | O_NONBLOCK);
     m_current_selection_source->send(mimeType, fd[1]);
     m_retainedReadNotifier = new QSocketNotifier(fd[0], QSocketNotifier::Read, this);
-    connect(m_retainedReadNotifier, SIGNAL(activated(int)), SLOT(readFromClient(int)));
+    connect(m_retainedReadNotifier, &QSocketNotifier::activated, this, &DataDeviceManager::readFromClient);
 }
 
 void DataDeviceManager::finishReadFromClient(bool exhausted)

@@ -4,7 +4,7 @@
 ## QWaylandBradientDecorationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(QWaylandBradientDecorationPlugin
+qt_internal_add_plugin(QWaylandBradientDecorationPlugin
     OUTPUT_NAME bradient
     TYPE wayland-decoration-client
     SOURCES

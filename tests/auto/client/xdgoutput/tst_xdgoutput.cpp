@@ -26,77 +26,21 @@
 **
 ****************************************************************************/
 
+#include "xdgoutputv1.h"
 #include "mockcompositor.h"
+
 #include <QtOpenGL/QOpenGLWindow>
 #include <QtGui/QRasterWindow>
 #include <QtGui/QScreen>
 
-#include <qwayland-server-xdg-output-unstable-v1.h>
-
 using namespace MockCompositor;
-
-// TODO: move to shared folder?
-class XdgOutputV1 : public QObject, public QtWaylandServer::zxdg_output_v1
-{
-public:
-    explicit XdgOutputV1(Output *output)
-        : m_output(output)
-        , m_logicalGeometry(m_output->m_data.position, QSize(m_output->m_data.mode.resolution / m_output->m_data.scale))
-        , m_name(QString("WL-%1").arg(s_nextId++))
-    {}
-
-    void addResource(wl_client *client, int id, int version)
-    {
-        auto *resource = add(client, id, version)->handle;
-        send_logical_size(resource, m_logicalGeometry.width(), m_logicalGeometry.height());
-        send_logical_position(resource, m_logicalGeometry.x(), m_logicalGeometry.y());
-        if (version >= ZXDG_OUTPUT_V1_NAME_SINCE_VERSION)
-            send_name(resource, m_name);
-        if (version >= ZXDG_OUTPUT_V1_DESCRIPTION_SINCE_VERSION)
-            send_description(resource, m_description);
-        send_done(resource);
-    }
-    Output *m_output = nullptr;
-    QRect m_logicalGeometry;
-    QString m_name;
-    QString m_description = "This is an Xdg Output description";
-    static int s_nextId;
-};
-
-int XdgOutputV1::s_nextId = 1;
-
-class XdgOutputManagerV1 : public Global, public QtWaylandServer::zxdg_output_manager_v1
-{
-    Q_OBJECT
-public:
-    explicit XdgOutputManagerV1(CoreCompositor *compositor, int version = 2)
-        : QtWaylandServer::zxdg_output_manager_v1(compositor->m_display, version)
-        , m_version(version)
-    {}
-    int m_version = 1; // TODO: remove on libwayland upgrade
-    QMap<Output *, XdgOutputV1 *> m_xdgOutputs;
-    XdgOutputV1 *getXdgOutput(Output *output)
-    {
-        if (auto *xdgOutput = m_xdgOutputs.value(output))
-            return xdgOutput;
-        return m_xdgOutputs[output] = new XdgOutputV1(output); // TODO: free memory
-    }
-
-protected:
-    void zxdg_output_manager_v1_get_xdg_output(Resource *resource, uint32_t id, wl_resource *outputResource) override
-    {
-        auto *output = fromResource<Output>(outputResource);
-        auto *xdgOutput = getXdgOutput(output);
-        xdgOutput->addResource(resource->client(), id, resource->version());
-    }
-};
 
 class XdgOutputV1Compositor : public DefaultCompositor {
 public:
     explicit XdgOutputV1Compositor()
     {
         exec([this] {
-            int version = 2; // version 2 of of unstable-v1
+            int version = 3; // version 3 of of unstable-v1
             add<XdgOutputManagerV1>(version);
         });
     }
@@ -110,11 +54,13 @@ private slots:
     void cleanup();
     void primaryScreen();
     void overrideGeometry();
+    void changeGeometry();
 };
 
 void tst_xdgoutput::cleanup()
 {
     QCOMPOSITOR_COMPARE(getAll<Output>().size(), 1); // Only the default output should be left
+    QTRY_COMPARE(QGuiApplication::screens().size(), 1);
     QTRY_VERIFY2(isClean(), qPrintable(dirtyMessage()));
 }
 
@@ -124,7 +70,8 @@ void tst_xdgoutput::primaryScreen()
     QCOMPOSITOR_TRY_COMPARE(get<XdgOutputManagerV1>()->resourceMap().size(), 1);
     exec([=] {
         auto *resource = xdgOutput()->resourceMap().value(client());
-        QCOMPARE(resource->version(), 2);
+        QCOMPARE(resource->version(), 3);
+        QCOMPARE(xdgOutput()->m_logicalGeometry.size(), QSize(1920, 1080));
     });
     auto *s = QGuiApplication::primaryScreen();
     QTRY_COMPARE(s->size(), QSize(1920, 1080));
@@ -145,6 +92,44 @@ void tst_xdgoutput::overrideGeometry()
 
     QTRY_COMPARE(s->size(), QSize(800, 1200));
     QTRY_COMPARE(s->geometry().topLeft(), QPoint(10, 20));
+
+    exec([=] { remove(output(1)); });
+}
+
+void tst_xdgoutput::changeGeometry()
+{
+    auto *xdgOutput = exec([=] {
+        auto *output = add<Output>();
+        auto *xdgOutput = get<XdgOutputManagerV1>()->getXdgOutput(output);
+        xdgOutput->m_logicalGeometry = QRect(10, 20, 800, 1200);
+        return xdgOutput;
+    });
+
+    QTRY_COMPARE(QGuiApplication::screens().size(), 2);
+    auto *screen = QGuiApplication::screens()[1];
+    QTRY_COMPARE(screen->size(), QSize(800, 1200));
+
+    exec([=] {
+        xdgOutput->sendLogicalSize(QSize(1024, 768));
+    });
+
+    // Now we want to check that the client doesn't apply the size immediately, but waits for the
+    // done event. If we TRY_COMPARE immediately, we risk that the client just hasn't handled the
+    // logical_size request yet, so we add a screen and verify it on the client side just to give
+    // the client a chance to mess up.
+    exec([=] { add<Output>(); });
+    QTRY_COMPARE(QGuiApplication::screens().size(), 3);
+    exec([=] { remove(output(2)); });
+
+    // The logical_size event should have been handled by now, but state should not have been applied yet.
+    QTRY_COMPARE(screen->size(), QSize(800, 1200));
+
+    exec([=] {
+        xdgOutput->m_output->sendDone();
+    });
+
+    // Finally, the size should change
+    QTRY_COMPARE(screen->size(), QSize(1024, 768));
 
     exec([=] { remove(output(1)); });
 }

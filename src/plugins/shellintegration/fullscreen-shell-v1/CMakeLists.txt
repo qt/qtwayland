@@ -4,7 +4,7 @@
 ## QWaylandFullScreenShellV1IntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(QWaylandFullScreenShellV1IntegrationPlugin
+qt_internal_add_plugin(QWaylandFullScreenShellV1IntegrationPlugin
     OUTPUT_NAME fullscreen-shell-v1
     TYPE wayland-shell-integration
     SOURCES

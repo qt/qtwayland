@@ -56,10 +56,11 @@ QWaylandXdgSurface::Toplevel::Toplevel(QWaylandXdgSurface *xdgSurface)
     : QtWayland::xdg_toplevel(xdgSurface->get_toplevel())
     , m_xdgSurface(xdgSurface)
 {
-    if (auto *decorationManager = m_xdgSurface->m_shell->decorationManager())
-        m_decoration = decorationManager->createToplevelDecoration(object());
-
     QWindow *window = xdgSurface->window()->window();
+    if (auto *decorationManager = m_xdgSurface->m_shell->decorationManager()) {
+        if (!(window->flags() & Qt::FramelessWindowHint))
+            m_decoration = decorationManager->createToplevelDecoration(object());
+    }
     requestWindowStates(window->windowStates());
     requestWindowFlags(window->flags());
 }
@@ -155,10 +156,12 @@ void QWaylandXdgSurface::Toplevel::xdg_toplevel_close()
 void QWaylandXdgSurface::Toplevel::requestWindowFlags(Qt::WindowFlags flags)
 {
     if (m_decoration) {
-        if (flags & Qt::FramelessWindowHint)
-            m_decoration->requestMode(QWaylandXdgToplevelDecorationV1::mode_client_side);
-        else
+        if (flags & Qt::FramelessWindowHint) {
+            delete m_decoration;
+            m_decoration = nullptr;
+        } else {
             m_decoration->unsetMode();
+        }
     }
 }
 
@@ -266,11 +269,14 @@ QWaylandXdgSurface::~QWaylandXdgSurface()
     destroy();
 }
 
-void QWaylandXdgSurface::resize(QWaylandInputDevice *inputDevice, Qt::Edges edges)
+bool QWaylandXdgSurface::resize(QWaylandInputDevice *inputDevice, Qt::Edges edges)
 {
-    Q_ASSERT(m_toplevel && m_toplevel->isInitialized());
+    if (!m_toplevel || !m_toplevel->isInitialized())
+        return false;
+
     auto resizeEdges = Toplevel::convertToResizeEdges(edges);
     m_toplevel->resize(inputDevice->wl_seat(), inputDevice->serial(), resizeEdges);
+    return true;
 }
 
 bool QWaylandXdgSurface::move(QWaylandInputDevice *inputDevice)

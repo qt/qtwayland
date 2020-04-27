@@ -76,6 +76,7 @@ qt_config_compile_test(dmabuf_server_buffer
     LABEL "Linux dma-buf Buffer Sharing"
     LIBRARIES
         EGL::EGL
+        Libdrm::Libdrm
     CODE
 "
 #include <EGL/egl.h>
@@ -101,7 +102,7 @@ return 1;
 qt_config_compile_test(vulkan_server_buffer
     LABEL "Vulkan Buffer Sharing"
     CODE
-"
+"#define VK_USE_PLATFORM_WAYLAND_KHR 1
 #include <vulkan/vulkan.h>
 
 int main(int argc, char **argv)
@@ -117,78 +118,127 @@ return 0;
 }
 ")
 
+# egl_1_5-wayland
+qt_config_compile_test(egl_1_5_wayland
+    LABEL "EGL 1.5 with Wayland Platform"
+    LIBRARIES
+        EGL::EGL
+    CODE
+"
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#include <wayland-client.h>
+
+int main(int argc, char **argv)
+{
+    (void)argc; (void)argv;
+    /* BEGIN TEST: */
+eglGetPlatformDisplay(EGL_PLATFORM_WAYLAND_EXT, (struct wl_display *)(nullptr), nullptr);
+    /* END TEST: */
+    return 0;
+}
+")
+
 
 
 #### Features
 
-qt_feature("wayland_client" PRIVATE
+qt_feature("wayland-client" PRIVATE
     LABEL "Qt Wayland Client"
     CONDITION NOT WIN32 AND Wayland_FOUND AND Wayland_FOUND AND WaylandScanner_FOUND
 )
-qt_feature("wayland_datadevice" PRIVATE
+qt_feature("wayland-datadevice" PRIVATE
     CONDITION QT_FEATURE_draganddrop OR QT_FEATURE_clipboard
 )
-qt_feature("wayland_client_primary_selection" PRIVATE
+qt_feature("wayland-client-primary-selection" PRIVATE
     LABEL "primary-selection clipboard"
     CONDITION QT_FEATURE_clipboard
 )
-qt_feature("wayland_client_fullscreen_shell_v1" PRIVATE
+qt_feature("wayland-client-fullscreen-shell-v1" PRIVATE
     LABEL "fullscreen-shell-v1"
     CONDITION QT_FEATURE_wayland_client
 )
-qt_feature("wayland_client_ivi_shell" PRIVATE
+qt_feature("wayland-client-ivi-shell" PRIVATE
     LABEL "ivi-shell"
     CONDITION QT_FEATURE_wayland_client
 )
-qt_feature("wayland_client_wl_shell" PRIVATE
+qt_feature("wayland-client-wl-shell" PRIVATE
     LABEL "wl-shell (deprecated)"
     CONDITION QT_FEATURE_wayland_client
 )
-qt_feature("wayland_client_xdg_shell" PRIVATE
+qt_feature("wayland-client-xdg-shell" PRIVATE
     LABEL "xdg-shell"
     CONDITION QT_FEATURE_wayland_client
 )
-qt_feature("wayland_client_xdg_shell_v5" PRIVATE
+qt_feature("wayland-client-xdg-shell-v5" PRIVATE
     LABEL "xdg-shell unstable v5 (deprecated)"
     CONDITION QT_FEATURE_wayland_client
 )
-qt_feature("wayland_client_xdg_shell_v6" PRIVATE
+qt_feature("wayland-client-xdg-shell-v6" PRIVATE
     LABEL "xdg-shell unstable v6"
     CONDITION QT_FEATURE_wayland_client
 )
-qt_feature("wayland_egl" PRIVATE
-    LABEL "EGL"
-    CONDITION QT_FEATURE_wayland_client AND QT_FEATURE_opengl AND QT_FEATURE_egl AND Wayland_FOUND
+qt_feature("egl-extension-platform-wayland" PRIVATE
+    LABEL "EGL wayland platform extension"
+    CONDITION QT_FEATURE_wayland_client AND QT_FEATURE_opengl AND QT_FEATURE_egl AND TEST_egl_1_5_wayland
 )
-qt_feature("wayland_brcm" PRIVATE
+qt_feature("wayland-egl" PRIVATE
+    LABEL "EGL"
+    CONDITION QT_FEATURE_wayland_client AND QT_FEATURE_opengl AND QT_FEATURE_egl AND Wayland_FOUND AND ( NOT QNX OR QT_FEATURE_egl_extension_platform_wayland )
+)
+qt_feature("wayland-brcm" PRIVATE
     LABEL "Raspberry Pi"
     CONDITION QT_FEATURE_wayland_client AND QT_FEATURE_eglfs_brcm
 )
-qt_feature("xcomposite_egl" PRIVATE
+qt_feature("xcomposite-egl" PRIVATE
     LABEL "XComposite EGL"
     CONDITION QT_FEATURE_wayland_client AND QT_FEATURE_opengl AND QT_FEATURE_egl AND QT_FEATURE_xlib AND XComposite_FOUND AND QT_FEATURE_egl_x11
 )
-qt_feature("xcomposite_glx" PRIVATE
+qt_feature("xcomposite-glx" PRIVATE
     LABEL "XComposite GLX"
     CONDITION QT_FEATURE_wayland_client AND QT_FEATURE_opengl AND NOT QT_FEATURE_opengles2 AND QT_FEATURE_xlib AND XComposite_FOUND
 )
-qt_feature("wayland_drm_egl_server_buffer" PRIVATE
+qt_feature("wayland-drm-egl-server-buffer" PRIVATE
     LABEL "DRM EGL"
-    CONDITION QT_FEATURE_wayland_client AND QT_FEATURE_opengl AND QT_FEATURE_egl AND TEST_drm_egl_server
+    CONDITION QT_FEATURE_wayland_client AND QT_FEATURE_opengl AND QT_FEATURE_egl AND TEST_drm_egl_server AND ( NOT QNX OR QT_FEATURE_egl_extension_platform_wayland )
 )
-qt_feature("wayland_libhybris_egl_server_buffer" PRIVATE
+qt_feature("wayland-libhybris-egl-server-buffer" PRIVATE
     LABEL "libhybris EGL"
     CONDITION QT_FEATURE_wayland_client AND QT_FEATURE_opengl AND QT_FEATURE_egl AND TEST_libhybris_egl_server
 )
-qt_feature("wayland_dmabuf_server_buffer" PRIVATE
+qt_feature("wayland-dmabuf-server-buffer" PRIVATE
     LABEL "Linux dma-buf server buffer integration"
     CONDITION QT_FEATURE_wayland_client AND QT_FEATURE_opengl AND QT_FEATURE_egl AND TEST_dmabuf_server_buffer
 )
-qt_feature("wayland_vulkan_server_buffer" PRIVATE
+qt_feature("wayland-vulkan-server-buffer" PRIVATE
     LABEL "Vulkan-based server buffer integration"
-    CONDITION QT_FEATURE_wayland_client AND QT_FEATURE_opengl AND QT_FEATURE_egl AND TEST_vulkan_server_buffer
+    CONDITION QT_FEATURE_wayland_client AND QT_FEATURE_vulkan AND QT_FEATURE_opengl AND QT_FEATURE_egl AND TEST_vulkan_server_buffer
 )
-qt_feature("wayland_shm_emulation_server_buffer" PRIVATE
+qt_feature("wayland-shm-emulation-server-buffer" PRIVATE
     LABEL "Shm emulation server buffer integration"
     CONDITION QT_FEATURE_wayland_client AND QT_FEATURE_opengl
+)
+qt_configure_add_summary_section(NAME "Qt Wayland Drivers")
+qt_configure_add_summary_entry(ARGS "wayland-egl")
+qt_configure_add_summary_entry(ARGS "wayland-brcm")
+qt_configure_add_summary_entry(ARGS "xcomposite-egl")
+qt_configure_add_summary_entry(ARGS "xcomposite-glx")
+qt_configure_add_summary_entry(ARGS "wayland-drm-egl-server-buffer")
+qt_configure_add_summary_entry(ARGS "wayland-libhybris-egl-server-buffer")
+qt_configure_add_summary_entry(ARGS "wayland-dmabuf-server-buffer")
+qt_configure_add_summary_entry(ARGS "wayland-vulkan-server-buffer")
+qt_configure_add_summary_entry(ARGS "wayland-shm-emulation-server-buffer")
+qt_configure_end_summary_section() # end of "Qt Wayland Drivers" section
+qt_configure_add_summary_section(NAME "Qt Wayland Client Shell Integrations")
+qt_configure_add_summary_entry(ARGS "wayland-client-xdg-shell")
+qt_configure_add_summary_entry(ARGS "wayland-client-xdg-shell-v5")
+qt_configure_add_summary_entry(ARGS "wayland-client-xdg-shell-v6")
+qt_configure_add_summary_entry(ARGS "wayland-client-ivi-shell")
+qt_configure_add_summary_entry(ARGS "wayland-client-wl-shell")
+qt_configure_end_summary_section() # end of "Qt Wayland Client Shell Integrations" section
+qt_configure_add_summary_entry(ARGS "wayland-client")
+qt_configure_add_report_entry(
+    TYPE NOTE
+    MESSAGE "No wayland-egl support detected. Cross-toolkit compatibility disabled."
+    CONDITION NOT Wayland_FOUND
 )

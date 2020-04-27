@@ -251,7 +251,7 @@ QSharedPointer<QWaylandBuffer> QWaylandCursor::cursorBitmapBuffer(QWaylandDispla
     const QImage &img = cursor->pixmap().toImage();
     QSharedPointer<QWaylandShmBuffer> buffer(new QWaylandShmBuffer(display, img.size(), img.format()));
     memcpy(buffer->image()->bits(), img.bits(), size_t(img.sizeInBytes()));
-    return std::move(buffer);
+    return buffer;
 }
 
 void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)

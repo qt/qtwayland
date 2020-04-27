@@ -80,7 +80,7 @@ public:
 
     using QtWayland::xdg_surface_v5::resize;
     static resize_edge convertToResizeEdges(Qt::Edges edges);
-    void resize(QWaylandInputDevice *inputDevice, Qt::Edges edges) override;
+    bool resize(QWaylandInputDevice *inputDevice, Qt::Edges edges) override;
 
     using QtWayland::xdg_surface_v5::move;
     bool move(QWaylandInputDevice *inputDevice) override;

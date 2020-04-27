@@ -4,7 +4,7 @@
 ## DrmEglServerBufferIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(DrmEglServerBufferIntegrationPlugin
+qt_internal_add_plugin(DrmEglServerBufferIntegrationPlugin
     OUTPUT_NAME qt-wayland-compositor-drm-egl-server-buffer
     TYPE wayland-graphics-integration-server
     SOURCES

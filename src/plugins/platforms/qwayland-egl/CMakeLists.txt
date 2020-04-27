@@ -4,7 +4,7 @@
 ## QWaylandEglPlatformIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(QWaylandEglPlatformIntegrationPlugin
+qt_internal_add_plugin(QWaylandEglPlatformIntegrationPlugin
     OUTPUT_NAME qwayland-egl
     TYPE platforms
     SOURCES

@@ -42,6 +42,8 @@
 
 QT_BEGIN_NAMESPACE
 
+#if QT_DEPRECATED_SINCE(5, 15)
+
 namespace QtWayland {
 
 static void handlePopupCreated(QWaylandQuickShellSurfaceItem *parentItem, QWaylandXdgPopupV6 *popup)
@@ -308,5 +310,7 @@ void XdgPopupV6Integration::handleGeometryChanged()
 }
 
 }
+
+#endif // QT_DEPRECATED_SINCE(5, 15)
 
 QT_END_NAMESPACE

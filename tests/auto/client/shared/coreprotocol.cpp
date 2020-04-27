@@ -158,6 +158,14 @@ void Output::sendScale(Resource *resource)
     wl_output::send_scale(resource->handle, m_data.scale);
 }
 
+void Output::sendDone(wl_client *client)
+{
+    Q_ASSERT(m_version >= WL_OUTPUT_DONE_SINCE_VERSION);
+    auto resources = resourceMap().values(client);
+    for (auto *r : resources)
+        wl_output::send_done(r->handle);
+}
+
 void Output::sendDone()
 {
     Q_ASSERT(m_version >= WL_OUTPUT_DONE_SINCE_VERSION);

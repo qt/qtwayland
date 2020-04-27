@@ -346,7 +346,7 @@ void QWaylandGLContext::updateGLFormat()
 
     wl_surface *wlSurface = m_display->createSurface(nullptr);
     wl_egl_window *eglWindow = wl_egl_window_create(wlSurface, 1, 1);
-#if defined(EGL_VERSION_1_5)
+#if QT_CONFIG(egl_extension_platform_wayland)
     EGLSurface eglSurface = eglCreatePlatformWindowSurface(m_eglDisplay, m_config, eglWindow, nullptr);
 #else
     EGLSurface eglSurface = eglCreateWindowSurface(m_eglDisplay, m_config, eglWindow, nullptr);

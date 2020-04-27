@@ -155,7 +155,7 @@ void QWaylandWindow::initWindow()
                 QFileInfo fi = QCoreApplication::instance()->applicationFilePath();
                 QStringList domainName =
                         QCoreApplication::instance()->organizationDomain().split(QLatin1Char('.'),
-                                                                                 QString::SkipEmptyParts);
+                                                                                 Qt::SkipEmptyParts);
 
                 if (domainName.isEmpty()) {
                     mShellSurface->setAppId(fi.baseName());
@@ -408,6 +408,11 @@ QPlatformScreen *QWaylandWindow::calculateScreenFromSurfaceEvents() const
 
 void QWaylandWindow::setVisible(bool visible)
 {
+    // Workaround for issue where setVisible may be called with the same value twice
+    if (lastVisible == visible)
+        return;
+    lastVisible = visible;
+
     if (visible) {
         if (window()->type() == Qt::Popup || window()->type() == Qt::ToolTip)
             activePopups << this;
@@ -1179,9 +1184,15 @@ void QWaylandWindow::propagateSizeHints()
         mShellSurface->propagateSizeHints();
 }
 
-bool QtWaylandClient::QWaylandWindow::startSystemMove(const QPoint &pos)
+bool QWaylandWindow::startSystemResize(Qt::Edges edges)
 {
-    Q_UNUSED(pos);
+    if (auto *seat = display()->lastInputDevice())
+        return mShellSurface && mShellSurface->resize(seat, edges);
+    return false;
+}
+
+bool QtWaylandClient::QWaylandWindow::startSystemMove()
+{
     if (auto seat = display()->lastInputDevice())
         return mShellSurface && mShellSurface->move(seat);
     return false;

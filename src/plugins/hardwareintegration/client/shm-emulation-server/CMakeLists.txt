@@ -4,7 +4,7 @@
 ## ShmServerBufferPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(ShmServerBufferPlugin
+qt_internal_add_plugin(ShmServerBufferPlugin
     OUTPUT_NAME shm-emulation-server
     TYPE wayland-graphics-integration-client
     SOURCES

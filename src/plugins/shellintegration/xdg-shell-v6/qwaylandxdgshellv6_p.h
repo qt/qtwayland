@@ -77,7 +77,7 @@ public:
     QWaylandXdgSurfaceV6(QWaylandXdgShellV6 *shell, ::zxdg_surface_v6 *surface, QWaylandWindow *window);
     ~QWaylandXdgSurfaceV6() override;
 
-    void resize(QWaylandInputDevice *inputDevice, Qt::Edges edges) override;
+    bool resize(QWaylandInputDevice *inputDevice, Qt::Edges edges) override;
     bool move(QWaylandInputDevice *inputDevice) override;
     bool showWindowMenu(QWaylandInputDevice *seat) override;
     void setTitle(const QString &title) override;

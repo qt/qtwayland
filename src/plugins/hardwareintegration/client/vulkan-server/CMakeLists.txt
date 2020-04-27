@@ -4,7 +4,7 @@
 ## VulkanServerBufferPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(VulkanServerBufferPlugin
+qt_internal_add_plugin(VulkanServerBufferPlugin
     OUTPUT_NAME vulkan-server
     TYPE wayland-graphics-integration-client
     SOURCES

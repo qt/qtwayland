@@ -4,7 +4,7 @@
 ## DmaBufServerBufferIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(DmaBufServerBufferIntegrationPlugin
+qt_internal_add_plugin(DmaBufServerBufferIntegrationPlugin
     OUTPUT_NAME qt-wayland-compositor-dmabuf-server-buffer
     TYPE wayland-graphics-integration-server
     SOURCES

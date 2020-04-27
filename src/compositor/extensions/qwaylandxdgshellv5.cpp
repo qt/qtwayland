@@ -47,6 +47,8 @@
 
 QT_BEGIN_NAMESPACE
 
+#if QT_DEPRECATED_SINCE(5, 15)
+
 QWaylandSurfaceRole QWaylandXdgSurfaceV5Private::s_role("xdg_surface");
 QWaylandSurfaceRole QWaylandXdgPopupV5Private::s_role("xdg_popup");
 
@@ -493,6 +495,7 @@ void QWaylandXdgPopupV5Private::xdg_popup_destroy(Resource *resource)
  * \qmltype XdgShellV5
  * \inqmlmodule QtWayland.Compositor
  * \since 5.8
+ * \obsolete
  * \brief Provides an extension for desktop-style user interfaces.
  *
  * The XdgShellV5 extension provides a way to associate an XdgSurfaceV5
@@ -522,6 +525,7 @@ void QWaylandXdgPopupV5Private::xdg_popup_destroy(Resource *resource)
  * \class QWaylandXdgShellV5
  * \inmodule QtWaylandCompositor
  * \since 5.8
+ * \obsolete
  * \brief The QWaylandXdgShellV5 class is an extension for desktop-style user interfaces.
  *
  * The QWaylandXdgShellV5 extension provides a way to associate a QWaylandXdgSurfaceV5 with
@@ -756,6 +760,7 @@ void QWaylandXdgShellV5::handleFocusChanged(QWaylandSurface *newSurface, QWaylan
  * \qmltype XdgSurfaceV5
  * \inqmlmodule QtWayland.Compositor
  * \since 5.8
+ * \obsolete
  * \brief Provides a \c xdg_surface that offers desktop-style compositor-specific features to a surface.
  *
  * This type is part of the \l{XdgShellV5} extension and provides a way to extend
@@ -771,6 +776,7 @@ void QWaylandXdgShellV5::handleFocusChanged(QWaylandSurface *newSurface, QWaylan
  * \class QWaylandXdgSurfaceV5
  * \inmodule QtWaylandCompositor
  * \since 5.8
+ * \obsolete
  * \brief The QWaylandXdgSurfaceV5 class provides desktop-style compositor-specific features to an xdg surface.
  *
  * This class is part of the QWaylandXdgShellV5 extension and provides a way to
@@ -1355,6 +1361,7 @@ QWaylandQuickShellIntegration *QWaylandXdgSurfaceV5::createIntegration(QWaylandQ
  * \qmltype XdgPopupV5
  * \inqmlmodule QtWayland.Compositor
  * \since 5.8
+ * \obsolete
  * \brief Provides a \c xdg_popup interface that implements popup features for the xdg-shell protocol.
  *
  * This type is part of the \l{XdgShellV5} extension and provides a way to extend
@@ -1370,6 +1377,7 @@ QWaylandQuickShellIntegration *QWaylandXdgSurfaceV5::createIntegration(QWaylandQ
  * \class QWaylandXdgPopupV5
  * \inmodule QtWaylandCompositor
  * \since 5.8
+ * \obsolete
  * \brief The QWaylandXdgPopupV5 class provides menus for an xdg surface.
  *
  * This class is part of the QWaylandXdgShellV5 extension and provides a way to
@@ -1550,5 +1558,7 @@ QWaylandQuickShellIntegration *QWaylandXdgPopupV5::createIntegration(QWaylandQui
     return new QtWayland::XdgPopupV5Integration(item);
 }
 #endif
+
+#endif // QT_DEPRECATED_SINCE(5, 15)
 
 QT_END_NAMESPACE

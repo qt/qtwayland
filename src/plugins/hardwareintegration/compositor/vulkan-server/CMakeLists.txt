@@ -4,7 +4,7 @@
 ## VulkanServerBufferIntegrationPlugin Plugin:
 #####################################################################
 
-qt_add_plugin(VulkanServerBufferIntegrationPlugin
+qt_internal_add_plugin(VulkanServerBufferIntegrationPlugin
     OUTPUT_NAME qt-wayland-compositor-vulkan-server
     TYPE wayland-graphics-integration-server
     SOURCES

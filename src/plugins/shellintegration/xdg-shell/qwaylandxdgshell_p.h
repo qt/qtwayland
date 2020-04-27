@@ -80,7 +80,7 @@ public:
     QWaylandXdgSurface(QWaylandXdgShell *shell, ::xdg_surface *surface, QWaylandWindow *window);
     ~QWaylandXdgSurface() override;
 
-    void resize(QWaylandInputDevice *inputDevice, Qt::Edges edges) override;
+    bool resize(QWaylandInputDevice *inputDevice, Qt::Edges edges) override;
     bool move(QWaylandInputDevice *inputDevice) override;
     bool showWindowMenu(QWaylandInputDevice *seat) override;
     void setTitle(const QString &title) override;

@@ -906,6 +906,11 @@ bool Scanner::process()
                 printEvent(e);
                 printf("\n");
                 printf("    {\n");
+                printf("        Q_ASSERT_X(m_resource, \"%s::%s\", \"Uninitialised resource\");\n", interfaceName, e.name.constData());
+                printf("        if (Q_UNLIKELY(!m_resource)) {\n");
+                printf("            qWarning(\"could not call %s::%s as it's not initialised\");\n", interfaceName, e.name.constData());
+                printf("            return;\n");
+                printf("        }\n");
                 printf("        send_%s(\n", e.name.constData());
                 printf("            m_resource->handle");
                 for (const WaylandArgument &a : e.arguments) {

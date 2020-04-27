@@ -245,6 +245,7 @@ public:
     void sendScale(int factor);
     void sendScale(Resource *resource); // Sends current scale to only one client
 
+    void sendDone(wl_client *client);
     void sendDone();
 
     int scale() const { return m_data.scale; }

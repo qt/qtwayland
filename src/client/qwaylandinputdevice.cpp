@@ -1407,6 +1407,14 @@ void QWaylandInputDevice::handleTouchPoint(int id, Qt::TouchPointState state, co
         it = mTouch->mPendingTouchPoints.insert(end, QWindowSystemInterface::TouchPoint());
         it->id = id;
     }
+    // If the touch points were up and down in same frame, send out frame right away
+    else if ((it->state == Qt::TouchPointPressed && state == Qt::TouchPointReleased)
+            || (it->state == Qt::TouchPointReleased && state == Qt::TouchPointPressed)) {
+        mTouch->touch_frame();
+        it = mTouch->mPendingTouchPoints.insert(mTouch->mPendingTouchPoints.end(), QWindowSystemInterface::TouchPoint());
+        it->id = id;
+    }
+
     QWindowSystemInterface::TouchPoint &tp = *it;
 
     // Only moved and pressed needs to update/set position

@@ -47,7 +47,7 @@ QT_BEGIN_NAMESPACE
     public: \
         QQmlListProperty<QObject> data() \
         { \
-            return QQmlListProperty<QObject>(this, m_objects); \
+            return QQmlListProperty<QObject>(this, &m_objects); \
         } \
         void classBegin() override {} \
         void componentComplete() override { if (!isInitialized()) initialize(); } \
@@ -66,7 +66,7 @@ QT_BEGIN_NAMESPACE
     public: \
         QQmlListProperty<QObject> data() \
         { \
-            return QQmlListProperty<QObject>(this, m_objects); \
+            return QQmlListProperty<QObject>(this, &m_objects); \
         } \
         QQmlListProperty<QWaylandCompositorExtension> extensions() \
         { \

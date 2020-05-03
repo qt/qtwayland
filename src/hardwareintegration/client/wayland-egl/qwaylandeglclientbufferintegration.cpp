@@ -112,7 +112,7 @@ void QWaylandEglClientBufferIntegration::initialize(QWaylandDisplay *display)
 
     EGLint major,minor;
     if (!eglInitialize(m_eglDisplay, &major, &minor)) {
-        qCWarning(lcQpaWayland) <<  "Failed to initialize EGL display" << hex << eglGetError();
+        qCWarning(lcQpaWayland) <<  "Failed to initialize EGL display" << Qt::hex << eglGetError();
         m_eglDisplay = EGL_NO_DISPLAY;
         return;
     }

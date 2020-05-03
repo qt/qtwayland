@@ -89,7 +89,7 @@ static QWaylandBufferRef::BufferFormatEgl formatFromDrmFormat(EGLint format) {
     case DRM_FORMAT_YUYV:
         return QWaylandBufferRef::BufferFormatEgl_Y_XUXV;
     default:
-        qCDebug(qLcWaylandCompositorHardwareIntegration) << "Buffer format" << hex << format << "not supported";
+        qCDebug(qLcWaylandCompositorHardwareIntegration) << "Buffer format" << Qt::hex << format << "not supported";
         return QWaylandBufferRef::BufferFormatEgl_Null;
     }
 }

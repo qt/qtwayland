@@ -53,7 +53,7 @@ DmaBufServerBuffer::DmaBufServerBuffer(DmaBufServerBufferIntegration *integratio
 
     int err = eglGetError();
     if (err != EGL_SUCCESS || m_image == EGL_NO_IMAGE_KHR)
-        qCWarning(qLcWaylandCompositorHardwareIntegration) << "DmaBufServerBuffer error creating EGL image" << hex << err;
+        qCWarning(qLcWaylandCompositorHardwareIntegration) << "DmaBufServerBuffer error creating EGL image" << Qt::hex << err;
 
     // TODO: formats with more than one plane
 
@@ -61,7 +61,7 @@ DmaBufServerBuffer::DmaBufServerBuffer(DmaBufServerBufferIntegration *integratio
 
     if (!m_integration->eglExportDMABUFImageQueryMESA(m_image, &m_fourcc_format, &num_planes, nullptr)) {
         qCWarning(qLcWaylandCompositorHardwareIntegration) << "DmaBufServerBuffer: Failed to query egl image";
-        qCDebug(qLcWaylandCompositorHardwareIntegration) << "error" << hex << eglGetError();
+        qCDebug(qLcWaylandCompositorHardwareIntegration) << "error" << Qt::hex << eglGetError();
     } else {
         qCDebug(qLcWaylandCompositorHardwareIntegration) << "num_planes" << num_planes << "fourcc_format" << m_fourcc_format;
         if (num_planes != 1) {
@@ -75,7 +75,7 @@ DmaBufServerBuffer::DmaBufServerBuffer(DmaBufServerBufferIntegration *integratio
     }
 
     if (!m_integration->eglExportDMABUFImageMESA(m_image, &m_fd, &m_stride, &m_offset)) {
-        qCWarning(qLcWaylandCompositorHardwareIntegration) << "DmaBufServerBuffer: Failed to export egl image. Error code" << hex << eglGetError();
+        qCWarning(qLcWaylandCompositorHardwareIntegration) << "DmaBufServerBuffer: Failed to export egl image. Error code" << Qt::hex << eglGetError();
     } else {
         qCDebug(qLcWaylandCompositorHardwareIntegration) << "DmaBufServerBuffer exported egl image: fd" << m_fd << "stride" << m_stride << "offset" << m_offset;
         m_texture->release();
@@ -89,7 +89,7 @@ DmaBufServerBuffer::~DmaBufServerBuffer()
     int err;
     m_integration->eglDestroyImageKHR(m_image);
     if ((err = eglGetError()) != EGL_SUCCESS)
-        qCWarning(qLcWaylandCompositorHardwareIntegration) << "~DmaBufServerBuffer: eglDestroyImageKHR error" << hex << err;
+        qCWarning(qLcWaylandCompositorHardwareIntegration) << "~DmaBufServerBuffer: eglDestroyImageKHR error" << Qt::hex << err;
 
     err = ::close(m_fd);
     if (err)

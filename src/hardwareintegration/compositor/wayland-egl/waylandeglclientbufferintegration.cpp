@@ -338,7 +338,7 @@ bool WaylandEglClientBufferIntegrationPrivate::initEglStream(WaylandEglClientBuf
     auto newStream = funcs->stream_consumer_gltexture(egl_display, state.egl_stream);
     if (!newStream) {
         EGLint code = eglGetError();
-        qCWarning(qLcWaylandCompositorHardwareIntegration) << "Could not initialize EGLStream:" << egl_error_string(code) << hex << (long)code;
+        qCWarning(qLcWaylandCompositorHardwareIntegration) << "Could not initialize EGLStream:" << egl_error_string(code) << Qt::hex << (long)code;
         funcs->destroy_stream(egl_display, state.egl_stream);
         state.egl_stream = EGL_NO_STREAM_KHR;
         return false;

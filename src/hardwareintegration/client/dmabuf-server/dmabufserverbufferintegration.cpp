@@ -83,7 +83,7 @@ DmaBufServerBuffer::DmaBufServerBuffer(DmaBufServerBufferIntegration *integratio
     int err = eglGetError();
     qCDebug(lcQpaWayland) << "imported egl image" << m_image;
     if (m_image == EGL_NO_IMAGE_KHR || err != EGL_SUCCESS)
-       qCWarning(lcQpaWayland) << "DmaBufServerBuffer error importing image. EGL error code" << hex << err;
+       qCWarning(lcQpaWayland) << "DmaBufServerBuffer error importing image. EGL error code" << Qt::hex << err;
 
     qt_server_buffer_set_user_data(id, this);
 
@@ -93,7 +93,7 @@ DmaBufServerBuffer::~DmaBufServerBuffer()
 {
     int err = m_integration->eglDestroyImageKHR(m_image);
     if (err != EGL_SUCCESS)
-        qCWarning(lcQpaWayland) << "~DmaBufServerBuffer error destroying image" << m_image << "error code " << hex << err;
+        qCWarning(lcQpaWayland) << "~DmaBufServerBuffer error destroying image" << m_image << "error code " << Qt::hex << err;
     qt_server_buffer_release(m_server_buffer);
     qt_server_buffer_destroy(m_server_buffer);
 }

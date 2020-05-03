@@ -136,7 +136,7 @@ void VulkanServerBuffer::import()
     if (m_texture)
         return;
 
-    if (extraDebug) qDebug() << "importing" << m_fd << hex << glGetError();
+    if (extraDebug) qDebug() << "importing" << m_fd << Qt::hex << glGetError();
 
     auto *glContext = QOpenGLContext::currentContext();
     if (!glContext)
@@ -146,21 +146,21 @@ void VulkanServerBuffer::import()
         return;
 
     funcs->glCreateMemoryObjectsEXT(1, &m_memoryObject);
-    if (extraDebug) qDebug() << "glCreateMemoryObjectsEXT" << hex << glGetError();
+    if (extraDebug) qDebug() << "glCreateMemoryObjectsEXT" << Qt::hex << glGetError();
     funcs->glImportMemoryFdEXT(m_memoryObject, m_memorySize, GL_HANDLE_TYPE_OPAQUE_FD_EXT, m_fd);
-    if (extraDebug) qDebug() << "glImportMemoryFdEXT" << hex << glGetError();
+    if (extraDebug) qDebug() << "glImportMemoryFdEXT" << Qt::hex << glGetError();
 
 
     m_texture = new QOpenGLTexture(QOpenGLTexture::Target2D);
     m_texture->create();
 
-    if (extraDebug) qDebug() << "created texture" << m_texture->textureId() << hex << glGetError();
+    if (extraDebug) qDebug() << "created texture" << m_texture->textureId() << Qt::hex << glGetError();
 
     m_texture->bind();
-    if (extraDebug) qDebug() << "bound texture" << hex << glGetError();
+    if (extraDebug) qDebug() << "bound texture" << Qt::hex << glGetError();
     funcs->glTexStorageMem2DEXT(GL_TEXTURE_2D, 1, m_internalFormat, m_size.width(), m_size.height(), m_memoryObject, 0 );
-    if (extraDebug) qDebug() << "glTexStorageMem2DEXT" << hex << glGetError();
-    if (extraDebug) qDebug() << "format" << hex  << m_internalFormat << GL_RGBA8;
+    if (extraDebug) qDebug() << "glTexStorageMem2DEXT" << Qt::hex << glGetError();
+    if (extraDebug) qDebug() << "format" << Qt::hex  << m_internalFormat << GL_RGBA8;
 }
 
 QOpenGLTexture *VulkanServerBuffer::toOpenGlTexture()

@@ -272,7 +272,10 @@ void QWaylandSurfacePrivate::surface_commit(Resource *)
     if (oldBufferSize != bufferSize) {
         emit q->bufferSizeChanged();
 #if QT_DEPRECATED_SINCE(5, 13)
+QT_WARNING_PUSH
+QT_WARNING_DISABLE_DEPRECATED
         emit q->sizeChanged();
+QT_WARNING_POP
 #endif
     }
 

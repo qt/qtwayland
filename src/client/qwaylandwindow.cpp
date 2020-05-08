@@ -183,8 +183,6 @@ void QWaylandWindow::initWindow()
     if (mDisplay->compositorVersion() >= 3)
         mSurface->set_buffer_scale(scale());
 
-    if (QScreen *s = window()->screen())
-        setOrientationMask(s->orientationUpdateMask());
     setWindowFlags(window()->flags());
     if (window()->geometry().isEmpty())
         setGeometry_helper(QRect(QPoint(), QSize(500,500)));

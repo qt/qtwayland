@@ -96,8 +96,6 @@ public:
     QDpi logicalDpi() const override;
     QList<QPlatformScreen *> virtualSiblings() const override;
 
-    void setOrientationUpdateMask(Qt::ScreenOrientations mask) override;
-
     Qt::ScreenOrientation orientation() const override;
     int scale() const;
     qreal devicePixelRatio() const override;

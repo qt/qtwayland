@@ -75,7 +75,6 @@ public:
     void bindContentFBO();
 
     void invalidateSurface() override;
-    void setVisible(bool visible) override;
 
 private:
     QWaylandEglClientBufferIntegration *m_clientBufferIntegration = nullptr;

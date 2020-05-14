@@ -240,13 +240,6 @@ QVariant QWaylandIntegration::styleHint(StyleHint hint) const
     if (hint == ShowIsFullScreen && mDisplay->windowManagerIntegration())
         return mDisplay->windowManagerIntegration()->showIsFullScreen();
 
-    switch (hint) {
-    case QPlatformIntegration::FontSmoothingGamma:
-        return qreal(1.0);
-    default:
-        break;
-    }
-
     return QPlatformIntegration::styleHint(hint);
 }
 

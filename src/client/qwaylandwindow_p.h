@@ -58,6 +58,7 @@
 #include <QtGui/QIcon>
 #include <QtCore/QVariant>
 #include <QtCore/QLoggingCategory>
+#include <QtCore/QElapsedTimer>
 
 #include <qpa/qplatformwindow.h>
 
@@ -225,7 +226,8 @@ protected:
     WId mWindowId;
     bool mWaitingForFrameCallback = false;
     bool mFrameCallbackTimedOut = false; // Whether the frame callback has timed out
-    QAtomicInt mFrameCallbackTimerId = -1; // Started on commit, reset on frame callback
+    int mFrameCallbackCheckIntervalTimerId = -1;
+    QElapsedTimer mFrameCallbackElapsedTimer;
     struct ::wl_callback *mFrameCallback = nullptr;
     struct ::wl_event_queue *mFrameQueue = nullptr;
     QWaitCondition mFrameSyncWait;
@@ -238,6 +240,7 @@ protected:
     bool mCanResize = true;
     bool mResizeDirty = false;
     bool mResizeAfterSwap;
+    int mFrameCallbackTimeout = 100;
     QVariantMap m_properties;
 
     bool mSentInitialResize = false;

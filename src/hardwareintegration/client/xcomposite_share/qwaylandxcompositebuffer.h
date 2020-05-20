@@ -57,7 +57,7 @@ public:
                              uint32_t window,
                              const QSize &size);
 
-    QSize size() const;
+    QSize size() const override;
 private:
     QSize mSize;
 };

@@ -92,7 +92,7 @@ private:
     QSurfaceFormat m_format;
     DecorationsBlitter *m_blitter = nullptr;
     uint m_api;
-    bool mSupportNonBlockingSwap = true;
+    bool m_supportNonBlockingSwap = true;
 };
 
 }

@@ -313,9 +313,15 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *dis
     if (!eglGetConfigAttrib(m_eglDisplay, m_config, a, &a) ||
         !eglGetConfigAttrib(m_eglDisplay, m_config, b, &b) ||
         a > 0) {
-       mSupportNonBlockingSwap = false;
+       m_supportNonBlockingSwap = false;
     }
-    if (!mSupportNonBlockingSwap) {
+    {
+        bool ok;
+        int supportNonBlockingSwap = qEnvironmentVariableIntValue("QT_WAYLAND_FORCE_NONBLOCKING_SWAP_SUPPORT", &ok);
+        if (ok)
+            m_supportNonBlockingSwap = supportNonBlockingSwap != 0;
+    }
+    if (!m_supportNonBlockingSwap) {
         qWarning(lcQpaWayland) << "Non-blocking swap buffers not supported."
                                << "Subsurface rendering can be affected."
                                << "It may also cause the event loop to freeze in some situations";
@@ -558,7 +564,7 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
         m_blitter->blit(window);
     }
 
-    int swapInterval = mSupportNonBlockingSwap ? 0 : m_format.swapInterval();
+    int swapInterval = m_supportNonBlockingSwap ? 0 : m_format.swapInterval();
     eglSwapInterval(m_eglDisplay, swapInterval);
     if (swapInterval == 0 && m_format.swapInterval() > 0) {
         // Emulating a blocking swap

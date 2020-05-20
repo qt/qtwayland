@@ -92,7 +92,7 @@ private:
     DecorationsBlitter *m_blitter = nullptr;
     bool mUseNativeDefaultFbo = false;
     uint m_api;
-    bool mSupportNonBlockingSwap = true;
+    bool m_supportNonBlockingSwap = true;
 
     friend class DecorationsBlitter;
 };

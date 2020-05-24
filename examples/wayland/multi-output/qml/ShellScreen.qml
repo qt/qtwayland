@@ -66,7 +66,7 @@ WaylandOutput {
             id: mouseTracker
             anchors.fill: parent
 
-            windowSystemCursorEnabled: true
+            windowSystemCursorEnabled: !clientCursor.visible
             Image {
                 id: background
                 anchors.fill: parent
@@ -75,11 +75,10 @@ WaylandOutput {
                 smooth: true
             }
             WaylandCursorItem {
-                id: cursor
-                inputEventsEnabled: false
+                id: clientCursor
                 x: mouseTracker.mouseX
                 y: mouseTracker.mouseY
-
+                visible: surface !== null && mouseTracker.containsMouse
                 seat : output.compositor.defaultSeat
             }
         }

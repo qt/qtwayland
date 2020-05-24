@@ -121,7 +121,7 @@ WaylandOutput {
             anchors.top: parent.top
             anchors.bottom: parent.bottom
 
-            windowSystemCursorEnabled: true
+            windowSystemCursorEnabled: !clientCursor.visible
             Image {
                 id: background
                 anchors.fill: parent
@@ -130,8 +130,7 @@ WaylandOutput {
                 smooth: false
             }
             WaylandCursorItem {
-                id: cursor
-                inputEventsEnabled: false
+                id: clientCursor
                 x: mouseTracker.mouseX
                 y: mouseTracker.mouseY
 

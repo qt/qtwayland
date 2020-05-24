@@ -74,7 +74,7 @@ WaylandOutput {
         WaylandMouseTracker {
             id: mouseTracker
             anchors.fill: parent
-            windowSystemCursorEnabled: false
+            windowSystemCursorEnabled: !clientCursor.visible
 
             Rectangle {
                 anchors.fill: parent
@@ -88,11 +88,12 @@ WaylandOutput {
             }
 
             WaylandCursorItem {
+                id: clientCursor
                 inputEventsEnabled: false
                 x: mouseTracker.mouseX
                 y: mouseTracker.mouseY
                 seat: comp.defaultSeat
-                visible: mouseTracker.containsMouse
+                visible: surface !== null && mouseTracker.containsMouse
             }
         }
         Shortcut {

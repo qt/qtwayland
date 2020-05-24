@@ -93,6 +93,7 @@ void QWaylandPointerPrivate::sendLeave()
     enteredSurface = nullptr;
     localPosition = QPointF();
     enteredSurfaceDestroyListener.reset();
+    seat->cursorSurfaceRequest(nullptr, 0, 0);
 }
 
 void QWaylandPointerPrivate::ensureEntered(QWaylandSurface *surface)

@@ -292,7 +292,7 @@ public:
                 auto texture = buffer.toOpenGLTexture();
                 GLuint textureId = texture->textureId();
                 auto size = surface->bufferSize();
-                m_sgTex = surfaceItem->window()->createTextureFromNativeObject(QQuickWindow::NativeObjectTexture, &textureId, 0, size, opt);
+                m_sgTex = surfaceItem->window()->createTextureFromNativeObject(QQuickWindow::NativeObjectTexture, textureId, 0, size, opt);
 #else
                 qCWarning(qLcWaylandCompositor) << "Without OpenGL support only shared memory textures are supported";
 #endif

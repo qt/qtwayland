@@ -2,6 +2,7 @@
 
 cmake_minimum_required(VERSION 3.15.0)
 
+include(.cmake.conf)
 project(QtWayland # special case
     VERSION 6.0.0
     DESCRIPTION "Qt Wayland Libraries" # special case

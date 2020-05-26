@@ -67,6 +67,7 @@ qt_add_module(WaylandClient
     PRIVATE_MODULE_INTERFACE
         Qt::CorePrivate
         Qt::GuiPrivate
+        Qt::ServiceSupportPrivate
 )
 
 qt6_generate_wayland_protocol_client_sources(WaylandClient
@@ -93,6 +94,8 @@ qt6_generate_wayland_protocol_client_sources(WaylandClient
 
 qt_extend_target(WaylandClient CONDITION QT_FEATURE_xkbcommon
     LIBRARIES
+        Qt::XkbCommonSupportPrivate
+    PRIVATE_MODULE_INTERFACE
         Qt::XkbCommonSupportPrivate
 )
 

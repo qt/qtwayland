@@ -145,8 +145,8 @@ qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_xkbcommon
         Qt::XkbCommonSupportPrivate
     PUBLIC_LIBRARIES
         XKB::XKB
-    PRIVATE_MODULE_INTERFACE # special case QTBUG-83063
-        Qt::XkbCommonSupportPrivate # special case
+    PRIVATE_MODULE_INTERFACE
+        Qt::XkbCommonSupportPrivate
 )
 
 qt_extend_target(WaylandCompositor CONDITION TARGET Qt::Quick

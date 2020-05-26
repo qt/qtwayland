@@ -36,7 +36,7 @@
 #include <QImage>
 #include <QOpenGLContext>
 #include <QtGui/qopengl.h>
-#include <QtVulkanSupport/private/qvkconvenience_p.h>
+#include <QtOpenGL/private/qvkconvenience_p.h>
 
 #include <set>
 

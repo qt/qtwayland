@@ -1,8 +1,7 @@
 INCLUDEPATH += $$PWD $$PWD/../../../3rdparty/util
 
-QT += vulkan_support-private
-
 QMAKE_USE_PRIVATE += wayland-server
+QT += opengl-private
 
 SOURCES += \
     $$PWD/vulkanserverbufferintegration.cpp \

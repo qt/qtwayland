@@ -91,14 +91,6 @@ qt6_generate_wayland_protocol_client_sources(WaylandClient
 ## Scopes:
 #####################################################################
 
-qt_extend_target(WaylandClient CONDITION QT_FEATURE_vulkan
-    SOURCES
-        qwaylandvulkaninstance.cpp qwaylandvulkaninstance_p.h
-        qwaylandvulkanwindow.cpp qwaylandvulkanwindow_p.h
-    LIBRARIES
-        Qt::VulkanSupportPrivate
-)
-
 qt_extend_target(WaylandClient CONDITION QT_FEATURE_xkbcommon
     LIBRARIES
         Qt::XkbCommonSupportPrivate
@@ -117,6 +109,12 @@ qt_extend_target(WaylandClient CONDITION TARGET Qt::LinuxAccessibilitySupportPri
 qt_extend_target(WaylandClient CONDITION QT_FEATURE_clipboard
     SOURCES
         qwaylandclipboard.cpp qwaylandclipboard_p.h
+)
+
+qt_extend_target(WaylandClient CONDITION QT_FEATURE_vulkan
+    SOURCES
+        qwaylandvulkaninstance.cpp qwaylandvulkaninstance_p.h
+        qwaylandvulkanwindow.cpp qwaylandvulkanwindow_p.h
 )
 
 qt_extend_target(WaylandClient CONDITION QT_FEATURE_cursor

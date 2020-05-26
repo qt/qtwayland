@@ -36,7 +36,6 @@ find_package(Qt6 ${PROJECT_VERSION} CONFIG OPTIONAL_COMPONENTS
     PlatformCompositorSupport
     Quick
     ServiceSupport
-    VulkanSupport
     XkbCommonSupport
 )
 # special case end

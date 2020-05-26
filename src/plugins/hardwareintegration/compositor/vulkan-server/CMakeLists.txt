@@ -19,7 +19,7 @@ qt_internal_add_plugin(VulkanServerBufferIntegrationPlugin
     PUBLIC_LIBRARIES
         Qt::CorePrivate
         Qt::GuiPrivate
-        Qt::VulkanSupportPrivate
+        Qt::OpenGLPrivate
         Qt::WaylandCompositor
         Qt::WaylandCompositorPrivate
 )

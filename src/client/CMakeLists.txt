@@ -99,9 +99,9 @@ qt_extend_target(WaylandClient CONDITION QT_FEATURE_xkbcommon
         Qt::XkbCommonSupportPrivate
 )
 
-qt_extend_target(WaylandClient CONDITION TARGET Qt::PlatformCompositorSupportPrivate
+qt_extend_target(WaylandClient CONDITION QT_FEATURE_opengl
     LIBRARIES
-        Qt::PlatformCompositorSupportPrivate
+        Qt::OpenGLPrivate
 )
 
 qt_extend_target(WaylandClient CONDITION TARGET Qt::LinuxAccessibilitySupportPrivate

@@ -68,7 +68,7 @@
 #include <QtGui/QSurfaceFormat>
 #if QT_CONFIG(opengl)
 #include <QtGui/QOpenGLContext>
-#include <QtPlatformCompositorSupport/qpa/qplatformbackingstoreopenglsupport.h>
+#include <QtOpenGL/qpa/qplatformbackingstoreopenglsupport.h>
 #endif // QT_CONFIG(opengl)
 #include <QSocketNotifier>
 

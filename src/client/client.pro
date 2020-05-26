@@ -19,8 +19,6 @@ qtConfig(xkbcommon) {
     QT_FOR_PRIVATE += xkbcommon_support-private
 }
 
-qtConfig(opengl): QT += opengl-private
-
 qtHaveModule(linuxaccessibility_support-private): \
     QT_PRIVATE += linuxaccessibility_support-private
 

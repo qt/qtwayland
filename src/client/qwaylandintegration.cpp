@@ -68,7 +68,6 @@
 #include <QtGui/QSurfaceFormat>
 #if QT_CONFIG(opengl)
 #include <QtGui/QOpenGLContext>
-#include <QtOpenGL/qpa/qplatformbackingstoreopenglsupport.h>
 #endif // QT_CONFIG(opengl)
 #include <QSocketNotifier>
 
@@ -185,11 +184,7 @@ QPlatformOpenGLContext *QWaylandIntegration::createPlatformOpenGLContext(QOpenGL
 
 QPlatformBackingStore *QWaylandIntegration::createPlatformBackingStore(QWindow *window) const
 {
-    auto *backingStore = new QWaylandShmBackingStore(window, mDisplay.data());
-#if QT_CONFIG(opengl)
-    backingStore->setOpenGLSupport(new QPlatformBackingStoreOpenGLSupport(backingStore));
-#endif
-    return backingStore;
+    return new QWaylandShmBackingStore(window, mDisplay.data());
 }
 
 QAbstractEventDispatcher *QWaylandIntegration::createEventDispatcher() const

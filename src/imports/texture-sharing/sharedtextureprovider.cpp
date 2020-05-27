@@ -71,9 +71,9 @@ int SharedTexture::textureId() const
     return m_tex ? m_tex->textureId() : 0;
 }
 
-int SharedTexture::comparisonKey() const
+qint64 SharedTexture::comparisonKey() const
 {
-    return m_tex ? int(m_tex->textureId()) : int(qintptr(this));
+    return m_tex ? qint64(m_tex->textureId()) : qint64(this);
 }
 
 QSize SharedTexture::textureSize() const

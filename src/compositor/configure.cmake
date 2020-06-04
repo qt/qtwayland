@@ -7,15 +7,15 @@
 #### Libraries
 
 if((LINUX) OR QT_FIND_ALL_PACKAGES_ALWAYS)
-    qt_find_package(Wayland PROVIDED_TARGETS Wayland::Server)
+    qt_find_package(Wayland PROVIDED_TARGETS Wayland::Server MODULE_NAME waylandcompositor QMAKE_LIB wayland-server)
 endif()
 if((LINUX) OR QT_FIND_ALL_PACKAGES_ALWAYS)
-    qt_find_package(Wayland PROVIDED_TARGETS Wayland::Egl)
+    qt_find_package(Wayland PROVIDED_TARGETS Wayland::Egl MODULE_NAME waylandcompositor QMAKE_LIB wayland-egl)
 endif()
 if((LINUX) OR QT_FIND_ALL_PACKAGES_ALWAYS)
-    qt_find_package(Waylandkms PROVIDED_TARGETS PkgConfig::Waylandkms)
+    qt_find_package(Waylandkms PROVIDED_TARGETS PkgConfig::Waylandkms MODULE_NAME waylandcompositor QMAKE_LIB wayland-kms)
 endif()
-qt_find_package(XComposite PROVIDED_TARGETS PkgConfig::XComposite)
+qt_find_package(XComposite PROVIDED_TARGETS PkgConfig::XComposite MODULE_NAME waylandcompositor QMAKE_LIB xcomposite)
 
 
 #### Tests

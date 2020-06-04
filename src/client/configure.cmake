@@ -7,15 +7,16 @@
 #### Libraries
 
 if((LINUX) OR QT_FIND_ALL_PACKAGES_ALWAYS)
-    qt_find_package(Wayland PROVIDED_TARGETS Wayland::Client)
+    qt_find_package(Wayland PROVIDED_TARGETS Wayland::Client MODULE_NAME waylandclient QMAKE_LIB wayland-client)
 endif()
 if((LINUX) OR QT_FIND_ALL_PACKAGES_ALWAYS)
-    qt_find_package(Wayland PROVIDED_TARGETS Wayland::Cursor)
+    qt_find_package(Wayland PROVIDED_TARGETS Wayland::Cursor MODULE_NAME waylandclient QMAKE_LIB wayland-cursor)
 endif()
+qt_add_qmake_lib_dependency(wayland-cursor wayland-client)
 if((LINUX) OR QT_FIND_ALL_PACKAGES_ALWAYS)
-    qt_find_package(Wayland PROVIDED_TARGETS Wayland::Egl)
+    qt_find_package(Wayland PROVIDED_TARGETS Wayland::Egl MODULE_NAME waylandclient QMAKE_LIB wayland-egl)
 endif()
-qt_find_package(XComposite PROVIDED_TARGETS PkgConfig::XComposite)
+qt_find_package(XComposite PROVIDED_TARGETS PkgConfig::XComposite MODULE_NAME waylandclient QMAKE_LIB xcomposite)
 
 
 #### Tests

@@ -41,8 +41,6 @@
 
 #include "qwaylandbuffer_p.h"
 
-#include <QtCore/QVector>
-
 #include <QtCore/QDebug>
 
 QT_BEGIN_NAMESPACE

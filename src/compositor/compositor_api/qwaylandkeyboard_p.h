@@ -51,7 +51,7 @@
 #include <QtCore/private/qobject_p.h>
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 
-#include <QtCore/QVector>
+#include <QtCore/QList>
 
 #if QT_CONFIG(xkbcommon)
 #include <xkbcommon/xkbcommon.h>
@@ -113,7 +113,7 @@ private:
     Resource *focusResource = nullptr;
     QWaylandDestroyListener focusDestroyListener;
 
-    QVector<uint32_t> keys;
+    QList<uint32_t> keys;
     uint32_t modsDepressed = 0;
     uint32_t modsLatched = 0;
     uint32_t modsLocked = 0;

@@ -84,7 +84,7 @@ protected:
     void surface_enter(struct ::wl_output *output) override;
     void surface_leave(struct ::wl_output *output) override;
 
-    QVector<QWaylandScreen *> m_screens; //As seen by wl_surface.enter/leave events. Chronological order.
+    QList<QWaylandScreen *> m_screens; //As seen by wl_surface.enter/leave events. Chronological order.
     QWaylandWindow *m_window = nullptr;
 
     friend class QWaylandWindow; // TODO: shouldn't need to be friends

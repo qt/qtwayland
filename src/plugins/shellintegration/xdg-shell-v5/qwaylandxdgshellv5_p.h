@@ -54,7 +54,7 @@
 #include "qwayland-xdg-shell-unstable-v5_p.h"
 
 #include <QtCore/QSize>
-#include <QtCore/QVector>
+#include <QtCore/QList>
 
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <QtWaylandClient/private/qwaylandshellsurface_p.h>
@@ -82,7 +82,7 @@ public:
 private:
     void xdg_shell_ping(uint32_t serial) override;
 
-    QVector<QWaylandWindow *> m_popups;
+    QList<QWaylandWindow *> m_popups;
     uint m_popupSerial = 0;
 };
 

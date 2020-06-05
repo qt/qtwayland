@@ -38,11 +38,11 @@
 #include <wayland-server-core.h>
 
 #include <QImage>
+#include <QList>
 #include <QMutex>
 #include <QRect>
 #include <QSharedPointer>
 #include <QVariant>
-#include <QVector>
 #include <QWaitCondition>
 
 class MockCompositor;
@@ -74,8 +74,8 @@ public:
     uint32_t nextSerial();
     uint32_t time() { return ++m_time; }
 
-    QVector<Surface *> surfaces() const;
-    QVector<Output *> outputs() const;
+    QList<Surface *> surfaces() const;
+    QList<Output *> outputs() const;
 
     IviApplication *iviApplication() const;
     XdgShellV6 *xdgShellV6() const;
@@ -130,8 +130,8 @@ private:
     Keyboard *m_keyboard = nullptr;
     Touch *m_touch = nullptr;
     QScopedPointer<DataDeviceManager> m_data_device_manager;
-    QVector<Surface *> m_surfaces;
-    QVector<Output *> m_outputs;
+    QList<Surface *> m_surfaces;
+    QList<Output *> m_outputs;
     QScopedPointer<IviApplication> m_iviApplication;
     QScopedPointer<WlShell> m_wlShell;
     QScopedPointer<XdgShellV6> m_xdgShellV6;
@@ -242,7 +242,7 @@ public:
     void sendShellSurfaceConfigure(const QSharedPointer<MockSurface> surface, const QSize &size = QSize(0, 0));
     void sendIviSurfaceConfigure(const QSharedPointer<MockIviSurface> iviSurface, const QSize &size);
     void sendXdgToplevelV6Configure(const QSharedPointer<MockXdgToplevelV6> toplevel, const QSize &size = QSize(0, 0),
-                                    const QVector<uint> &states = { ZXDG_TOPLEVEL_V6_STATE_ACTIVATED });
+                                    const QList<uint> &states = { ZXDG_TOPLEVEL_V6_STATE_ACTIVATED });
     void waitForStartDrag();
 
     QSharedPointer<MockSurface> surface();

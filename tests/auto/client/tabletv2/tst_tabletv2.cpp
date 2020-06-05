@@ -208,12 +208,12 @@ public:
 
     TabletManagerV2 *m_manager = nullptr;
     Seat *m_seat = nullptr;
-    QVector<TabletV2 *> m_tablets;
-    QVector<TabletV2 *> m_tabletsWaitingForDestroy;
-    QVector<TabletToolV2 *> m_tools;
-    QVector<TabletToolV2 *> m_toolsWaitingForDestroy;
-    QVector<TabletPadV2 *> m_pads;
-    QVector<TabletPadV2 *> m_padsWaitingForDestroy;
+    QList<TabletV2 *> m_tablets;
+    QList<TabletV2 *> m_tabletsWaitingForDestroy;
+    QList<TabletToolV2 *> m_tools;
+    QList<TabletToolV2 *> m_toolsWaitingForDestroy;
+    QList<TabletPadV2 *> m_pads;
+    QList<TabletPadV2 *> m_padsWaitingForDestroy;
 
 protected:
     void zwp_tablet_seat_v2_bind_resource(Resource *resource)
@@ -445,7 +445,7 @@ class ProximityFilter : public QObject {
 public:
     ProximityFilter() { qApp->installEventFilter(this); }
     ~ProximityFilter() override { qDeleteAll(m_events); }
-    QVector<QTabletEvent *> m_events;
+    QList<QTabletEvent *> m_events;
 
     int nextEventIndex = 0;
     int numEvents() const { return m_events.size() - nextEventIndex; }
@@ -621,7 +621,7 @@ signals:
     void tabletEventReceived(QTabletEvent *event);
 
 private:
-    QVector<QTabletEvent *> m_events;
+    QList<QTabletEvent *> m_events;
 };
 
 void tst_tabletv2::moveEvent()

@@ -54,10 +54,10 @@
 
 #include <qpa/qplatforminputcontext.h>
 
+#include <QList>
 #include <QLoggingCategory>
 #include <QPointer>
 #include <QRectF>
-#include <QVector>
 
 #include <QtWaylandClient/private/qwayland-text-input-unstable-v2.h>
 #include <qwaylandinputmethodeventbuilder_p.h>
@@ -113,7 +113,7 @@ private:
     QWaylandDisplay *m_display = nullptr;
     QWaylandInputMethodEventBuilder m_builder;
 
-    QVector<Qt::KeyboardModifier> m_modifiersMap;
+    QList<Qt::KeyboardModifier> m_modifiersMap;
 
     uint32_t m_serial = 0;
     struct ::wl_surface *m_surface = nullptr;

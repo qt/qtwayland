@@ -28,8 +28,8 @@
 
 #include <qwayland-server-xdg-shell-unstable-v6.h>
 
+#include <QList>
 #include <QSharedPointer>
-#include <QVector>
 
 #ifndef MOCKXDGSHELLV6_H
 #define MOCKXDGSHELLV6_H
@@ -96,7 +96,7 @@ class XdgShellV6 : public QtWaylandServer::zxdg_shell_v6
 {
 public:
     explicit XdgShellV6(::wl_display *display) : zxdg_shell_v6(display, 1) {}
-    QVector<XdgToplevelV6 *> toplevels() const { return m_toplevels; }
+    QList<XdgToplevelV6 *> toplevels() const { return m_toplevels; }
 
 protected:
     void zxdg_shell_v6_get_xdg_surface(Resource *resource, uint32_t id, ::wl_resource *surface) override;
@@ -104,7 +104,7 @@ protected:
 private:
     void addToplevel(XdgToplevelV6 *toplevel) { m_toplevels.append(toplevel); }
     void removeToplevel(XdgToplevelV6 *toplevel) { m_toplevels.removeOne(toplevel); }
-    QVector<XdgToplevelV6 *> m_toplevels;
+    QList<XdgToplevelV6 *> m_toplevels;
 
     friend class XdgToplevelV6;
 };

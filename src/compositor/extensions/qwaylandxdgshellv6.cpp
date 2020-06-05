@@ -753,7 +753,7 @@ QWaylandQuickShellIntegration *QWaylandXdgSurfaceV6::createIntegration(QWaylandQ
 QWaylandXdgToplevelV6::QWaylandXdgToplevelV6(QWaylandXdgSurfaceV6 *xdgSurface, QWaylandResource &resource)
     : QObject(*new QWaylandXdgToplevelV6Private(xdgSurface, resource))
 {
-    QVector<QWaylandXdgToplevelV6::State> states;
+    QList<QWaylandXdgToplevelV6::State> states;
     sendConfigure({0, 0}, states);
 }
 
@@ -856,7 +856,7 @@ QSize QWaylandXdgToplevelV6::minSize() const
  *
  * This property holds the last states the client acknowledged for this QWaylandToplevelV6.
  */
-QVector<QWaylandXdgToplevelV6::State> QWaylandXdgToplevelV6::states() const
+QList<QWaylandXdgToplevelV6::State> QWaylandXdgToplevelV6::states() const
 {
     Q_D(const QWaylandXdgToplevelV6);
     return d->m_lastAckedConfigure.states;
@@ -970,7 +970,7 @@ QSize QWaylandXdgToplevelV6::sizeForResize(const QSizeF &size, const QPointF &de
  * of the surface. A size of zero means the client is free to decide the size.
  * Known \a states are enumerated in QWaylandXdgToplevelV6::State.
  */
-uint QWaylandXdgToplevelV6::sendConfigure(const QSize &size, const QVector<QWaylandXdgToplevelV6::State> &states)
+uint QWaylandXdgToplevelV6::sendConfigure(const QSize &size, const QList<QWaylandXdgToplevelV6::State> &states)
 {
     if (!size.isValid()) {
         qWarning() << "Can't configure zxdg_toplevel_v6 with an invalid size" << size;
@@ -993,9 +993,9 @@ uint QWaylandXdgToplevelV6::sendConfigure(const QSize &size, const QVector<QWayl
  * A size of zero means the client is free to decide the size.
  * Known \a states are enumerated in XdgToplevelV6::State.
  */
-uint QWaylandXdgToplevelV6::sendConfigure(const QSize &size, const QVector<int> &states)
+uint QWaylandXdgToplevelV6::sendConfigure(const QSize &size, const QList<int> &states)
 {
-    QVector<State> s;
+    QList<State> s;
     for (auto state : states)
         s << State(state);
     return sendConfigure(size, s);
@@ -1255,7 +1255,7 @@ void QWaylandXdgToplevelV6Private::handleAckConfigure(uint serial)
             break;
     }
 
-    QVector<uint> changedStates;
+    QList<uint> changedStates;
     std::set_symmetric_difference(
                 m_lastAckedConfigure.states.begin(), m_lastAckedConfigure.states.end(),
                 config.states.begin(), config.states.end(),

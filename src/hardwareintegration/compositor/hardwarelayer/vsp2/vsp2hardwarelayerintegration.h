@@ -56,7 +56,7 @@ public:
     void remove(QWaylandQuickHardwareLayer *layer) override;
 
     void sendFrameCallbacks();
-    QVector<QSharedPointer<Vsp2Layer>> m_layers;
+    QList<QSharedPointer<Vsp2Layer>> m_layers;
 private:
     void enableVspLayers();
     void disableVspLayers();

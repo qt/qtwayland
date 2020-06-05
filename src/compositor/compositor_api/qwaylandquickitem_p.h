@@ -169,7 +169,7 @@ public:
     QWaylandOutput *connectedOutput = nullptr;
     QWaylandSurface::Origin origin = QWaylandSurface::OriginTopLeft;
     QPointer<QObject> subsurfaceHandler;
-    QVector<QWaylandSeat *> touchingSeats;
+    QList<QWaylandSeat *> touchingSeats;
 };
 
 QT_END_NAMESPACE

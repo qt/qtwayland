@@ -85,7 +85,7 @@ QByteArray tst_inputcontext::inputContextName() const
 void tst_inputcontext::ensureTextInputPresentOnCompositor()
 {
     exec([&] {
-        QVector<TextInputManager *> extensions = getAll<TextInputManager>();
+        QList<TextInputManager *> extensions = getAll<TextInputManager>();
         if (extensions.length() > 1)
             QFAIL("TextInputManager is a singleton, hence there should not be more then one object returned");
         if (extensions.length() == 0)
@@ -96,7 +96,7 @@ void tst_inputcontext::ensureTextInputPresentOnCompositor()
 void tst_inputcontext::ensureTextInputNotPresentOnCompositor()
 {
     exec([&] {
-        QVector<TextInputManager *> extensions = getAll<TextInputManager>();
+        QList<TextInputManager *> extensions = getAll<TextInputManager>();
         if (extensions.length() > 1)
             QFAIL("TextInputManager is a singleton, hence there should not be more then one object returned");
         if (extensions.length() == 1)

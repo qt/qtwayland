@@ -51,8 +51,8 @@
 // We mean it.
 //
 
-#include <QVector>
 #include <QImage>
+#include <QList>
 
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <QtWaylandClient/private/qwayland-wayland.h>
@@ -81,7 +81,7 @@ protected:
     void shm_format(uint32_t format) override;
 
 private:
-    QVector<uint32_t> m_formats;
+    QList<uint32_t> m_formats;
 
 };
 

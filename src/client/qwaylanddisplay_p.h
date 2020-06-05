@@ -51,10 +51,10 @@
 // We mean it.
 //
 
+#include <QtCore/QList>
 #include <QtCore/QObject>
-#include <QtCore/QRect>
 #include <QtCore/QPointer>
-#include <QtCore/QVector>
+#include <QtCore/QRect>
 
 #include <QtCore/QWaitCondition>
 #include <QtCore/QLoggingCategory>
@@ -280,7 +280,7 @@ private:
     QWaylandInputDevice *mLastInputDevice = nullptr;
     QPointer<QWaylandWindow> mLastInputWindow;
     QPointer<QWaylandWindow> mLastKeyboardFocus;
-    QVector<QWaylandWindow *> mActiveWindows;
+    QList<QWaylandWindow *> mActiveWindows;
     struct wl_callback *mSyncCallback = nullptr;
     static const wl_callback_listener syncCallbackListener;
 

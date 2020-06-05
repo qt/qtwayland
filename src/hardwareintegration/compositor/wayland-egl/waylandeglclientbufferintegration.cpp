@@ -178,7 +178,7 @@ public:
     ::wl_display *wlDisplay = nullptr;
     QOffscreenSurface *offscreenSurface = nullptr;
     QOpenGLContext *localContext = nullptr;
-    QVector<QOpenGLTexture *> orphanedTextures;
+    QList<QOpenGLTexture *> orphanedTextures;
 
     PFNEGLBINDWAYLANDDISPLAYWL egl_bind_wayland_display = nullptr;
     PFNEGLUNBINDWAYLANDDISPLAYWL egl_unbind_wayland_display = nullptr;

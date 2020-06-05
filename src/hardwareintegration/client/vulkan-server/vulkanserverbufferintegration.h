@@ -92,7 +92,7 @@ private:
     static void wlDisplayHandleGlobal(void *data, struct ::wl_registry *registry, uint32_t id,
                                       const QString &interface, uint32_t version);
     QWaylandDisplay *m_display = nullptr;
-    QVector<QOpenGLTexture *> orphanedTextures;
+    QList<QOpenGLTexture *> orphanedTextures;
 };
 
 }

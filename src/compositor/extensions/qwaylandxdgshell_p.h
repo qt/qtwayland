@@ -138,12 +138,12 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgToplevelPrivate : public QObjectPri
 public:
     struct ConfigureEvent {
         ConfigureEvent() = default;
-        ConfigureEvent(const QVector<QWaylandXdgToplevel::State>
+        ConfigureEvent(const QList<QWaylandXdgToplevel::State>
                        &incomingStates,
                        const QSize &incomingSize, uint incomingSerial)
         : states(incomingStates), size(incomingSize), serial(incomingSerial)
         { }
-        QVector<QWaylandXdgToplevel::State> states;
+        QList<QWaylandXdgToplevel::State> states;
         QSize size = {0, 0};
         uint serial = 0;
     };

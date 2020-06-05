@@ -157,7 +157,7 @@ public:
     bool display_bound = false;
     QOffscreenSurface *offscreenSurface = nullptr;
     QOpenGLContext *localContext = nullptr;
-    QVector<QOpenGLTexture *> orphanedTextures;
+    QList<QOpenGLTexture *> orphanedTextures;
 
     WaylandEglStreamController *eglStreamController = nullptr;
 

@@ -44,8 +44,8 @@
 #include "qwayland-libhybris-egl-server-buffer.h"
 #include <QtWaylandClient/private/qwaylandserverbufferintegration_p.h>
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
+#include <QtCore/QList>
 #include <QtCore/QTextStream>
-#include <QtCore/QVector>
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -85,8 +85,8 @@ private:
     EGLImageKHR m_image;
     QOpenGLTexture *m_texture = nullptr;
     int m_numFds;
-    QVector<int32_t> m_ints;
-    QVector<int32_t> m_fds;
+    QList<int32_t> m_ints;
+    QList<int32_t> m_fds;
     int32_t m_stride;
     int32_t m_hybrisFormat;
 };

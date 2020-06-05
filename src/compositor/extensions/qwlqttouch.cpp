@@ -102,11 +102,11 @@ bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, QWaylandSurface *s
             uint32_t pressure = uint32_t(tp.pressure() * 255);
 
             QByteArray rawData;
-            QVector<QPointF> rawPosList = tp.rawScreenPositions();
+            QList<QPointF> rawPosList = tp.rawScreenPositions();
             int rawPosCount = rawPosList.count();
             if (rawPosCount) {
                 rawPosCount = qMin(maxRawPos, rawPosCount);
-                QVector<float>::iterator iter = m_posData.begin();
+                QList<float>::iterator iter = m_posData.begin();
                 for (int rpi = 0; rpi < rawPosCount; ++rpi) {
                     const QPointF &rawPos(rawPosList.at(rpi));
                     // This will stay in screen coordinates for performance

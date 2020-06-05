@@ -83,8 +83,8 @@ private:
     int32_t m_stride;
     QOpenGLTexture *m_texture = nullptr;
     QtWaylandServer::qt_libhybris_egl_server_buffer::format m_hybris_format;
-    QVector<int32_t> m_ints;
-    QVector<int32_t> m_fds;
+    QList<int32_t> m_ints;
+    QList<int32_t> m_fds;
 };
 
 class LibHybrisEglServerBufferIntegration :

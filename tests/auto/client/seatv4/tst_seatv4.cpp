@@ -292,7 +292,7 @@ void tst_seatv4::simpleAxis()
             QPoint pixelDelta;
             QPoint angleDelta; // eights of a degree, positive is upwards, left
         };
-        QVector<Event> m_events;
+        QList<Event> m_events;
     };
 
     WheelWindow window;
@@ -351,7 +351,7 @@ static bool supportsCursorSize(uint size, wl_shm *shm)
     return false;
 }
 
-static bool supportsCursorSizes(const QVector<uint> &sizes)
+static bool supportsCursorSizes(const QList<uint> &sizes)
 {
     auto *waylandIntegration = static_cast<QtWaylandClient::QWaylandIntegration *>(QGuiApplicationPrivate::platformIntegration());
     wl_shm *shm = waylandIntegration->display()->shm()->object();

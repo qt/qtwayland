@@ -1107,7 +1107,7 @@ void tst_WaylandCompositor::sendsXdgConfigure()
     QTRY_VERIFY(!toplevel->fullscreen());
     QTRY_VERIFY(!toplevel->resizing());
 
-    toplevel->sendConfigure(QSize(10, 20), QVector<QWaylandXdgToplevel::State>{QWaylandXdgToplevel::State::ActivatedState});
+    toplevel->sendConfigure(QSize(10, 20), QList<QWaylandXdgToplevel::State>{QWaylandXdgToplevel::State::ActivatedState});
     compositor.flushClients();
     QTRY_COMPARE(mockToplevel.configureStates, QList<uint>{QWaylandXdgToplevel::State::ActivatedState});
     QTRY_COMPARE(mockToplevel.configureSize, QSize(10, 20));
@@ -1154,7 +1154,7 @@ void tst_WaylandCompositor::sendsXdgConfigure()
     QTRY_VERIFY(mockToplevel.configureStates.contains(QWaylandXdgToplevel::State::ActivatedState));
     QTRY_VERIFY(!mockToplevel.configureStates.contains(QWaylandXdgToplevel::State::FullscreenState));
 
-    toplevel->sendConfigure(QSize(0, 0), QVector<QWaylandXdgToplevel::State>{});
+    toplevel->sendConfigure(QSize(0, 0), QList<QWaylandXdgToplevel::State>{});
     compositor.flushClients();
     QTRY_VERIFY(!mockToplevel.configureStates.contains(QWaylandXdgToplevel::State::ActivatedState));
 

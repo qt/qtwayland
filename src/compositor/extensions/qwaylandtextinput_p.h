@@ -37,7 +37,6 @@
 #include <QtCore/QObject>
 #include <QtCore/QMap>
 #include <QtCore/QRect>
-#include <QtCore/QVector>
 #include <QtGui/QInputMethod>
 #include <QtWaylandCompositor/QWaylandSurface>
 

@@ -31,8 +31,8 @@
 
 #include <qwayland-server-ivi-application.h>
 
+#include <QList>
 #include <QSharedPointer>
-#include <QVector>
 
 class MockIviSurface;
 
@@ -67,7 +67,7 @@ class IviApplication : public QtWaylandServer::ivi_application
 {
 public:
     explicit IviApplication(::wl_display *display) : ivi_application(display, 1) {}
-    QVector<IviSurface *> iviSurfaces() const { return m_iviSurfaces; }
+    QList<IviSurface *> iviSurfaces() const { return m_iviSurfaces; }
 
 protected:
     void ivi_application_surface_create(Resource *resource, uint32_t ivi_id, ::wl_resource *surface, uint32_t id) override;
@@ -75,7 +75,7 @@ protected:
 private:
     void addIviSurface(IviSurface *iviSurface) { m_iviSurfaces.append(iviSurface); }
     void removeIviSurface(IviSurface *iviSurface) { m_iviSurfaces.removeOne(iviSurface); }
-    QVector<IviSurface *> m_iviSurfaces;
+    QList<IviSurface *> m_iviSurfaces;
 
     friend class IviSurface;
 };

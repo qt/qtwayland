@@ -1045,13 +1045,13 @@ Module {
             name: "sendConfigure"
             type: "uint"
             Parameter { name: "size"; type: "QSize" }
-            Parameter { name: "states"; type: "QVector<uint>" }
+            Parameter { name: "states"; type: "QList<uint>" }
         }
         Method {
             name: "sendConfigure"
             type: "uint"
             Parameter { name: "size"; type: "QSize" }
-            Parameter { name: "states"; type: "QVector<State>" }
+            Parameter { name: "states"; type: "QList<State>" }
         }
         Method { name: "sendClose" }
         Method {
@@ -1169,7 +1169,7 @@ Module {
             name: "sendConfigure"
             type: "uint"
             Parameter { name: "size"; type: "QSize" }
-            Parameter { name: "states"; type: "QVector<int>" }
+            Parameter { name: "states"; type: "QList<int>" }
         }
         Method { name: "sendClose" }
         Method {
@@ -1257,7 +1257,7 @@ Module {
             name: "sendConfigure"
             type: "uint"
             Parameter { name: "size"; type: "QSize" }
-            Parameter { name: "states"; type: "QVector<int>" }
+            Parameter { name: "states"; type: "QList<int>" }
         }
         Method { name: "sendClose" }
         Method {

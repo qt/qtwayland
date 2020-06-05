@@ -96,7 +96,7 @@ public:
     static QWaylandXdgSurfaceV5Private *get(QWaylandXdgSurfaceV5 *xdgSurface) { return xdgSurface->d_func(); }
 
     struct ConfigureEvent {
-        QVector<uint> states;
+        QList<uint> states;
         QSize size;
         uint serial;
     };

@@ -44,7 +44,7 @@ LinuxDmabuf::LinuxDmabuf(wl_display *display, LinuxDmabufClientBufferIntegration
 {
 }
 
-void LinuxDmabuf::setSupportedModifiers(const QHash<uint32_t, QVector<uint64_t>> &modifiers)
+void LinuxDmabuf::setSupportedModifiers(const QHash<uint32_t, QList<uint64_t>> &modifiers)
 {
     Q_ASSERT(resourceMap().isEmpty());
     m_modifiers = modifiers;

@@ -33,8 +33,8 @@
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 #include <QtWaylandCompositor/private/qwaylandutils_p.h>
 
+#include <QtCore/QList>
 #include <QtCore/QSize>
-#include <QtCore/QVector>
 
 #include <EGL/egl.h>
 
@@ -60,7 +60,7 @@ protected:
     void buffer_destroy(Resource *resource) override;
 
 private:
-    QVector<EGLint> m_handle;
+    QList<EGLint> m_handle;
     bool m_invertedY = false;
     QSize m_size;
 };

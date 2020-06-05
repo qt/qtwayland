@@ -33,7 +33,6 @@
 #include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 
 #include <QtCore/QObject>
-#include <QtCore/QVector>
 
 struct wl_interface;
 

@@ -199,7 +199,7 @@ void QWaylandCompositorPrivate::init()
     buffer_manager = new QtWayland::BufferManager(q);
 
     wl_display_init_shm(display);
-    const QVector<wl_shm_format> formats = QWaylandSharedMemoryFormatHelper::supportedWaylandFormats();
+    const QList<wl_shm_format> formats = QWaylandSharedMemoryFormatHelper::supportedWaylandFormats();
     for (wl_shm_format format : formats)
         wl_display_add_shm_format(display, format);
 

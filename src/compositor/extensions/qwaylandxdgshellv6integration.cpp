@@ -153,7 +153,7 @@ void XdgToplevelV6Integration::handleSetMaximized()
     if (!m_item->view()->isPrimary())
         return;
 
-    QVector<QWaylandXdgToplevelV6::State> states = m_toplevel->states();
+    QList<QWaylandXdgToplevelV6::State> states = m_toplevel->states();
 
     if (!states.contains(QWaylandXdgToplevelV6::State::FullscreenState) && !states.contains(QWaylandXdgToplevelV6::State::MaximizedState)) {
         windowedGeometry.initialWindowSize = m_xdgSurface->windowGeometry().size();
@@ -205,7 +205,7 @@ void XdgToplevelV6Integration::handleSetFullscreen()
     if (!m_item->view()->isPrimary())
         return;
 
-    QVector<QWaylandXdgToplevelV6::State> states = m_toplevel->states();
+    QList<QWaylandXdgToplevelV6::State> states = m_toplevel->states();
 
     if (!states.contains(QWaylandXdgToplevelV6::State::FullscreenState) && !states.contains(QWaylandXdgToplevelV6::State::MaximizedState)) {
         windowedGeometry.initialWindowSize = m_xdgSurface->windowGeometry().size();

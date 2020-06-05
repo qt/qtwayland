@@ -55,10 +55,10 @@
 
 #include <QtWaylandClient/private/qtwaylandclientglobal_p.h>
 
-#include <QtGui/QTabletEvent>
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 #include <QtCore/QPointF>
+#include <QtGui/QTabletEvent>
 
 QT_BEGIN_NAMESPACE
 
@@ -93,9 +93,9 @@ protected:
     void zwp_tablet_seat_v2_pad_added(struct ::zwp_tablet_pad_v2 *id) override;
 
 private:
-    QVector<QWaylandTabletV2 *> m_tablets;
-    QVector<QWaylandTabletToolV2 *> m_tools;
-    QVector<QWaylandTabletPadV2 *> m_pads;
+    QList<QWaylandTabletV2 *> m_tablets;
+    QList<QWaylandTabletToolV2 *> m_tools;
+    QList<QWaylandTabletPadV2 *> m_pads;
 };
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandTabletV2 : public QObject, public QtWayland::zwp_tablet_v2

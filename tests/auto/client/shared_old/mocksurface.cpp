@@ -42,7 +42,7 @@ void Compositor::sendShellSurfaceConfigure(void *data, const QList<QVariant> &pa
     QSize size = parameters.at(1).toSize();
     Q_ASSERT(size.isValid());
     if (auto toplevel = surface->xdgToplevelV6()) {
-        QVector<uint> states = { ZXDG_TOPLEVEL_V6_STATE_ACTIVATED };
+        QList<uint> states = { ZXDG_TOPLEVEL_V6_STATE_ACTIVATED };
         auto statesBytes = QByteArray::fromRawData(reinterpret_cast<const char *>(states.data()),
                                                    states.size() * static_cast<int>(sizeof(uint)));
         toplevel->send_configure(size.width(), size.height(), statesBytes);

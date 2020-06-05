@@ -185,7 +185,7 @@ public:
     QString appId() const;
     QSize maxSize() const;
     QSize minSize() const;
-    QVector<QWaylandXdgToplevel::State> states() const;
+    QList<QWaylandXdgToplevel::State> states() const;
     bool maximized() const;
     bool fullscreen() const;
     bool resizing() const;
@@ -193,8 +193,8 @@ public:
     DecorationMode decorationMode() const;
 
     Q_INVOKABLE QSize sizeForResize(const QSizeF &size, const QPointF &delta, Qt::Edges edges) const;
-    uint sendConfigure(const QSize &size, const QVector<State> &states);
-    Q_INVOKABLE uint sendConfigure(const QSize &size, const QVector<int> &states);
+    uint sendConfigure(const QSize &size, const QList<State> &states);
+    Q_INVOKABLE uint sendConfigure(const QSize &size, const QList<int> &states);
     Q_INVOKABLE void sendClose();
     Q_INVOKABLE uint sendMaximized(const QSize &size);
     Q_INVOKABLE uint sendUnmaximized(const QSize &size = QSize(0, 0));

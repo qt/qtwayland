@@ -337,48 +337,48 @@ void LinuxDmabufClientBufferIntegration::initializeHardware(struct ::wl_display 
     }
 
     // request and sent formats/modifiers only after egl_display is bound
-    QHash<uint32_t, QVector<uint64_t>> modifiers;
+    QHash<uint32_t, QList<uint64_t>> modifiers;
     for (const auto &format : supportedDrmFormats()) {
         modifiers[format] = supportedDrmModifiers(format);
     }
     m_linuxDmabuf->setSupportedModifiers(modifiers);
 }
 
-QVector<uint32_t> LinuxDmabufClientBufferIntegration::supportedDrmFormats()
+QList<uint32_t> LinuxDmabufClientBufferIntegration::supportedDrmFormats()
 {
     if (!egl_query_dmabuf_formats_ext)
-        return QVector<uint32_t>();
+        return QList<uint32_t>();
 
     // request total number of formats
     EGLint count = 0;
     EGLBoolean success = egl_query_dmabuf_formats_ext(m_eglDisplay, 0, nullptr, &count);
 
     if (success && count > 0) {
-        QVector<uint32_t> drmFormats(count);
+        QList<uint32_t> drmFormats(count);
         if (egl_query_dmabuf_formats_ext(m_eglDisplay, count, (EGLint *) drmFormats.data(), &count))
             return drmFormats;
     }
 
-    return QVector<uint32_t>();
+    return QList<uint32_t>();
 }
 
-QVector<uint64_t> LinuxDmabufClientBufferIntegration::supportedDrmModifiers(uint32_t format)
+QList<uint64_t> LinuxDmabufClientBufferIntegration::supportedDrmModifiers(uint32_t format)
 {
     if (!egl_query_dmabuf_modifiers_ext)
-        return QVector<uint64_t>();
+        return QList<uint64_t>();
 
     // request total number of formats
     EGLint count = 0;
     EGLBoolean success = egl_query_dmabuf_modifiers_ext(m_eglDisplay, format, 0, nullptr, nullptr, &count);
 
     if (success && count > 0) {
-        QVector<uint64_t> modifiers(count);
+        QList<uint64_t> modifiers(count);
         if (egl_query_dmabuf_modifiers_ext(m_eglDisplay, format, count, modifiers.data(), nullptr, &count)) {
             return modifiers;
         }
     }
 
-    return QVector<uint64_t>();
+    return QList<uint64_t>();
 }
 
 void LinuxDmabufClientBufferIntegration::deleteOrphanedTextures()

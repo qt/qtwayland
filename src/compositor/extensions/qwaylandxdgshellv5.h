@@ -138,7 +138,7 @@ public:
     QString title() const;
     QString appId() const;
     QRect windowGeometry() const;
-    QVector<uint> states() const;
+    QList<uint> states() const;
     bool maximized() const;
     bool fullscreen() const;
     bool resizing() const;
@@ -155,8 +155,8 @@ public:
     static QWaylandXdgSurfaceV5 *fromResource(::wl_resource *resource);
 
     Q_INVOKABLE QSize sizeForResize(const QSizeF &size, const QPointF &delta, ResizeEdge edge);
-    Q_INVOKABLE uint sendConfigure(const QSize &size, const QVector<uint> &states);
-    Q_INVOKABLE uint sendConfigure(const QSize &size, const QVector<State> &states);
+    Q_INVOKABLE uint sendConfigure(const QSize &size, const QList<uint> &states);
+    Q_INVOKABLE uint sendConfigure(const QSize &size, const QList<State> &states);
     Q_INVOKABLE void sendClose();
 
     Q_INVOKABLE uint sendMaximized(const QSize &size);

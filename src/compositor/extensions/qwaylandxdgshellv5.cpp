@@ -1165,7 +1165,7 @@ QRect QWaylandXdgSurfaceV5::windowGeometry() const
  *
  * This property holds the last states the client acknowledged for this QWaylandXdgSurfaceV5.
  */
-QVector<uint> QWaylandXdgSurfaceV5::states() const
+QList<uint> QWaylandXdgSurfaceV5::states() const
 {
     Q_D(const QWaylandXdgSurfaceV5);
     return d->m_lastAckedConfigure.states;
@@ -1256,7 +1256,7 @@ QSize QWaylandXdgSurfaceV5::sizeForResize(const QSizeF &size, const QPointF &del
  * Sends a configure event to the client. Parameter \a size contains the pixel size
  * of the surface. Known \a states are enumerated in QWaylandXdgSurfaceV5::State.
  */
-uint QWaylandXdgSurfaceV5::sendConfigure(const QSize &size, const QVector<uint> &states)
+uint QWaylandXdgSurfaceV5::sendConfigure(const QSize &size, const QList<uint> &states)
 {
     if (!size.isValid()) {
         qWarning() << "Can't configure xdg surface (v5) with an invalid size" << size;
@@ -1274,9 +1274,9 @@ uint QWaylandXdgSurfaceV5::sendConfigure(const QSize &size, const QVector<uint> 
     return serial;
 }
 
-uint QWaylandXdgSurfaceV5::sendConfigure(const QSize &size, const QVector<QWaylandXdgSurfaceV5::State> &states)
+uint QWaylandXdgSurfaceV5::sendConfigure(const QSize &size, const QList<QWaylandXdgSurfaceV5::State> &states)
 {
-    QVector<uint> asUints;
+    QList<uint> asUints;
     asUints.reserve(states.size());
     for (QWaylandXdgSurfaceV5::State state : states) {
         asUints << state;

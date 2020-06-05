@@ -77,7 +77,7 @@ public:
     void setExtensionReady(QWaylandTextureSharingExtension *extension);
 
 private:
-    QVector<SharedTextureImageResponse*> m_pendingResponses;
+    QList<SharedTextureImageResponse*> m_pendingResponses;
 };
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandTextureSharingExtension

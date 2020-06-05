@@ -370,7 +370,7 @@ void tst_xdgshell::switchPopups()
             m_popups << new Popup(this);
         }
         ~Window() override { qDeleteAll(m_popups); }
-        QVector<Popup *> m_popups;
+        QList<Popup *> m_popups;
     };
 
     Window window;

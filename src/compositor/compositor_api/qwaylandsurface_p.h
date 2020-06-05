@@ -51,7 +51,7 @@
 
 #include <QtWaylandCompositor/private/qwlregion_p.h>
 
-#include <QtCore/QVector>
+#include <QtCore/QList>
 #include <QtCore/QRect>
 #include <QtGui/QRegion>
 #include <QtGui/QImage>
@@ -158,7 +158,7 @@ public: //member variables
 
     QList<QPointer<QWaylandSurface>> subsurfaceChildren;
 
-    QVector<QWaylandIdleInhibitManagerV1Private::Inhibitor *> idleInhibitors;
+    QList<QWaylandIdleInhibitManagerV1Private::Inhibitor *> idleInhibitors;
 
     QRegion inputRegion;
     QRegion opaqueRegion;

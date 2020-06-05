@@ -161,7 +161,7 @@ public:
         QPoint angleDelta; // eights of a degree, positive is upwards, left
         Qt::MouseEventSource source{};
     };
-    QVector<Event> m_events;
+    QList<Event> m_events;
 };
 
 void tst_seatv5::simpleAxis_data()
@@ -401,7 +401,7 @@ public:
         Qt::TouchPointStates touchPointStates{};
         QList<QTouchEvent::TouchPoint> touchPoints;
     };
-    QVector<Event> m_events;
+    QList<Event> m_events;
 };
 
 void tst_seatv5::singleTap()

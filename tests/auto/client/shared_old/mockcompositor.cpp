@@ -199,7 +199,7 @@ void MockCompositor::sendIviSurfaceConfigure(const QSharedPointer<MockIviSurface
     processCommand(command);
 }
 
-void MockCompositor::sendXdgToplevelV6Configure(const QSharedPointer<MockXdgToplevelV6> toplevel, const QSize &size, const QVector<uint> &states)
+void MockCompositor::sendXdgToplevelV6Configure(const QSharedPointer<MockXdgToplevelV6> toplevel, const QSize &size, const QList<uint> &states)
 {
     Command command = makeCommand(Impl::Compositor::sendXdgToplevelV6Configure, m_compositor);
     command.parameters << QVariant::fromValue(toplevel);
@@ -221,7 +221,7 @@ QSharedPointer<MockSurface> MockCompositor::surface()
     QSharedPointer<MockSurface> result;
     lock();
     {
-        const QVector<Impl::Surface *> surfaces = m_compositor->surfaces();
+        const QList<Impl::Surface *> surfaces = m_compositor->surfaces();
         for (Impl::Surface *surface : surfaces) {
             // we don't want to mistake the cursor surface for a window surface
             if (surface->isMapped()) {
@@ -415,12 +415,12 @@ void registerResource(wl_list *list, wl_resource *resource)
     wl_resource_add_destroy_listener(resource, listener);
 }
 
-QVector<Surface *> Compositor::surfaces() const
+QList<Surface *> Compositor::surfaces() const
 {
     return m_surfaces;
 }
 
-QVector<Output *> Compositor::outputs() const
+QList<Output *> Compositor::outputs() const
 {
     return m_outputs;
 }

@@ -71,7 +71,7 @@ public:
         default: return QImage::Format_Invalid;
         }
     }
-    static inline QVector<wl_shm_format> supportedWaylandFormats();
+    static inline QList<wl_shm_format> supportedWaylandFormats();
 
 private:
 //IMPLEMENTATION (which has to be inline in the header because of the include trick)
@@ -127,9 +127,9 @@ wl_shm_format QWaylandSharedMemoryFormatHelper::fromQImageFormat(QImage::Format 
     return array.data[format];
 }
 
-QVector<wl_shm_format> QWaylandSharedMemoryFormatHelper::supportedWaylandFormats()
+QList<wl_shm_format> QWaylandSharedMemoryFormatHelper::supportedWaylandFormats()
 {
-    QVector<wl_shm_format> retFormats;
+    QList<wl_shm_format> retFormats;
     Array array = getData();
     for (size_t i = 0; i < array.size; i++) {
         if (int(array.data[i]) != INT_MIN

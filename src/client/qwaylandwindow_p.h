@@ -217,7 +217,7 @@ protected:
     QScopedPointer<QWaylandSurface> mSurface;
     QWaylandShellSurface *mShellSurface = nullptr;
     QWaylandSubSurface *mSubSurfaceWindow = nullptr;
-    QVector<QWaylandSubSurface *> mChildren;
+    QList<QWaylandSubSurface *> mChildren;
 
     QWaylandAbstractDecoration *mWindowDecoration = nullptr;
     bool mMouseEventsInContentArea = false;

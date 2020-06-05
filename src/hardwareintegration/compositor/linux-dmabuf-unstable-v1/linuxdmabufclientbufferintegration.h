@@ -88,12 +88,12 @@ private:
 
     bool initSimpleTexture(LinuxDmabufWlBuffer *dmabufBuffer);
     bool initYuvTexture(LinuxDmabufWlBuffer *dmabufBuffer);
-    QVector<uint32_t> supportedDrmFormats();
-    QVector<uint64_t> supportedDrmModifiers(uint32_t format);
+    QList<uint32_t> supportedDrmFormats();
+    QList<uint64_t> supportedDrmModifiers(uint32_t format);
 
     EGLDisplay m_eglDisplay = EGL_NO_DISPLAY;
     bool m_displayBound = false;
-    QVector<QOpenGLTexture *> m_orphanedTextures;
+    QList<QOpenGLTexture *> m_orphanedTextures;
     QHash<EGLint, YuvFormatConversion> m_yuvFormats;
     bool m_supportsDmabufModifiers = false;
     QHash<struct ::wl_resource *, LinuxDmabufWlBuffer *> m_importedBuffers;

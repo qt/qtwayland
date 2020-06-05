@@ -31,7 +31,7 @@
 
 #include <qwayland-server-fullscreen-shell-unstable-v1.h>
 
-#include <QVector>
+#include <QList>
 
 namespace Impl {
 
@@ -43,14 +43,14 @@ class FullScreenShellV1 : public QtWaylandServer::zwp_fullscreen_shell_v1
 public:
     explicit FullScreenShellV1(::wl_display *display) : zwp_fullscreen_shell_v1(display, 1) {}
 
-    QVector<Surface *> surfaces() const { return m_surfaces; }
+    QList<Surface *> surfaces() const { return m_surfaces; }
     void removeSurface(Surface *surface) { m_surfaces.removeOne(surface); }
 
 protected:
     void zwp_fullscreen_shell_v1_present_surface(Resource *resource, struct ::wl_resource *surface, uint32_t method, struct ::wl_resource *output) override;
 
 private:
-    QVector<Surface *> m_surfaces;
+    QList<Surface *> m_surfaces;
 };
 
 } // namespace Impl

@@ -140,7 +140,7 @@ public:
 
     PrimarySelectionDeviceManagerV1 *m_manager = nullptr;
     Seat *m_seat = nullptr;
-    QVector<PrimarySelectionOfferV1 *> m_sentSelectionOffers;
+    QList<PrimarySelectionOfferV1 *> m_sentSelectionOffers;
     PrimarySelectionSourceV1 *m_selectionSource = nullptr;
     uint m_serial = 0;
 
@@ -194,7 +194,7 @@ public:
 
     int m_version = 1; // TODO: Remove on libwayland upgrade
     QMap<Seat *, PrimarySelectionDeviceV1 *> m_devices;
-    QVector<PrimarySelectionSourceV1 *> m_sources;
+    QList<PrimarySelectionSourceV1 *> m_sources;
 protected:
     void zwp_primary_selection_device_manager_v1_destroy(Resource *resource) override
     {
@@ -459,7 +459,7 @@ void tst_primaryselectionv1::copy()
     window.show();
 
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
-    QVector<uint> mouseSerials;
+    QList<uint> mouseSerials;
     exec([&] {
         auto *surface = xdgSurface()->m_surface;
         keyboard()->sendEnter(surface); // Need to set keyboard focus according to protocol

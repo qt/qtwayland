@@ -386,7 +386,7 @@ void QWaylandWindow::sendExposeEvent(const QRect &rect)
 }
 
 
-static QVector<QPointer<QWaylandWindow>> activePopups;
+static QList<QPointer<QWaylandWindow>> activePopups;
 
 void QWaylandWindow::closePopups(QWaylandWindow *parent)
 {

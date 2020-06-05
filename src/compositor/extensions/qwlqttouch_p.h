@@ -86,7 +86,7 @@ private:
     QWaylandCompositor *m_compositor = nullptr;
     BehaviorFlags m_flags = BehaviorFlag::None;
     QList<Resource *> m_resources;
-    QVector<float> m_posData;
+    QList<float> m_posData;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(TouchExtensionGlobal::BehaviorFlags)

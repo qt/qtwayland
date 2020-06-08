@@ -252,7 +252,7 @@ private:
         QWaylandCursorTheme *theme() const noexcept
         { return found ? position->theme.get() : nullptr; }
     };
-    FindExistingCursorThemeResult findExistingCursorTheme(const QString &name, int pixelSize) const;
+    FindExistingCursorThemeResult findExistingCursorTheme(const QString &name, int pixelSize) const noexcept;
 
     QScopedPointer<QWaylandCursor> mCursor;
 #endif

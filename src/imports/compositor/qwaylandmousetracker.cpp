@@ -128,10 +128,10 @@ bool QWaylandMouseTracker::childMouseEventFilter(QQuickItem *item, QEvent *event
     Q_D(QWaylandMouseTracker);
     if (event->type() == QEvent::MouseMove) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-        d->handleMousePos(mapFromItem(item, mouseEvent->localPos()));
+        d->handleMousePos(mapFromItem(item, mouseEvent->position()));
     } else if (event->type() == QEvent::HoverMove) {
         QHoverEvent *hoverEvent = static_cast<QHoverEvent *>(event);
-        d->handleMousePos(mapFromItem(item, hoverEvent->posF()));
+        d->handleMousePos(mapFromItem(item, hoverEvent->position()));
     }
     return false;
 }
@@ -140,14 +140,14 @@ void QWaylandMouseTracker::mouseMoveEvent(QMouseEvent *event)
 {
     Q_D(QWaylandMouseTracker);
     QQuickItem::mouseMoveEvent(event);
-    d->handleMousePos(event->localPos());
+    d->handleMousePos(event->position());
 }
 
 void QWaylandMouseTracker::hoverMoveEvent(QHoverEvent *event)
 {
     Q_D(QWaylandMouseTracker);
     QQuickItem::hoverMoveEvent(event);
-    d->handleMousePos(event->posF());
+    d->handleMousePos(event->position());
 }
 
 void QWaylandMouseTracker::hoverEnterEvent(QHoverEvent *event)

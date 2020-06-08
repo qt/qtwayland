@@ -270,7 +270,7 @@ void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
 
 void QWaylandCursor::pointerEvent(const QMouseEvent &event)
 {
-    mLastPos = event.globalPos();
+    mLastPos = event.globalPosition().toPoint();
 }
 
 QPoint QWaylandCursor::pos() const

@@ -81,7 +81,7 @@ public:
     void mousePressEvent(QMouseEvent *event) override
     {
         ++mousePressEventCount;
-        mousePressPos = event->pos();
+        mousePressPos = event->position().toPoint();
     }
 
     void mouseReleaseEvent(QMouseEvent *) override

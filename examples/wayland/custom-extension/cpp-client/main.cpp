@@ -137,22 +137,22 @@ protected:
 
     void mousePressEvent(QMouseEvent *ev) override
     {
-        if (rect1.contains(ev->pos()))
+        if (rect1.contains(ev->position()))
             doSpin();
-        else if (rect2.contains(ev->pos()))
+        else if (rect2.contains(ev->position()))
             doBounce();
-        else if (rect3.contains(ev->pos()))
+        else if (rect3.contains(ev->position()))
             newWindow();
-        else if (rect4.contains(ev->pos()))
+        else if (rect4.contains(ev->position()))
             newObject();
     }
 
 private:
     CustomExtension *m_extension = nullptr;
-    QRect rect1;
-    QRect rect2;
-    QRect rect3;
-    QRect rect4;
+    QRectF rect1;
+    QRectF rect2;
+    QRectF rect3;
+    QRectF rect4;
     QFont m_font;
     static int m_objectCount;
     static int m_hue;

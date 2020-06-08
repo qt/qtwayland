@@ -91,8 +91,8 @@ bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, QWaylandSurface *s
             uint32_t state = (tp.state() & 0xFFFF) | (sentPointCount << 16);
             uint32_t flags = (tp.flags() & 0xFFFF) | (int(event->pointingDevice()->capabilities()) << 16);
 
-            int x = toFixed(tp.pos().x());
-            int y = toFixed(tp.pos().y());
+            int x = toFixed(tp.position().x());
+            int y = toFixed(tp.position().y());
             int nx = toFixed(tp.normalizedPos().x());
             int ny = toFixed(tp.normalizedPos().y());
             int w = toFixed(tp.ellipseDiameters().width());

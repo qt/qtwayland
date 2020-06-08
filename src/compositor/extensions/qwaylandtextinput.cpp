@@ -36,6 +36,7 @@
 #include "qwaylandsurface.h"
 #include "qwaylandview.h"
 #include "qwaylandinputmethodeventbuilder_p.h"
+#include "qwaylandinputmethodcontrol.h"
 
 #include <QGuiApplication>
 #include <QInputMethodEvent>
@@ -335,6 +336,11 @@ void QWaylandTextInputPrivate::zwp_text_input_v2_enable(Resource *resource, wl_r
 
     QWaylandSurface *s = QWaylandSurface::fromResource(surface);
     enabledSurfaces.insert(resource, s);
+
+    QWaylandInputMethodControl *control = s->inputMethodControl();
+    if (control)
+        control->updateTextInput();
+
     emit q->surfaceEnabled(s);
 }
 

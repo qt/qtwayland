@@ -39,6 +39,7 @@ class QWaylandCompositor;
 class QWaylandInputMethodControlPrivate;
 class QWaylandSurface;
 class QInputMethodEvent;
+class QWaylandTextInput;
 
 class QWaylandInputMethodControl : public QObject
 {
@@ -58,6 +59,7 @@ public:
     void setEnabled(bool enabled);
 
     void setSurface(QWaylandSurface *surface);
+    void updateTextInput();
 
 Q_SIGNALS:
     void enabledChanged(bool enabled);

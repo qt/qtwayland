@@ -109,7 +109,7 @@ ToplevelView::ToplevelView(QWaylandXdgToplevel *toplevel)
         setAnchorEdges(opposite);
         emit startResize();
     });
-    QVector<QWaylandXdgToplevel::State> states{QWaylandXdgToplevel::ActivatedState};
+    QList<QWaylandXdgToplevel::State> states{QWaylandXdgToplevel::ActivatedState};
     toplevel->sendConfigure(QSize(0, 0), states);
 }
 

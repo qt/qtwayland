@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.15.0)
 
 include(.cmake.conf)
 project(QtWayland # special case
-    VERSION 6.0.0
+    VERSION "${QT_REPO_MODULE_VERSION}"
     DESCRIPTION "Qt Wayland Libraries" # special case
     HOMEPAGE_URL "https://qt.io/"
     LANGUAGES CXX C
@@ -21,8 +21,17 @@ set(QT_REPO_NOT_WARNINGS_CLEAN TRUE)
 # so that standalone tests configure successfully.
 set(QT_FIND_PACKAGE_DISABLE_DEBUG_BEHAVIOR TRUE)
 
+# Find BuildInternals first by itself because it defines QNX
 find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS
     BuildInternals
+)
+
+if(NOT MACOS AND NOT QNX AND (ANDROID OR NOT LINUX))
+    message(NOTICE "Skipping the build as the condition \"LINUX OR MACOS OR QNX\" is not met.")
+    return()
+endif()
+
+find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS
     Core
     Gui
     EventDispatcherSupport
@@ -41,10 +50,6 @@ find_package(Qt6 ${PROJECT_VERSION} CONFIG OPTIONAL_COMPONENTS
 )
 # special case end
 
-if(NOT MACOS AND NOT QNX AND (ANDROID OR NOT LINUX))
-    message(NOTICE "Skipping the build as the condition \"LINUX OR MACOS OR QNX\" is not met.")
-    return()
-endif()
 if(NOT TARGET Qt::Gui)
     message(NOTICE "Skipping the build as the condition \"TARGET Qt::Gui\" is not met.")
     return()

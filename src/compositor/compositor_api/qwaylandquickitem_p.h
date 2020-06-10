@@ -60,17 +60,13 @@ class QWaylandBufferMaterialShader : public QSGMaterialShader
 public:
     QWaylandBufferMaterialShader(QWaylandBufferRef::BufferFormatEgl format);
 
-    void updateState(const RenderState &state, QSGMaterial *newEffect, QSGMaterial *oldEffect) override;
-    char const *const *attributeNames() const override;
-
-protected:
-    void initialize() override;
+    bool updateUniformData(RenderState &state,
+                           QSGMaterial *newMaterial, QSGMaterial *oldMaterial) override;
+    void updateSampledImage(RenderState &state, int binding, QSGTexture **texture,
+                            QSGMaterial *newMaterial, QSGMaterial *oldMaterial) override;
 
 private:
     const QWaylandBufferRef::BufferFormatEgl m_format;
-    int m_id_matrix;
-    int m_id_opacity;
-    QVarLengthArray<int, 3> m_id_tex;
 };
 
 class QWaylandBufferMaterial : public QSGMaterial

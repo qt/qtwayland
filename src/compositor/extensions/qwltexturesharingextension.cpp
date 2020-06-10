@@ -56,13 +56,15 @@ class SharedTexture : public QSGTexture
 public:
     SharedTexture(QtWayland::ServerBuffer *buffer);
 
-    int textureId() const override;
+    //TODO: QRhiTexture
+
+    int textureId() const;//######### override;
     qint64 comparisonKey() const override;
     QSize textureSize() const override;
     bool hasAlphaChannel() const override;
     bool hasMipmaps() const override;
 
-    void bind() override;
+    void bind(); //###### override;
 
 private:
     void updateGLTexture() const;

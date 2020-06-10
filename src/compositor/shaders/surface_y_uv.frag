@@ -1,17 +1,26 @@
-uniform highp sampler2D tex0;
-uniform highp sampler2D tex1;
-varying highp vec2 v_texcoord;
-uniform lowp float qt_Opacity;
+#version 440
 
-void main() {
-  float y = 1.16438356 * (texture2D(tex0, v_texcoord).x - 0.0625);
-  float u = texture2D(tex1, v_texcoord).r - 0.5;
-  float v = texture2D(tex1, v_texcoord).g - 0.5;
-  y *= qt_Opacity;
-  u *= qt_Opacity;
-  v *= qt_Opacity;
-  gl_FragColor.r = y + 1.59602678 * v;
-  gl_FragColor.g = y - 0.39176229 * u - 0.81296764 * v;
-  gl_FragColor.b = y + 2.01723214 * u;
-  gl_FragColor.a = qt_Opacity;
+layout(location = 0) in vec2 v_texcoord;
+layout(location = 0) out vec4 fragColor;
+
+layout(std140, binding = 0) uniform buf {
+    mat4 qt_Matrix;
+    float qt_Opacity;
+};
+
+layout(binding = 1) uniform sampler2D tex0;
+layout(binding = 2) uniform sampler2D tex1;
+
+void main()
+{
+    float y = 1.16438356 * (texture(tex0, v_texcoord).x - 0.0625);
+    float u = texture(tex1, v_texcoord).r - 0.5;
+    float v = texture(tex1, v_texcoord).g - 0.5;
+    y *= qt_Opacity;
+    u *= qt_Opacity;
+    v *= qt_Opacity;
+    fragColor.r = y + 1.59602678 * v;
+    fragColor.g = y - 0.39176229 * u - 0.81296764 * v;
+    fragColor.b = y + 2.01723214 * u;
+    fragColor.a = qt_Opacity;
 }

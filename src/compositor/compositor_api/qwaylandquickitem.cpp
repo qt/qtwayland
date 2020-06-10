@@ -79,8 +79,8 @@ static const struct {
 
     // BufferFormatEgl_RGB
     {
-        ":/qt-project.org/wayland/compositor/shaders/surface.vert",
-        ":/qt-project.org/wayland/compositor/shaders/surface_rgbx.frag",
+        ":/qt-project.org/wayland/compositor/shaders/surface.vert.qsb",
+        ":/qt-project.org/wayland/compositor/shaders/surface_rgbx.frag.qsb",
         GL_TEXTURE_2D, 1, true,
         QSGMaterial::Blending,
         {}
@@ -88,8 +88,8 @@ static const struct {
 
     // BufferFormatEgl_RGBA
     {
-        ":/qt-project.org/wayland/compositor/shaders/surface.vert",
-        ":/qt-project.org/wayland/compositor/shaders/surface_rgba.frag",
+        ":/qt-project.org/wayland/compositor/shaders/surface.vert.qsb",
+        ":/qt-project.org/wayland/compositor/shaders/surface_rgba.frag.qsb",
         GL_TEXTURE_2D, 1, true,
         QSGMaterial::Blending,
         {}
@@ -97,8 +97,8 @@ static const struct {
 
     // BufferFormatEgl_EXTERNAL_OES
     {
-        ":/qt-project.org/wayland/compositor/shaders/surface.vert",
-        ":/qt-project.org/wayland/compositor/shaders/surface_oes_external.frag",
+        ":/qt-project.org/wayland/compositor/shaders/surface.vert.qsb",
+        ":/qt-project.org/wayland/compositor/shaders/surface_oes_external.frag.qsb",
         GL_TEXTURE_EXTERNAL_OES, 1, false,
         QSGMaterial::Blending,
         {}
@@ -106,8 +106,8 @@ static const struct {
 
     // BufferFormatEgl_Y_U_V
     {
-        ":/qt-project.org/wayland/compositor/shaders/surface.vert",
-        ":/qt-project.org/wayland/compositor/shaders/surface_y_u_v.frag",
+        ":/qt-project.org/wayland/compositor/shaders/surface.vert.qsb",
+        ":/qt-project.org/wayland/compositor/shaders/surface_y_u_v.frag.qsb",
         GL_TEXTURE_2D, 3, false,
         QSGMaterial::Blending,
         {}
@@ -115,8 +115,8 @@ static const struct {
 
     // BufferFormatEgl_Y_UV
     {
-        ":/qt-project.org/wayland/compositor/shaders/surface.vert",
-        ":/qt-project.org/wayland/compositor/shaders/surface_y_uv.frag",
+        ":/qt-project.org/wayland/compositor/shaders/surface.vert.qsb",
+        ":/qt-project.org/wayland/compositor/shaders/surface_y_uv.frag.qsb",
         GL_TEXTURE_2D, 2, false,
         QSGMaterial::Blending,
         {}
@@ -124,8 +124,8 @@ static const struct {
 
     // BufferFormatEgl_Y_XUXV
     {
-        ":/qt-project.org/wayland/compositor/shaders/surface.vert",
-        ":/qt-project.org/wayland/compositor/shaders/surface_y_xuxv.frag",
+        ":/qt-project.org/wayland/compositor/shaders/surface.vert.qsb",
+        ":/qt-project.org/wayland/compositor/shaders/surface_y_xuxv.frag.qsb",
         GL_TEXTURE_2D, 2, false,
         QSGMaterial::Blending,
         {}
@@ -135,51 +135,62 @@ static const struct {
 QWaylandBufferMaterialShader::QWaylandBufferMaterialShader(QWaylandBufferRef::BufferFormatEgl format)
     : m_format(format)
 {
-    setShaderSourceFile(QOpenGLShader::Vertex, QString::fromLatin1(bufferTypes[format].vertexShaderSourceFile));
-    setShaderSourceFile(QOpenGLShader::Fragment, QString::fromLatin1(bufferTypes[format].fragmentShaderSourceFile));
+    setShaderFileName(VertexStage, QString::fromLatin1(bufferTypes[format].vertexShaderSourceFile));
+    setShaderFileName(FragmentStage, QString::fromLatin1(bufferTypes[format].fragmentShaderSourceFile));
 }
 
-void QWaylandBufferMaterialShader::updateState(const QSGMaterialShader::RenderState &state, QSGMaterial *newEffect, QSGMaterial *oldEffect)
+bool QWaylandBufferMaterialShader::updateUniformData(RenderState &state, QSGMaterial *, QSGMaterial *)
 {
-    QSGMaterialShader::updateState(state, newEffect, oldEffect);
+    bool changed = false;
+    QByteArray *buf = state.uniformData();
+    Q_ASSERT(buf->size() >= 68);
 
-    QWaylandBufferMaterial *material = static_cast<QWaylandBufferMaterial *>(newEffect);
-    material->bind();
-
-    if (state.isMatrixDirty())
-        program()->setUniformValue(m_id_matrix, state.combinedMatrix());
-
-    if (state.isOpacityDirty())
-        program()->setUniformValue(m_id_opacity, state.opacity());
-}
-
-const char * const *QWaylandBufferMaterialShader::attributeNames() const
-{
-    static char const *const attr[] = { "qt_VertexPosition", "qt_VertexTexCoord", nullptr };
-    return attr;
-}
-
-void QWaylandBufferMaterialShader::initialize()
-{
-    QSGMaterialShader::initialize();
-
-    m_id_matrix = program()->uniformLocation("qt_Matrix");
-    m_id_opacity = program()->uniformLocation("qt_Opacity");
-
-    for (int i = 0; i < bufferTypes[m_format].planeCount; i++) {
-        m_id_tex << program()->uniformLocation("tex" + QByteArray::number(i));
-        program()->setUniformValue(m_id_tex[i], i);
+    if (state.isMatrixDirty()) {
+        const QMatrix4x4 m = state.combinedMatrix();
+        memcpy(buf->data(), m.constData(), 64);
+        changed = true;
     }
 
-    Q_ASSERT(m_id_tex.size() == bufferTypes[m_format].planeCount);
+    if (state.isOpacityDirty()) {
+        const float opacity = state.opacity();
+        memcpy(buf->data() + 64, &opacity, 4);
+        changed = true;
+    }
+
+    return changed;
+}
+
+void QWaylandBufferMaterialShader::updateSampledImage(RenderState &state, int binding, QSGTexture **texture,
+                                                      QSGMaterial *newMaterial, QSGMaterial *)
+{
+    Q_UNUSED(state);
+
+    QWaylandBufferMaterial *material = static_cast<QWaylandBufferMaterial *>(newMaterial); //###@@@???
+    Q_UNUSED(material);
+    switch (binding) {
+    case 1:
+        // *texture = ?? where do we get a QSGTexture wrapping the QOpenGLTexture's underlying texture from?
+        break;
+    case 2:
+        // *texture = ??
+        break;
+    case 3:
+        // *texture = ??
+        break;
+    default:
+        return;
+    }
+
+    // This is for the shared memory case, and is a no-op for others,
+    // this is where the upload from the QImage happens when not yet done.
+    // ### or is this too late? (if buffer.image() disappears in the meantime then this is the wrong...)
+    if (*texture)
+        (*texture)->commitTextureOperations(state.rhi(), state.resourceUpdateBatch());
 }
 
 QWaylandBufferMaterial::QWaylandBufferMaterial(QWaylandBufferRef::BufferFormatEgl format)
     : m_format(format)
 {
-    QOpenGLFunctions *gl = QOpenGLContext::currentContext()->functions();
-
-    gl->glBindTexture(bufferTypes[m_format].textureTarget, 0);
     setFlag(bufferTypes[m_format].materialFlags);
 }
 
@@ -277,10 +288,6 @@ public:
         if (m_ref.hasBuffer()) {
             if (buffer.isSharedMemory()) {
                 m_sgTex = surfaceItem->window()->createTextureFromImage(buffer.image());
-#if QT_CONFIG(opengl)
-                if (m_sgTex)
-                    m_sgTex->bind();
-#endif
             } else {
 #if QT_CONFIG(opengl)
                 QQuickWindow::CreateTextureOptions opt;

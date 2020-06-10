@@ -1,0 +1,10 @@
+qsb -b --glsl "100 es,120,150" -o surface.vert.qsb surface.vert
+qsb --glsl "100 es,120,150" -o surface_rgba.frag.qsb surface_rgba.frag
+qsb --glsl "100 es,120,150" -o surface_rgbx.frag.qsb surface_rgbx.frag
+qsb --glsl "100 es,120,150" -o surface_y_uv.frag.qsb surface_y_uv.frag
+qsb --glsl "100 es,120,150" -o surface_y_u_v.frag.qsb surface_y_u_v.frag
+qsb --glsl "100 es,120,150" -o surface_y_xuxv.frag.qsb surface_y_xuxv.frag
+
+# Does not compile for whatever reason. We may not support that externalOES
+# thing at run time either, so skip for now.
+# qsb --glsl "100 es,120,150" -o surface_oes_external.frag.qsb surface_oes_external.frag

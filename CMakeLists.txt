@@ -35,7 +35,6 @@ find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS
     Core
     Gui
     EventDispatcherSupport
-    ThemeSupport
 )
 
 find_package(Qt6 ${PROJECT_VERSION} CONFIG OPTIONAL_COMPONENTS
@@ -47,9 +46,17 @@ find_package(Qt6 ${PROJECT_VERSION} CONFIG OPTIONAL_COMPONENTS
     Quick
     ServiceSupport
     XkbCommonSupport
+    ThemeSupport
 )
 # special case end
 
+# special case begin
+# Moved above.
+#if(NOT MACOS AND NOT QNX AND (ANDROID OR NOT LINUX))
+#    message(NOTICE "Skipping the build as the condition \"LINUX OR MACOS OR QNX\" is not met.")
+#    return()
+#endif()
+# special case end
 if(NOT TARGET Qt::Gui)
     message(NOTICE "Skipping the build as the condition \"TARGET Qt::Gui\" is not met.")
     return()

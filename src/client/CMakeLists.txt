@@ -55,7 +55,6 @@ qt_add_module(WaylandClient
         shellintegration
     LIBRARIES
         Qt::CorePrivate
-        Qt::EventDispatcherSupportPrivate
         Qt::FontDatabaseSupportPrivate
         Qt::GuiPrivate
         Qt::ServiceSupportPrivate

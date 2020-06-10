@@ -34,7 +34,6 @@ endif()
 find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS
     Core
     Gui
-    EventDispatcherSupport
 )
 
 find_package(Qt6 ${PROJECT_VERSION} CONFIG OPTIONAL_COMPONENTS

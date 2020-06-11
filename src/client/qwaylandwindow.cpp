@@ -307,7 +307,7 @@ void QWaylandWindow::setWindowTitle(const QString &title)
         // three bytes when converted to utf-8 (which is what libwayland uses), so divide by three.
         const int maxLength = libwaylandMaxBufferSize / 3 - 100;
 
-        auto truncated = QStringRef(&formatted).left(maxLength);
+        auto truncated = QStringView{formatted}.left(maxLength);
         if (truncated.length() < formatted.length()) {
             qCWarning(lcQpaWayland) << "Window titles longer than" << maxLength << "characters are not supported."
                                     << "Truncating window title (from" << formatted.length() << "chars)";

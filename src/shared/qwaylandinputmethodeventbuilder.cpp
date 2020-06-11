@@ -265,17 +265,17 @@ int QWaylandInputMethodEventBuilder::indexFromWayland(const QString &text, int l
         return base;
 
     if (length < 0) {
-        const QByteArray &utf8 = text.leftRef(base).toUtf8();
+        const QByteArray &utf8 = QStringView{text}.left(base).toUtf8();
         return QString::fromUtf8(utf8.left(qMax(utf8.length() + length, 0))).length();
     } else {
-        const QByteArray &utf8 = text.midRef(base).toUtf8();
+        const QByteArray &utf8 = QStringView{text}.mid(base).toUtf8();
         return QString::fromUtf8(utf8.left(length)).length() + base;
     }
 }
 
 int QWaylandInputMethodEventBuilder::indexToWayland(const QString &text, int length, int base)
 {
-    return text.midRef(base, length).toUtf8().size();
+    return QStringView{text}.mid(base, length).toUtf8().size();
 }
 
 QT_END_NAMESPACE

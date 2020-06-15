@@ -240,8 +240,9 @@ QSGMaterialType *QWaylandBufferMaterial::type() const
     return const_cast<QSGMaterialType *>(&bufferTypes[m_format].materialType);
 }
 
-QSGMaterialShader *QWaylandBufferMaterial::createShader() const
+QSGMaterialShader *QWaylandBufferMaterial::createShader(QSGRendererInterface::RenderMode renderMode) const
 {
+    Q_UNUSED(renderMode);
     return new QWaylandBufferMaterialShader(m_format);
 }
 

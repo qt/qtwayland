@@ -80,7 +80,7 @@ public:
     void bind();
 
     QSGMaterialType *type() const override;
-    QSGMaterialShader *createShader() const override;
+    QSGMaterialShader *createShader(QSGRendererInterface::RenderMode renderMode) const override;
 
 private:
     void setTextureParameters(GLenum target);

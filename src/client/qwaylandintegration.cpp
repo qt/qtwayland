@@ -53,10 +53,10 @@
 #include "qwaylandscreen_p.h"
 
 #if defined(Q_OS_MACOS)
-#  include <QtFontDatabaseSupport/private/qcoretextfontdatabase_p.h>
-#  include <QtFontDatabaseSupport/private/qfontengine_coretext_p.h>
+#  include <QtGui/private/qcoretextfontdatabase_p.h>
+#  include <QtGui/private/qfontengine_coretext_p.h>
 #else
-#  include <QtFontDatabaseSupport/private/qgenericunixfontdatabase_p.h>
+#  include <QtGui/private/qgenericunixfontdatabase_p.h>
 #endif
 #include <QtGui/private/qgenericunixeventdispatcher_p.h>
 #include <QtThemeSupport/private/qgenericunixthemes_p.h>

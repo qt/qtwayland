@@ -34,14 +34,13 @@ endif()
 find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS
     Core
     Gui
+    OpenGL
 )
 
 find_package(Qt6 ${PROJECT_VERSION} CONFIG OPTIONAL_COMPONENTS
     EglSupport
     GlxSupport
     LinuxAccessibilitySupport
-    FontDatabaseSupport
-    PlatformCompositorSupport
     Quick
     ServiceSupport
     XkbCommonSupport

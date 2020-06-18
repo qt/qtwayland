@@ -54,7 +54,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QScopedPointer>
 
-#include <QtServiceSupport/private/qgenericunixservices_p.h>
+#include <QtGui/private/qgenericunixservices_p.h>
 
 #include <QtWaylandClient/private/qwayland-qt-windowmanager.h>
 #include <QtWaylandClient/qtwaylandclientglobal.h>

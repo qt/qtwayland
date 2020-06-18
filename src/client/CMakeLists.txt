@@ -56,8 +56,6 @@ qt_add_module(WaylandClient
     LIBRARIES
         Qt::CorePrivate
         Qt::GuiPrivate
-        Qt::ServiceSupportPrivate
-        Qt::ThemeSupportPrivate
     PUBLIC_LIBRARIES
         Qt::Core
         Qt::Gui
@@ -65,7 +63,6 @@ qt_add_module(WaylandClient
     PRIVATE_MODULE_INTERFACE
         Qt::CorePrivate
         Qt::GuiPrivate
-        Qt::ServiceSupportPrivate
 )
 
 qt6_generate_wayland_protocol_client_sources(WaylandClient

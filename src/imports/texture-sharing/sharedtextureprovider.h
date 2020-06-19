@@ -93,27 +93,6 @@ private:
     bool m_sharingAvailable = false;
 };
 
-class SharedTexture : public QSGTexture
-{
-    Q_OBJECT
-public:
-    SharedTexture(QtWaylandClient::QWaylandServerBuffer *buffer);
-
-    int textureId() const; //###### override;
-    qint64 comparisonKey() const override;
-    QSize textureSize() const override;
-    bool hasAlphaChannel() const override;
-    bool hasMipmaps() const override;
-
-    void bind(); //######## override;
-
-private:
-    void updateGLTexture() const;
-    QtWaylandClient::QWaylandServerBuffer *m_buffer = nullptr;
-    mutable QOpenGLTexture *m_tex = nullptr;
-};
-
-
 QT_END_NAMESPACE
 
 #endif // SHAREDTEXTUREPROVIDER_H

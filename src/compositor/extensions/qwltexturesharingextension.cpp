@@ -50,74 +50,6 @@
 
 QT_BEGIN_NAMESPACE
 
-class SharedTexture : public QSGTexture
-{
-    Q_OBJECT
-public:
-    SharedTexture(QtWayland::ServerBuffer *buffer);
-
-    //TODO: QRhiTexture
-
-    int textureId() const;//######### override;
-    qint64 comparisonKey() const override;
-    QSize textureSize() const override;
-    bool hasAlphaChannel() const override;
-    bool hasMipmaps() const override;
-
-    void bind(); //###### override;
-
-private:
-    void updateGLTexture() const;
-    QtWayland::ServerBuffer *m_buffer = nullptr;
-    mutable QOpenGLTexture *m_tex = nullptr;
-};
-
-SharedTexture::SharedTexture(QtWayland::ServerBuffer *buffer)
-    : m_buffer(buffer), m_tex(nullptr)
-{
-}
-
-int SharedTexture::textureId() const
-{
-    updateGLTexture();
-    return m_tex ? m_tex->textureId() : 0;
-}
-
-qint64 SharedTexture::comparisonKey() const
-{
-    return m_tex ? qint64(m_tex->textureId()) : qint64(this);
-}
-
-QSize SharedTexture::textureSize() const
-{
-    updateGLTexture();
-    return m_tex ? QSize(m_tex->width(), m_tex->height()) : QSize();
-}
-
-bool SharedTexture::hasAlphaChannel() const
-{
-    return true;
-}
-
-bool SharedTexture::hasMipmaps() const
-{
-    updateGLTexture();
-    return m_tex ? (m_tex->mipLevels() > 1) : false;
-}
-
-void SharedTexture::bind()
-{
-    updateGLTexture();
-    if (m_tex)
-        m_tex->bind();
-}
-
-inline void SharedTexture::updateGLTexture() const
-{
-    if (!m_tex && m_buffer)
-        m_tex = m_buffer->toOpenGlTexture();
-}
-
 class SharedTextureFactory : public QQuickTextureFactory
 {
 public:
@@ -142,9 +74,17 @@ public:
         return m_buffer ? (m_buffer->size().width() * m_buffer->size().height() * 4) : 0;
     }
 
-    QSGTexture *createTexture(QQuickWindow *) const override
+    QSGTexture *createTexture(QQuickWindow *window) const override
     {
-        return new SharedTexture(const_cast<QtWayland::ServerBuffer *>(m_buffer));
+        if (m_buffer != nullptr) {
+            QOpenGLTexture *texture = const_cast<QtWayland::ServerBuffer *>(m_buffer)->toOpenGlTexture();
+            return QNativeInterface::QSGOpenGLTexture::fromNative(texture->textureId(),
+                                                                   window,
+                                                                   m_buffer->size(),
+                                                                   QQuickWindow::TextureHasAlphaChannel);
+        }
+
+        return nullptr;
     }
 
 private:

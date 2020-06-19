@@ -49,6 +49,7 @@
 #include <QtWaylandClient/private/qwaylandserverbufferintegration_p.h>
 #include <QtGui/QGuiApplication>
 #include <QtGui/private/qguiapplication_p.h>
+#include <QtQuick/private/qsgrhisupport_p.h>
 #include <QtGui/qpa/qplatformnativeinterface.h>
 #include <QtGui/QWindow>
 #include <QOpenGLTexture>
@@ -59,52 +60,6 @@
 #include "texturesharingextension.h"
 
 QT_BEGIN_NAMESPACE
-
-SharedTexture::SharedTexture(QtWaylandClient::QWaylandServerBuffer *buffer)
-    : m_buffer(buffer), m_tex(nullptr)
-{
-}
-
-int SharedTexture::textureId() const
-{
-    updateGLTexture();
-    return m_tex ? m_tex->textureId() : 0;
-}
-
-qint64 SharedTexture::comparisonKey() const
-{
-    return m_tex ? qint64(m_tex->textureId()) : qint64(this);
-}
-
-QSize SharedTexture::textureSize() const
-{
-    updateGLTexture();
-    return m_tex ? QSize(m_tex->width(), m_tex->height()) : QSize();
-}
-
-bool SharedTexture::hasAlphaChannel() const
-{
-    return true;
-}
-
-bool SharedTexture::hasMipmaps() const
-{
-    updateGLTexture();
-    return m_tex ? (m_tex->mipLevels() > 1) : false;
-}
-
-void SharedTexture::bind()
-{
-    updateGLTexture();
-    if (m_tex)
-        m_tex->bind();
-}
-
-inline void SharedTexture::updateGLTexture() const
-{
-    if (!m_tex && m_buffer)
-        m_tex = m_buffer->toOpenGlTexture();
-}
 
 class SharedTextureFactory : public QQuickTextureFactory
 {
@@ -133,9 +88,16 @@ public:
         return m_buffer ? (m_buffer->size().width() * m_buffer->size().height() * 4) : 0;
     }
 
-    QSGTexture *createTexture(QQuickWindow *) const override
+    QSGTexture *createTexture(QQuickWindow *window) const override
     {
-        return new SharedTexture(const_cast<QtWaylandClient::QWaylandServerBuffer *>(m_buffer));
+        if (m_buffer != nullptr) {
+            QOpenGLTexture *texture = const_cast<QtWaylandClient::QWaylandServerBuffer *>(m_buffer)->toOpenGlTexture();
+            return QNativeInterface::QSGOpenGLTexture::fromNative(texture->textureId(),
+                                                                  window,
+                                                                  m_buffer->size(),
+                                                                  QQuickWindow::TextureHasAlphaChannel);
+        }
+        return nullptr;
     }
 
 private:
@@ -189,6 +151,11 @@ void SharedTextureRegistry::handleExtensionActive()
 
 bool SharedTextureRegistry::preinitialize()
 {
+    if (QSGRhiSupport::instance()->rhiBackend() != QRhi::OpenGLES2) {
+        qWarning() << "The shared-texture extension is only supported on OpenGL. Use QQuickWindow::setSceneGraphBackend() to override the default.";
+        return false;
+    }
+
     auto *serverBufferIntegration = QGuiApplicationPrivate::platformIntegration()->nativeInterface()->nativeResourceForIntegration("server_buffer_integration");
 
     if (!serverBufferIntegration) {

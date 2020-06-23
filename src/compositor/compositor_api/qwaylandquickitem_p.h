@@ -75,19 +75,23 @@ public:
     QWaylandBufferMaterial(QWaylandBufferRef::BufferFormatEgl format);
     ~QWaylandBufferMaterial() override;
 
-    void setTextureForPlane(int plane, QOpenGLTexture *texture);
+    void setTextureForPlane(int plane, QOpenGLTexture *texture, QSGTexture *scenegraphTexture);
 
     void bind();
+    void updateScenegraphTextures(QRhi *rhi);
 
     QSGMaterialType *type() const override;
     QSGMaterialShader *createShader(QSGRendererInterface::RenderMode renderMode) const override;
 
 private:
+    friend QWaylandBufferMaterialShader;
+
     void setTextureParameters(GLenum target);
     void ensureTextures(int count);
 
     const QWaylandBufferRef::BufferFormatEgl m_format;
     QVarLengthArray<QOpenGLTexture*, 3> m_textures;
+    QVarLengthArray<QSGTexture*, 3> m_scenegraphTextures;
 };
 #endif // QT_CONFIG(opengl)
 

@@ -167,17 +167,16 @@ void QWaylandBufferMaterialShader::updateSampledImage(RenderState &state, int bi
 {
     Q_UNUSED(state);
 
-    QWaylandBufferMaterial *material = static_cast<QWaylandBufferMaterial *>(newMaterial); //###@@@???
-    Q_UNUSED(material);
+    QWaylandBufferMaterial *material = static_cast<QWaylandBufferMaterial *>(newMaterial);
     switch (binding) {
     case 1:
-        // *texture = ?? where do we get a QSGTexture wrapping the QOpenGLTexture's underlying texture from?
+        *texture = material->m_scenegraphTextures.at(0);
         break;
     case 2:
-        // *texture = ??
+        *texture = material->m_scenegraphTextures.at(1);
         break;
     case 3:
-        // *texture = ??
+        *texture = material->m_scenegraphTextures.at(2);
         break;
     default:
         return;
@@ -198,9 +197,12 @@ QWaylandBufferMaterial::QWaylandBufferMaterial(QWaylandBufferRef::BufferFormatEg
 
 QWaylandBufferMaterial::~QWaylandBufferMaterial()
 {
+    qDeleteAll(m_scenegraphTextures);
 }
 
-void QWaylandBufferMaterial::setTextureForPlane(int plane, QOpenGLTexture *texture)
+void QWaylandBufferMaterial::setTextureForPlane(int plane,
+                                                QOpenGLTexture *texture,
+                                                QSGTexture *scenegraphTexture)
 {
     if (plane < 0 || plane >= bufferTypes[m_format].planeCount) {
         qWarning("plane index is out of range");
@@ -212,10 +214,15 @@ void QWaylandBufferMaterial::setTextureForPlane(int plane, QOpenGLTexture *textu
 
     ensureTextures(plane - 1);
 
-    if (m_textures.size() <= plane)
+    if (m_textures.size() <= plane) {
         m_textures << texture;
-    else
+        m_scenegraphTextures << scenegraphTexture;
+    } else {
+        delete m_scenegraphTextures[plane];
+
         m_textures[plane] = texture;
+        m_scenegraphTextures[plane] = scenegraphTexture;
+    }
 }
 
 void QWaylandBufferMaterial::bind()
@@ -263,6 +270,7 @@ void QWaylandBufferMaterial::ensureTextures(int count)
 {
     for (int plane = m_textures.size(); plane < count; plane++) {
         m_textures << nullptr;
+        m_scenegraphTextures << nullptr;
     }
 }
 #endif // QT_CONFIG(opengl)
@@ -1379,8 +1387,18 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
     if (d->newTexture) {
         d->newTexture = false;
         for (int plane = 0; plane < bufferTypes[ref.bufferFormatEgl()].planeCount; plane++)
-            if (auto texture = ref.toOpenGLTexture(plane))
-                material->setTextureForPlane(plane, texture);
+            if (auto texture = ref.toOpenGLTexture(plane)) {
+                QQuickWindow::CreateTextureOptions opt;
+                QWaylandQuickSurface *waylandSurface = qobject_cast<QWaylandQuickSurface *>(surface());
+                if (waylandSurface != nullptr && waylandSurface->useTextureAlpha())
+                    opt |= QQuickWindow::TextureHasAlphaChannel;
+                QSGTexture *scenegraphTexture = QPlatformInterface::QSGOpenGLTexture::fromNative(texture->textureId(),
+                                                                                                 window(),
+                                                                                                 ref.size(),
+                                                                                                 opt);
+                scenegraphTexture->setFiltering(smooth() ? QSGTexture::Linear : QSGTexture::Nearest);
+                material->setTextureForPlane(plane, texture, scenegraphTexture);
+            }
         material->bind();
     }
 

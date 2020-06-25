@@ -42,7 +42,7 @@
 #include "qwaylanddisplay_p.h"
 #include "qwaylandsurface_p.h"
 
-#include <QtGui/QTouchDevice>
+#include <QtGui/QPointingDevice>
 
 QT_BEGIN_NAMESPACE
 
@@ -61,10 +61,11 @@ QWaylandTouchExtension::QWaylandTouchExtension(QWaylandDisplay *display, uint32_
 
 void QWaylandTouchExtension::registerDevice(int caps)
 {
-    mTouchDevice = new QTouchDevice;
-    mTouchDevice->setType(QTouchDevice::TouchScreen);
-    mTouchDevice->setCapabilities(QTouchDevice::Capabilities(caps));
-    QWindowSystemInterface::registerTouchDevice(mTouchDevice);
+    // TODO number of touchpoints, actual name and ID
+    mTouchDevice = new QPointingDevice(QLatin1String("some touchscreen"), 0,
+                                           QInputDevice::DeviceType::TouchScreen, QPointingDevice::PointerType::Finger,
+                                           QInputDevice::Capabilities(caps), 10, 0);
+    QWindowSystemInterface::registerInputDevice(mTouchDevice);
 }
 
 static inline qreal fromFixed(int f)

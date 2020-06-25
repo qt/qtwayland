@@ -195,7 +195,7 @@ private:
     void seat_capabilities(uint32_t caps) override;
     void handleTouchPoint(int id, Qt::TouchPointState state, const QPointF &surfacePosition = QPoint());
 
-    QTouchDevice *mTouchDevice = nullptr;
+    QPointingDevice *mTouchDevice = nullptr;
 
     friend class QWaylandTouchExtension;
     friend class QWaylandQtKeyExtension;

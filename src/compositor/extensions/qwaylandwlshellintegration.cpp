@@ -296,25 +296,25 @@ bool WlShellIntegration::filterMouseMoveEvent(QMouseEvent *event)
     if (grabberState == GrabberState::Resize) {
         Q_ASSERT(resizeState.seat == m_item->compositor()->seatFor(event));
         if (!resizeState.initialized) {
-            resizeState.initialMousePos = event->windowPos();
+            resizeState.initialMousePos = event->scenePosition();
             resizeState.initialized = true;
             return true;
         }
         float scaleFactor = m_item->view()->output()->scaleFactor();
-        QPointF delta = (event->windowPos() - resizeState.initialMousePos) / scaleFactor * devicePixelRatio();
+        QPointF delta = (event->scenePosition() - resizeState.initialMousePos) / scaleFactor * devicePixelRatio();
         QSize newSize = m_shellSurface->sizeForResize(resizeState.initialSize, delta, resizeState.resizeEdges);
         m_shellSurface->sendConfigure(newSize, resizeState.resizeEdges);
     } else if (grabberState == GrabberState::Move) {
         Q_ASSERT(moveState.seat == m_item->compositor()->seatFor(event));
         QQuickItem *moveItem = m_item->moveItem();
         if (!moveState.initialized) {
-            moveState.initialOffset = moveItem->mapFromItem(nullptr, event->windowPos());
+            moveState.initialOffset = moveItem->mapFromItem(nullptr, event->scenePosition());
             moveState.initialized = true;
             return true;
         }
         if (!moveItem->parentItem())
             return true;
-        QPointF parentPos = moveItem->parentItem()->mapFromItem(nullptr, event->windowPos());
+        QPointF parentPos = moveItem->parentItem()->mapFromItem(nullptr, event->scenePosition());
         moveItem->setPosition(parentPos - moveState.initialOffset);
     }
     return false;

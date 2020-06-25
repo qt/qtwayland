@@ -114,17 +114,17 @@ void Window::paintGL()
 
 void Window::mousePressEvent(QMouseEvent *event)
 {
-    m_compositor->handleMousePress(event->localPos().toPoint(), event->button());
+    m_compositor->handleMousePress(event->position().toPoint(), event->button());
 }
 
 void Window::mouseReleaseEvent(QMouseEvent *event)
 {
-    m_compositor->handleMouseRelease(event->localPos().toPoint(), event->button(), event->buttons());
+    m_compositor->handleMouseRelease(event->position().toPoint(), event->button(), event->buttons());
 }
 
 void Window::mouseMoveEvent(QMouseEvent *event)
 {
-    m_compositor->handleMouseMove(event->localPos().toPoint());
+    m_compositor->handleMouseMove(event->position().toPoint());
 }
 
 void Window::wheelEvent(QWheelEvent *event)

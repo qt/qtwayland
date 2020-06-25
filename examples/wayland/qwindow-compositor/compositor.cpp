@@ -461,7 +461,7 @@ void Compositor::handleMouseEvent(QWaylandView *target, QMouseEvent *me)
          seat->sendMouseReleaseEvent(me->button());
          break;
     case QEvent::MouseMove:
-        seat->sendMouseMoveEvent(target, me->localPos(), me->globalPos());
+        seat->sendMouseMoveEvent(target, me->position(), me->globalPosition());
     default:
         break;
     }
@@ -496,7 +496,7 @@ void Compositor::startDrag()
 
 void Compositor::handleDrag(View *target, QMouseEvent *me)
 {
-    QPointF pos = me->localPos();
+    QPointF pos = me->position();
     QWaylandSurface *surface = nullptr;
     if (target) {
         pos -= target->position();

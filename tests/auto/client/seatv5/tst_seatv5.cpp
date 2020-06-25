@@ -424,14 +424,14 @@ void tst_seatv5::singleTap()
         QCOMPARE(e.type, QEvent::TouchBegin);
         QCOMPARE(e.touchPointStates, Qt::TouchPointState::TouchPointPressed);
         QCOMPARE(e.touchPoints.length(), 1);
-        QCOMPARE(e.touchPoints.first().pos(), QPointF(32-window.frameMargins().left(), 32-window.frameMargins().top()));
+        QCOMPARE(e.touchPoints.first().position(), QPointF(32-window.frameMargins().left(), 32-window.frameMargins().top()));
     }
     {
         auto e = window.m_events.takeFirst();
         QCOMPARE(e.type, QEvent::TouchEnd);
         QCOMPARE(e.touchPointStates, Qt::TouchPointState::TouchPointReleased);
         QCOMPARE(e.touchPoints.length(), 1);
-        QCOMPARE(e.touchPoints.first().pos(), QPointF(32-window.frameMargins().left(), 32-window.frameMargins().top()));
+        QCOMPARE(e.touchPoints.first().position(), QPointF(32-window.frameMargins().left(), 32-window.frameMargins().top()));
     }
 }
 
@@ -455,14 +455,14 @@ void tst_seatv5::singleTapFloat()
         QCOMPARE(e.type, QEvent::TouchBegin);
         QCOMPARE(e.touchPointStates, Qt::TouchPointState::TouchPointPressed);
         QCOMPARE(e.touchPoints.length(), 1);
-        QCOMPARE(e.touchPoints.first().pos(), QPointF(32.75-window.frameMargins().left(), 32.25-window.frameMargins().top()));
+        QCOMPARE(e.touchPoints.first().position(), QPointF(32.75-window.frameMargins().left(), 32.25-window.frameMargins().top()));
     }
     {
         auto e = window.m_events.takeFirst();
         QCOMPARE(e.type, QEvent::TouchEnd);
         QCOMPARE(e.touchPointStates, Qt::TouchPointState::TouchPointReleased);
         QCOMPARE(e.touchPoints.length(), 1);
-        QCOMPARE(e.touchPoints.first().pos(), QPointF(32.75-window.frameMargins().left(), 32.25-window.frameMargins().top()));
+        QCOMPARE(e.touchPoints.first().position(), QPointF(32.75-window.frameMargins().left(), 32.25-window.frameMargins().top()));
     }
 }
 
@@ -500,10 +500,10 @@ void tst_seatv5::multiTouch()
         QCOMPARE(e.touchPoints.length(), 2);
 
         QCOMPARE(e.touchPoints[0].state(), Qt::TouchPointState::TouchPointPressed);
-        QCOMPARE(e.touchPoints[0].pos(), QPointF(32-window.frameMargins().left(), 32-window.frameMargins().top()));
+        QCOMPARE(e.touchPoints[0].position(), QPointF(32-window.frameMargins().left(), 32-window.frameMargins().top()));
 
         QCOMPARE(e.touchPoints[1].state(), Qt::TouchPointState::TouchPointPressed);
-        QCOMPARE(e.touchPoints[1].pos(), QPointF(48-window.frameMargins().left(), 48-window.frameMargins().top()));
+        QCOMPARE(e.touchPoints[1].position(), QPointF(48-window.frameMargins().left(), 48-window.frameMargins().top()));
     }
     {
         auto e = window.m_events.takeFirst();
@@ -511,10 +511,10 @@ void tst_seatv5::multiTouch()
         QCOMPARE(e.touchPoints.length(), 2);
 
         QCOMPARE(e.touchPoints[0].state(), Qt::TouchPointState::TouchPointMoved);
-        QCOMPARE(e.touchPoints[0].pos(), QPointF(33-window.frameMargins().left(), 32-window.frameMargins().top()));
+        QCOMPARE(e.touchPoints[0].position(), QPointF(33-window.frameMargins().left(), 32-window.frameMargins().top()));
 
         QCOMPARE(e.touchPoints[1].state(), Qt::TouchPointState::TouchPointMoved);
-        QCOMPARE(e.touchPoints[1].pos(), QPointF(49-window.frameMargins().left(), 48-window.frameMargins().top()));
+        QCOMPARE(e.touchPoints[1].position(), QPointF(49-window.frameMargins().left(), 48-window.frameMargins().top()));
     }
     {
         auto e = window.m_events.takeFirst();
@@ -523,10 +523,10 @@ void tst_seatv5::multiTouch()
         QCOMPARE(e.touchPoints.length(), 2);
 
         QCOMPARE(e.touchPoints[0].state(), Qt::TouchPointState::TouchPointReleased);
-        QCOMPARE(e.touchPoints[0].pos(), QPointF(33-window.frameMargins().left(), 32-window.frameMargins().top()));
+        QCOMPARE(e.touchPoints[0].position(), QPointF(33-window.frameMargins().left(), 32-window.frameMargins().top()));
 
         QCOMPARE(e.touchPoints[1].state(), Qt::TouchPointState::TouchPointStationary);
-        QCOMPARE(e.touchPoints[1].pos(), QPointF(49-window.frameMargins().left(), 48-window.frameMargins().top()));
+        QCOMPARE(e.touchPoints[1].position(), QPointF(49-window.frameMargins().left(), 48-window.frameMargins().top()));
     }
     {
         auto e = window.m_events.takeFirst();
@@ -534,7 +534,7 @@ void tst_seatv5::multiTouch()
         QCOMPARE(e.touchPointStates, Qt::TouchPointState::TouchPointReleased);
         QCOMPARE(e.touchPoints.length(), 1);
         QCOMPARE(e.touchPoints[0].state(), Qt::TouchPointState::TouchPointReleased);
-        QCOMPARE(e.touchPoints[0].pos(), QPointF(49-window.frameMargins().left(), 48-window.frameMargins().top()));
+        QCOMPARE(e.touchPoints[0].position(), QPointF(49-window.frameMargins().left(), 48-window.frameMargins().top()));
     }
 }
 

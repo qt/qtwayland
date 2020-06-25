@@ -213,7 +213,7 @@ void tst_seatv4::mousePressFloat()
 {
     class Window : public QRasterWindow {
     public:
-        void mousePressEvent(QMouseEvent *e) override { m_position = e->localPos(); }
+        void mousePressEvent(QMouseEvent *e) override { m_position = e->position(); }
         QPointF m_position;
     };
 

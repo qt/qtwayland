@@ -95,7 +95,7 @@ private:
 
     QList<QWindowSystemInterface::TouchPoint> mTouchPoints;
     QList<QWindowSystemInterface::TouchPoint> mPrevTouchPoints;
-    QTouchDevice *mTouchDevice = nullptr;
+    QPointingDevice *mTouchDevice = nullptr;
     uint32_t mTimestamp;
     int mPointsLeft;
     uint32_t mFlags;

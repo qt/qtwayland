@@ -480,7 +480,7 @@ void QWaylandQuickItem::mousePressEvent(QMouseEvent *event)
         return;
     }
 
-    if (!inputRegionContains(event->localPos())) {
+    if (!inputRegionContains(event->position())) {
         event->ignore();
         return;
     }
@@ -490,9 +490,9 @@ void QWaylandQuickItem::mousePressEvent(QMouseEvent *event)
     if (d->focusOnClick)
         takeFocus(seat);
 
-    seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->localPos()), event->windowPos());
+    seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->position()), event->scenePosition());
     seat->sendMousePressEvent(event->button());
-    d->hoverPos = event->localPos();
+    d->hoverPos = event->position();
 }
 
 /*!
@@ -507,21 +507,21 @@ void QWaylandQuickItem::mouseMoveEvent(QMouseEvent *event)
         if (d->isDragging) {
             QWaylandQuickOutput *currentOutput = qobject_cast<QWaylandQuickOutput *>(view()->output());
             //TODO: also check if dragging onto other outputs
-            QWaylandQuickItem *targetItem = qobject_cast<QWaylandQuickItem *>(currentOutput->pickClickableItem(mapToScene(event->localPos())));
+            QWaylandQuickItem *targetItem = qobject_cast<QWaylandQuickItem *>(currentOutput->pickClickableItem(mapToScene(event->position())));
             QWaylandSurface *targetSurface = targetItem ? targetItem->surface() : nullptr;
             if (targetSurface) {
-                QPointF position = mapToItem(targetItem, event->localPos());
+                QPointF position = mapToItem(targetItem, event->position());
                 QPointF surfacePosition = targetItem->mapToSurface(position);
                 seat->drag()->dragMove(targetSurface, surfacePosition);
             }
         } else
 #endif // QT_CONFIG(draganddrop)
         {
-            seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->localPos()), event->windowPos());
-            d->hoverPos = event->localPos();
+            seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->position()), event->scenePosition());
+            d->hoverPos = event->position();
         }
     } else {
-        emit mouseMove(event->windowPos());
+        emit mouseMove(event->scenePosition());
         event->ignore();
     }
 }
@@ -555,14 +555,14 @@ void QWaylandQuickItem::mouseReleaseEvent(QMouseEvent *event)
 void QWaylandQuickItem::hoverEnterEvent(QHoverEvent *event)
 {
     Q_D(QWaylandQuickItem);
-    if (!inputRegionContains(event->posF())) {
+    if (!inputRegionContains(event->position())) {
         event->ignore();
         return;
     }
     if (d->shouldSendInputEvents()) {
         QWaylandSeat *seat = compositor()->seatFor(event);
-        seat->sendMouseMoveEvent(d->view.data(), event->posF(), mapToScene(event->posF()));
-        d->hoverPos = event->posF();
+        seat->sendMouseMoveEvent(d->view.data(), event->position(), mapToScene(event->position()));
+        d->hoverPos = event->position();
     } else {
         event->ignore();
     }
@@ -575,16 +575,16 @@ void QWaylandQuickItem::hoverMoveEvent(QHoverEvent *event)
 {
     Q_D(QWaylandQuickItem);
     if (surface()) {
-        if (!inputRegionContains(event->posF())) {
+        if (!inputRegionContains(event->position())) {
             event->ignore();
             return;
         }
     }
     if (d->shouldSendInputEvents()) {
         QWaylandSeat *seat = compositor()->seatFor(event);
-        if (event->posF() != d->hoverPos) {
-            seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->posF()), mapToScene(event->posF()));
-            d->hoverPos = event->posF();
+        if (event->position() != d->hoverPos) {
+            seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->position()), mapToScene(event->position()));
+            d->hoverPos = event->position();
         }
     } else {
         event->ignore();
@@ -673,7 +673,7 @@ void QWaylandQuickItem::touchEvent(QTouchEvent *event)
         QPointF pointPos;
         const QList<QTouchEvent::TouchPoint> &points = event->touchPoints();
         if (!points.isEmpty())
-            pointPos = points.at(0).pos();
+            pointPos = points.at(0).position();
 
         if (event->type() == QEvent::TouchBegin && !inputRegionContains(pointPos)) {
             event->ignore();

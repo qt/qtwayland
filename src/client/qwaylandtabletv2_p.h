@@ -58,7 +58,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 #include <QtCore/QPointF>
-#include <QtGui/QTabletEvent>
+#include <QtGui/QPointingDevice>
+#include <QtGui/QInputDevice>
 
 QT_BEGIN_NAMESPACE
 
@@ -142,8 +143,8 @@ protected:
 private:
 
     // Static state (sent before done event)
-    QTabletEvent::PointerType m_pointerType = QTabletEvent::PointerType::UnknownPointer;
-    QTabletEvent::TabletDevice m_tabletDevice = QTabletEvent::TabletDevice::NoDevice;
+    QPointingDevice::PointerType m_pointerType = QPointingDevice::PointerType::Unknown;
+    QInputDevice::DeviceType m_tabletDevice = QInputDevice::DeviceType::Unknown;
     type m_toolType = type_pen;
     bool m_hasRotation = false;
     quint64 m_uid = 0;

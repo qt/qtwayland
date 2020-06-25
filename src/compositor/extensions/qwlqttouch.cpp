@@ -29,8 +29,8 @@
 
 #include "qwlqttouch_p.h"
 #include "qwaylandview.h"
+#include <QPointingDevice>
 #include <QTouchEvent>
-#include <QTouchDevice>
 #include <QWindow>
 
 QT_BEGIN_NAMESPACE
@@ -89,7 +89,7 @@ bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, QWaylandSurface *s
 
             uint32_t id = tp.id();
             uint32_t state = (tp.state() & 0xFFFF) | (sentPointCount << 16);
-            uint32_t flags = (tp.flags() & 0xFFFF) | (int(event->device()->capabilities()) << 16);
+            uint32_t flags = (tp.flags() & 0xFFFF) | (int(event->pointingDevice()->capabilities()) << 16);
 
             int x = toFixed(tp.pos().x());
             int y = toFixed(tp.pos().y());

@@ -73,7 +73,7 @@
 #endif
 
 #include <QtGui/QGuiApplication>
-#include <QtGui/QTouchDevice>
+#include <QtGui/QPointingDevice>
 
 QT_BEGIN_NAMESPACE
 
@@ -456,10 +456,11 @@ void QWaylandInputDevice::seat_capabilities(uint32_t caps)
         mTouch->init(get_touch());
 
         if (!mTouchDevice) {
-            mTouchDevice = new QTouchDevice;
-            mTouchDevice->setType(QTouchDevice::TouchScreen);
-            mTouchDevice->setCapabilities(QTouchDevice::Position);
-            QWindowSystemInterface::registerTouchDevice(mTouchDevice);
+            // TODO number of touchpoints, actual name and ID
+            mTouchDevice = new QPointingDevice(QLatin1String("some touchscreen"), 0,
+                                                   QInputDevice::DeviceType::TouchScreen, QPointingDevice::PointerType::Finger,
+                                                   QInputDevice::Capability::Position, 10, 0);
+            QWindowSystemInterface::registerInputDevice(mTouchDevice);
         }
     } else if (!(caps & WL_SEAT_CAPABILITY_TOUCH) && mTouch) {
         delete mTouch;

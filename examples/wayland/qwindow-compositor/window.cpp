@@ -198,7 +198,7 @@ void Window::mousePressEvent(QMouseEvent *e)
     if (mouseGrab())
         return;
     if (m_mouseView.isNull()) {
-        m_mouseView = viewAt(e->localPos());
+        m_mouseView = viewAt(e->position());
         if (!m_mouseView) {
             m_compositor->closePopups();
             return;
@@ -207,10 +207,10 @@ void Window::mousePressEvent(QMouseEvent *e)
             m_grabState = MoveGrab; //start move
         else
             m_compositor->raise(m_mouseView);
-        m_initialMousePos = e->localPos();
-        m_mouseOffset = e->localPos() - m_mouseView->position();
+        m_initialMousePos = e->position();
+        m_mouseOffset = e->position() - m_mouseView->position();
 
-        QMouseEvent moveEvent(QEvent::MouseMove, e->localPos(), e->globalPos(), Qt::NoButton, Qt::NoButton, e->modifiers());
+        QMouseEvent moveEvent(QEvent::MouseMove, e->position(), e->globalPosition(), Qt::NoButton, Qt::NoButton, e->modifiers());
         sendMouseEvent(&moveEvent, m_mouseView);
     }
     sendMouseEvent(e, m_mouseView);
@@ -222,7 +222,7 @@ void Window::mouseReleaseEvent(QMouseEvent *e)
         sendMouseEvent(e, m_mouseView);
     if (e->buttons() == Qt::NoButton) {
         if (m_grabState == DragGrab) {
-            View *view = viewAt(e->localPos());
+            View *view = viewAt(e->position());
             m_compositor->handleDrag(view, e);
         }
         m_mouseView = nullptr;
@@ -234,27 +234,27 @@ void Window::mouseMoveEvent(QMouseEvent *e)
 {
     switch (m_grabState) {
     case NoGrab: {
-        View *view = m_mouseView ? m_mouseView.data() : viewAt(e->localPos());
+        View *view = m_mouseView ? m_mouseView.data() : viewAt(e->position());
         sendMouseEvent(e, view);
         if (!view)
             setCursor(Qt::ArrowCursor);
     }
         break;
     case MoveGrab: {
-        m_mouseView->setPosition(e->localPos() - m_mouseOffset);
+        m_mouseView->setPosition(e->position() - m_mouseOffset);
         update();
     }
         break;
     case ResizeGrab: {
-        QPoint delta = (e->localPos() - m_initialMousePos).toPoint();
+        QPoint delta = (e->position() - m_initialMousePos).toPoint();
         m_compositor->handleResize(m_mouseView, m_initialSize, delta, m_resizeEdge);
     }
         break;
     case DragGrab: {
-        View *view = viewAt(e->localPos());
+        View *view = viewAt(e->position());
         m_compositor->handleDrag(view, e);
         if (m_dragIconView) {
-            m_dragIconView->setPosition(e->localPos() + m_dragIconView->offset());
+            m_dragIconView->setPosition(e->position() + m_dragIconView->offset());
             update();
         }
     }
@@ -264,10 +264,10 @@ void Window::mouseMoveEvent(QMouseEvent *e)
 
 void Window::sendMouseEvent(QMouseEvent *e, View *target)
 {
-    QPointF mappedPos = e->localPos();
+    QPointF mappedPos = e->position();
     if (target)
         mappedPos -= target->position();
-    QMouseEvent viewEvent(e->type(), mappedPos, e->localPos(), e->button(), e->buttons(), e->modifiers());
+    QMouseEvent viewEvent(e->type(), mappedPos, e->position(), e->button(), e->buttons(), e->modifiers());
     m_compositor->handleMouseEvent(target, &viewEvent);
 }
 

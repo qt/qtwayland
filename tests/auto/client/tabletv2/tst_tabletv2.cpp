@@ -289,7 +289,7 @@ void TabletV2::sendRemoved()
 
 void TabletV2::zwp_tablet_v2_destroy(QtWaylandServer::zwp_tablet_v2::Resource *resource)
 {
-    Q_UNUSED(resource)
+    Q_UNUSED(resource);
     if (m_tabletSeat) {
         bool removed = m_tabletSeat->m_tabletsWaitingForDestroy.removeOne(this);
         QVERIFY(removed);

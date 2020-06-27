@@ -86,7 +86,7 @@ public:
 
     virtual void raise() {}
     virtual void lower() {}
-    virtual void setContentOrientationMask(Qt::ScreenOrientations orientation) { Q_UNUSED(orientation) }
+    virtual void setContentOrientationMask(Qt::ScreenOrientations orientation) { Q_UNUSED(orientation); }
 
     virtual void sendProperty(const QString &name, const QVariant &value);
 

@@ -33,9 +33,9 @@ namespace Impl {
 
 void FullScreenShellV1::zwp_fullscreen_shell_v1_present_surface(Resource *resource, struct ::wl_resource *surface, uint32_t method, struct ::wl_resource *output)
 {
-    Q_UNUSED(resource)
-    Q_UNUSED(method)
-    Q_UNUSED(output)
+    Q_UNUSED(resource);
+    Q_UNUSED(method);
+    Q_UNUSED(output);
 
     m_surfaces.append(Surface::fromResource(surface));
 }

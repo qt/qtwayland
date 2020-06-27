@@ -393,7 +393,7 @@ uint32_t QWaylandPointer::toWaylandButton(Qt::MouseButton button)
 void QWaylandPointer::enteredSurfaceDestroyed(void *data)
 {
     Q_D(QWaylandPointer);
-    Q_UNUSED(data)
+    Q_UNUSED(data);
     d->enteredSurfaceDestroyListener.reset();
     d->enteredSurface = nullptr;
 

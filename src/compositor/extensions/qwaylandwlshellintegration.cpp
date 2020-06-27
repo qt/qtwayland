@@ -98,8 +98,8 @@ void WlShellIntegration::handleSetDefaultTopLevel()
 
 void WlShellIntegration::handleSetTransient(QWaylandSurface *parentSurface, const QPoint &relativeToParent, bool inactive)
 {
-    Q_UNUSED(parentSurface)
-    Q_UNUSED(relativeToParent)
+    Q_UNUSED(parentSurface);
+    Q_UNUSED(relativeToParent);
 
     // Take focus if the policy allows and it's not inactive
     if (m_shellSurface->shell()->focusPolicy() == QWaylandShell::AutomaticFocus && !inactive)

@@ -439,7 +439,7 @@ uint32_t QWaylandDisplay::currentTimeMillisec()
 static void
 sync_callback(void *data, struct wl_callback *callback, uint32_t serial)
 {
-    Q_UNUSED(serial)
+    Q_UNUSED(serial);
     bool *done = static_cast<bool *>(data);
 
     *done = true;

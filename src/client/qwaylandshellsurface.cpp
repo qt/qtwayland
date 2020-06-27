@@ -57,8 +57,8 @@ void QWaylandShellSurface::setWindowFlags(Qt::WindowFlags flags)
 
 void QWaylandShellSurface::sendProperty(const QString &name, const QVariant &value)
 {
-    Q_UNUSED(name)
-    Q_UNUSED(value)
+    Q_UNUSED(name);
+    Q_UNUSED(value);
 }
 
 }

@@ -1,7 +1,7 @@
 CXX_MODULE = qml
 TARGET  = qwaylandcompositorplugin
 TARGETPATH = QtWayland/Compositor
-IMPORT_VERSION = 1.$$QT_MINOR_VERSION
+QML_IMPORT_VERSION = $$QT_VERSION
 
 HEADERS += \
     qwaylandmousetracker_p.h

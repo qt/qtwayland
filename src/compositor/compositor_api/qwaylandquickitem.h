@@ -91,7 +91,7 @@ public:
 
     bool inputRegionContains(const QPointF &localPosition) const;
     Q_INVOKABLE QPointF mapToSurface(const QPointF &point) const;
-    Q_REVISION(13) Q_INVOKABLE QPointF mapFromSurface(const QPointF &point) const;
+    Q_REVISION(1, 13) Q_INVOKABLE QPointF mapFromSurface(const QPointF &point) const;
 
 #if QT_CONFIG(im)
     QVariant inputMethodQuery(Qt::InputMethodQuery query) const override;

@@ -6,7 +6,7 @@
 
 qt_add_qml_module(qwaylandcompositorplugin
     URI "QtWayland.Compositor"
-    VERSION "1.${CMAKE_PROJECT_VERSION_MINOR}"
+    VERSION "${CMAKE_PROJECT_VERSION}"
     CLASSNAME QWaylandCompositorPlugin
     SKIP_TYPE_REGISTRATION
     SOURCES
@@ -26,8 +26,8 @@ qt_add_qml_module(qwaylandcompositorplugin
 #### Keys ignored in scope 1:.:.:compositor.pro:<TRUE>:
 # COMPOSITOR_QML_FILES = "WaylandOutputWindow.qml" "WaylandCursorItem.qml"
 # CXX_MODULE = "qml"
-# IMPORT_VERSION = "1.$$QT_MINOR_VERSION"
 # QMAKE_QMLPLUGINDUMP_FLAGS = "-defaultplatform"
+# QML_IMPORT_VERSION = "$$QT_VERSION"
 # RESOURCE_CONTENT = "<RCC>" "<qresource prefix="/QtWayland/Compositor">" "</qresource>" "</RCC>"
 # TARGETPATH = "QtWayland/Compositor"
 

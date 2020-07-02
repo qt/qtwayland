@@ -71,15 +71,15 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSurface : public QWaylandObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandSurface)
     Q_PROPERTY(QWaylandClient *client READ client CONSTANT)
-    Q_PROPERTY(QRectF sourceGeometry READ sourceGeometry NOTIFY sourceGeometryChanged REVISION 13)
-    Q_PROPERTY(QSize destinationSize READ destinationSize NOTIFY destinationSizeChanged REVISION 13)
-    Q_PROPERTY(QSize bufferSize READ bufferSize NOTIFY bufferSizeChanged REVISION 13)
+    Q_PROPERTY(QRectF sourceGeometry READ sourceGeometry NOTIFY sourceGeometryChanged REVISION(1, 13))
+    Q_PROPERTY(QSize destinationSize READ destinationSize NOTIFY destinationSizeChanged REVISION(1, 13))
+    Q_PROPERTY(QSize bufferSize READ bufferSize NOTIFY bufferSizeChanged REVISION(1, 13))
     Q_PROPERTY(int bufferScale READ bufferScale NOTIFY bufferScaleChanged)
     Q_PROPERTY(Qt::ScreenOrientation contentOrientation READ contentOrientation NOTIFY contentOrientationChanged)
     Q_PROPERTY(QWaylandSurface::Origin origin READ origin NOTIFY originChanged)
     Q_PROPERTY(bool hasContent READ hasContent NOTIFY hasContentChanged)
     Q_PROPERTY(bool cursorSurface READ isCursorSurface WRITE markAsCursorSurface NOTIFY cursorSurfaceChanged)
-    Q_PROPERTY(bool inhibitsIdle READ inhibitsIdle NOTIFY inhibitsIdleChanged REVISION 14)
+    Q_PROPERTY(bool inhibitsIdle READ inhibitsIdle NOTIFY inhibitsIdleChanged REVISION(1, 14))
 
 public:
     enum Origin {
@@ -153,9 +153,9 @@ Q_SIGNALS:
     void damaged(const QRegion &rect);
     void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent);
     void childAdded(QWaylandSurface *child);
-    Q_REVISION(13) void sourceGeometryChanged();
-    Q_REVISION(13) void destinationSizeChanged();
-    Q_REVISION(13) void bufferSizeChanged();
+    Q_REVISION(1, 13) void sourceGeometryChanged();
+    Q_REVISION(1, 13) void destinationSizeChanged();
+    Q_REVISION(1, 13) void bufferSizeChanged();
     void bufferScaleChanged();
     void offsetForNextFrame(const QPoint &offset);
     void contentOrientationChanged();

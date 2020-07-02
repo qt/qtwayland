@@ -266,7 +266,7 @@ public:
     QPoint unconstrainedPosition() const;
 
     Q_INVOKABLE uint sendConfigure(const QRect &geometry);
-    Q_REVISION(14) Q_INVOKABLE void sendPopupDone();
+    Q_REVISION(1, 14) Q_INVOKABLE void sendPopupDone();
 
     static QWaylandSurfaceRole *role();
 

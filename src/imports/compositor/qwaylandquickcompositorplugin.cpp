@@ -93,7 +93,6 @@ private:
     const QString m_qrcPath;
 };
 
-
 //![class decl]
 class QWaylandCompositorPlugin : public QQmlExtensionPlugin
 {
@@ -119,8 +118,8 @@ public:
     static void defineModule(const char *uri)
     {
         // The minor version used to be the current Qt 5 minor. For compatibility it is the last
-        // Qt 5 release.
-        qmlRegisterModule(uri, 1, 15);
+        // Qt release.
+        qmlRegisterModule(uri, QT_VERSION_MAJOR, QT_VERSION_MINOR);
 
         qmlRegisterType<QWaylandQuickCompositorQuickExtensionContainer>(uri, 1, 0, "WaylandCompositor");
         qmlRegisterType<QWaylandQuickItem>(uri, 1, 0, "WaylandQuickItem");

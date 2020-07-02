@@ -341,7 +341,7 @@ Module {
         }
         Method {
             name: "mapFromSurface"
-            revision: 65293
+            revision: 269
             type: "QPointF"
             Parameter { name: "point"; type: "QPointF" }
         }
@@ -503,15 +503,15 @@ Module {
             }
         }
         Property { name: "client"; type: "QWaylandClient"; isReadonly: true; isPointer: true }
-        Property { name: "sourceGeometry"; revision: 65293; type: "QRectF"; isReadonly: true }
-        Property { name: "destinationSize"; revision: 65293; type: "QSize"; isReadonly: true }
-        Property { name: "bufferSize"; revision: 65293; type: "QSize"; isReadonly: true }
+        Property { name: "sourceGeometry"; revision: 269; type: "QRectF"; isReadonly: true }
+        Property { name: "destinationSize"; revision: 269; type: "QSize"; isReadonly: true }
+        Property { name: "bufferSize"; revision: 269; type: "QSize"; isReadonly: true }
         Property { name: "bufferScale"; type: "int"; isReadonly: true }
         Property { name: "contentOrientation"; type: "Qt::ScreenOrientation"; isReadonly: true }
         Property { name: "origin"; type: "QWaylandSurface::Origin"; isReadonly: true }
         Property { name: "hasContent"; type: "bool"; isReadonly: true }
         Property { name: "cursorSurface"; type: "bool" }
-        Property { name: "inhibitsIdle"; revision: 65294; type: "bool"; isReadonly: true }
+        Property { name: "inhibitsIdle"; revision: 270; type: "bool"; isReadonly: true }
         Signal {
             name: "damaged"
             Parameter { name: "rect"; type: "QRegion" }
@@ -525,9 +525,9 @@ Module {
             name: "childAdded"
             Parameter { name: "child"; type: "QWaylandSurface"; isPointer: true }
         }
-        Signal { name: "sourceGeometryChanged"; revision: 65293 }
-        Signal { name: "destinationSizeChanged"; revision: 65293 }
-        Signal { name: "bufferSizeChanged"; revision: 65293 }
+        Signal { name: "sourceGeometryChanged"; revision: 269 }
+        Signal { name: "destinationSizeChanged"; revision: 269 }
+        Signal { name: "bufferSizeChanged"; revision: 269 }
         Signal {
             name: "offsetForNextFrame"
             Parameter { name: "offset"; type: "QPoint" }
@@ -755,7 +755,7 @@ Module {
             type: "uint"
             Parameter { name: "geometry"; type: "QRect" }
         }
-        Method { name: "sendPopupDone"; revision: 65294 }
+        Method { name: "sendPopupDone"; revision: 270 }
     }
     Component {
         name: "QWaylandXdgShell"
@@ -922,7 +922,7 @@ Module {
         Property { name: "hotspotY"; type: "int" }
     }
     Component {
-        prototype: "QQuickWindow"
+        prototype: "QQuickWindowQmlImpl"
         name: "QtWayland.Compositor/WaylandOutputWindow 1.0"
         exports: ["QtWayland.Compositor/WaylandOutputWindow 1.0"]
         exportMetaObjectRevisions: [0]

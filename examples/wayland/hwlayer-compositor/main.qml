@@ -156,6 +156,5 @@ WaylandCompositor {
         shellSurfaces.append({shSurface: shellSurface, animatePosition: false, animateOpacity: false, level: 0});
     }
     XdgShell { onToplevelCreated: addShellSurface(xdgSurface) }
-    XdgShellV6 { onToplevelCreated: addShellSurface(xdgSurface) }
     WlShell { onWlShellSurfaceCreated: addShellSurface(shellSurface) }
 }

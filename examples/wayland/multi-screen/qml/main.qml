@@ -100,10 +100,6 @@ WaylandCompositor {
         onWlShellSurfaceCreated: handleShellSurfaceCreated(shellSurface)
     }
 
-    XdgShellV6 {
-        onToplevelCreated: handleShellSurfaceCreated(xdgSurface)
-    }
-
     XdgShell {
         onToplevelCreated: handleShellSurfaceCreated(xdgSurface)
     }

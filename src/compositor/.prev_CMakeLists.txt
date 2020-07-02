@@ -26,9 +26,6 @@ qt_add_module(WaylandCompositor
         compositor_api/qwaylandsurfacegrabber.cpp compositor_api/qwaylandsurfacegrabber.h
         compositor_api/qwaylandtouch.cpp compositor_api/qwaylandtouch.h compositor_api/qwaylandtouch_p.h
         compositor_api/qwaylandview.cpp compositor_api/qwaylandview.h compositor_api/qwaylandview_p.h
-        extensions/pregenerated/3rdparty/qwayland-server-xdg-shell-unstable-v5.cpp extensions/pregenerated/3rdparty/qwayland-server-xdg-shell-unstable-v5_p.h
-        extensions/pregenerated/3rdparty/wayland-xdg-shell-unstable-v5-protocol.c
-        extensions/pregenerated/3rdparty/wayland-xdg-shell-unstable-v5-server-protocol_p.h
         extensions/qwaylandidleinhibitv1.cpp extensions/qwaylandidleinhibitv1.h extensions/qwaylandidleinhibitv1_p.h
         extensions/qwaylandiviapplication.cpp extensions/qwaylandiviapplication.h extensions/qwaylandiviapplication_p.h
         extensions/qwaylandivisurface.cpp extensions/qwaylandivisurface.h extensions/qwaylandivisurface_p.h
@@ -38,13 +35,10 @@ qt_add_module(WaylandCompositor
         extensions/qwaylandtextinput.cpp extensions/qwaylandtextinput.h extensions/qwaylandtextinput_p.h
         extensions/qwaylandtextinputmanager.cpp extensions/qwaylandtextinputmanager.h extensions/qwaylandtextinputmanager_p.h
         extensions/qwaylandviewporter.cpp extensions/qwaylandviewporter.h extensions/qwaylandviewporter_p.h
-        extensions/qwaylandwlscaler.cpp extensions/qwaylandwlscaler.h extensions/qwaylandwlscaler_p.h
         extensions/qwaylandwlshell.cpp extensions/qwaylandwlshell.h extensions/qwaylandwlshell_p.h
         extensions/qwaylandxdgdecorationv1.cpp extensions/qwaylandxdgdecorationv1.h extensions/qwaylandxdgdecorationv1_p.h
         extensions/qwaylandxdgoutputv1.cpp extensions/qwaylandxdgoutputv1.h extensions/qwaylandxdgoutputv1_p.h
         extensions/qwaylandxdgshell.cpp extensions/qwaylandxdgshell.h extensions/qwaylandxdgshell_p.h
-        extensions/qwaylandxdgshellv5.cpp extensions/qwaylandxdgshellv5.h extensions/qwaylandxdgshellv5_p.h
-        extensions/qwaylandxdgshellv6.cpp extensions/qwaylandxdgshellv6.h extensions/qwaylandxdgshellv6_p.h
         extensions/qwlqtkey.cpp extensions/qwlqtkey_p.h
         extensions/qwlqttouch.cpp extensions/qwlqttouch_p.h
         global/qtwaylandcompositorglobal.h
@@ -101,7 +95,6 @@ qt6_generate_wayland_protocol_server_sources(WaylandCompositor
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-decoration-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-output-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-shell.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-shell-unstable-v6.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-key-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-windowmanager.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/touch-extension.xml
@@ -156,8 +149,6 @@ qt_extend_target(WaylandCompositor CONDITION TARGET Qt::Quick
         extensions/qwaylandquickxdgoutputv1.cpp extensions/qwaylandquickxdgoutputv1.h
         extensions/qwaylandwlshellintegration.cpp extensions/qwaylandwlshellintegration_p.h
         extensions/qwaylandxdgshellintegration.cpp extensions/qwaylandxdgshellintegration_p.h
-        extensions/qwaylandxdgshellv5integration.cpp extensions/qwaylandxdgshellv5integration_p.h
-        extensions/qwaylandxdgshellv6integration.cpp extensions/qwaylandxdgshellv6integration_p.h
     LIBRARIES
         Qt::QuickPrivate
     PUBLIC_LIBRARIES

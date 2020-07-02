@@ -82,10 +82,6 @@ WaylandCompositor {
         onWlShellSurfaceCreated:
             shellSurfaces.append({shellSurface: shellSurface});
     }
-    XdgShellV6 {
-        onToplevelCreated:
-            shellSurfaces.append({shellSurface: xdgSurface});
-    }
     XdgShell {
         onToplevelCreated:
             shellSurfaces.append({shellSurface: xdgSurface});

@@ -94,28 +94,4 @@ void QWaylandQuickSurface::setUseTextureAlpha(bool useTextureAlpha)
     }
 }
 
-/*!
- * \qmlproperty bool QtWaylandCompositor::WaylandSurface::clientRenderingEnabled
- * \deprecated
- *
- * This property used to specify whether client rendering was enabled for the surface.
- * It depended on a Wayland extension that was part of the private API. The surface extension
- * is not used anymore, so this property does nothing.
- */
-bool QWaylandQuickSurface::clientRenderingEnabled() const
-{
-    Q_D(const QWaylandQuickSurface);
-    return d->clientRenderingEnabled;
-}
-
-void QWaylandQuickSurface::setClientRenderingEnabled(bool enabled)
-{
-    Q_D(QWaylandQuickSurface);
-    qWarning() << Q_FUNC_INFO << "doesn't do anything";
-    if (d->clientRenderingEnabled != enabled) {
-        d->clientRenderingEnabled = enabled;
-        emit clientRenderingEnabledChanged();
-    }
-}
-
 QT_END_NAMESPACE

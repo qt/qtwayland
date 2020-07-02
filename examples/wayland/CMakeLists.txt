@@ -2,7 +2,6 @@
 
 if(QT_FEATURE_wayland_server) # special case
 if(QT_FEATURE_opengl)
-    add_subdirectory(qwindow-compositor)
     add_subdirectory(minimal-cpp)
 endif()
 if(TARGET Qt::Quick)

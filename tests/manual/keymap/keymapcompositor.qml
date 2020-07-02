@@ -91,7 +91,4 @@ WaylandCompositor {
     WlShell {
         onWlShellSurfaceCreated: chromeComponent.createObject(surfaceArea, { "shellSurface": shellSurface } );
     }
-    XdgShellV5 {
-        onXdgSurfaceCreated: chromeComponent.createObject(surfaceArea, { "shellSurface": xdgSurface } );
-    }
 }

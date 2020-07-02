@@ -5,7 +5,6 @@ TEMPLATE=subdirs
 
 qtConfig(opengl) {
     SUBDIRS += \
-        qwindow-compositor \
         minimal-cpp
 }
 

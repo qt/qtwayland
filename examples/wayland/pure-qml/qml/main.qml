@@ -62,11 +62,6 @@ WaylandCompositor {
         onToplevelCreated: screen.handleShellSurface(xdgSurface)
     }
 
-    // Unstable version of xdg-shell still used by some clients
-    XdgShellV6 {
-        onToplevelCreated: screen.handleShellSurface(xdgSurface)
-    }
-
     // Deprecated shell extension, still used by some clients
     WlShell {
         onWlShellSurfaceCreated: screen.handleShellSurface(shellSurface)

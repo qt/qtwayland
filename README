@@ -22,9 +22,9 @@ no client buffer integration is specified, then the wayland-egl plugin will be
 loaded. Please note that no Weston clients will work if the non standard
 wayland-egl client buffer integration is used.
 
-To start the qwindow-compositor with the xcomposite-glx integration then start
+To start a compositor with the xcomposite-glx integration then start
 the compositor as follows:
-QT_WAYLAND_CLIENT_BUFFER_INTEGRATION=xcomposite-glx ./qwindow-compositor
+QT_WAYLAND_CLIENT_BUFFER_INTEGRATION=xcomposite-glx ./my-compositor
 
 Now it should be possible to start an application in a separate terminal. ie:
 $QTBASEDIR/examples/opengl/hellowindow/hellowindow -platform wayland --single

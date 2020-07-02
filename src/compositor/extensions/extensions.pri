@@ -11,7 +11,6 @@ WAYLANDSERVERSOURCES += \
     ../3rdparty/protocol/text-input-unstable-v2.xml \
     ../3rdparty/protocol/viewporter.xml \
     ../3rdparty/protocol/scaler.xml \
-    ../3rdparty/protocol/xdg-shell-unstable-v6.xml \
     ../3rdparty/protocol/xdg-shell.xml \
     ../3rdparty/protocol/xdg-decoration-unstable-v1.xml \
     ../3rdparty/protocol/xdg-output-unstable-v1.xml \
@@ -33,12 +32,6 @@ HEADERS += \
     extensions/qwaylandqtwindowmanager_p.h \
     extensions/qwaylandviewporter.h \
     extensions/qwaylandviewporter_p.h \
-    extensions/qwaylandwlscaler.h \
-    extensions/qwaylandwlscaler_p.h \
-    extensions/qwaylandxdgshellv5.h \
-    extensions/qwaylandxdgshellv5_p.h \
-    extensions/qwaylandxdgshellv6.h \
-    extensions/qwaylandxdgshellv6_p.h \
     extensions/qwaylandxdgshell.h \
     extensions/qwaylandxdgshell_p.h \
     extensions/qwaylandxdgdecorationv1.h \
@@ -62,9 +55,6 @@ SOURCES += \
     extensions/qwaylandtextinputmanager.cpp \
     extensions/qwaylandqtwindowmanager.cpp \
     extensions/qwaylandviewporter.cpp \
-    extensions/qwaylandwlscaler.cpp \
-    extensions/qwaylandxdgshellv5.cpp \
-    extensions/qwaylandxdgshellv6.cpp \
     extensions/qwaylandxdgshell.cpp \
     extensions/qwaylandxdgdecorationv1.cpp \
     extensions/qwaylandxdgoutputv1.cpp \
@@ -83,8 +73,6 @@ qtHaveModule(quick) {
         extensions/qwaylandivisurfaceintegration_p.h \
         extensions/qwaylandwlshellintegration_p.h \
         extensions/qwaylandquickxdgoutputv1.h \
-        extensions/qwaylandxdgshellv5integration_p.h \
-        extensions/qwaylandxdgshellv6integration_p.h \
         extensions/qwaylandxdgshellintegration_p.h \
 
     SOURCES += \
@@ -93,8 +81,6 @@ qtHaveModule(quick) {
         extensions/qwaylandivisurfaceintegration.cpp \
         extensions/qwaylandwlshellintegration.cpp \
         extensions/qwaylandquickxdgoutputv1.cpp \
-        extensions/qwaylandxdgshellv5integration.cpp \
-        extensions/qwaylandxdgshellv6integration.cpp \
         extensions/qwaylandxdgshellintegration.cpp \
 
     qtConfig(opengl) {
@@ -108,7 +94,5 @@ qtHaveModule(quick) {
             extensions/qwltexturesharingextension.cpp
     }
 }
-
-include ($$PWD/pregenerated/xdg-shell-v5.pri)
 
 INCLUDEPATH += extensions

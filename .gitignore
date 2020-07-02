@@ -55,7 +55,6 @@ src/compositor/QtWaylandCompositor.version
 src/compositor/QtWaylandCompositor.version.in
 src/plugins/platforms/wayland_common/libwayland_common.a
 src/plugins/platforms/wayland_common/libwayland_common.prl
-src/imports/compositor/compositor.qrc
 tests/auto/client/*/tst_*
 !tests/auto/client/*/tst_*.cpp
 tests/auto/compositor/compositor/tst_compositor

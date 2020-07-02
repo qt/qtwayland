@@ -1,0 +1,6 @@
+<RCC>
+<qresource prefix="/QtWaylandCompositor">
+  <file>WaylandOutputWindow.qml</file>
+  <file>WaylandCursorItem.qml</file>
+</qresource>
+</RCC>

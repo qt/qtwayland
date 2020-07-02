@@ -1,7 +1,7 @@
 # Generated from src.pro.
 # special case begin
 qt_find_package(WaylandScanner PROVIDED_TARGETS Wayland::Scanner)
-qt_find_package(Wayland PROVIDED_TARGETS Wayland::Client Wayland::Server)
+qt_find_package(Wayland 1.15 PROVIDED_TARGETS Wayland::Client Wayland::Server)
 
 if (NOT WaylandScanner_FOUND OR NOT Wayland_FOUND)
     message(WARNING "QtWayland is missing required dependencies, nothing will be built. \

@@ -54,7 +54,7 @@ import QtWayland.Compositor 1.3
 WaylandCompositor {
     id: waylandCompositor
 
-    Screen { id: screen; compositor: waylandCompositor }
+    CompositorScreen { id: screen; compositor: waylandCompositor }
 
     // Shell surface extension. Needed to provide a window concept for Wayland clients.
     // I.e. requests and events for maximization, minimization, resizing, closing etc.

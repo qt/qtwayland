@@ -5,7 +5,7 @@ SOURCES += \
 
 OTHER_FILES = \
     qml/main.qml \
-    qml/Screen.qml \
+    qml/CompositorScreen.qml \
     qml/Chrome.qml \
     qml/Keyboard.qml \
     images/background.jpg \

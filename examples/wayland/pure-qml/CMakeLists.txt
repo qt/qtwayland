@@ -33,8 +33,8 @@ target_link_libraries(pure-qml PUBLIC
 set(pure-qml_resource_files
     "images/background.jpg"
     "qml/Chrome.qml"
+    "qml/CompositorScreen.qml"
     "qml/Keyboard.qml"
-    "qml/Screen.qml"
     "qml/main.qml"
 )
 

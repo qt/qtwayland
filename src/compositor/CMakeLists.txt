@@ -74,13 +74,12 @@ qt_add_module(WaylandCompositor
 
 # Resources:
 set(compositor_resource_files
-    "shaders/surface.vert"
-    "shaders/surface_oes_external.frag"
-    "shaders/surface_rgba.frag"
-    "shaders/surface_rgbx.frag"
-    "shaders/surface_y_u_v.frag"
-    "shaders/surface_y_uv.frag"
-    "shaders/surface_y_xuxv.frag"
+    "shaders/surface.vert.qsb"
+    "shaders/surface_rgba.frag.qsb"
+    "shaders/surface_rgbx.frag.qsb"
+    "shaders/surface_y_u_v.frag.qsb"
+    "shaders/surface_y_uv.frag.qsb"
+    "shaders/surface_y_xuxv.frag.qsb"
 )
 
 qt_add_resource(WaylandCompositor "compositor"

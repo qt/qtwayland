@@ -43,7 +43,7 @@
 #include <QMutex>
 #include <QMutexLocker>
 #include <QtCore/private/qcore_unix_p.h>
-#include <QtEglSupport/private/qeglstreamconvenience_p.h>
+#include <QtGui/private/qeglstreamconvenience_p.h>
 
 #ifndef GL_TEXTURE_EXTERNAL_OES
 #define GL_TEXTURE_EXTERNAL_OES     0x8D65

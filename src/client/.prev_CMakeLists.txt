@@ -56,6 +56,7 @@ qt_add_module(WaylandClient
     LIBRARIES
         Qt::CorePrivate
         Qt::GuiPrivate
+        Qt::PlatformHeadersPrivate
     PUBLIC_LIBRARIES
         Qt::Core
         Qt::Gui
@@ -86,18 +87,6 @@ qt6_generate_wayland_protocol_client_sources(WaylandClient
 
 ## Scopes:
 #####################################################################
-
-qt_extend_target(WaylandClient CONDITION QT_FEATURE_xkbcommon
-    LIBRARIES
-        Qt::XkbCommonSupportPrivate
-    PRIVATE_MODULE_INTERFACE
-        Qt::XkbCommonSupportPrivate
-)
-
-qt_extend_target(WaylandClient CONDITION TARGET Qt::LinuxAccessibilitySupportPrivate
-    LIBRARIES
-        Qt::LinuxAccessibilitySupportPrivate
-)
 
 qt_extend_target(WaylandClient CONDITION QT_FEATURE_clipboard
     SOURCES

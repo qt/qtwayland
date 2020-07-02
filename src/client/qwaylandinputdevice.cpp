@@ -1428,16 +1428,16 @@ void QWaylandInputDevice::handleTouchPoint(int id, Qt::TouchPointState state, co
     }
 
     // If the touch point was pressed earlier this frame, we don't want to overwrite its state.
-    if (tp.state != Qt::TouchPointPressed)
-        tp.state = state;
+    if (tp.state != QEventPoint::Pressed)
+        tp.state = QEventPoint::State(state);
 
-    tp.pressure = tp.state == Qt::TouchPointReleased ? 0 : 1;
+    tp.pressure = tp.state == QEventPoint::Released ? 0 : 1;
 }
 
 bool QWaylandInputDevice::Touch::allTouchPointsReleased()
 {
     for (const auto &tp : qAsConst(mPendingTouchPoints)) {
-        if (tp.state != Qt::TouchPointReleased)
+        if (tp.state != QEventPoint::Released)
             return false;
     }
     return true;
@@ -1449,7 +1449,7 @@ void QWaylandInputDevice::Touch::releasePoints()
         return;
 
     for (QWindowSystemInterface::TouchPoint &tp : mPendingTouchPoints)
-        tp.state = Qt::TouchPointReleased;
+        tp.state = QEventPoint::Released;
 
     touch_frame();
 }
@@ -1467,7 +1467,7 @@ void QWaylandInputDevice::Touch::touch_frame()
         QMargins margins = window->frameMargins();
         QPoint p = tp.area.center().toPoint();
         QPointF localPos(window->mapFromGlobal(QPoint(p.x() + margins.left(), p.y() + margins.top())));
-        if (mFocus->touchDragDecoration(mParent, localPos, tp.area.center(), tp.state, mParent->modifiers()))
+        if (mFocus->touchDragDecoration(mParent, localPos, tp.area.center(), Qt::TouchPointState(tp.state), mParent->modifiers()))
             return;
     }
 
@@ -1478,9 +1478,9 @@ void QWaylandInputDevice::Touch::touch_frame()
     mPendingTouchPoints.clear();
     for (const auto &prevPoint: prevTouchPoints) {
         // All non-released touch points should be part of the next touch event
-        if (prevPoint.state != Qt::TouchPointReleased) {
+        if (prevPoint.state != QEventPoint::Released) {
             QWindowSystemInterface::TouchPoint tp = prevPoint;
-            tp.state = Qt::TouchPointStationary; // ... as stationary (unless proven otherwise)
+            tp.state = QEventPoint::Stationary; // ... as stationary (unless proven otherwise)
             mPendingTouchPoints.append(tp);
         }
     }

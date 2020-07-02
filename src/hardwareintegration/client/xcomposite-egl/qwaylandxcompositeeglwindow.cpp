@@ -40,8 +40,8 @@
 #include "qwaylandxcompositeeglwindow.h"
 #include "qwaylandxcompositebuffer.h"
 
-#include <QtEglSupport/private/qeglconvenience_p.h>
-#include <QtEglSupport/private/qxlibeglintegration_p.h>
+#include <QtGui/private/qeglconvenience_p.h>
+#include <QtGui/private/qxlibeglintegration_p.h>
 
 #include "wayland-xcomposite-client-protocol.h"
 

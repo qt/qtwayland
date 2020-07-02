@@ -66,7 +66,7 @@
 #include <qpa/qplatforminputcontextfactory_p.h>
 
 #if QT_CONFIG(xkbcommon)
-#include <QtXkbCommonSupport/private/qxkbcommon_p.h>
+#include <QtGui/private/qxkbcommon_p.h>
 #endif
 
 struct wl_cursor_image;

@@ -65,7 +65,7 @@
 #include <QtWaylandClient/private/qwayland-wayland.h>
 
 #if QT_CONFIG(xkbcommon)
-#include <QtXkbCommonSupport/private/qxkbcommon_p.h>
+#include <QtGui/private/qxkbcommon_p.h>
 #endif
 
 #include <QtCore/QDebug>

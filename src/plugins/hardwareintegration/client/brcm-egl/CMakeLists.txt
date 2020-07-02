@@ -18,7 +18,6 @@ qt_internal_add_plugin(QWaylandBrcmEglClientBufferPlugin
         ${CMAKE_DL_LIBS}
         EGL::EGL
         Qt::Core
-        Qt::EglSupportPrivate
         Qt::Gui
         Qt::WaylandClientPrivate
         Wayland::Client

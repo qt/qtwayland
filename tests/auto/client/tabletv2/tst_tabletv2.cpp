@@ -465,11 +465,11 @@ protected:
         case QEvent::TabletEnterProximity:
         case QEvent::TabletLeaveProximity: {
             auto *e = static_cast<QTabletEvent *>(event);
-            auto *ev = new QTabletEvent(e->type(), e->position(), e->globalPosition(), int(e->deviceType()),
-                                        int(e->pointerType()), e->pressure(), e->xTilt(), e->yTilt(),
-                                        e->tangentialPressure(), e->rotation(), e->z(),
-                                        Qt::KeyboardModifier::NoModifier, e->uniqueId(),
-                                        e->button(), e->buttons());
+            auto *ev = new QTabletEvent(e->type(), e->pointingDevice(), e->position(), e->globalPosition(),
+                                     e->pressure(), e->xTilt(), e->yTilt(),
+                                     e->tangentialPressure(), e->rotation(), e->z(),
+                                     Qt::KeyboardModifier::NoModifier,
+                                     e->button(), e->buttons());
             m_events << ev;
             break;
         }
@@ -600,11 +600,11 @@ public:
 
     void tabletEvent(QTabletEvent *e) override
     {
-        m_events << new QTabletEvent(e->type(), e->position(), e->globalPosition(), int(e->deviceType()),
-                                     int(e->pointerType()), e->pressure(), e->xTilt(), e->yTilt(),
+        m_events << new QTabletEvent(e->type(), e->pointingDevice(), e->position(), e->globalPosition(),
+                                     e->pressure(), e->xTilt(), e->yTilt(),
                                      e->tangentialPressure(), e->rotation(), e->z(),
-                                     Qt::KeyboardModifier::NoModifier, e->uniqueId(), e->button(),
-                                     e->buttons());
+                                     Qt::KeyboardModifier::NoModifier,
+                                     e->button(), e->buttons());
         emit tabletEventReceived(m_events.last());
     }
     int nextEventIndex = 0;

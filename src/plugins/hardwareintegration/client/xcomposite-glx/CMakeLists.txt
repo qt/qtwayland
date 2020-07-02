@@ -20,7 +20,6 @@ qt_internal_add_plugin(QWaylandXCompositeGlxClientBufferPlugin
         ${CMAKE_DL_LIBS}
         PkgConfig::XComposite
         Qt::Core
-        Qt::GlxSupportPrivate
         Qt::Gui
         Qt::WaylandClientPrivate
         Wayland::Client

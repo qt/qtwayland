@@ -55,7 +55,7 @@
 
 #if QT_CONFIG(xkbcommon)
 #include <xkbcommon/xkbcommon.h>
-#include <QtXkbCommonSupport/private/qxkbcommon_p.h>
+#include <QtGui/private/qxkbcommon_p.h>
 #endif
 
 

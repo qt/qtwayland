@@ -3,7 +3,6 @@
 #####################################################################
 ## QWaylandXCompositeEglPlatformIntegrationPlugin Plugin:
 #####################################################################
-qt_find_package(EGL) # special case
 
 qt_internal_add_plugin(QWaylandXCompositeEglPlatformIntegrationPlugin
     OUTPUT_NAME qwayland-xcomposite-egl

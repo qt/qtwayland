@@ -19,7 +19,6 @@ qt_internal_add_plugin(QWaylandDmabufClientBufferIntegrationPlugin
         Wayland::Server
     PUBLIC_LIBRARIES
         Qt::CorePrivate
-        Qt::EglSupportPrivate
         Qt::GuiPrivate
         Qt::WaylandCompositor
         Qt::WaylandCompositorPrivate

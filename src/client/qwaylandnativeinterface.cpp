@@ -55,7 +55,7 @@
 #include <QtWaylandClient/private/qwaylandvulkanwindow_p.h>
 #endif
 
-#include <QtPlatformHeaders/qwaylandwindowfunctions.h>
+#include <QtPlatformHeaders/private/qwaylandwindowfunctions_p.h>
 
 QT_BEGIN_NAMESPACE
 

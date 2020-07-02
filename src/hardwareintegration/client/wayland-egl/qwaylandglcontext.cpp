@@ -47,7 +47,7 @@
 #include "qwaylandeglwindow.h"
 
 #include <QDebug>
-#include <QtEglSupport/private/qeglconvenience_p.h>
+#include <QtGui/private/qeglconvenience_p.h>
 #include <QtGui/private/qopenglcontext_p.h>
 #include <QtOpenGL/private/qopengltexturecache_p.h>
 #include <QtGui/private/qguiapplication_p.h>

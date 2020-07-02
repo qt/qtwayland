@@ -55,7 +55,7 @@ qtConfig(im) {
         compositor_api/qwaylandinputmethodcontrol.cpp
 }
 
-QT += core-private
+QT += core-private gui-private
 
 qtConfig(draganddrop) {
     HEADERS += \

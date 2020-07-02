@@ -3,8 +3,6 @@ include ($$PWD/../xcomposite_share/xcomposite_share.pri)
 
 QMAKE_USE += wayland-client libdl
 
-QT += glx_support-private
-
 SOURCES += \
     $$PWD/qwaylandxcompositeglxcontext.cpp \
     $$PWD/qwaylandxcompositeglxintegration.cpp \

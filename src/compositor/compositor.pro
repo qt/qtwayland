@@ -5,10 +5,6 @@ QT = core gui-private
 
 qtConfig(opengl): QT += opengl
 
-qtConfig(xkbcommon) {
-    QT_FOR_PRIVATE += xkbcommon_support-private
-}
-
 qtHaveModule(quick): QT += quick
 
 CONFIG -= precompile_header

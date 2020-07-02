@@ -43,7 +43,7 @@
 #include <qpa/qplatformopenglcontext.h>
 
 #include "qwaylandxcompositeglxintegration.h"
-#include <QtGlxSupport/private/qglxconvenience_p.h>
+#include <QtGui/private/qglxconvenience_p.h>
 
 QT_BEGIN_NAMESPACE
 

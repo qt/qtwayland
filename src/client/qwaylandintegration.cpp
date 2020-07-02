@@ -89,11 +89,11 @@
 #include "qwaylandinputdeviceintegrationfactory_p.h"
 
 #if QT_CONFIG(accessibility_atspi_bridge)
-#include <QtLinuxAccessibilitySupport/private/bridge_p.h>
+#include <QtGui/private/qspiaccessiblebridge_p.h>
 #endif
 
 #if QT_CONFIG(xkbcommon)
-#include <QtXkbCommonSupport/private/qxkbcommon_p.h>
+#include <QtGui/private/qxkbcommon_p.h>
 #endif
 
 #if QT_CONFIG(vulkan)

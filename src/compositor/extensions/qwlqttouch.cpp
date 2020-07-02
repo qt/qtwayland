@@ -77,19 +77,19 @@ bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, QWaylandSurface *s
         // included in the touch point events.
         int sentPointCount = 0;
         for (int i = 0; i < pointCount; ++i) {
-            if (points.at(i).state() != Qt::TouchPointStationary)
+            if (points.at(i).state() != QEventPoint::Stationary)
                 ++sentPointCount;
         }
 
         for (int i = 0; i < pointCount; ++i) {
             const QTouchEvent::TouchPoint &tp(points.at(i));
             // Stationary points are never sent. They are cached on client side.
-            if (tp.state() == Qt::TouchPointStationary)
+            if (tp.state() == QEventPoint::Stationary)
                 continue;
 
             uint32_t id = tp.id();
             uint32_t state = (tp.state() & 0xFFFF) | (sentPointCount << 16);
-            uint32_t flags = (tp.flags() & 0xFFFF) | (int(event->pointingDevice()->capabilities()) << 16);
+            uint32_t flags = (int(event->pointingDevice()->capabilities()) << 16);
 
             int x = toFixed(tp.position().x());
             int y = toFixed(tp.position().y());
@@ -102,22 +102,6 @@ bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, QWaylandSurface *s
             uint32_t pressure = uint32_t(tp.pressure() * 255);
 
             QByteArray rawData;
-            QList<QPointF> rawPosList = tp.rawScreenPositions();
-            int rawPosCount = rawPosList.count();
-            if (rawPosCount) {
-                rawPosCount = qMin(maxRawPos, rawPosCount);
-                QList<float>::iterator iter = m_posData.begin();
-                for (int rpi = 0; rpi < rawPosCount; ++rpi) {
-                    const QPointF &rawPos(rawPosList.at(rpi));
-                    // This will stay in screen coordinates for performance
-                    // reasons, clients using this data will presumably know
-                    // what they are doing.
-                    *iter++ = static_cast<float>(rawPos.x());
-                    *iter++ = static_cast<float>(rawPos.y());
-                }
-                rawData = QByteArray::fromRawData(reinterpret_cast<const char*>(m_posData.constData()), sizeof(float) * rawPosCount * 2);
-            }
-
             send_touch(target->handle,
                        time, id, state,
                        x, y, nx, ny, w, h,

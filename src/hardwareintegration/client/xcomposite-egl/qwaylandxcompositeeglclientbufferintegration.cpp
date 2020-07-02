@@ -42,7 +42,7 @@
 #include "qwaylandxcompositeeglwindow.h"
 
 #include <QtCore/QDebug>
-#include <QtEglSupport/private/qeglconvenience_p.h>
+#include <QtGui/private/qeglconvenience_p.h>
 
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 

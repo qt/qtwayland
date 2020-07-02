@@ -36,7 +36,7 @@
 #include <QtGui/QOpenGLContext>
 #include <QtGui/QOffscreenSurface>
 
-#include <QtEglSupport/private/qeglstreamconvenience_p.h>
+#include <QtGui/private/qeglstreamconvenience_p.h>
 #include <qpa/qplatformnativeinterface.h>
 
 #include <QtWaylandCompositor/private/qwaylandcompositor_p.h>

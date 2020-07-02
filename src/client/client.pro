@@ -3,6 +3,8 @@ MODULE = waylandclient
 
 QT += core-private gui-private
 
+QT_PRIVATE += platformheaders-private
+
 # We have a bunch of C code with casts, so we can't have this option
 QMAKE_CXXFLAGS_WARN_ON -= -Wcast-qual
 
@@ -12,13 +14,6 @@ use_gold_linker: CONFIG += no_linker_version_script
 
 CONFIG -= precompile_header
 CONFIG += link_pkgconfig wayland-scanner
-
-qtConfig(xkbcommon) {
-    QT_FOR_PRIVATE += xkbcommon_support-private
-}
-
-qtHaveModule(linuxaccessibility_support-private): \
-    QT_PRIVATE += linuxaccessibility_support-private
 
 QMAKE_USE += wayland-client
 

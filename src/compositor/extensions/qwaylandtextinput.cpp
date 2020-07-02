@@ -41,7 +41,7 @@
 #include <QInputMethodEvent>
 
 #if QT_CONFIG(xkbcommon)
-#include <QtXkbCommonSupport/private/qxkbcommon_p.h>
+#include <QtGui/private/qxkbcommon_p.h>
 #endif
 
 QT_BEGIN_NAMESPACE

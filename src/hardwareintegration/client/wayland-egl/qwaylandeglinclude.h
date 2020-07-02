@@ -46,6 +46,6 @@
 #include <wayland-egl.h>
 
 #define EGL_EGLEXT_PROTOTYPES
-#include <QtEglSupport/private/qt_egl_p.h>
+#include <QtGui/private/qt_egl_p.h>
 
 #endif // QWAYLANDEGLINCLUDE_H

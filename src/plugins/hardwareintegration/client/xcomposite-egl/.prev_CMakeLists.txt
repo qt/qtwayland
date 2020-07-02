@@ -3,7 +3,6 @@
 #####################################################################
 ## QWaylandXCompositeEglClientBufferPlugin Plugin:
 #####################################################################
-qt_find_package(EGL) # special case
 
 qt_internal_add_plugin(QWaylandXCompositeEglClientBufferPlugin
     OUTPUT_NAME xcomposite-egl

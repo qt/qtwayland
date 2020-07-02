@@ -27,16 +27,11 @@ find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS
     Core
     Gui
     OpenGL
+    PlatformHeaders
 )
 
 find_package(Qt6 ${PROJECT_VERSION} CONFIG OPTIONAL_COMPONENTS
-    EglSupport
-    GlxSupport
-    LinuxAccessibilitySupport
     Quick
-    ServiceSupport
-    XkbCommonSupport
-    ThemeSupport
 )
 # special case end
 

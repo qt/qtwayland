@@ -1,8 +1,8 @@
 INCLUDEPATH += $$PWD
 
-QMAKE_USE += egl wayland-client wayland-egl
+QMAKE_USE += egl wayland-client wayland-egl libdl
 
-QT += egl_support-private opengl-private
+QT += opengl-private
 
 SOURCES += $$PWD/qwaylandeglclientbufferintegration.cpp \
            $$PWD/qwaylandglcontext.cpp \

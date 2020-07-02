@@ -101,13 +101,12 @@ void QWaylandTouchExtension::touch_extension_touch(uint32_t time,
 
     QWindowSystemInterface::TouchPoint tp;
     tp.id = id;
-    tp.state = Qt::TouchPointState(int(state & 0xFFFF));
+    tp.state = QEventPoint::State(int(state & 0xFFFF));
     int sentPointCount = state >> 16;
     if (!mPointsLeft) {
         Q_ASSERT(sentPointCount > 0);
         mPointsLeft = sentPointCount;
     }
-    tp.flags = QTouchEvent::TouchPoint::InfoFlags(int(flags & 0xFFFF));
 
     if (!mTouchDevice)
         registerDevice(flags >> 16);
@@ -146,7 +145,7 @@ void QWaylandTouchExtension::sendTouchEvent()
     // Copy all points, that are in the previous but not in the current list, as stationary.
     for (int i = 0; i < mPrevTouchPoints.count(); ++i) {
         const QWindowSystemInterface::TouchPoint &prevPoint(mPrevTouchPoints.at(i));
-        if (prevPoint.state == Qt::TouchPointReleased)
+        if (prevPoint.state == QEventPoint::Released)
             continue;
         bool found = false;
         for (int j = 0; j < mTouchPoints.count(); ++j)
@@ -156,7 +155,7 @@ void QWaylandTouchExtension::sendTouchEvent()
             }
         if (!found) {
             QWindowSystemInterface::TouchPoint p = prevPoint;
-            p.state = Qt::TouchPointStationary;
+            p.state = QEventPoint::Stationary;
             mTouchPoints.append(p);
         }
     }
@@ -168,7 +167,7 @@ void QWaylandTouchExtension::sendTouchEvent()
 
     QWindowSystemInterface::handleTouchEvent(mTargetWindow, mTimestamp, mTouchDevice, mTouchPoints);
 
-    Qt::TouchPointStates states = {};
+    QEventPoint::States states = {};
     for (int i = 0; i < mTouchPoints.count(); ++i)
         states |= mTouchPoints.at(i).state;
 
@@ -179,7 +178,7 @@ void QWaylandTouchExtension::sendTouchEvent()
         for (int i = 0; i < mTouchPoints.count(); ++i) {
             const QWindowSystemInterface::TouchPoint &tp(mTouchPoints.at(i));
             if (tp.id == mMouseSourceId) {
-                const bool released = tp.state == Qt::TouchPointReleased;
+                const bool released = tp.state == QEventPoint::Released;
                 Qt::MouseButtons buttons = released ? Qt::NoButton : Qt::LeftButton;
                 QEvent::Type eventType = firstPress ? QEvent::MouseButtonPress
                                                     : released ? QEvent::MouseButtonRelease

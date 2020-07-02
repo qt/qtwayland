@@ -398,7 +398,7 @@ public:
         {
         }
         QEvent::Type type{};
-        Qt::TouchPointStates touchPointStates{};
+        QEventPoint::States touchPointStates{};
         QList<QTouchEvent::TouchPoint> touchPoints;
     };
     QList<Event> m_events;

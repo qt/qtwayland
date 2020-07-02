@@ -132,15 +132,6 @@ qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_opengl
         Qt::OpenGL
 )
 
-qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_xkbcommon
-    LIBRARIES
-        Qt::XkbCommonSupportPrivate
-    PUBLIC_LIBRARIES
-        XKB::XKB
-    PRIVATE_MODULE_INTERFACE
-        Qt::XkbCommonSupportPrivate
-)
-
 qt_extend_target(WaylandCompositor CONDITION TARGET Qt::Quick
     SOURCES
         extensions/qwaylandivisurfaceintegration.cpp extensions/qwaylandivisurfaceintegration_p.h
@@ -163,6 +154,11 @@ qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_wayland_datadevice
         wayland_wrapper/qwldatadevicemanager.cpp wayland_wrapper/qwldatadevicemanager_p.h
         wayland_wrapper/qwldataoffer.cpp wayland_wrapper/qwldataoffer_p.h
         wayland_wrapper/qwldatasource.cpp wayland_wrapper/qwldatasource_p.h
+)
+
+qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_xkbcommon
+    PUBLIC_LIBRARIES
+        XKB::XKB
 )
 
 qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_im

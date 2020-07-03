@@ -1105,13 +1105,8 @@ bool Scanner::process()
         printf("static inline void *wlRegistryBind(struct ::wl_registry *registry, uint32_t name, const struct ::wl_interface *interface, uint32_t version)\n");
         printf("{\n");
         printf("    const uint32_t bindOpCode = 0;\n");
-        printf("#if (WAYLAND_VERSION_MAJOR == 1 && WAYLAND_VERSION_MINOR > 10) || WAYLAND_VERSION_MAJOR > 1\n");
         printf("    return (void *) wl_proxy_marshal_constructor_versioned((struct wl_proxy *) registry,\n");
-        printf("        bindOpCode, interface, version, name, interface->name, version, nullptr);\n");
-        printf("#else\n");
-        printf("    return (void *) wl_proxy_marshal_constructor((struct wl_proxy *) registry,\n");
-        printf("        bindOpCode, interface, name, interface->name, version, nullptr);\n");
-        printf("#endif\n");
+        printf("    bindOpCode, interface, version, name, interface->name, version, nullptr);\n");
         printf("}\n");
         printf("\n");
 

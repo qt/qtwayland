@@ -214,9 +214,7 @@ void QWaylandCompositorPrivate::init()
         emit q->socketNameChanged(socket_name);
     }
 
-#if WAYLAND_VERSION_MAJOR >= 1 && (WAYLAND_VERSION_MAJOR != 1 || WAYLAND_VERSION_MINOR >= 10)
     connectToExternalSockets();
-#endif
 
     loop = wl_display_get_event_loop(display);
 
@@ -308,7 +306,6 @@ void QWaylandCompositorPrivate::addPolishObject(QObject *object)
     }
 }
 
-#if WAYLAND_VERSION_MAJOR >= 1 && (WAYLAND_VERSION_MAJOR != 1 || WAYLAND_VERSION_MINOR >= 10)
 void QWaylandCompositorPrivate::connectToExternalSockets()
 {
     // Clear out any backlog of user-supplied external socket descriptors
@@ -318,7 +315,6 @@ void QWaylandCompositorPrivate::connectToExternalSockets()
     }
     externally_added_socket_fds.clear();
 }
-#endif
 
 void QWaylandCompositorPrivate::compositor_create_surface(wl_compositor::Resource *resource, uint32_t id)
 {
@@ -642,15 +638,10 @@ QByteArray QWaylandCompositor::socketName() const
  */
 void QWaylandCompositor::addSocketDescriptor(int fd)
 {
-#if WAYLAND_VERSION_MAJOR >= 1 && (WAYLAND_VERSION_MAJOR != 1 || WAYLAND_VERSION_MINOR >= 10)
     Q_D(QWaylandCompositor);
     d->externally_added_socket_fds.append(fd);
     if (isCreated())
         d->connectToExternalSockets();
-#else
-    Q_UNUSED(fd);
-    qWarning() << "QWaylandCompositor::addSocketDescriptor() does nothing on libwayland versions prior to 1.10.0";
-#endif
 }
 
 /*!

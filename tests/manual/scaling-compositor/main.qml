@@ -48,10 +48,9 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.2
+import QtQuick 2.15
 import QtQuick.Window 2.2
-import QtQuick.Controls 2.0
-import QtWayland.Compositor 1.0
+import QtWayland.Compositor 1.3
 
 WaylandCompositor {
     id: comp
@@ -66,22 +65,40 @@ WaylandCompositor {
             height: 500
             visible: true
             title: "Scaling compositor x" + output.scaleFactor
-            Button {
-                id: incrementButton
-                text: "+"
-                onClicked: ++output.scaleFactor
-            }
-            Button {
-                text: "-"
-                onClicked: output.scaleFactor = Math.max(1, output.scaleFactor - 1)
-                anchors.left: incrementButton.right
-            }
+
             Repeater {
                 model: shellSurfaces
                 ShellSurfaceItem {
                     shellSurface: modelData
                     onSurfaceDestroyed: shellSurfaces.remove(index);
                 }
+            }
+
+            Rectangle {
+                id: incrementButton
+                color: "#c0f0d0"
+                Text {
+                    text: "+"
+                }
+                width: 100
+                height: 30
+                TapHandler {
+                    onTapped: ++output.scaleFactor
+                }
+            }
+
+            Rectangle {
+                id: decrementButton
+                color: "#f0d0c0"
+                Text {
+                    text: "-"
+                }
+                width: 100
+                height: 30
+                TapHandler {
+                    onTapped: output.scaleFactor = Math.max(1, output.scaleFactor - 1)
+                }
+                anchors.left: incrementButton.right
             }
         }
     }
@@ -90,5 +107,9 @@ WaylandCompositor {
 
     WlShell {
         onWlShellSurfaceCreated: shellSurfaces.append({shellSurface: shellSurface});
+    }
+    XdgShell {
+        onToplevelCreated:
+            shellSurfaces.append({shellSurface: xdgSurface});
     }
 }

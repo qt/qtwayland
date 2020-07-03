@@ -1,7 +1,6 @@
 TEMPLATE = app
 
-QT += gui qml quickcontrols2
-
+QT += gui qml
 SOURCES += main.cpp
 
 RESOURCES += qml.qrc

@@ -531,8 +531,6 @@ void tst_WaylandCompositor::mapSurfaceHiDpi()
     };
 
     QObject::connect(waylandSurface, &QWaylandSurface::damaged, [=] (const QRegion &damage) {
-        // Currently, QWaylandSurface::size returns the size in pixels.
-        // Should be fixed or removed for Qt 6.
         QCOMPARE(damage, QRect(QPoint(), surfaceSize));
         verifyComittedState();
     });
@@ -570,6 +568,12 @@ void tst_WaylandCompositor::mapSurfaceHiDpi()
     QTRY_COMPARE(destinationSizeSpy.count(), 1);
     QTRY_COMPARE(bufferScaleSpy.count(), 1);
     QTRY_COMPARE(offsetSpy.count(), 1);
+    QTRY_COMPARE(damagedSpy.count(), 1);
+
+    // Now verify that wl_surface_damage_buffer gets mapped properly
+    wl_surface_damage_buffer(surface, 0, 0, bufferSize.width(), bufferSize.height());
+    wl_surface_commit(surface);
+    QTRY_COMPARE(damagedSpy.count(), 2);
 
     wl_surface_destroy(surface);
 }

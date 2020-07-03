@@ -190,7 +190,7 @@ void QWaylandCompositorPrivate::init()
         if (socketArg != -1 && socketArg + 1 < arguments.size())
             socket_name = arguments.at(socketArg + 1).toLocal8Bit();
     }
-    wl_compositor::init(display, 3);
+    wl_compositor::init(display, 4);
     wl_subcompositor::init(display, 1);
 
 #if QT_CONFIG(wayland_datadevice)

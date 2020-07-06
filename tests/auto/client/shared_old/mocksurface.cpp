@@ -125,6 +125,16 @@ void Surface::surface_damage(Resource *resource,
     Q_UNUSED(height);
 }
 
+void Surface::surface_damage_buffer(Resource *resource,
+                                    int32_t x, int32_t y, int32_t width, int32_t height)
+{
+    Q_UNUSED(resource);
+    Q_UNUSED(x);
+    Q_UNUSED(y);
+    Q_UNUSED(width);
+    Q_UNUSED(height);
+}
+
 void Surface::surface_frame(Resource *resource,
                             uint32_t callback)
 {

@@ -342,7 +342,7 @@ Compositor::Compositor(MockCompositor *mockCompositor)
         exit(EXIT_FAILURE);
     }
 
-    wl_global_create(m_display, &wl_compositor_interface, 1, this, bindCompositor);
+    wl_global_create(m_display, &wl_compositor_interface, 4, this, bindCompositor);
 
     m_data_device_manager.reset(new DataDeviceManager(this, m_display));
 

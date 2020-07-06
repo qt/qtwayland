@@ -143,7 +143,7 @@ class WlCompositor : public Global, public QtWaylandServer::wl_compositor
 {
     Q_OBJECT
 public:
-    explicit WlCompositor(CoreCompositor *compositor, int version = 3)
+    explicit WlCompositor(CoreCompositor *compositor, int version = 4)
         : QtWaylandServer::wl_compositor(compositor->m_display, version)
         , m_compositor(compositor)
     {}

@@ -65,6 +65,8 @@ protected:
                         struct wl_resource *buffer, int x, int y) override;
     void surface_damage(Resource *resource,
                         int32_t x, int32_t y, int32_t width, int32_t height) override;
+    void surface_damage_buffer(Resource *resource,
+                               int32_t x, int32_t y, int32_t width, int32_t height) override;
     void surface_frame(Resource *resource,
                        uint32_t callback) override;
     void surface_commit(Resource *resource) override;

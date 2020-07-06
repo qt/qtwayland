@@ -48,12 +48,12 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.6
-import QtQuick.Window 2.2
-import QtWayland.Compositor 1.3
+import QtQuick
+import QtQuick.Window
+import QtWayland.Compositor
 
 // importing the texture sharing extension:
-import QtWayland.Compositor.TextureSharingExtension 1.0
+import QtWayland.Compositor.TextureSharingExtension
 
 WaylandCompositor {
     WaylandOutput {

@@ -48,11 +48,11 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.6
-import QtQuick.Window 2.2
-import QtWayland.Compositor 1.3
+import QtQuick
+import QtQuick.Window
+import QtWayland.Compositor
 
-import com.theqtcompany.customsharingextension 1.0
+import com.theqtcompany.customsharingextension
 
 WaylandCompositor {
     WaylandOutput {

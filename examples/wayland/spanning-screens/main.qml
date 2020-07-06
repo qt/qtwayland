@@ -48,9 +48,9 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.6
-import QtQuick.Window 2.3
-import QtWayland.Compositor 1.3
+import QtQuick
+import QtQuick.Window
+import QtWayland.Compositor
 
 WaylandCompositor {
     WaylandOutput {

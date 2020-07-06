@@ -48,9 +48,9 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.7
-import QtWayland.Compositor 1.3
-import QtQuick.Window 2.3
+import QtQuick
+import QtWayland.Compositor
+import QtQuick.Window
 import QtQuick.Controls 2.0
 
 WaylandCompositor {

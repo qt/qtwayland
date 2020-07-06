@@ -48,9 +48,9 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.8
-import QtWayland.Compositor 1.0
-import QtQuick.Window 2.3
+import QtQuick
+import QtWayland.Compositor
+import QtQuick.Window
 
 WaylandOutput {
     id: screen

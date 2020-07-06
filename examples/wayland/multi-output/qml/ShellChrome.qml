@@ -48,8 +48,8 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
-import QtWayland.Compositor 1.0
+import QtQuick
+import QtWayland.Compositor
 
 ShellSurfaceItem {
     id: rootChrome

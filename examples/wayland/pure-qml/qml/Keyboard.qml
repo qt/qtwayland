@@ -48,8 +48,8 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.5
-import QtQuick.VirtualKeyboard 2.1
+import QtQuick
+import QtQuick.VirtualKeyboard
 
 InputPanel {
     visible: active

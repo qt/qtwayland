@@ -48,9 +48,9 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
-import QtQuick.Window 2.0
-import com.theqtcompany.customextension 1.0
+import QtQuick
+import QtQuick.Window
+import com.theqtcompany.customextension
 
 Window {
     id: topLevelWindow

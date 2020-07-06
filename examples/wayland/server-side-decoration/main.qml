@@ -48,10 +48,10 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.12
-import QtQuick.Window 2.2
-import QtQuick.Layouts 1.3
-import QtWayland.Compositor 1.3
+import QtQuick
+import QtQuick.Window
+import QtQuick.Layouts
+import QtWayland.Compositor
 
 WaylandCompositor {
     // The output defines the screen.

@@ -48,10 +48,10 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.9
-import QtQuick.Window 2.2
+import QtQuick
+import QtQuick.Window
 
-import QtWayland.Client.TextureSharing 1.0
+import QtWayland.Client.TextureSharing
 
 Window {
     width: 800

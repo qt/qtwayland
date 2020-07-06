@@ -71,7 +71,7 @@ WaylandCompositor {
         id: screens
         model: emulated ? emulatedScreens : Qt.application.screens
 
-        delegate: Screen {
+        delegate: CompositorScreen {
             surfaceArea.color: "lightsteelblue"
             text: name
             compositor: comp

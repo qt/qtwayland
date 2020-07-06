@@ -14,5 +14,5 @@ sources.path = $$[QT_INSTALL_EXAMPLES]/wayland/multi-screen
 INSTALLS += target sources
 
 DISTFILES += \
-    qml/Screen.qml \
+    qml/CompositorScreen.qml \
     qml/Chrome.qml

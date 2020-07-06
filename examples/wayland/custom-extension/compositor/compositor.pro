@@ -10,7 +10,7 @@ SOURCES += \
 
 OTHER_FILES = \
     qml/main.qml \
-    qml/Screen.qml \
+    qml/CompositorScreen.qml \
     images/background.jpg
 
 WAYLANDSERVERSOURCES += \

@@ -32,7 +32,7 @@ target_link_libraries(multi-screen PUBLIC
 # Resources:
 set(multi-screen_resource_files
     "qml/Chrome.qml"
-    "qml/Screen.qml"
+    "qml/CompositorScreen.qml"
     "qml/main.qml"
 )
 

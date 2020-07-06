@@ -67,7 +67,7 @@ WaylandCompositor {
         }
     }
 
-    Screen {
+    CompositorScreen {
         compositor: comp
     }
 

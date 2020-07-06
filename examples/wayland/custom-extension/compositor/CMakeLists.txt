@@ -40,7 +40,7 @@ target_link_libraries(custom-extension-compositor PUBLIC
 # Resources:
 set(compositor_resource_files
     "images/background.png"
-    "qml/Screen.qml"
+    "qml/CompositorScreen.qml"
     "qml/main.qml"
 )
 

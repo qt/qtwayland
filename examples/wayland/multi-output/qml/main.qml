@@ -50,6 +50,7 @@
 
 import QtQuick
 import QtWayland.Compositor
+import QtWayland.Compositor.XdgShell
 
 WaylandCompositor {
     id: comp

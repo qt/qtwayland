@@ -52,6 +52,7 @@ import QtQuick
 import QtQuick.Window
 import QtQuick.Layouts
 import QtWayland.Compositor
+import QtWayland.Compositor.XdgShell
 
 WaylandCompositor {
     // The output defines the screen.

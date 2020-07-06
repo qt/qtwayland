@@ -51,6 +51,7 @@
 import QtQuick
 import QtQuick.Window
 import QtWayland.Compositor
+import QtWayland.Compositor.XdgShell
 
 WaylandCompositor {
     WaylandOutput {

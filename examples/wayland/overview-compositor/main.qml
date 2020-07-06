@@ -50,6 +50,7 @@
 
 import QtQuick
 import QtWayland.Compositor
+import QtWayland.Compositor.XdgShell
 import QtQuick.Window
 import QtQuick.Controls 2.0
 

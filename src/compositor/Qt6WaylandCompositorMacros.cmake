@@ -13,11 +13,11 @@ function(qt6_generate_wayland_protocol_server_sources target)
         add_custom_command(
             OUTPUT "${waylandscanner_header_output}"
             #TODO: Maybe put the files in ${CMAKE_CURRENT_BINARY_DIR/wayland_generated instead?
-            COMMAND Wayland::Scanner --include-core-only server-header < "${protocol_file}" > "${waylandscanner_header_output}"
+            COMMAND Wayland::Scanner --strict --include-core-only server-header < "${protocol_file}" > "${waylandscanner_header_output}"
         )
         add_custom_command(
             OUTPUT "${waylandscanner_code_output}"
-            COMMAND Wayland::Scanner --include-core-only public-code < "${protocol_file}" > "${waylandscanner_code_output}"
+            COMMAND Wayland::Scanner --strict --include-core-only public-code < "${protocol_file}" > "${waylandscanner_code_output}"
         )
 
         # TODO: make this less hacky

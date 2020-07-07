@@ -50,6 +50,7 @@
 
 import QtQuick
 import QtWayland.Compositor
+import QtWayland.Compositor.WlShell
 
 import com.theqtcompany.customextension 1.0
 

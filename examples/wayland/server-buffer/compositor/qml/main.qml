@@ -50,6 +50,7 @@
 
 import QtQuick
 import QtWayland.Compositor
+import QtWayland.Compositor.WlShell
 import QtQuick.Window
 
 import com.theqtcompany.sharebufferextension

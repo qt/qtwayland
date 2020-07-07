@@ -52,6 +52,7 @@ import QtQuick
 import QtQuick.Window
 import QtWayland.Compositor
 import QtWayland.Compositor.XdgShell
+import QtWayland.Compositor.WlShell
 
 // importing the texture sharing extension:
 import QtWayland.Compositor.TextureSharingExtension

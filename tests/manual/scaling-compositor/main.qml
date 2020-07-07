@@ -51,6 +51,7 @@
 import QtQuick 2.15
 import QtQuick.Window 2.2
 import QtWayland.Compositor 1.3
+import QtWayland.Compositor.WlShell
 
 WaylandCompositor {
     id: comp

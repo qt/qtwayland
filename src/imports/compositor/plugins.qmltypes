@@ -133,49 +133,6 @@ Module {
         Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
     }
     Component {
-        name: "QWaylandIviApplication"
-        prototype: "QWaylandCompositorExtension"
-        Signal {
-            name: "iviSurfaceRequested"
-            Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
-            Parameter { name: "iviId"; type: "uint" }
-            Parameter { name: "resource"; type: "QWaylandResource" }
-        }
-        Signal {
-            name: "iviSurfaceCreated"
-            Parameter { name: "iviSurface"; type: "QWaylandIviSurface"; isPointer: true }
-        }
-    }
-    Component {
-        name: "QWaylandIviApplicationQuickExtension"
-        defaultProperty: "data"
-        prototype: "QWaylandIviApplication"
-        exports: ["QtWayland.Compositor/IviApplication 1.0"]
-        exportMetaObjectRevisions: [0]
-        Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
-    }
-    Component {
-        name: "QWaylandIviSurface"
-        defaultProperty: "data"
-        prototype: "QWaylandShellSurface"
-        exports: ["QtWayland.Compositor/IviSurface 1.0"]
-        exportMetaObjectRevisions: [0]
-        Property { name: "data"; type: "QObject"; isList: true; isReadonly: true }
-        Property { name: "surface"; type: "QWaylandSurface"; isReadonly: true; isPointer: true }
-        Property { name: "iviId"; type: "uint"; isReadonly: true }
-        Method {
-            name: "initialize"
-            Parameter { name: "iviApplication"; type: "QWaylandIviApplication"; isPointer: true }
-            Parameter { name: "surface"; type: "QWaylandSurface"; isPointer: true }
-            Parameter { name: "iviId"; type: "uint" }
-            Parameter { name: "resource"; type: "QWaylandResource" }
-        }
-        Method {
-            name: "sendConfigure"
-            Parameter { name: "size"; type: "QSize" }
-        }
-    }
-    Component {
         name: "QWaylandKeymap"
         defaultProperty: "data"
         prototype: "QObject"

@@ -39,7 +39,7 @@ QT_BEGIN_NAMESPACE
 
 /*!
  * \qmltype IviApplication
- * \inqmlmodule QtWayland.Compositor
+ * \inqmlmodule QtWayland.Compositor.IviApplication
  * \since 5.8
  * \brief Provides a shell extension for embedded-style user interfaces.
  *
@@ -54,7 +54,7 @@ QT_BEGIN_NAMESPACE
  * supported by the compositor:
  *
  * \qml \QtMinorVersion
- * import QtWayland.Compositor 1.\1
+ * import QtWayland.Compositor.IviApplication
  *
  * WaylandCompositor {
  *     IviApplication {

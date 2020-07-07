@@ -52,8 +52,6 @@
 #include <QtWaylandCompositor/QWaylandWlShell>
 #include <QtWaylandCompositor/QWaylandTextInputManager>
 #include <QtWaylandCompositor/QWaylandIdleInhibitManagerV1>
-#include <QtWaylandCompositor/QWaylandIviApplication>
-#include <QtWaylandCompositor/QWaylandIviSurface>
 
 #include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 #include "qwaylandmousetracker_p.h"
@@ -63,7 +61,6 @@ QT_BEGIN_NAMESPACE
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CONTAINER_CLASS(QWaylandQuickCompositor)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandQtWindowManager)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandIdleInhibitManagerV1)
-Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandIviApplication)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandWlShell)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandTextInputManager)
 
@@ -142,8 +139,6 @@ public:
 
         //This should probably be somewhere else
         qmlRegisterType<QWaylandQtWindowManagerQuickExtension>(uri, 1, 0, "QtWindowManager");
-        qmlRegisterType<QWaylandIviApplicationQuickExtension>(uri, 1, 0, "IviApplication");
-        qmlRegisterType<QWaylandIviSurface>(uri, 1, 0, "IviSurface");
         qmlRegisterType<QWaylandWlShellQuickExtension>(uri, 1, 0, "WlShell");
         qmlRegisterType<QWaylandWlShellSurface>(uri, 1, 0, "WlShellSurface");
         qmlRegisterType<QWaylandQuickShellSurfaceItem>(uri, 1, 0, "ShellSurfaceItem");

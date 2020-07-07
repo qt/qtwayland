@@ -532,7 +532,7 @@ bool Scanner::process()
 
             printf("    class %s %s\n    {\n", serverExport.constData(), interfaceName);
             printf("    public:\n");
-            printf("        %s(struct ::wl_client *client, int id, int version);\n", interfaceName);
+            printf("        %s(struct ::wl_client *client, uint32_t id, int version);\n", interfaceName);
             printf("        %s(struct ::wl_display *display, int version);\n", interfaceName);
             printf("        %s(struct ::wl_resource *resource);\n", interfaceName);
             printf("        %s();\n", interfaceName);
@@ -555,13 +555,13 @@ bool Scanner::process()
             printf("            static Resource *fromResource(struct ::wl_resource *resource);\n");
             printf("        };\n");
             printf("\n");
-            printf("        void init(struct ::wl_client *client, int id, int version);\n");
+            printf("        void init(struct ::wl_client *client, uint32_t id, int version);\n");
             printf("        void init(struct ::wl_display *display, int version);\n");
             printf("        void init(struct ::wl_resource *resource);\n");
             printf("\n");
             printf("        Resource *add(struct ::wl_client *client, int version);\n");
-            printf("        Resource *add(struct ::wl_client *client, int id, int version);\n");
-            printf("        Resource *add(struct wl_list *resource_list, struct ::wl_client *client, int id, int version);\n");
+            printf("        Resource *add(struct ::wl_client *client, uint32_t id, int version);\n");
+            printf("        Resource *add(struct wl_list *resource_list, struct ::wl_client *client, uint32_t id, int version);\n");
             printf("\n");
             printf("        Resource *resource() { return m_resource; }\n");
             printf("        const Resource *resource() const { return m_resource; }\n");
@@ -681,7 +681,7 @@ bool Scanner::process()
             QByteArray stripped = stripInterfaceName(interface.name);
             const char *interfaceNameStripped = stripped.constData();
 
-            printf("    %s::%s(struct ::wl_client *client, int id, int version)\n", interfaceName, interfaceName);
+            printf("    %s::%s(struct ::wl_client *client, uint32_t id, int version)\n", interfaceName, interfaceName);
             printf("        : m_resource_map()\n");
             printf("        , m_resource(nullptr)\n");
             printf("        , m_global(nullptr)\n");
@@ -728,7 +728,7 @@ bool Scanner::process()
             printf("    }\n");
             printf("\n");
 
-            printf("    void %s::init(struct ::wl_client *client, int id, int version)\n", interfaceName);
+            printf("    void %s::init(struct ::wl_client *client, uint32_t id, int version)\n", interfaceName);
             printf("    {\n");
             printf("        m_resource = bind(client, id, version);\n");
             printf("    }\n");
@@ -748,7 +748,7 @@ bool Scanner::process()
             printf("    }\n");
             printf("\n");
 
-            printf("    %s::Resource *%s::add(struct ::wl_client *client, int id, int version)\n", interfaceName, interfaceName);
+            printf("    %s::Resource *%s::add(struct ::wl_client *client, uint32_t id, int version)\n", interfaceName, interfaceName);
             printf("    {\n");
             printf("        Resource *resource = bind(client, id, version);\n");
             printf("        m_resource_map.insert(client, resource);\n");
@@ -1016,13 +1016,13 @@ bool Scanner::process()
 
             printf("    class %s %s\n    {\n", clientExport.constData(), interfaceName);
             printf("    public:\n");
-            printf("        %s(struct ::wl_registry *registry, int id, int version);\n", interfaceName);
+            printf("        %s(struct ::wl_registry *registry, uint32_t id, int version);\n", interfaceName);
             printf("        %s(struct ::%s *object);\n", interfaceName, interfaceName);
             printf("        %s();\n", interfaceName);
             printf("\n");
             printf("        virtual ~%s();\n", interfaceName);
             printf("\n");
-            printf("        void init(struct ::wl_registry *registry, int id, int version);\n");
+            printf("        void init(struct ::wl_registry *registry, uint32_t id, int version);\n");
             printf("        void init(struct ::%s *object);\n", interfaceName);
             printf("\n");
             printf("        struct ::%s *object() { return m_%s; }\n", interfaceName, interfaceName);
@@ -1127,7 +1127,7 @@ bool Scanner::process()
 
             bool hasEvents = !interface.events.empty();
 
-            printf("    %s::%s(struct ::wl_registry *registry, int id, int version)\n", interfaceName, interfaceName);
+            printf("    %s::%s(struct ::wl_registry *registry, uint32_t id, int version)\n", interfaceName, interfaceName);
             printf("    {\n");
             printf("        init(registry, id, version);\n");
             printf("    }\n");
@@ -1152,7 +1152,7 @@ bool Scanner::process()
             printf("    }\n");
             printf("\n");
 
-            printf("    void %s::init(struct ::wl_registry *registry, int id, int version)\n", interfaceName);
+            printf("    void %s::init(struct ::wl_registry *registry, uint32_t id, int version)\n", interfaceName);
             printf("    {\n");
             printf("        m_%s = static_cast<struct ::%s *>(wlRegistryBind(registry, id, &%s_interface, version));\n", interfaceName, interfaceName, interfaceName);
             if (hasEvents)

@@ -76,6 +76,9 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositor : public QWaylandObject
     Q_PROPERTY(QWaylandSeat *defaultSeat READ defaultSeat NOTIFY defaultSeatChanged)
     Q_MOC_INCLUDE("qwaylandseat.h")
 
+    QML_NAMED_ELEMENT(WaylandCompositorBase)
+    QML_UNCREATABLE("Cannot create instance of WaylandCompositorBase, use WaylandCompositor instead")
+    QML_ADDED_IN_VERSION(1, 0)
 public:
     QWaylandCompositor(QObject *parent = nullptr);
     ~QWaylandCompositor() override;

@@ -63,6 +63,8 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem
     Q_PROPERTY(bool bufferLocked READ isBufferLocked WRITE setBufferLocked NOTIFY bufferLockedChanged)
     Q_PROPERTY(bool allowDiscardFrontBuffer READ allowDiscardFrontBuffer WRITE setAllowDiscardFrontBuffer NOTIFY allowDiscardFrontBufferChanged)
     Q_MOC_INCLUDE("qwaylandcompositor.h")
+    QML_NAMED_ELEMENT(WaylandQuickItem)
+    QML_ADDED_IN_VERSION(1, 0)
 public:
     QWaylandQuickItem(QQuickItem *parent = nullptr);
     ~QWaylandQuickItem() override;

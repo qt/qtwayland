@@ -43,6 +43,9 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShellSurface : public QWaylandComposit
 {
     Q_OBJECT
     Q_PROPERTY(Qt::WindowType windowType READ windowType NOTIFY windowTypeChanged)
+    QML_NAMED_ELEMENT(ShellSurface)
+    QML_UNCREATABLE("")
+    QML_ADDED_IN_VERSION(1, 0)
 public:
 #if QT_CONFIG(wayland_compositor_quick)
     virtual QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) = 0;

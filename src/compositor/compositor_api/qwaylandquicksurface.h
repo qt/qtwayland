@@ -46,6 +46,8 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickSurface : public QWaylandSurface
     Q_DECLARE_PRIVATE(QWaylandQuickSurface)
     Q_WAYLAND_COMPOSITOR_DECLARE_QUICK_CHILDREN(QWaylandQuickSurface)
     Q_PROPERTY(bool useTextureAlpha READ useTextureAlpha WRITE setUseTextureAlpha NOTIFY useTextureAlphaChanged)
+    QML_NAMED_ELEMENT(WaylandSurface)
+    QML_ADDED_IN_VERSION(1, 0)
 public:
     QWaylandQuickSurface();
     QWaylandQuickSurface(QWaylandCompositor *compositor, QWaylandClient *client, quint32 id, int version);

@@ -63,6 +63,10 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSeat : public QWaylandObject
 #endif
     Q_PROPERTY(QWaylandKeymap *keymap READ keymap CONSTANT)
     Q_MOC_INCLUDE("qwaylandkeymap.h")
+
+    QML_NAMED_ELEMENT(WaylandSeat)
+    QML_ADDED_IN_VERSION(1, 0)
+    QML_UNCREATABLE("")
 public:
     enum CapabilityFlag {
         // The order should match the enum WL_SEAT_CAPABILITY_*

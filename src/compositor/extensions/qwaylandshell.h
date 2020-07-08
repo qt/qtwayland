@@ -41,6 +41,10 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShell : public QWaylandCompositorExten
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandShell)
     Q_PROPERTY(FocusPolicy focusPolicy READ focusPolicy WRITE setFocusPolicy NOTIFY focusPolicyChanged)
+
+    QML_NAMED_ELEMENT(Shell)
+    QML_UNCREATABLE("")
+    QML_ADDED_IN_VERSION(1, 0)
 public:
     enum FocusPolicy {
         AutomaticFocus,

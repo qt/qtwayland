@@ -1,3 +1,5 @@
 module QtWayland.Compositor.IviApplication
 plugin qwaylandcompositoriviapplicationplugin
 classname QWaylandCompositorIviApplicationPlugin
+typeinfo plugins.qmltypes
+typeinfo plugins.qmltypes

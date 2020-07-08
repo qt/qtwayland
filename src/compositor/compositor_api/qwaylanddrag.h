@@ -35,6 +35,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QPointF>
 
+#include <QtQml/qqml.h>
+
 QT_REQUIRE_CONFIG(draganddrop);
 
 QT_BEGIN_NAMESPACE
@@ -52,6 +54,9 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandDrag : public QObject
     Q_PROPERTY(bool visible READ visible NOTIFY iconChanged)
     Q_MOC_INCLUDE("qwaylandsurface.h")
 
+    QML_NAMED_ELEMENT(WaylandDrag)
+    QML_ADDED_IN_VERSION(1, 0)
+    QML_UNCREATABLE("")
 public:
     explicit QWaylandDrag(QWaylandSeat *seat);
 

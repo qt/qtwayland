@@ -46,6 +46,8 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickOutput : public QWaylandOutput, p
     Q_OBJECT
     Q_WAYLAND_COMPOSITOR_DECLARE_QUICK_CHILDREN(QWaylandQuickOutput)
     Q_PROPERTY(bool automaticFrameCallback READ automaticFrameCallback WRITE setAutomaticFrameCallback NOTIFY automaticFrameCallbackChanged)
+    QML_NAMED_ELEMENT(WaylandOutput)
+    QML_ADDED_IN_VERSION(1, 0)
 public:
     QWaylandQuickOutput();
     QWaylandQuickOutput(QWaylandCompositor *compositor, QWindow *window);

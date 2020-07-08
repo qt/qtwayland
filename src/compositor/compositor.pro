@@ -36,3 +36,10 @@ MODULE_PLUGIN_TYPES = \
     wayland-hardware-layer-integration \
 
 load(qt_module)
+
+QMLTYPES_FILENAME = plugins.qmltypes
+QMLTYPES_INSTALL_DIR = $$[QT_INSTALL_QML]/QtWayland/Compositor
+QML_IMPORT_NAME = QtWayland.Compositor
+QML_IMPORT_VERSION = $$QT_VERSION
+CONFIG += qmltypes install_qmltypes
+

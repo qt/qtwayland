@@ -31,6 +31,7 @@
 #define QWAYLANDRESOURCE_H
 
 #include <QtCore/QObject>
+#include <QtQml/qqml.h>
 #include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 
 struct wl_resource;
@@ -40,6 +41,9 @@ QT_BEGIN_NAMESPACE
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandResource
 {
     Q_GADGET
+    QML_NAMED_ELEMENT(WaylandResource)
+    QML_UNCREATABLE("")
+    QML_ADDED_IN_VERSION(1, 0)
 public:
     QWaylandResource();
     explicit QWaylandResource(wl_resource *resource);

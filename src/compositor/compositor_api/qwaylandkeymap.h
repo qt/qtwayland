@@ -31,6 +31,7 @@
 #define QWAYLANDKEYMAP_H
 
 #include <QtCore/QObject>
+#include <QtQml/qqml.h>
 #include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 #include <QtWaylandCompositor/qwaylandquickchildren.h>
 
@@ -48,6 +49,8 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandKeymap : public QObject
     Q_PROPERTY(QString options READ options WRITE setOptions NOTIFY optionsChanged)
     Q_PROPERTY(QString rules READ rules WRITE setRules NOTIFY rulesChanged)
     Q_PROPERTY(QString model READ model WRITE setModel NOTIFY modelChanged)
+    QML_NAMED_ELEMENT(WaylandKeymap)
+    QML_ADDED_IN_VERSION(1, 0)
 public:
     QWaylandKeymap(const QString &layout = QString(), const QString &variant = QString(), const QString &options = QString(),
                    const QString &model = QString(), const QString &rules = QString(), QObject *parent = nullptr);

@@ -53,6 +53,8 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickHardwareLayer : public QObject, p
     Q_INTERFACES(QQmlParserStatus)
     Q_DECLARE_PRIVATE(QWaylandQuickHardwareLayer)
     Q_PROPERTY(int stackingLevel READ stackingLevel WRITE setStackingLevel NOTIFY stackingLevelChanged)
+    QML_NAMED_ELEMENT(WaylandHardwareLayer)
+    QML_ADDED_IN_VERSION(1, 2)
 public:
     explicit QWaylandQuickHardwareLayer(QObject *parent = nullptr);
     ~QWaylandQuickHardwareLayer() override;

@@ -97,6 +97,27 @@ QT_BEGIN_NAMESPACE
         QList<QObject *> m_objects; \
     };
 
+#define Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_CLASS(className, QmlType) \
+    class Q_WAYLAND_COMPOSITOR_EXPORT className##QuickExtension : public className, public QQmlParserStatus \
+    { \
+/* qmake ignore Q_OBJECT */ \
+        Q_OBJECT \
+        Q_PROPERTY(QQmlListProperty<QObject> data READ data DESIGNABLE false) \
+        Q_CLASSINFO("DefaultProperty", "data") \
+        Q_INTERFACES(QQmlParserStatus) \
+        QML_NAMED_ELEMENT(QmlType) \
+        QML_ADDED_IN_VERSION(1, 0) \
+    public: \
+        QQmlListProperty<QObject> data() \
+        { \
+            return QQmlListProperty<QObject>(this, &m_objects); \
+        } \
+        void classBegin() override {} \
+        void componentComplete() override { if (!isInitialized()) initialize(); } \
+    private: \
+        QList<QObject *> m_objects; \
+    };
+
 QT_END_NAMESPACE
 
 #endif  /*QWAYLANDQUICKEXTENSION_H*/

@@ -81,6 +81,9 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSurface : public QWaylandObject
     Q_PROPERTY(bool cursorSurface READ isCursorSurface WRITE markAsCursorSurface NOTIFY cursorSurfaceChanged)
     Q_PROPERTY(bool inhibitsIdle READ inhibitsIdle NOTIFY inhibitsIdleChanged REVISION(1, 14))
 
+    QML_NAMED_ELEMENT(WaylandSurfaceBase)
+    QML_ADDED_IN_VERSION(1, 0)
+    QML_UNCREATABLE("Cannot create instance of WaylandSurfaceBase, use WaylandSurface instead")
 public:
     enum Origin {
         OriginTopLeft,

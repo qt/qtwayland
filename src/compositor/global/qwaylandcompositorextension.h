@@ -30,6 +30,7 @@
 #ifndef QWAYLANDEXTENSION_H
 #define QWAYLANDEXTENSION_H
 
+#include <QtQml/qqml.h>
 #include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 
 #include <QtCore/QObject>
@@ -64,6 +65,9 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositorExtension : public QWaylandO
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandCompositorExtension)
+    QML_NAMED_ELEMENT(WaylandExtension)
+    QML_ADDED_IN_VERSION(1, 0)
+    QML_UNCREATABLE("")
 public:
     QWaylandCompositorExtension();
     QWaylandCompositorExtension(QWaylandObject *container);

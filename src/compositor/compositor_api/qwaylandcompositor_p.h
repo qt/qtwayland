@@ -134,6 +134,7 @@ protected:
     QList<int> externally_added_socket_fds;
     struct wl_display *display = nullptr;
     bool ownsDisplay = false;
+    QVector<QWaylandCompositor::ShmFormat> shmFormats;
 
     QList<QWaylandSeat *> seats;
     QList<QWaylandOutput *> outputs;

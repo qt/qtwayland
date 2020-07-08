@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2017 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -199,9 +199,9 @@ void QWaylandCompositorPrivate::init()
     buffer_manager = new QtWayland::BufferManager(q);
 
     wl_display_init_shm(display);
-    const QList<wl_shm_format> formats = QWaylandSharedMemoryFormatHelper::supportedWaylandFormats();
-    for (wl_shm_format format : formats)
-        wl_display_add_shm_format(display, format);
+
+    for (QWaylandCompositor::ShmFormat format : shmFormats)
+        wl_display_add_shm_format(display, wl_shm_format(format));
 
     if (!socket_name.isEmpty()) {
         if (wl_display_add_socket(display, socket_name.constData()))
@@ -1015,6 +1015,52 @@ void QWaylandCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const QWay
 #endif
         emit grabber->failed(QWaylandSurfaceGrabber::UnknownBufferType);
     }
+}
+
+/*!
+ * \qmlproperty list<enum> QtWaylandCompositor::WaylandCompositor::additionalShmFormats
+ *
+ * This property holds the list of additional wl_shm formats advertised as supported by the
+ * compositor.
+ *
+ * By default, only the required ShmFormat_ARGB8888 and ShmFormat_XRGB8888 are listed and this
+ * list will empty. Additional formats may require conversion internally and can thus affect
+ * performance.
+ *
+ * This property must be set before the compositor component is completed. Subsequent changes
+ * will have no effect.
+ *
+ * \since 6.0
+ */
+
+/*!
+ * \property QWaylandCompositor::additionalShmFormats
+ *
+ * This property holds the list of additional wl_shm formats advertised as supported by the
+ * compositor.
+ *
+ * By default, only the required ShmFormat_ARGB8888 and ShmFormat_XRGB8888 are listed and this
+ * list will empty.
+ *
+ * This property must be set before the compositor is \l{create()}{created}. Subsequent changes
+ * will have no effect.
+ *
+ * \since 6.0
+ */
+void QWaylandCompositor::setAdditionalShmFormats(const QVector<ShmFormat> &additionalShmFormats)
+{
+    Q_D(QWaylandCompositor);
+    if (d->initialized)
+        qCWarning(qLcWaylandCompositorHardwareIntegration) << "Setting QWaylandCompositor::additionalShmFormats after initialization has no effect";
+
+    d->shmFormats = additionalShmFormats;
+    emit additionalShmFormatsChanged();
+}
+
+QVector<QWaylandCompositor::ShmFormat> QWaylandCompositor::additionalShmFormats() const
+{
+    Q_D(const QWaylandCompositor);
+    return d->shmFormats;
 }
 
 QT_END_NAMESPACE

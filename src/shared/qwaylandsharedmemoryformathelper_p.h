@@ -71,7 +71,6 @@ public:
         default: return QImage::Format_Invalid;
         }
     }
-    static inline QList<wl_shm_format> supportedWaylandFormats();
 
 private:
 //IMPLEMENTATION (which has to be inline in the header because of the include trick)
@@ -125,19 +124,6 @@ wl_shm_format QWaylandSharedMemoryFormatHelper::fromQImageFormat(QImage::Format 
     if (array.size <= size_t(format))
         return wl_shm_format(INT_MIN);
     return array.data[format];
-}
-
-QList<wl_shm_format> QWaylandSharedMemoryFormatHelper::supportedWaylandFormats()
-{
-    QList<wl_shm_format> retFormats;
-    Array array = getData();
-    for (size_t i = 0; i < array.size; i++) {
-        if (int(array.data[i]) != INT_MIN
-                && !retFormats.contains(array.data[i])) {
-            retFormats.append(array.data[i]);
-        }
-    }
-    return retFormats;
 }
 
 QT_END_NAMESPACE

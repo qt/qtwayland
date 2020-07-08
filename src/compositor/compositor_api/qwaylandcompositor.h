@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -74,12 +74,31 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositor : public QWaylandObject
     Q_PROPERTY(QWaylandOutput *defaultOutput READ defaultOutput WRITE setDefaultOutput NOTIFY defaultOutputChanged)
     Q_PROPERTY(bool useHardwareIntegrationExtension READ useHardwareIntegrationExtension WRITE setUseHardwareIntegrationExtension NOTIFY useHardwareIntegrationExtensionChanged)
     Q_PROPERTY(QWaylandSeat *defaultSeat READ defaultSeat NOTIFY defaultSeatChanged)
+    Q_PROPERTY(QVector<ShmFormat> additionalShmFormats READ additionalShmFormats WRITE setAdditionalShmFormats NOTIFY additionalShmFormatsChanged REVISION(6, 0))
     Q_MOC_INCLUDE("qwaylandseat.h")
-
     QML_NAMED_ELEMENT(WaylandCompositorBase)
     QML_UNCREATABLE("Cannot create instance of WaylandCompositorBase, use WaylandCompositor instead")
     QML_ADDED_IN_VERSION(1, 0)
 public:
+    // Duplicates subset of supported values wl_shm_format enum
+    enum ShmFormat {
+        ShmFormat_ARGB8888 = 0,
+        ShmFormat_XRGB8888 = 1,
+        ShmFormat_C8 = 0x20203843,
+        ShmFormat_XRGB4444 = 0x32315258,
+        ShmFormat_ARGB4444 = 0x32315241,
+        ShmFormat_XRGB1555 = 0x35315258,
+        ShmFormat_RGB565 = 0x36314752,
+        ShmFormat_RGB888 = 0x34324752,
+        ShmFormat_XBGR8888 = 0x34324258,
+        ShmFormat_ABGR8888 = 0x34324241,
+        ShmFormat_XRGB2101010 = 0x30335258,
+        ShmFormat_XBGR2101010 = 0x30334258,
+        ShmFormat_ARGB2101010 = 0x30335241,
+        ShmFormat_ABGR2101010 = 0x30334241
+    };
+    Q_ENUM(ShmFormat)
+
     QWaylandCompositor(QObject *parent = nullptr);
     ~QWaylandCompositor() override;
 
@@ -120,6 +139,9 @@ public:
     bool useHardwareIntegrationExtension() const;
     void setUseHardwareIntegrationExtension(bool use);
 
+    QVector<ShmFormat> additionalShmFormats() const;
+    void setAdditionalShmFormats(const QVector<ShmFormat> &additionalShmFormats);
+
     virtual void grabSurface(QWaylandSurfaceGrabber *grabber, const QWaylandBufferRef &buffer);
 
 public Q_SLOTS:
@@ -142,6 +164,8 @@ Q_SIGNALS:
 
     void outputAdded(QWaylandOutput *output);
     void outputRemoved(QWaylandOutput *output);
+
+    void additionalShmFormatsChanged();
 
 protected:
     virtual void retainedSelectionReceived(QMimeData *mimeData);

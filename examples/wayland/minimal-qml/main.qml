@@ -88,5 +88,10 @@ WaylandCompositor {
         onToplevelCreated:
             shellSurfaces.append({shellSurface: xdgSurface});
     }
+    IviApplication {
+        onIviSurfaceCreated: {
+            shellSurfaces.append({shellSurface: iviSurface});
+        }
+    }
     ListModel { id: shellSurfaces }
 }

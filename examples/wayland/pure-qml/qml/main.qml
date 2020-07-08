@@ -64,6 +64,11 @@ WaylandCompositor {
         onToplevelCreated: screen.handleShellSurface(xdgSurface)
     }
 
+    // Minimalistic shell extension. Mainly used for embedded applications.
+    IviApplication {
+        onIviSurfaceCreated: screen.handleShellSurface(iviSurface)
+    }
+
     // Deprecated shell extension, still used by some clients
     WlShell {
         onWlShellSurfaceCreated: screen.handleShellSurface(shellSurface)

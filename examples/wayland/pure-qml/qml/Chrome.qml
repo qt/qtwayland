@@ -77,7 +77,7 @@ ShellSurfaceItem {
         // some signals are not available on wl_shell, so let's ignore them
         ignoreUnknownSignals: true
 
-        onActivatedChanged: { // xdg_shell only
+        function onActivatedChanged() { // xdg_shell only
             if (shellSurface.activated) {
                 receivedFocusAnimation.start();
             }

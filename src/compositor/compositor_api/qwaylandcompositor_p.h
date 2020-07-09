@@ -89,7 +89,7 @@ public:
 
     QWaylandOutput *defaultOutput() const { return outputs.size() ? outputs.first() : nullptr; }
 
-    inline QtWayland::ClientBufferIntegration *clientBufferIntegration() const;
+    inline const QList<QtWayland::ClientBufferIntegration *> clientBufferIntegrations() const;
     inline QtWayland::ServerBufferIntegration *serverBufferIntegration() const;
 
 #if QT_CONFIG(wayland_datadevice)
@@ -155,9 +155,9 @@ protected:
 #if QT_CONFIG(opengl)
     bool use_hw_integration_extension = true;
     QScopedPointer<QtWayland::HardwareIntegration> hw_integration;
-    QScopedPointer<QtWayland::ClientBufferIntegration> client_buffer_integration;
     QScopedPointer<QtWayland::ServerBufferIntegration> server_buffer_integration;
 #endif
+    QList<QtWayland::ClientBufferIntegration*> client_buffer_integrations;
 
     QScopedPointer<QWindowSystemEventHandler> eventHandler;
 
@@ -174,13 +174,9 @@ protected:
     Q_DISABLE_COPY(QWaylandCompositorPrivate)
 };
 
-QtWayland::ClientBufferIntegration * QWaylandCompositorPrivate::clientBufferIntegration() const
+const QList<QtWayland::ClientBufferIntegration *> QWaylandCompositorPrivate::clientBufferIntegrations() const
 {
-#if QT_CONFIG(opengl)
-    return client_buffer_integration.data();
-#else
-    return 0;
-#endif
+    return client_buffer_integrations;
 }
 
 QtWayland::ServerBufferIntegration * QWaylandCompositorPrivate::serverBufferIntegration() const

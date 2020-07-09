@@ -75,12 +75,12 @@ void XCompositeEglClientBufferIntegration::initializeHardware(struct ::wl_displa
     } else {
         qFatal("Platform integration doesn't have native interface");
     }
-    new XCompositeHandler(m_compositor, mDisplay);
+    mHandler = new XCompositeHandler(m_compositor, mDisplay);
 }
 
 QtWayland::ClientBuffer *XCompositeEglClientBufferIntegration::createBufferFor(wl_resource *buffer)
 {
-    if (wl_shm_buffer_get(buffer))
+    if (!mHandler->isXCompositeBuffer(buffer))
         return nullptr;
     return new XCompositeEglClientBuffer(this, buffer);
 }

@@ -55,6 +55,16 @@ struct buffer_manager_destroy_listener : wl_listener
     BufferManager *d = nullptr;
 };
 
+void BufferManager::registerBuffer(wl_resource *buffer_resource, ClientBuffer *clientBuffer)
+{
+    m_buffers[buffer_resource] = clientBuffer;
+
+    auto *destroy_listener = new buffer_manager_destroy_listener;
+    destroy_listener->d = this;
+    wl_resource_add_destroy_listener(buffer_resource, destroy_listener);
+
+}
+
 ClientBuffer *BufferManager::getBuffer(wl_resource *buffer_resource)
 {
     if (!buffer_resource)
@@ -64,17 +74,19 @@ ClientBuffer *BufferManager::getBuffer(wl_resource *buffer_resource)
     if (it != m_buffers.end())
         return it.value();
 
-    auto bufferIntegration = QWaylandCompositorPrivate::get(m_compositor)->clientBufferIntegration();
     ClientBuffer *newBuffer = nullptr;
-    if (bufferIntegration)
-        newBuffer = bufferIntegration->createBufferFor(buffer_resource);
-    if (!newBuffer)
-        newBuffer = new SharedMemoryBuffer(buffer_resource);
-    m_buffers[buffer_resource] = newBuffer;
 
-    auto *destroy_listener = new buffer_manager_destroy_listener;
-    destroy_listener->d = this;
-    wl_resource_add_destroy_listener(buffer_resource, destroy_listener);
+    for (auto *integration : QWaylandCompositorPrivate::get(m_compositor)->clientBufferIntegrations()) {
+        newBuffer = integration->createBufferFor(buffer_resource);
+        if (newBuffer)
+            break;
+    }
+
+    if (newBuffer)
+        registerBuffer(buffer_resource, newBuffer);
+    else
+        qCWarning(qLcWaylandCompositorHardwareIntegration) << "Could not create buffer for resource.";
+
     return newBuffer;
 }
 

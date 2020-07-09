@@ -41,21 +41,21 @@ HardwareIntegration::HardwareIntegration(QWaylandCompositor *compositor)
 {
 }
 
-void HardwareIntegration::setClientBufferIntegration(const QString &name)
+void HardwareIntegration::setClientBufferIntegrationName(const QString &name)
 {
-    m_client_buffer_integration = name;
+    m_client_buffer_integration_name = name;
 }
-void HardwareIntegration::setServerBufferIntegration(const QString &name)
+void HardwareIntegration::setServerBufferIntegrationName(const QString &name)
 {
-    m_server_buffer_integration = name;
+    m_server_buffer_integration_name = name;
 }
 
 void HardwareIntegration::hardware_integration_bind_resource(Resource *resource)
 {
-    if (m_client_buffer_integration.size())
-        send_client_backend(resource->handle, m_client_buffer_integration);
-    if (m_server_buffer_integration.size())
-        send_server_backend(resource->handle, m_server_buffer_integration);
+    if (!m_client_buffer_integration_name.isEmpty())
+        send_client_backend(resource->handle, m_client_buffer_integration_name);
+    if (!m_server_buffer_integration_name.isEmpty())
+        send_server_backend(resource->handle, m_server_buffer_integration_name);
 }
 
 }

@@ -40,6 +40,8 @@
 
 QT_BEGIN_NAMESPACE
 
+class XCompositeHandler;
+
 class XCompositeEglClientBufferIntegration : public QtWayland::ClientBufferIntegration
 {
 public:
@@ -53,6 +55,7 @@ public:
 private:
     Display *mDisplay = nullptr;
     EGLDisplay mEglDisplay = EGL_NO_DISPLAY;
+    XCompositeHandler *mHandler = nullptr;
 };
 
 class XCompositeEglClientBuffer : public QtWayland::ClientBuffer

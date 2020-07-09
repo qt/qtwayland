@@ -59,7 +59,8 @@ void XCompositeHandler::xcomposite_bind_resource(Resource *resource)
 void XCompositeHandler::xcomposite_create_buffer(Resource *resource, uint32_t id, uint32_t window,
                                                  int32_t width, int32_t height)
 {
-    new XCompositeBuffer(Window(window), QSize(width, height), resource->client(), id);
+    auto *buf = new XCompositeBuffer(Window(window), QSize(width, height), resource->client(), id, this);
+    mKnownBuffers.insert(buf->resource()->handle);
 }
 
 QT_END_NAMESPACE

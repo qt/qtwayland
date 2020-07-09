@@ -290,10 +290,9 @@ void WaylandEglStreamClientBufferIntegration::attachEglStreamConsumer(struct ::w
     Q_D(WaylandEglStreamClientBufferIntegration);
     Q_UNUSED(wl_surface);
 
-    // NOTE: must use getBuffer to create the buffer here, so the buffer will end up in the buffer manager's hash
-
+    auto *clientBuffer = new WaylandEglStreamClientBuffer(this, wl_buffer);
     auto *bufferManager = QWaylandCompositorPrivate::get(m_compositor)->bufferManager();
-    auto *clientBuffer = static_cast<WaylandEglStreamClientBuffer*>(bufferManager->getBuffer(wl_buffer));
+    bufferManager->registerBuffer(wl_buffer, clientBuffer);
 
     d->initEglStream(clientBuffer, wl_buffer);
 }

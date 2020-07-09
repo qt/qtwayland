@@ -254,10 +254,8 @@ QWaylandCompositorPrivate::~QWaylandCompositorPrivate()
     delete data_device_manager;
 #endif
 
-#if QT_CONFIG(opengl)
     // Some client buffer integrations need to clean up before the destroying the wl_display
-    client_buffer_integration.reset();
-#endif
+    qDeleteAll(client_buffer_integrations);
 
     if (ownsDisplay)
         wl_display_destroy(display);
@@ -363,9 +361,28 @@ QWaylandSurface *QWaylandCompositorPrivate::createDefaultSurface()
     return new QWaylandSurface();
 }
 
+class SharedMemoryClientBufferIntegration : public QtWayland::ClientBufferIntegration
+{
+public:
+    void initializeHardware(wl_display *display) override;
+    QtWayland::ClientBuffer *createBufferFor(wl_resource *buffer) override;
+};
+
+void SharedMemoryClientBufferIntegration::initializeHardware(wl_display *)
+{
+}
+
+QtWayland::ClientBuffer *SharedMemoryClientBufferIntegration::createBufferFor(wl_resource *buffer)
+{
+    if (wl_shm_buffer_get(buffer))
+        return new QtWayland::SharedMemoryBuffer(buffer);
+    return nullptr;
+}
 
 void QWaylandCompositorPrivate::initializeHardwareIntegration()
 {
+    client_buffer_integrations.prepend(new SharedMemoryClientBufferIntegration); // TODO: clean up the opengl dependency
+
 #if QT_CONFIG(opengl)
     Q_Q(QWaylandCompositor);
     if (use_hw_integration_extension)
@@ -374,8 +391,8 @@ void QWaylandCompositorPrivate::initializeHardwareIntegration()
     loadClientBufferIntegration();
     loadServerBufferIntegration();
 
-    if (client_buffer_integration)
-        client_buffer_integration->initializeHardware(display);
+    for (auto *integration : qAsConst(client_buffer_integrations))
+        integration->initializeHardware(display);
 #endif
 }
 
@@ -390,27 +407,40 @@ void QWaylandCompositorPrivate::loadClientBufferIntegration()
 #if QT_CONFIG(opengl)
     Q_Q(QWaylandCompositor);
     QStringList keys = QtWayland::ClientBufferIntegrationFactory::keys();
-    QString targetKey;
+    QStringList targetKeys;
     QByteArray clientBufferIntegration = qgetenv("QT_WAYLAND_HARDWARE_INTEGRATION");
     if (clientBufferIntegration.isEmpty())
         clientBufferIntegration = qgetenv("QT_WAYLAND_CLIENT_BUFFER_INTEGRATION");
-    if (keys.contains(QString::fromLocal8Bit(clientBufferIntegration.constData()))) {
-        targetKey = QString::fromLocal8Bit(clientBufferIntegration.constData());
-    } else if (keys.contains(QString::fromLatin1("wayland-egl"))) {
-        targetKey = QString::fromLatin1("wayland-egl");
-    } else if (!keys.isEmpty()) {
-        targetKey = keys.first();
+
+    for (auto b : clientBufferIntegration.split(';')) {
+        QString s = QString::fromLocal8Bit(b);
+        if (keys.contains(s))
+            targetKeys.append(s);
     }
 
-    if (!targetKey.isEmpty()) {
-        client_buffer_integration.reset(QtWayland::ClientBufferIntegrationFactory::create(targetKey, QStringList()));
-        if (client_buffer_integration) {
-            client_buffer_integration->setCompositor(q);
-            if (hw_integration)
-                hw_integration->setClientBufferIntegration(targetKey);
+    if (targetKeys.isEmpty()) {
+        if (keys.contains(QString::fromLatin1("wayland-egl"))) {
+            targetKeys.append(QString::fromLatin1("wayland-egl"));
+        } else if (!keys.isEmpty()) {
+            targetKeys.append(keys.first());
         }
     }
-    //BUG: if there is no client buffer integration, bad things will happen when opengl is used
+
+    QString hwIntegrationName;
+
+    for (auto targetKey : qAsConst(targetKeys)) {
+        auto *integration = QtWayland::ClientBufferIntegrationFactory::create(targetKey, QStringList());
+        if (integration) {
+            integration->setCompositor(q);
+            client_buffer_integrations.append(integration);
+            if (hwIntegrationName.isEmpty())
+                hwIntegrationName = targetKey;
+        }
+    }
+
+    if (hw_integration && !hwIntegrationName.isEmpty())
+        hw_integration->setClientBufferIntegrationName(hwIntegrationName);
+
 #endif
 }
 
@@ -441,7 +471,7 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
     }
 
     if (server_buffer_integration && hw_integration)
-        hw_integration->setServerBufferIntegration(targetKey);
+        hw_integration->setServerBufferIntegrationName(targetKey);
 #endif
 }
 

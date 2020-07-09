@@ -27,21 +27,24 @@
 **
 ****************************************************************************/
 
+#include "xcompositehandler.h"
 #include "xcompositebuffer.h"
 
 QT_BEGIN_NAMESPACE
 
 XCompositeBuffer::XCompositeBuffer(Window window, const QSize &size,
-                                   struct ::wl_client *client, uint32_t id)
+                                   struct ::wl_client *client, uint32_t id, XCompositeHandler *handler)
     : QtWaylandServer::wl_buffer(client, id, 1)
     , mWindow(window)
     , mOrigin(QWaylandSurface::OriginBottomLeft)
     , mSize(size)
+    , mHandler(handler)
 {
 }
 
-void XCompositeBuffer::buffer_destroy_resource(Resource *)
+void XCompositeBuffer::buffer_destroy_resource(Resource *resource)
 {
+    mHandler->removeBuffer(resource->handle);
     delete this;
 }
 

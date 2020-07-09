@@ -48,11 +48,13 @@
 
 QT_BEGIN_NAMESPACE
 
+class XCompositeHandler;
+
 class XCompositeBuffer : public QtWaylandServer::wl_buffer
 {
 public:
     XCompositeBuffer(Window window, const QSize &size,
-                     struct ::wl_client *client, uint32_t id);
+                     struct ::wl_client *client, uint32_t id, XCompositeHandler *handler);
 
     Window window();
 
@@ -71,6 +73,7 @@ private:
     Window mWindow;
     QWaylandSurface::Origin mOrigin;
     QSize mSize;
+    XCompositeHandler *mHandler = nullptr;
 };
 
 QT_END_NAMESPACE

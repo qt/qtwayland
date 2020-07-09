@@ -43,16 +43,17 @@ class XCompositeHandler : public QtWaylandServer::qt_xcomposite
 {
 public:
     XCompositeHandler(QWaylandCompositor *compositor, Display *display);
+    bool isXCompositeBuffer(wl_resource *resource) { return mKnownBuffers.contains(resource); }
+    void removeBuffer(wl_resource *resource) { mKnownBuffers.remove(resource); }
 
 private:
     QWindow *mFakeRootWindow = nullptr;
-
     QString mDisplayString;
+    QSet<wl_resource *> mKnownBuffers;
 
     void xcomposite_bind_resource(Resource *resource) override;
     void xcomposite_create_buffer(Resource *resource, uint32_t id, uint32_t x_window,
                                   int32_t width, int32_t height) override;
-
 };
 
 QT_END_NAMESPACE

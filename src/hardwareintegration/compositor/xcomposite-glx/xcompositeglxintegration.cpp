@@ -102,7 +102,7 @@ void XCompositeGLXClientBufferIntegration::initializeHardware(struct ::wl_displa
 
 QtWayland::ClientBuffer *XCompositeGLXClientBufferIntegration::createBufferFor(wl_resource *buffer)
 {
-    if (wl_shm_buffer_get(buffer))
+    if (!mHandler->isXCompositeBuffer(buffer))
         return nullptr;
     return new XCompositeGLXClientBuffer(this, buffer);
 }

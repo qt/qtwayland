@@ -395,16 +395,12 @@ void LinuxDmabufClientBufferIntegration::deleteImage(EGLImageKHR image)
 
 QtWayland::ClientBuffer *LinuxDmabufClientBufferIntegration::createBufferFor(wl_resource *resource)
 {
-    // fallback for shared memory buffers
-    if (wl_shm_buffer_get(resource))
-        return nullptr;
-
     auto it = m_importedBuffers.find(resource);
     if (it != m_importedBuffers.end()) {
         m_importedBuffers.value(resource);
         return new LinuxDmabufClientBuffer(this, it.value()->resource()->handle, m_importedBuffers.value(resource));
     }
-    qCWarning(qLcWaylandCompositorHardwareIntegration) << "could not create client buffer for dmabuf buffer";
+
     return nullptr;
 }
 

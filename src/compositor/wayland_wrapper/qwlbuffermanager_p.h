@@ -56,6 +56,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT BufferManager : public QObject
 public:
     BufferManager(QWaylandCompositor *compositor);
     ClientBuffer *getBuffer(struct ::wl_resource *buffer_resource);
+    void registerBuffer(struct ::wl_resource *buffer_resource, ClientBuffer *clientBuffer);
 private:
     friend struct buffer_manager_destroy_listener;
     static void destroy_listener_callback(wl_listener *listener, void *data);

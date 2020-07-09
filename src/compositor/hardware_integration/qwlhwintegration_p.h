@@ -58,15 +58,15 @@ class HardwareIntegration : public QWaylandCompositorExtensionTemplate<HardwareI
 public:
     HardwareIntegration(QWaylandCompositor *compositor);
 
-    void setClientBufferIntegration(const QString &name);
-    void setServerBufferIntegration(const QString &name);
+    void setClientBufferIntegrationName(const QString &name);
+    void setServerBufferIntegrationName(const QString &name);
 
 protected:
     void hardware_integration_bind_resource(Resource *resource) override;
 
 private:
-    QString m_client_buffer_integration;
-    QString m_server_buffer_integration;
+    QString m_client_buffer_integration_name;
+    QString m_server_buffer_integration_name;
 };
 
 }

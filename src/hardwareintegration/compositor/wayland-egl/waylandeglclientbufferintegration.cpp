@@ -468,7 +468,10 @@ void WaylandEglClientBufferIntegration::initializeHardware(struct wl_display *di
 
 QtWayland::ClientBuffer *WaylandEglClientBufferIntegration::createBufferFor(wl_resource *buffer)
 {
-    if (wl_shm_buffer_get(buffer))
+    Q_D(WaylandEglClientBufferIntegration);
+    int w = -1;
+    bool q = d->egl_query_wayland_buffer(d->egl_display, buffer, EGL_WIDTH, &w);
+    if (!q || w <= 0)
         return nullptr;
     return new WaylandEglClientBuffer(this, buffer);
 }

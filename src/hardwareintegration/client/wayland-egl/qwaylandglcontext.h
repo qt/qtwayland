@@ -40,11 +40,11 @@
 #ifndef QWAYLANDGLCONTEXT_H
 #define QWAYLANDGLCONTEXT_H
 
+#include "qwaylandeglinclude.h" //must be first
+
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
-
+#include <QtGui/private/qeglplatformcontext_p.h>
 #include <qpa/qplatformopenglcontext.h>
-
-#include "qwaylandeglinclude.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -57,12 +57,11 @@ class QWaylandWindow;
 class QWaylandGLWindowSurface;
 class DecorationsBlitter;
 
-class QWaylandGLContext : public QPlatformOpenGLContext
+class QWaylandGLContext : public QEGLPlatformContext
 {
 public:
     QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *display, const QSurfaceFormat &format, QPlatformOpenGLContext *share);
     ~QWaylandGLContext();
-
     void swapBuffers(QPlatformSurface *surface) override;
 
     bool makeCurrent(QPlatformSurface *surface) override;
@@ -70,29 +69,21 @@ public:
 
     GLuint defaultFramebufferObject(QPlatformSurface *surface) const override;
 
-    bool isSharing() const override;
-    bool isValid() const override;
-
     QFunctionPointer getProcAddress(const char *procName) override;
 
-    QSurfaceFormat format() const override { return m_format; }
-
-    EGLConfig eglConfig() const;
-    EGLContext eglContext() const { return m_context; }
+protected:
+    EGLSurface eglSurfaceForPlatformSurface(QPlatformSurface *surface) override;
+    EGLSurface createTemporaryOffscreenSurface() override;
+    void destroyTemporaryOffscreenSurface(EGLSurface surface) override;
 
 private:
-    void updateGLFormat();
-
-    EGLDisplay m_eglDisplay = EGL_NO_DISPLAY;
     QWaylandDisplay *m_display = nullptr;
-    EGLContext m_context;
-    EGLContext m_shareEGLContext;
     EGLContext m_decorationsContext;
-    EGLConfig m_config;
-    QSurfaceFormat m_format;
     DecorationsBlitter *m_blitter = nullptr;
-    uint m_api;
     bool m_supportNonBlockingSwap = true;
+    EGLenum m_api;
+    wl_surface *m_wlSurface = nullptr;
+    wl_egl_window *m_eglWindow = nullptr;
 };
 
 }

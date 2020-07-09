@@ -226,100 +226,37 @@ public:
     int m_textureWrap;
 };
 
-
-
-QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *display, const QSurfaceFormat &format, QPlatformOpenGLContext *share)
-    : QPlatformOpenGLContext()
-    , m_eglDisplay(eglDisplay)
-    , m_display(display)
+QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *display,
+                                     const QSurfaceFormat &fmt, QPlatformOpenGLContext *share)
+    : QEGLPlatformContext(fmt, share, eglDisplay), m_display(display)
 {
-    m_config = q_configFromGLFormat(m_eglDisplay, format);
-    m_format = q_glFormatFromConfig(m_eglDisplay, m_config, format);
-    m_shareEGLContext = share ? static_cast<QWaylandGLContext *>(share)->eglContext() : EGL_NO_CONTEXT;
-
-    QList<EGLint> eglContextAttrs;
-    eglContextAttrs.append(EGL_CONTEXT_CLIENT_VERSION);
-    eglContextAttrs.append(format.majorVersion());
-    const bool hasKHRCreateContext = q_hasEglExtension(m_eglDisplay, "EGL_KHR_create_context");
-    if (hasKHRCreateContext) {
-        eglContextAttrs.append(EGL_CONTEXT_MINOR_VERSION_KHR);
-        eglContextAttrs.append(format.minorVersion());
-        int flags = 0;
-        // The debug bit is supported both for OpenGL and OpenGL ES.
-        if (format.testOption(QSurfaceFormat::DebugContext))
-            flags |= EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR;
-        // The fwdcompat bit is only for OpenGL 3.0+.
-        if (m_format.renderableType() == QSurfaceFormat::OpenGL
-            && format.majorVersion() >= 3
-            && !format.testOption(QSurfaceFormat::DeprecatedFunctions))
-            flags |= EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE_BIT_KHR;
-        if (flags) {
-            eglContextAttrs.append(EGL_CONTEXT_FLAGS_KHR);
-            eglContextAttrs.append(flags);
-        }
-        // Profiles are OpenGL only and mandatory in 3.2+. The value is silently ignored for < 3.2.
-        if (m_format.renderableType() == QSurfaceFormat::OpenGL) {
-            switch (format.profile()) {
-            case QSurfaceFormat::NoProfile:
-                break;
-            case QSurfaceFormat::CoreProfile:
-                eglContextAttrs.append(EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR);
-                eglContextAttrs.append(EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR);
-                break;
-            case QSurfaceFormat::CompatibilityProfile:
-                eglContextAttrs.append(EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR);
-                eglContextAttrs.append(EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT_KHR);
-                break;
-            }
-        }
-    }
-    eglContextAttrs.append(EGL_NONE);
-
-    switch (m_format.renderableType()) {
+    switch (format().renderableType()) {
     case QSurfaceFormat::OpenVG:
         m_api = EGL_OPENVG_API;
         break;
 #ifdef EGL_VERSION_1_4
-#  if !QT_CONFIG(opengles2)
-    case QSurfaceFormat::DefaultRenderableType:
-#  endif
     case QSurfaceFormat::OpenGL:
         m_api = EGL_OPENGL_API;
         break;
-#endif
-    case QSurfaceFormat::OpenGLES:
+#endif // EGL_VERSION_1_4
     default:
         m_api = EGL_OPENGL_ES_API;
         break;
-    }
-    eglBindAPI(m_api);
-
-    m_context = eglCreateContext(m_eglDisplay, m_config, m_shareEGLContext, eglContextAttrs.constData());
-
-    if (m_context == EGL_NO_CONTEXT) {
-        m_context = eglCreateContext(m_eglDisplay, m_config, EGL_NO_CONTEXT, eglContextAttrs.constData());
-        m_shareEGLContext = EGL_NO_CONTEXT;
-    }
-
-    EGLint error = eglGetError();
-    if (error != EGL_SUCCESS) {
-        qWarning("QWaylandGLContext: failed to create EGLContext, error=%x", error);
-        return;
     }
 
     // Create an EGL context for the decorations blitter. By using a dedicated context we don't need to make sure to not
     // change the context state and we also use OpenGL ES 2 API independently to what the app is using to draw.
     QList<EGLint> eglDecorationsContextAttrs = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
-    m_decorationsContext = eglCreateContext(m_eglDisplay, m_config, m_context, eglDecorationsContextAttrs.constData());
+    m_decorationsContext = eglCreateContext(eglDisplay, eglConfig(), eglContext(),
+                                            eglDecorationsContextAttrs.constData());
     if (m_decorationsContext == EGL_NO_CONTEXT)
         qWarning("QWaylandGLContext: Failed to create the decorations EGLContext. Decorations will not be drawn.");
 
     EGLint a = EGL_MIN_SWAP_INTERVAL;
     EGLint b = EGL_MAX_SWAP_INTERVAL;
-    if (!eglGetConfigAttrib(m_eglDisplay, m_config, a, &a) ||
-        !eglGetConfigAttrib(m_eglDisplay, m_config, b, &b) ||
-        a > 0) {
-       m_supportNonBlockingSwap = false;
+    if (!eglGetConfigAttrib(eglDisplay, eglConfig(), a, &a)
+        || !eglGetConfigAttrib(eglDisplay, eglConfig(), b, &b) || a > 0) {
+        m_supportNonBlockingSwap = false;
     }
     {
         bool ok;
@@ -332,76 +269,34 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *dis
                                << "Subsurface rendering can be affected."
                                << "It may also cause the event loop to freeze in some situations";
     }
-
-    updateGLFormat();
 }
 
-void QWaylandGLContext::updateGLFormat()
+EGLSurface QWaylandGLContext::createTemporaryOffscreenSurface()
 {
-    // Have to save & restore to prevent QOpenGLContext::currentContext() from becoming
-    // inconsistent after QOpenGLContext::create().
-    EGLDisplay prevDisplay = eglGetCurrentDisplay();
-    if (prevDisplay == EGL_NO_DISPLAY) // when no context is current
-        prevDisplay = m_eglDisplay;
-    EGLContext prevContext = eglGetCurrentContext();
-    EGLSurface prevSurfaceDraw = eglGetCurrentSurface(EGL_DRAW);
-    EGLSurface prevSurfaceRead = eglGetCurrentSurface(EGL_READ);
-
-    wl_surface *wlSurface = m_display->createSurface(nullptr);
-    wl_egl_window *eglWindow = wl_egl_window_create(wlSurface, 1, 1);
+    m_wlSurface = m_display->createSurface(nullptr);
+    m_eglWindow = wl_egl_window_create(m_wlSurface, 1, 1);
 #if QT_CONFIG(egl_extension_platform_wayland)
-    EGLSurface eglSurface = eglCreatePlatformWindowSurface(m_eglDisplay, m_config, eglWindow, nullptr);
+    EGLSurface eglSurface =
+            eglCreatePlatformWindowSurface(eglDisplay(), eglConfig(), m_eglWindow, nullptr);
 #else
-    EGLSurface eglSurface = eglCreateWindowSurface(m_eglDisplay, m_config, eglWindow, nullptr);
+    EGLSurface eglSurface = eglCreateWindowSurface(eglDisplay(), eglConfig(), m_eglWindow, nullptr);
 #endif
+    return eglSurface;
+}
 
-    if (eglMakeCurrent(m_eglDisplay, eglSurface, eglSurface, m_context)) {
-        if (m_format.renderableType() == QSurfaceFormat::OpenGL
-            || m_format.renderableType() == QSurfaceFormat::OpenGLES) {
-            const GLubyte *s = glGetString(GL_VERSION);
-            if (s) {
-                QByteArray version = QByteArray(reinterpret_cast<const char *>(s));
-                int major, minor;
-                if (QPlatformOpenGLContext::parseOpenGLVersion(version, major, minor)) {
-                    m_format.setMajorVersion(major);
-                    m_format.setMinorVersion(minor);
-                }
-            }
-            m_format.setProfile(QSurfaceFormat::NoProfile);
-            m_format.setOptions(QSurfaceFormat::FormatOptions());
-            if (m_format.renderableType() == QSurfaceFormat::OpenGL) {
-                // Check profile and options.
-                if (m_format.majorVersion() < 3) {
-                    m_format.setOption(QSurfaceFormat::DeprecatedFunctions);
-                } else {
-                    GLint value = 0;
-                    glGetIntegerv(GL_CONTEXT_FLAGS, &value);
-                    if (!(value & GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT))
-                        m_format.setOption(QSurfaceFormat::DeprecatedFunctions);
-                    if (value & GL_CONTEXT_FLAG_DEBUG_BIT)
-                        m_format.setOption(QSurfaceFormat::DebugContext);
-                    if (m_format.version() >= qMakePair(3, 2)) {
-                        value = 0;
-                        glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &value);
-                        if (value & GL_CONTEXT_CORE_PROFILE_BIT)
-                            m_format.setProfile(QSurfaceFormat::CoreProfile);
-                        else if (value & GL_CONTEXT_COMPATIBILITY_PROFILE_BIT)
-                            m_format.setProfile(QSurfaceFormat::CompatibilityProfile);
-                    }
-                }
-            }
-        }
-        eglMakeCurrent(prevDisplay, prevSurfaceDraw, prevSurfaceRead, prevContext);
-    }
-    eglDestroySurface(m_eglDisplay, eglSurface);
-    wl_egl_window_destroy(eglWindow);
-    wl_surface_destroy(wlSurface);
+void QWaylandGLContext::destroyTemporaryOffscreenSurface(EGLSurface eglSurface)
+{
+    eglDestroySurface(eglDisplay(), eglSurface);
+    wl_egl_window_destroy(m_eglWindow);
+    m_eglWindow = nullptr;
+    wl_surface_destroy(m_wlSurface);
+    m_wlSurface = nullptr;
 }
 
 QWaylandGLContext::~QWaylandGLContext()
 {
     delete m_blitter;
-    eglDestroyContext(m_eglDisplay, m_context);
+    m_blitter = nullptr;
 }
 
 bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
@@ -419,7 +314,7 @@ bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
     EGLSurface eglSurface = window->eglSurface();
 
     if (!window->needToUpdateContentFBO() && (eglSurface != EGL_NO_SURFACE)) {
-        if (!eglMakeCurrent(m_eglDisplay, eglSurface, eglSurface, m_context)) {
+        if (!eglMakeCurrent(eglDisplay(), eglSurface, eglSurface, eglContext())) {
             qWarning("QWaylandGLContext::makeCurrent: eglError: %x, this: %p \n", eglGetError(), this);
             return false;
         }
@@ -436,7 +331,7 @@ bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
         eglSurface = window->eglSurface();
     }
 
-    if (!eglMakeCurrent(m_eglDisplay, eglSurface, eglSurface, m_context)) {
+    if (!eglMakeCurrent(eglDisplay(), eglSurface, eglSurface, eglContext())) {
         qWarning("QWaylandGLContext::makeCurrent: eglError: %x, this: %p \n", eglGetError(), this);
         window->setCanResize(true);
         return false;
@@ -452,7 +347,7 @@ bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
 
 void QWaylandGLContext::doneCurrent()
 {
-    eglMakeCurrent(m_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    eglMakeCurrent(eglDisplay(), EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
 }
 
 void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
@@ -470,7 +365,7 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
         EGLContext currentContext = eglGetCurrentContext();
         EGLSurface currentSurfaceDraw = eglGetCurrentSurface(EGL_DRAW);
         EGLSurface currentSurfaceRead = eglGetCurrentSurface(EGL_READ);
-        eglMakeCurrent(m_eglDisplay, eglSurface, eglSurface, m_decorationsContext);
+        eglMakeCurrent(eglDisplay(), eglSurface, eglSurface, m_decorationsContext);
 
         if (!m_blitter)
             m_blitter = new DecorationsBlitter(this);
@@ -481,15 +376,15 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
         eglMakeCurrent(currentDisplay, currentSurfaceDraw, currentSurfaceRead, currentContext);
     }
 
-    int swapInterval = m_supportNonBlockingSwap ? 0 : m_format.swapInterval();
-    eglSwapInterval(m_eglDisplay, swapInterval);
-    if (swapInterval == 0 && m_format.swapInterval() > 0) {
+    int swapInterval = m_supportNonBlockingSwap ? 0 : format().swapInterval();
+    eglSwapInterval(eglDisplay(), swapInterval);
+    if (swapInterval == 0 && format().swapInterval() > 0) {
         // Emulating a blocking swap
         glFlush(); // Flush before waiting so we can swap more quickly when the frame event arrives
         window->waitForFrameSync(100);
     }
     window->handleUpdate();
-    eglSwapBuffers(m_eglDisplay, eglSurface);
+    eglSwapBuffers(eglDisplay(), eglSurface);
 
     window->setCanResize(true);
 }
@@ -497,16 +392,6 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
 GLuint QWaylandGLContext::defaultFramebufferObject(QPlatformSurface *surface) const
 {
     return static_cast<QWaylandEglWindow *>(surface)->contentFBO();
-}
-
-bool QWaylandGLContext::isSharing() const
-{
-    return m_shareEGLContext != EGL_NO_CONTEXT;
-}
-
-bool QWaylandGLContext::isValid() const
-{
-    return m_context != EGL_NO_CONTEXT;
 }
 
 QFunctionPointer QWaylandGLContext::getProcAddress(const char *procName)
@@ -517,9 +402,9 @@ QFunctionPointer QWaylandGLContext::getProcAddress(const char *procName)
     return proc;
 }
 
-EGLConfig QWaylandGLContext::eglConfig() const
+EGLSurface QWaylandGLContext::eglSurfaceForPlatformSurface(QPlatformSurface *surface)
 {
-    return m_config;
+    return static_cast<QWaylandEglWindow *>(surface)->eglSurface();
 }
 
 }

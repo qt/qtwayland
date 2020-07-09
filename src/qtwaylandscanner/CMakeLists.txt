@@ -4,7 +4,8 @@
 ## qtwaylandscanner Tool:
 #####################################################################
 
-qt_add_tool(qtwaylandscanner
+qt_get_tool_target_name(target_name qtwaylandscanner)
+qt_add_tool(${target_name}
     TOOLS_TARGET WaylandScanner # special case
     SOURCES
         qtwaylandscanner.cpp

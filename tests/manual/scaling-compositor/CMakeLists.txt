@@ -11,7 +11,6 @@ qt_add_manual_test(scaling-compositor
     PUBLIC_LIBRARIES
         Qt::Gui
         Qt::Qml
-        Qt::QuickControls2
 )
 
 # Resources:

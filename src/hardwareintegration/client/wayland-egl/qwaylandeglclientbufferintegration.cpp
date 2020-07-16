@@ -152,7 +152,10 @@ QWaylandWindow *QWaylandEglClientBufferIntegration::createEglWindow(QWindow *win
 
 QPlatformOpenGLContext *QWaylandEglClientBufferIntegration::createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const
 {
-    return new QWaylandGLContext(m_eglDisplay, m_display, glFormat, share);
+    QSurfaceFormat fmt = glFormat;
+    if (m_display->supportsWindowDecoration())
+        fmt.setAlphaBufferSize(8);
+    return new QWaylandGLContext(m_eglDisplay, m_display, fmt, share);
 }
 
 void *QWaylandEglClientBufferIntegration::nativeResource(NativeResource resource)

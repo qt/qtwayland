@@ -233,11 +233,8 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *dis
     , m_eglDisplay(eglDisplay)
     , m_display(display)
 {
-    QSurfaceFormat fmt = format;
-    if (static_cast<QWaylandIntegration *>(QGuiApplicationPrivate::platformIntegration())->display()->supportsWindowDecoration())
-        fmt.setAlphaBufferSize(8);
-    m_config = q_configFromGLFormat(m_eglDisplay, fmt);
-    m_format = q_glFormatFromConfig(m_eglDisplay, m_config, fmt);
+    m_config = q_configFromGLFormat(m_eglDisplay, format);
+    m_format = q_glFormatFromConfig(m_eglDisplay, m_config, format);
     m_shareEGLContext = share ? static_cast<QWaylandGLContext *>(share)->eglContext() : EGL_NO_CONTEXT;
 
     QList<EGLint> eglContextAttrs;

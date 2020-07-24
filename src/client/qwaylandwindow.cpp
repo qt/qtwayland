@@ -86,6 +86,8 @@ QWaylandWindow::QWaylandWindow(QWindow *window, QWaylandDisplay *display)
             mFrameCallbackTimeout = frameCallbackTimeout;
     }
 
+    mScale = waylandScreen() ? waylandScreen()->scale() : 1; // fallback to 1 if we don't have a real screen
+
     static WId id = 1;
     mWindowId = id++;
     initializeWlSurface();
@@ -181,8 +183,6 @@ void QWaylandWindow::initWindow()
             qWarning("Could not create a shell surface object.");
         }
     }
-
-    mScale = waylandScreen() ? waylandScreen()->scale() : 1; // fallback to 1 if we don't have a real screen
 
     // Enable high-dpi rendering. Scale() returns the screen scale factor and will
     // typically be integer 1 (normal-dpi) or 2 (high-dpi). Call set_buffer_scale()

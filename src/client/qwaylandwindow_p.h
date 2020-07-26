@@ -271,6 +271,7 @@ private:
 
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
     void handleScreensChanged();
+    void sendRecursiveExposeEvent();
 
     bool mInResizeFromApplyConfigure = false;
     bool lastVisible = false;

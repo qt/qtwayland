@@ -516,8 +516,20 @@ void QWaylandWindow::applyConfigure()
         doApplyConfigure();
 
     lock.unlock();
-    sendExposeEvent(QRect(QPoint(), geometry().size()));
+    sendRecursiveExposeEvent();
     QWindowSystemInterface::flushWindowSystemEvents();
+}
+
+void QWaylandWindow::sendRecursiveExposeEvent()
+{
+    if (!window()->isVisible())
+        return;
+    sendExposeEvent(QRect(QPoint(), geometry().size()));
+
+    for (QWaylandSubSurface *subSurface : qAsConst(mChildren)) {
+        auto subWindow = subSurface->window();
+        subWindow->sendRecursiveExposeEvent();
+    }
 }
 
 void QWaylandWindow::attach(QWaylandBuffer *buffer, int x, int y)

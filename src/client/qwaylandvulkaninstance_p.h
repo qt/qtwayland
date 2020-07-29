@@ -40,6 +40,17 @@
 #ifndef QWAYLANDVULKANINSTANCE_P_H
 #define QWAYLANDVULKANINSTANCE_P_H
 
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+
 #if defined(VULKAN_H_) && !defined(VK_USE_PLATFORM_WAYLAND_KHR)
 #error "vulkan.h included without Wayland WSI"
 #endif

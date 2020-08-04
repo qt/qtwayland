@@ -1,6 +1,12 @@
 # Generated from tests.pro.
 
-qt_find_package(Threads REQUIRED) # special case
+# special case begin
+# TODO: Prepare for removal, once Platform brings in Threads.
+if(NOT TARGET Threads::Threads)
+    qt_find_package(Threads REQUIRED)
+endif()
+# special case end
+
 if(QT_BUILD_STANDALONE_TESTS)
     # Add qt_find_package calls for extra dependencies that need to be found when building
     # the standalone tests here.

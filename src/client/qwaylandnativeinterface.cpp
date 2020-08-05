@@ -55,8 +55,6 @@
 #include <QtWaylandClient/private/qwaylandvulkanwindow_p.h>
 #endif
 
-#include <QtPlatformHeaders/private/qwaylandwindowfunctions_p.h>
-
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -192,44 +190,6 @@ void QWaylandNativeInterface::setWindowProperty(QPlatformWindow *window, const Q
 void QWaylandNativeInterface::emitWindowPropertyChanged(QPlatformWindow *window, const QString &name)
 {
     emit windowPropertyChanged(window,name);
-}
-
-QFunctionPointer QWaylandNativeInterface::platformFunction(const QByteArray &resource) const
-{
-    if (resource == QWaylandWindowFunctions::setSyncIdentifier()) {
-        return QFunctionPointer(setSync);
-    } else if (resource == QWaylandWindowFunctions::setDeSyncIdentifier()) {
-        return QFunctionPointer(setDeSync);
-    } else if (resource == QWaylandWindowFunctions::isSyncIdentifier()) {
-        return QFunctionPointer(isSync);
-    }
-    return nullptr;
-}
-
-
-void QWaylandNativeInterface::setSync(QWindow *window)
-{
-    QWaylandWindow *ww = static_cast<QWaylandWindow*>(window->handle());
-    if (ww->subSurfaceWindow()) {
-        ww->subSurfaceWindow()->setSync();
-    }
-}
-
-void QWaylandNativeInterface::setDeSync(QWindow *window)
-{
-    QWaylandWindow *ww = static_cast<QWaylandWindow*>(window->handle());
-    if (ww->subSurfaceWindow()) {
-        ww->subSurfaceWindow()->setDeSync();
-    }
-}
-
-bool QWaylandNativeInterface::isSync(QWindow *window)
-{
-    QWaylandWindow *ww = static_cast<QWaylandWindow*>(window->handle());
-    if (ww->subSurfaceWindow()) {
-        return ww->subSurfaceWindow()->isSync();
-    }
-    return false;
 }
 
 }

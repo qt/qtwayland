@@ -54,8 +54,6 @@
 #include <QQmlContext>
 #include <QQuickView>
 
-#include <QtPlatformHeaders/qwaylandwindowfunctions.h>
-
 #include "shmwindow.h"
 
 class Filter : public QObject
@@ -84,12 +82,6 @@ public:
 
     void toggleSync(QWindow *w)
     {
-        sync = !QWaylandWindowFunctions::isSync(w);
-        if (QWaylandWindowFunctions::isSync(w))
-            QWaylandWindowFunctions::setDeSync(w);
-        else
-            QWaylandWindowFunctions::setSync(w);
-        emit syncChanged();
     }
 
     bool getSync() const

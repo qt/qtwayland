@@ -82,15 +82,9 @@ public:
 
     void emitWindowPropertyChanged(QPlatformWindow *window, const QString &name);
 
-    QFunctionPointer platformFunction(const QByteArray &resource) const override;
-
 private:
     QWaylandIntegration *m_integration = nullptr;
     QHash<QPlatformWindow*, QVariantMap> m_windowProperties;
-
-    static void setSync(QWindow *window);
-    static void setDeSync(QWindow *window);
-    static bool isSync(QWindow *window);
 };
 
 }

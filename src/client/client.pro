@@ -3,8 +3,6 @@ MODULE = waylandclient
 
 QT += core-private gui-private
 
-QT_PRIVATE += platformheaders-private
-
 # We have a bunch of C code with casts, so we can't have this option
 QMAKE_CXXFLAGS_WARN_ON -= -Wcast-qual
 

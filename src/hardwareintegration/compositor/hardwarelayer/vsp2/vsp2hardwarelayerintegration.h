@@ -40,6 +40,10 @@ struct wl_kms_buffer;
 
 QT_BEGIN_NAMESPACE
 
+namespace QPlatformInterface::Private {
+struct QVsp2Screen;
+}
+
 class QScreen;
 class QWaylandSurface;
 class QWaylandQuickHardwareLayer;
@@ -95,7 +99,7 @@ public slots:
 private:
     wl_kms_buffer *nextKmsBuffer();
     int m_layerIndex = -1;
-    QScreen *m_screen = nullptr;
+    QVsp2Screen *m_screen = nullptr;
     QPoint m_position;
     QWaylandQuickHardwareLayer *m_hwLayer = nullptr;
     QWaylandSurface *m_surface = nullptr;

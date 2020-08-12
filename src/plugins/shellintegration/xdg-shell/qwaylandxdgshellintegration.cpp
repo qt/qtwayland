@@ -83,6 +83,16 @@ void QWaylandXdgShellIntegration::handleKeyboardFocusChanged(QWaylandWindow *new
     }
 }
 
+void *QWaylandXdgShellIntegration::nativeResourceForWindow(const QByteArray &resource, QWindow *window)
+{
+    if (auto waylandWindow = static_cast<QWaylandWindow *>(window->handle())) {
+        if (auto xdgSurface = qobject_cast<QWaylandXdgSurface *>(waylandWindow->shellSurface())) {
+            return xdgSurface->nativeResource(resource);
+        }
+    }
+    return nullptr;
+}
+
 }
 
 QT_END_NAMESPACE

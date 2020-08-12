@@ -51,6 +51,7 @@ private slots:
     void minMaxSize();
     void windowGeometry();
     void foreignSurface();
+    void nativeResources();
 };
 
 void tst_xdgshell::showMinimized()
@@ -561,6 +562,24 @@ void tst_xdgshell::foreignSurface()
     QTRY_COMPARE(spy.count(), 1);
 
     wl_surface_destroy(foreignSurface);
+}
+
+void tst_xdgshell::nativeResources()
+{
+    QRasterWindow window;
+    window.resize(400, 320);
+    window.show();
+    QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
+
+    auto *ni = QGuiApplication::platformNativeInterface();
+    auto *xdg_surface_proxy = static_cast<::wl_proxy *>(ni->nativeResourceForWindow("xdg_surface", &window));
+    QCOMPARE(wl_proxy_get_class(xdg_surface_proxy), "xdg_surface");
+
+    auto *xdg_toplevel_proxy = static_cast<::wl_proxy *>(ni->nativeResourceForWindow("xdg_toplevel", &window));
+    QCOMPARE(wl_proxy_get_class(xdg_toplevel_proxy), "xdg_toplevel");
+
+    auto *xdg_popup_proxy = static_cast<::wl_proxy *>(ni->nativeResourceForWindow("xdg_popup", &window));
+    QCOMPARE(xdg_popup_proxy, nullptr);
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_xdgshell)

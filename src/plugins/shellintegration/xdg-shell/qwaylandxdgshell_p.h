@@ -97,6 +97,8 @@ public:
 
     void setSizeHints();
 
+    void *nativeResource(const QByteArray &resource);
+
 protected:
     void requestWindowStates(Qt::WindowStates states) override;
     void xdg_surface_configure(uint32_t serial) override;

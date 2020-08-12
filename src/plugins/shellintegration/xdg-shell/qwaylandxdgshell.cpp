@@ -378,6 +378,18 @@ void QWaylandXdgSurface::setSizeHints()
     }
 }
 
+void *QWaylandXdgSurface::nativeResource(const QByteArray &resource)
+{
+    QByteArray lowerCaseResource = resource.toLower();
+    if (lowerCaseResource == "xdg_surface")
+        return object();
+    else if (lowerCaseResource == "xdg_toplevel" && m_toplevel)
+        return m_toplevel->object();
+    else if (lowerCaseResource == "xdg_popup" && m_popup)
+        return m_popup->object();
+    return nullptr;
+}
+
 void QWaylandXdgSurface::requestWindowStates(Qt::WindowStates states)
 {
     if (m_toplevel)

@@ -48,6 +48,7 @@
 
 #include "extensions/qwlqtkey_p.h"
 #include "extensions/qwaylandtextinput.h"
+#include "extensions/qwaylandqttextinputmethod.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -467,6 +468,12 @@ void QWaylandSeat::sendFullKeyEvent(QKeyEvent *event)
         QWaylandTextInput *textInput = QWaylandTextInput::findIn(this);
         if (textInput) {
             textInput->sendKeyEvent(event);
+            return;
+        }
+
+        QWaylandQtTextInputMethod *textInputMethod = QWaylandQtTextInputMethod::findIn(this);
+        if (textInputMethod) {
+            textInputMethod->sendKeyEvent(event);
             return;
         }
     }

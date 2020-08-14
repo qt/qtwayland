@@ -61,6 +61,7 @@
 #endif
 #include "qwaylandhardwareintegration_p.h"
 #include "qwaylandinputcontext_p.h"
+#include "qwaylandinputmethodcontext_p.h"
 
 #include "qwaylandwindowmanagerintegration_p.h"
 #include "qwaylandshellintegration_p.h"
@@ -74,6 +75,7 @@
 
 #include <QtWaylandClient/private/qwayland-text-input-unstable-v2.h>
 #include <QtWaylandClient/private/qwayland-wp-primary-selection-unstable-v1.h>
+#include <QtWaylandClient/private/qwayland-qt-text-input-method-unstable-v1.h>
 
 #include <QtCore/private/qcore_unix_p.h>
 
@@ -339,6 +341,11 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
     } else if (interface == QStringLiteral("zwp_primary_selection_device_manager_v1")) {
         mPrimarySelectionManager.reset(new QWaylandPrimarySelectionDeviceManagerV1(this, id, 1));
 #endif
+    } else if (interface == QStringLiteral("qt_text_input_method_manager_v1") && !mClientSideInputContextRequested) {
+        mTextInputMethodManager.reset(new QtWayland::qt_text_input_method_manager_v1(registry, id, 1));
+        for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
+            inputDevice->setTextInputMethod(new QWaylandTextInputMethod(this, mTextInputMethodManager->get_text_input_method(inputDevice->wl_seat())));
+        mWaylandIntegration->reconfigureInputContext();
     } else if (interface == QStringLiteral("zwp_text_input_manager_v2") && !mClientSideInputContextRequested) {
         mTextInputManager.reset(new QtWayland::zwp_text_input_manager_v2(registry, id, 1));
         for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
@@ -394,6 +401,12 @@ void QWaylandDisplay::registry_global_remove(uint32_t id)
                 mTextInputManager.reset();
                 for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
                     inputDevice->setTextInput(nullptr);
+                mWaylandIntegration->reconfigureInputContext();
+            }
+            if (global.interface == QStringLiteral("qt_text_input_method_manager_v1")) {
+                mTextInputMethodManager.reset();
+                for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
+                    inputDevice->setTextInputMethod(nullptr);
                 mWaylandIntegration->reconfigureInputContext();
             }
             mGlobals.removeAt(i);

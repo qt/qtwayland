@@ -43,6 +43,7 @@
 #include "qwaylandshmwindow_p.h"
 #include "qwaylandinputdevice_p.h"
 #include "qwaylandinputcontext_p.h"
+#include "qwaylandinputmethodcontext_p.h"
 #include "qwaylandshmbackingstore_p.h"
 #include "qwaylandnativeinterface_p.h"
 #if QT_CONFIG(clipboard)
@@ -465,10 +466,14 @@ void QWaylandIntegration::reconfigureInputContext()
         qCWarning(lcQpaWayland) << "qtvirtualkeyboard currently is not supported at client-side,"
                                    " use QT_IM_MODULE=qtvirtualkeyboard at compositor-side.";
 
-    if (requested.isNull())
-        mInputContext.reset(new QWaylandInputContext(mDisplay.data()));
-    else
+    if (requested.isNull()) {
+        if (mDisplay->textInputMethodManager() != nullptr)
+            mInputContext.reset(new QWaylandInputMethodContext(mDisplay.data()));
+        else
+            mInputContext.reset(new QWaylandInputContext(mDisplay.data()));
+    } else {
         mInputContext.reset(QPlatformInputContextFactory::create(requested));
+    }
 
     const QString defaultInputContext(QStringLiteral("compose"));
     if ((!mInputContext || !mInputContext->isValid()) && requested != defaultInputContext)

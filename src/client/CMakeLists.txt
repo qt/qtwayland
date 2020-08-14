@@ -30,6 +30,7 @@ qt_add_module(WaylandClient
         qwaylandextendedsurface.cpp qwaylandextendedsurface_p.h
         qwaylandinputcontext.cpp qwaylandinputcontext_p.h
         qwaylandinputdevice.cpp qwaylandinputdevice_p.h
+        qwaylandinputmethodcontext.cpp qwaylandinputmethodcontext_p.h
         qwaylandintegration.cpp qwaylandintegration_p.h
         qwaylandnativeinterface.cpp qwaylandnativeinterface_p.h
         qwaylandqtkey.cpp qwaylandqtkey_p.h
@@ -73,6 +74,7 @@ qt6_generate_wayland_protocol_client_sources(WaylandClient
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/wp-primary-selection-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-output-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-key-unstable-v1.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-text-input-method-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-windowmanager.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/surface-extension.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/touch-extension.xml

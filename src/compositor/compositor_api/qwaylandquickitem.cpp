@@ -32,6 +32,7 @@
 #include "qwaylandquicksurface.h"
 #include "qwaylandinputmethodcontrol.h"
 #include "qwaylandtextinput.h"
+#include "qwaylandqttextinputmethod.h"
 #include "qwaylandquickoutput.h"
 #include <QtWaylandCompositor/qwaylandcompositor.h>
 #include <QtWaylandCompositor/qwaylandseat.h>
@@ -983,9 +984,18 @@ void QWaylandQuickItem::takeFocus(QWaylandSeat *device)
         target = compositor()->defaultSeat();
     }
     target->setKeyboardFocus(surface());
-    QWaylandTextInput *textInput = QWaylandTextInput::findIn(target);
-    if (textInput)
-        textInput->setFocus(surface());
+
+    {
+        QWaylandTextInput *textInput = QWaylandTextInput::findIn(target);
+        if (textInput)
+            textInput->setFocus(surface());
+    }
+
+    {
+        QWaylandQtTextInputMethod *textInputMethod = QWaylandQtTextInputMethod::findIn(target);
+        if (textInputMethod)
+            textInputMethod->setFocus(surface());
+    }
 }
 
 /*!

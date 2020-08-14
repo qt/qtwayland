@@ -22,6 +22,7 @@ WAYLANDCLIENTSOURCES += \
             ../extensions/touch-extension.xml \
             ../extensions/qt-key-unstable-v1.xml \
             ../extensions/qt-windowmanager.xml \
+            ../extensions/qt-text-input-method-unstable-v1.xml \
             ../3rdparty/protocol/wp-primary-selection-unstable-v1.xml \
             ../3rdparty/protocol/tablet-unstable-v2.xml \
             ../3rdparty/protocol/text-input-unstable-v2.xml \
@@ -50,6 +51,7 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylanddecorationplugin.cpp \
             qwaylandwindowmanagerintegration.cpp \
             qwaylandinputcontext.cpp \
+            qwaylandinputmethodcontext.cpp \
             qwaylandshm.cpp \
             qwaylandbuffer.cpp \
 
@@ -74,6 +76,7 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylanddecorationplugin_p.h \
             qwaylandwindowmanagerintegration_p.h \
             qwaylandinputcontext_p.h \
+            qwaylandinputmethodcontext_p.h \
             qwaylandshm_p.h \
             qtwaylandclientglobal.h \
             qtwaylandclientglobal_p.h \

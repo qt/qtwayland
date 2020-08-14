@@ -91,6 +91,7 @@ class QWaylandPrimarySelectionDeviceV1;
 #endif
 class QWaylandTabletSeatV2;
 class QWaylandTextInput;
+class QWaylandTextInputMethod;
 #if QT_CONFIG(cursor)
 class QWaylandCursorTheme;
 class CursorSurface;
@@ -133,6 +134,9 @@ public:
 
     void setTextInput(QWaylandTextInput *textInput);
     QWaylandTextInput *textInput() const;
+
+    void setTextInputMethod(QWaylandTextInputMethod *textInputMethod);
+    QWaylandTextInputMethod *textInputMethod() const;
 
     void removeMouseButtonFromState(Qt::MouseButton button);
 
@@ -187,6 +191,7 @@ private:
     Touch *mTouch = nullptr;
 
     QScopedPointer<QWaylandTextInput> mTextInput;
+    QScopedPointer<QWaylandTextInputMethod> mTextInputMethod;
     QScopedPointer<QWaylandTabletSeatV2> mTabletSeat;
 
     uint32_t mTime = 0;

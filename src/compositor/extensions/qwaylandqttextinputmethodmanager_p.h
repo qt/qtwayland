@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -27,8 +27,12 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDINPUTMETHODCONTROL_P_H
-#define QWAYLANDINPUTMETHODCONTROL_P_H
+#ifndef QWAYLANDQTTEXTINPUTMETHODMANAGER_P_H
+#define QWAYLANDQTTEXTINPUTMETHODMANAGER_P_H
+
+#include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
+
+#include <QtWaylandCompositor/private/qwayland-server-qt-text-input-method-unstable-v1.h>
 
 //
 //  W A R N I N G
@@ -41,35 +45,18 @@
 // We mean it.
 //
 
-#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
-#include <QtWaylandCompositor/qwaylandinputmethodcontrol.h>
-
-#include <QtCore/private/qobject_p.h>
-
 QT_BEGIN_NAMESPACE
 
-class QWaylandCompositor;
-class QWaylandSeat;
-class QWaylandSurface;
-class QWaylandTextInput;
-class QWaylandQtTextInputMethod;
-
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandInputMethodControlPrivate : public QObjectPrivate
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQtTextInputMethodManagerPrivate : public QWaylandCompositorExtensionPrivate, public QtWaylandServer::qt_text_input_method_manager_v1
 {
-    Q_DECLARE_PUBLIC(QWaylandInputMethodControl)
-
+    Q_DECLARE_PUBLIC(QWaylandQtTextInputMethodManager)
 public:
-    explicit QWaylandInputMethodControlPrivate(QWaylandSurface *surface);
+    QWaylandQtTextInputMethodManagerPrivate();
 
-    QWaylandTextInput *textInput() const;
-    QWaylandQtTextInputMethod *textInputMethod() const;
-
-    QWaylandCompositor *compositor = nullptr;
-    QWaylandSeat *seat = nullptr;
-    QWaylandSurface *surface = nullptr;
-    bool enabled = false;
+protected:
+    void text_input_method_manager_v1_get_text_input_method(Resource *resource, uint32_t id, struct ::wl_resource *seat) override;
 };
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDINPUTMETHODCONTROL_P_H
+#endif // QWAYLANDQTTEXTINPUTMETHODMANAGER_P_H

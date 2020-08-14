@@ -57,6 +57,7 @@
 #include "qwaylanddisplay_p.h"
 #include "qwaylandshmbackingstore_p.h"
 #include "qwaylandinputcontext_p.h"
+#include "qwaylandinputmethodcontext_p.h"
 
 #include <QtGui/private/qpixmap_raster_p.h>
 #include <QtGui/private/qguiapplication_p.h>
@@ -420,6 +421,9 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, 
     if (mQDisplay->textInputManager())
         mTextInput.reset(new QWaylandTextInput(mQDisplay, mQDisplay->textInputManager()->get_text_input(wl_seat())));
 
+    if (mQDisplay->textInputMethodManager())
+        mTextInputMethod.reset(new QWaylandTextInputMethod(mQDisplay, mQDisplay->textInputMethodManager()->get_text_input_method(wl_seat())));
+
     if (auto *tm = mQDisplay->tabletManager())
         mTabletSeat.reset(new QWaylandTabletSeatV2(tm, this));
 }
@@ -535,9 +539,19 @@ void QWaylandInputDevice::setTextInput(QWaylandTextInput *textInput)
     mTextInput.reset(textInput);
 }
 
+void QWaylandInputDevice::setTextInputMethod(QWaylandTextInputMethod *textInputMethod)
+{
+    mTextInputMethod.reset(textInputMethod);
+}
+
 QWaylandTextInput *QWaylandInputDevice::textInput() const
 {
     return mTextInput.data();
+}
+
+QWaylandTextInputMethod *QWaylandInputDevice::textInputMethod() const
+{
+    return mTextInputMethod.data();
 }
 
 void QWaylandInputDevice::removeMouseButtonFromState(Qt::MouseButton button)

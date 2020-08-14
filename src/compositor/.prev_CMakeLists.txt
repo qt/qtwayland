@@ -32,6 +32,8 @@ qt_add_module(WaylandCompositor
         extensions/qwaylandidleinhibitv1.cpp extensions/qwaylandidleinhibitv1.h extensions/qwaylandidleinhibitv1_p.h
         extensions/qwaylandiviapplication.cpp extensions/qwaylandiviapplication.h extensions/qwaylandiviapplication_p.h
         extensions/qwaylandivisurface.cpp extensions/qwaylandivisurface.h extensions/qwaylandivisurface_p.h
+        extensions/qwaylandqttextinputmethod.cpp extensions/qwaylandqttextinputmethod.h extensions/qwaylandqttextinputmethod_p.h
+        extensions/qwaylandqttextinputmethodmanager.cpp extensions/qwaylandqttextinputmethodmanager.h extensions/qwaylandqttextinputmethodmanager_p.h
         extensions/qwaylandqtwindowmanager.cpp extensions/qwaylandqtwindowmanager.h extensions/qwaylandqtwindowmanager_p.h
         extensions/qwaylandshell.cpp extensions/qwaylandshell.h extensions/qwaylandshell_p.h
         extensions/qwaylandshellsurface.cpp extensions/qwaylandshellsurface.h
@@ -99,6 +101,7 @@ qt6_generate_wayland_protocol_server_sources(WaylandCompositor
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-output-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-shell.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-key-unstable-v1.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-text-input-method-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-windowmanager.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/touch-extension.xml
 )

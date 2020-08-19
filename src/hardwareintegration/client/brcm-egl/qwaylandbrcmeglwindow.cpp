@@ -124,8 +124,8 @@ private:
     struct wl_event_queue *m_eventQueue = nullptr;
 };
 
-QWaylandBrcmEglWindow::QWaylandBrcmEglWindow(QWindow *window)
-    : QWaylandWindow(window)
+QWaylandBrcmEglWindow::QWaylandBrcmEglWindow(QWindow *window, QWaylandDisplay *display)
+    : QWaylandWindow(window, display)
     , m_eglIntegration(static_cast<QWaylandBrcmEglIntegration *>(mDisplay->clientBufferIntegration()))
     , m_format(window->format())
     , m_eventQueue(wl_display_create_queue(mDisplay->wl_display()))

@@ -93,6 +93,8 @@ private:
     struct qt_brcm *m_waylandBrcm = nullptr;
 
     EGLDisplay m_eglDisplay = EGL_NO_DISPLAY;
+
+    QWaylandDisplay *m_display = nullptr;
 };
 
 }

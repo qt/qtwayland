@@ -58,7 +58,7 @@ class QWaylandBrcmEglWindow : public QWaylandWindow
 {
     Q_OBJECT
 public:
-    QWaylandBrcmEglWindow(QWindow *window);
+    QWaylandBrcmEglWindow(QWindow *window, QWaylandDisplay *display);
     ~QWaylandBrcmEglWindow();
     WindowType windowType() const override;
     void setGeometry(const QRect &rect) override;

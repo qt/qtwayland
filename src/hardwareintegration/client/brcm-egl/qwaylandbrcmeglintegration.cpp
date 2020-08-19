@@ -78,6 +78,7 @@ QWaylandBrcmEglIntegration::~QWaylandBrcmEglIntegration()
 
 void QWaylandBrcmEglIntegration::initialize(QWaylandDisplay *waylandDisplay)
 {
+    m_display = waylandDisplay;
     m_waylandDisplay = waylandDisplay->wl_display();
     waylandDisplay->addRegistryListener(wlDisplayHandleGlobal, this);
     EGLint major,minor;
@@ -111,7 +112,7 @@ void QWaylandBrcmEglIntegration::initialize(QWaylandDisplay *waylandDisplay)
 
 QWaylandWindow *QWaylandBrcmEglIntegration::createEglWindow(QWindow *window)
 {
-    return new QWaylandBrcmEglWindow(window);
+    return new QWaylandBrcmEglWindow(window, m_display);
 }
 
 QPlatformOpenGLContext *QWaylandBrcmEglIntegration::createPlatformOpenGLContext(const QSurfaceFormat &glFormat, QPlatformOpenGLContext *share) const

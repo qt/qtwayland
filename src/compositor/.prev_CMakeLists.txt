@@ -85,23 +85,6 @@ qt_add_resource(WaylandCompositor "compositor"
     FILES
         ${compositor_resource_files}
 )
-set_source_files_properties("compositor_api/qml/WaylandCursorItem.qml"
-    PROPERTIES QT_RESOURCE_ALIAS "WaylandCursorItem.qml"
-)
-set_source_files_properties("compositor_api/qml/WaylandOutputWindow.qml"
-    PROPERTIES QT_RESOURCE_ALIAS "WaylandOutputWindow.qml"
-)
-set(compositor1_resource_files
-    "compositor_api/qml/WaylandCursorItem.qml"
-    "compositor_api/qml/WaylandOutputWindow.qml"
-)
-
-qt_add_resource(WaylandCompositor "compositor1"
-    PREFIX
-        "/QtWayland/Compositor"
-    FILES
-        ${compositor1_resource_files}
-)
 
 
 qt6_generate_wayland_protocol_server_sources(WaylandCompositor

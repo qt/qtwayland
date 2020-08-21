@@ -7,8 +7,4 @@
         <file>shaders/surface_y_uv.frag.qsb</file>
         <file>shaders/surface_y_xuxv.frag.qsb</file>
     </qresource>
-    <qresource prefix="/QtWayland/Compositor">
-        <file alias="WaylandCursorItem.qml">compositor_api/qml/WaylandCursorItem.qml</file>
-        <file alias="WaylandOutputWindow.qml">compositor_api/qml/WaylandOutputWindow.qml</file>
-    </qresource>
 </RCC>

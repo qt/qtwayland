@@ -30,6 +30,7 @@
 #ifndef DRMEGLSERVERBUFFERINTEGRATION_H
 #define DRMEGLSERVERBUFFERINTEGRATION_H
 
+#include <QtCore/QVariant>
 #include <QtWaylandCompositor/private/qwlserverbufferintegration_p.h>
 
 #include "qwayland-server-drm-egl-server-buffer.h"

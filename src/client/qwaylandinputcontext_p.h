@@ -58,6 +58,7 @@
 #include <QLoggingCategory>
 #include <QPointer>
 #include <QRectF>
+#include <QLocale>
 
 #include <QtWaylandClient/private/qwayland-text-input-unstable-v2.h>
 #include <qwaylandinputmethodeventbuilder_p.h>

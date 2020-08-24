@@ -41,6 +41,7 @@
 #define DRMEGLSERVERBUFFERINTEGRATION_H
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
+#include <QtCore/QVariant>
 #include "qwayland-drm-egl-server-buffer.h"
 #include <QtWaylandClient/private/qwaylandserverbufferintegration_p.h>
 

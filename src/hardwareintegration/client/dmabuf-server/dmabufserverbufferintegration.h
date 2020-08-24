@@ -40,6 +40,7 @@
 #ifndef DMABUFSERVERBUFFERINTEGRATION_H
 #define DMABUFSERVERBUFFERINTEGRATION_H
 
+#include <QtCore/QVariant>
 #include <QtWaylandClient/private/qwayland-wayland.h>
 #include "qwayland-qt-dmabuf-server-buffer.h"
 #include <QtWaylandClient/private/qwaylandserverbufferintegration_p.h>

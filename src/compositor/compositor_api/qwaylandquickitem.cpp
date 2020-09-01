@@ -878,6 +878,10 @@ void QWaylandQuickItem::setBufferLocked(bool locked)
 {
     Q_D(QWaylandQuickItem);
     d->view->setBufferLocked(locked);
+
+    // Apply the latest surface size
+    if (!locked)
+        updateSize();
 }
 
 /*!
@@ -1038,6 +1042,12 @@ void QWaylandQuickItem::parentChanged(QWaylandSurface *newParent, QWaylandSurfac
 void QWaylandQuickItem::updateSize()
 {
     Q_D(QWaylandQuickItem);
+
+    // No resize if buffer is locked
+    if (isBufferLocked()) {
+        qWarning() << "No update on item size as the buffer is currently locked";
+        return;
+    }
 
     QSize size(0, 0);
     if (surface())

@@ -29,7 +29,6 @@
 #ifndef MOCKCOMPOSITOR_H
 #define MOCKCOMPOSITOR_H
 
-#include "mockxdgshellv6.h"
 #include "mockiviapplication.h"
 #include "mockfullscreenshellv1.h"
 #include "mockregion.h"
@@ -62,7 +61,6 @@ class Surface;
 class Output;
 class IviApplication;
 class WlShell;
-class XdgShellV6;
 class Region;
 
 class Compositor
@@ -81,7 +79,6 @@ public:
     QList<Output *> outputs() const;
 
     IviApplication *iviApplication() const;
-    XdgShellV6 *xdgShellV6() const;
     FullScreenShellV1 *fullScreenShellV1() const;
 
     void addSurface(Surface *surface);
@@ -105,7 +102,6 @@ public:
     static void setOutputMode(void *compositor, const QList<QVariant> &parameters);
     static void sendShellSurfaceConfigure(void *data, const QList<QVariant> &parameters);
     static void sendIviSurfaceConfigure(void *data, const QList<QVariant> &parameters);
-    static void sendXdgToplevelV6Configure(void *data, const QList<QVariant> &parameters);
 
 public:
     bool m_startDragSeen = false;
@@ -115,7 +111,6 @@ private:
     static Surface *resolveSurface(const QVariant &v);
     static Output *resolveOutput(const QVariant &v);
     static IviSurface *resolveIviSurface(const QVariant &v);
-    static XdgToplevelV6 *resolveToplevel(const QVariant &v);
 
     void initShm();
 
@@ -137,7 +132,6 @@ private:
     QList<Output *> m_outputs;
     QScopedPointer<IviApplication> m_iviApplication;
     QScopedPointer<WlShell> m_wlShell;
-    QScopedPointer<XdgShellV6> m_xdgShellV6;
     QScopedPointer<FullScreenShellV1> m_fullScreenShellV1;
 };
 
@@ -193,32 +187,6 @@ private:
 
 Q_DECLARE_METATYPE(QSharedPointer<MockIviSurface>)
 
-class MockXdgToplevelV6 : public QObject
-{
-    Q_OBJECT
-public:
-    Impl::XdgToplevelV6 *handle() const { return m_toplevel; }
-
-    void sendConfigure(const QSharedPointer<MockXdgToplevelV6> toplevel);
-
-signals:
-    uint setMinimizedRequested();
-    uint setMaximizedRequested();
-    uint unsetMaximizedRequested();
-    uint setFullscreenRequested();
-    uint unsetFullscreenRequested();
-    void windowGeometryRequested(QRect geometry); // NOTE: This is really an xdg surface event
-
-private:
-    MockXdgToplevelV6(Impl::XdgToplevelV6 *toplevel) : m_toplevel(toplevel) {}
-    friend class Impl::Compositor;
-    friend class Impl::XdgToplevelV6;
-
-    Impl::XdgToplevelV6 *m_toplevel;
-};
-
-Q_DECLARE_METATYPE(QSharedPointer<MockXdgToplevelV6>)
-
 class MockOutput {
 public:
     Impl::Output *handle() const { return m_output; }
@@ -259,14 +227,11 @@ public:
     void sendSurfaceLeave(const QSharedPointer<MockSurface> &surface, QSharedPointer<MockOutput> &output);
     void sendShellSurfaceConfigure(const QSharedPointer<MockSurface> surface, const QSize &size = QSize(0, 0));
     void sendIviSurfaceConfigure(const QSharedPointer<MockIviSurface> iviSurface, const QSize &size);
-    void sendXdgToplevelV6Configure(const QSharedPointer<MockXdgToplevelV6> toplevel, const QSize &size = QSize(0, 0),
-                                    const QList<uint> &states = { ZXDG_TOPLEVEL_V6_STATE_ACTIVATED });
     void waitForStartDrag();
 
     QSharedPointer<MockSurface> surface();
     QSharedPointer<MockOutput> output(int index = 0);
     QSharedPointer<MockIviSurface> iviSurface(int index = 0);
-    QSharedPointer<MockXdgToplevelV6> xdgToplevelV6(int index = 0);
     QSharedPointer<MockSurface> fullScreenShellV1Surface(int index = 0);
 
     void lock();

@@ -41,13 +41,7 @@ void Compositor::sendShellSurfaceConfigure(void *data, const QList<QVariant> &pa
     Surface *surface = resolveSurface(parameters.at(0));
     QSize size = parameters.at(1).toSize();
     Q_ASSERT(size.isValid());
-    if (auto toplevel = surface->xdgToplevelV6()) {
-        QList<uint> states = { ZXDG_TOPLEVEL_V6_STATE_ACTIVATED };
-        auto statesBytes = QByteArray::fromRawData(reinterpret_cast<const char *>(states.data()),
-                                                   states.size() * static_cast<int>(sizeof(uint)));
-        toplevel->send_configure(size.width(), size.height(), statesBytes);
-        toplevel->xdgSurface()->sendConfigure(compositor->nextSerial());
-    } else if (auto wlShellSurface = surface->wlShellSurface()) {
+    if (auto wlShellSurface = surface->wlShellSurface()) {
         const uint edges = 0;
         wlShellSurface->send_configure(edges, size.width(), size.height());
     } else {
@@ -95,17 +89,11 @@ void Surface::surface_destroy(Resource *resource)
     if (m_wlShellSurface) // on wl-shell the shell surface is automatically destroyed with the surface
         wl_resource_destroy(m_wlShellSurface->resource()->handle);
     Q_ASSERT(!m_wlShellSurface);
-    Q_ASSERT(!m_xdgSurfaceV6);
     wl_resource_destroy(resource->handle);
 }
 
 void Surface::surface_attach(Resource *resource, struct wl_resource *buffer, int x, int y)
 {
-    if (m_xdgSurfaceV6) {
-        // It's a protocol error to attach a buffer to an xdgSurface that's not configured
-        Q_ASSERT(xdgSurfaceV6()->configureSent());
-    }
-
     Q_UNUSED(resource);
     Q_UNUSED(x);
     Q_UNUSED(y);

@@ -167,7 +167,6 @@ public slots:
         // and don't show up as false positives in the next test
         QTRY_VERIFY(!compositor->surface());
         QTRY_VERIFY(!compositor->iviSurface());
-        QTRY_VERIFY(!compositor->xdgToplevelV6());
     }
 
 private slots:
@@ -211,9 +210,6 @@ void tst_WaylandClient::activeWindowFollowsKeyboardFocus()
     compositor->sendShellSurfaceConfigure(surface);
 
     QTRY_VERIFY(window.isExposed());
-
-    if (compositor->xdgToplevelV6())
-        QSKIP("On xdg-shell v6 focus is handled by configure events");
 
     QCOMPARE(window.focusInEventCount, 0);
     compositor->setKeyboardFocus(surface);

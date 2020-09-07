@@ -60,8 +60,17 @@ void tst_nooutput::noScreens()
     window.resize(16, 16);
     window.show();
 
-    // We have to handle showing a window when there are no real outputs
-    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+    QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
+
+    QTRY_VERIFY(window.isVisible());
+    // The window should not be exposed before the first xdg_surface configure event
+    QTRY_VERIFY(!window.isExposed());
+
+    exec([=] {
+        xdgToplevel()->sendConfigure({0, 0}, {}); // Let the window decide the size
+    });
+
+    QTRY_VERIFY(window.isExposed());
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_nooutput)

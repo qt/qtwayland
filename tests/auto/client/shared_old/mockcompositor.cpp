@@ -31,10 +31,7 @@
 #include "mockoutput.h"
 #include "mocksurface.h"
 #include "mockwlshell.h"
-#include "mockxdgshellv6.h"
 #include "mockiviapplication.h"
-
-#include <wayland-xdg-shell-unstable-v6-server-protocol.h>
 
 #include <stdio.h>
 MockCompositor::MockCompositor()
@@ -199,17 +196,6 @@ void MockCompositor::sendIviSurfaceConfigure(const QSharedPointer<MockIviSurface
     processCommand(command);
 }
 
-void MockCompositor::sendXdgToplevelV6Configure(const QSharedPointer<MockXdgToplevelV6> toplevel, const QSize &size, const QList<uint> &states)
-{
-    Command command = makeCommand(Impl::Compositor::sendXdgToplevelV6Configure, m_compositor);
-    command.parameters << QVariant::fromValue(toplevel);
-    command.parameters << QVariant::fromValue(size);
-    QByteArray statesBytes(reinterpret_cast<const char *>(states.data()),
-                           states.size() * static_cast<int>(sizeof(uint)));
-    command.parameters << statesBytes;
-    processCommand(command);
-}
-
 void MockCompositor::waitForStartDrag()
 {
     Command command = makeCommand(Impl::Compositor::waitForStartDrag, m_compositor);
@@ -250,16 +236,6 @@ QSharedPointer<MockIviSurface> MockCompositor::iviSurface(int index)
     lock();
     if (Impl::IviSurface *toplevel = m_compositor->iviApplication()->iviSurfaces().value(index, nullptr))
         result = toplevel->mockIviSurface();
-    unlock();
-    return result;
-}
-
-QSharedPointer<MockXdgToplevelV6> MockCompositor::xdgToplevelV6(int index)
-{
-    QSharedPointer<MockXdgToplevelV6> result;
-    lock();
-    if (Impl::XdgToplevelV6 *toplevel = m_compositor->xdgShellV6()->toplevels().value(index, nullptr))
-        result = toplevel->mockToplevel();
     unlock();
     return result;
 }
@@ -356,7 +332,6 @@ Compositor::Compositor(MockCompositor *mockCompositor)
     m_outputs.append(new Output(m_display, QSize(1920, 1080), QPoint(0, 0)));
     m_iviApplication.reset(new IviApplication(m_display));
     m_wlShell.reset(new WlShell(m_display));
-    m_xdgShellV6.reset(new XdgShellV6(m_display));
     m_fullScreenShellV1.reset(new FullScreenShellV1(m_display));
 
     m_loop = wl_display_get_event_loop(m_display);
@@ -430,11 +405,6 @@ IviApplication *Compositor::iviApplication() const
     return m_iviApplication.data();
 }
 
-XdgShellV6 *Compositor::xdgShellV6() const
-{
-    return m_xdgShellV6.data();
-}
-
 FullScreenShellV1 *Compositor::fullScreenShellV1() const
 {
     return m_fullScreenShellV1.data();
@@ -478,12 +448,6 @@ IviSurface *Compositor::resolveIviSurface(const QVariant &v)
 {
     QSharedPointer<MockIviSurface> mockIviSurface = v.value<QSharedPointer<MockIviSurface>>();
     return mockIviSurface ? mockIviSurface->handle() : nullptr;
-}
-
-XdgToplevelV6 *Compositor::resolveToplevel(const QVariant &v)
-{
-    QSharedPointer<MockXdgToplevelV6> mockToplevel = v.value<QSharedPointer<MockXdgToplevelV6>>();
-    return mockToplevel ? mockToplevel->handle() : nullptr;
 }
 
 }

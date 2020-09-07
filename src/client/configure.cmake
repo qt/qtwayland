@@ -182,14 +182,6 @@ qt_feature("wayland-client-xdg-shell" PRIVATE
     LABEL "xdg-shell"
     CONDITION QT_FEATURE_wayland_client
 )
-qt_feature("wayland-client-xdg-shell-v5" PRIVATE
-    LABEL "xdg-shell unstable v5 (deprecated)"
-    CONDITION QT_FEATURE_wayland_client
-)
-qt_feature("wayland-client-xdg-shell-v6" PRIVATE
-    LABEL "xdg-shell unstable v6"
-    CONDITION QT_FEATURE_wayland_client
-)
 qt_feature("egl-extension-platform-wayland" PRIVATE
     LABEL "EGL wayland platform extension"
     CONDITION QT_FEATURE_wayland_client AND QT_FEATURE_opengl AND QT_FEATURE_egl AND TEST_egl_1_5_wayland

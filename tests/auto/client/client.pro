@@ -15,7 +15,6 @@ SUBDIRS += \
     wl_connect \
     xdgdecorationv1 \
     xdgoutput \
-    xdgshell \
-    xdgshellv6
+    xdgshell
 
 qtConfig(im): SUBDIRS += inputcontext

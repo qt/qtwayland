@@ -14,7 +14,6 @@ qt_internal_add_test(tst_client_fullscreenshellv1
         ../shared_old/mockregion.cpp ../shared_old/mockregion.h
         ../shared_old/mocksurface.cpp ../shared_old/mocksurface.h
         ../shared_old/mockwlshell.cpp ../shared_old/mockwlshell.h
-        ../shared_old/mockxdgshellv6.cpp ../shared_old/mockxdgshellv6.h
         tst_fullscreenshellv1.cpp
     INCLUDE_DIRECTORIES
         ../shared_old
@@ -34,5 +33,5 @@ qt6_generate_wayland_protocol_server_sources(tst_client_fullscreenshellv1
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../src/3rdparty/protocol/fullscreen-shell-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../src/3rdparty/protocol/ivi-application.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../src/3rdparty/protocol/wayland.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../src/3rdparty/protocol/xdg-shell-unstable-v6.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../src/3rdparty/protocol/xdg-shell.xml
 )

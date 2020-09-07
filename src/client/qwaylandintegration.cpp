@@ -399,13 +399,6 @@ void QWaylandIntegration::initializeShellIntegration()
         preferredShells = targetKeys.split(QLatin1Char(';'));
     } else {
         preferredShells << QLatin1String("xdg-shell");
-        preferredShells << QLatin1String("xdg-shell-v6");
-        QString useXdgShell = QString::fromLocal8Bit(qgetenv("QT_WAYLAND_USE_XDG_SHELL"));
-        if (!useXdgShell.isEmpty() && useXdgShell != QLatin1String("0")) {
-            qWarning() << "QT_WAYLAND_USE_XDG_SHELL is deprecated, "
-                          "please specify the shell using QT_WAYLAND_SHELL_INTEGRATION instead";
-            preferredShells << QLatin1String("xdg-shell-v5");
-        }
         preferredShells << QLatin1String("wl-shell") << QLatin1String("ivi-shell");
     }
 

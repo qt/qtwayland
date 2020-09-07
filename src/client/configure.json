@@ -207,16 +207,6 @@
             "condition": "features.wayland-client",
             "output": [ "privateFeature" ]
         },
-        "wayland-client-xdg-shell-v5": {
-            "label": "xdg-shell unstable v5 (deprecated)",
-            "condition": "features.wayland-client",
-            "output": [ "privateFeature" ]
-        },
-        "wayland-client-xdg-shell-v6": {
-            "label": "xdg-shell unstable v6",
-            "condition": "features.wayland-client",
-            "output": [ "privateFeature" ]
-        },
         "egl-extension-platform-wayland": {
             "label": "EGL wayland platform extension",
             "condition": "features.wayland-client && features.opengl && features.egl && tests.egl_1_5-wayland",
@@ -298,8 +288,6 @@
             "condition": "features.wayland-client",
             "entries": [
                 "wayland-client-xdg-shell",
-                "wayland-client-xdg-shell-v5",
-                "wayland-client-xdg-shell-v6",
                 "wayland-client-ivi-shell",
                 "wayland-client-wl-shell"
             ]

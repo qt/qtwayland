@@ -2,6 +2,14 @@ function(qt6_generate_wayland_protocol_client_sources target)
     qt_parse_all_arguments(arg "qt6_generate_wayland_protocol_client_sources" "" "" "FILES" ${ARGN})
     get_target_property(target_binary_dir ${target} BINARY_DIR)
 
+    if(NOT TARGET Wayland::Scanner)
+        message(FATAL_ERROR "Wayland::Scanner target not found. You might be missing the WaylandScanner CMake package.")
+    endif()
+
+    if(NOT TARGET Qt6::qtwaylandscanner)
+        message(FATAL_ERROR "qtwaylandscanner executable not found. Most likely there is an issue with your Qt installation.")
+    endif()
+
     foreach(protocol_file IN LISTS arg_FILES)
         get_filename_component(protocol_name "${protocol_file}" NAME_WLE)
 

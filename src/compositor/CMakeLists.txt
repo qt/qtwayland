@@ -232,6 +232,6 @@ endif()
 # special case end
 
 # special case begin
-qt_record_extra_qt_package_dependency(WaylandCompositor WaylandScannerTools "")
+qt_record_extra_qt_main_tools_package_dependency(WaylandCompositor WaylandScannerTools "${PROJECT_VERSION}")
 # special case end
 

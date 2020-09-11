@@ -719,7 +719,10 @@ bool Scanner::process()
             printf("    %s::~%s()\n", interfaceName, interfaceName);
             printf("    {\n");
             printf("        for (auto resource : qAsConst(m_resource_map))\n");
-            printf("            wl_resource_set_implementation(resource->handle, nullptr, nullptr, nullptr);\n");
+            printf("            resource->%s_object = nullptr;\n", interfaceNameStripped);
+            printf("\n");
+            printf("        if (m_resource)\n");
+            printf("            m_resource->%s_object = nullptr;\n", interfaceNameStripped);
             printf("\n");
             printf("        if (m_global) {\n");
             printf("            wl_global_destroy(m_global);\n");
@@ -808,10 +811,12 @@ bool Scanner::process()
             printf("        Resource *resource = Resource::fromResource(client_resource);\n");
             printf("        Q_ASSERT(resource);\n");
             printf("        %s *that = resource->%s_object;\n", interfaceName, interfaceNameStripped);
-            printf("        that->m_resource_map.remove(resource->client(), resource);\n");
-            printf("        that->%s_destroy_resource(resource);\n", interfaceNameStripped);
-            printf("        if (that->m_resource == resource)\n");
-            printf("            that->m_resource = nullptr;\n");
+            printf("        if (Q_LIKELY(that)) {\n");
+            printf("            that->m_resource_map.remove(resource->client(), resource);\n");
+            printf("            that->%s_destroy_resource(resource);\n", interfaceNameStripped);
+            printf("            if (that->m_resource == resource)\n");
+            printf("                that->m_resource = nullptr;\n");
+            printf("        }\n");
             printf("        delete resource;\n");
             printf("    }\n");
             printf("\n");
@@ -885,6 +890,11 @@ bool Scanner::process()
                     printf("    {\n");
                     printf("        Q_UNUSED(client);\n");
                     printf("        Resource *r = Resource::fromResource(resource);\n");
+                    printf("        if (Q_UNLIKELY(!r->%s_object)) {\n", interfaceNameStripped);
+                    if (e.type == "destructor")
+                        printf("            wl_resource_destroy(resource);\n");
+                    printf("            return;\n");
+                    printf("        }\n");
                     printf("        static_cast<%s *>(r->%s_object)->%s_%s(\n", interfaceName, interfaceNameStripped, interfaceNameStripped, e.name.constData());
                     printf("            r");
                     for (const WaylandArgument &a : e.arguments) {

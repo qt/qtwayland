@@ -91,6 +91,7 @@ int main(int argc, char **argv) \
     setenv("QT_QPA_PLATFORM", "wayland", 1); \
     test tc; \
     QGuiApplication app(argc, argv); \
+    QTEST_SET_MAIN_SOURCE_PATH \
     return QTest::qExec(&tc, argc, argv); \
 } \
 

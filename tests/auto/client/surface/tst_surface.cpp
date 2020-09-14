@@ -167,17 +167,40 @@ void tst_surface::negotiateShmFormat()
 void tst_surface::createSubsurface()
 {
     QRasterWindow window;
-    window.resize(64, 64);
+    window.setObjectName("main");
+    window.resize(200, 200);
+
+    QRasterWindow subWindow;
+    subWindow.setObjectName("subwindow");
+    subWindow.setParent(&window);
+    subWindow.resize(64, 64);
+
     window.show();
+    subWindow.show();
+
+    QCOMPOSITOR_TRY_VERIFY(subSurface());
     QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
     exec([=] { xdgToplevel()->sendCompleteConfigure(); });
     QCOMPOSITOR_TRY_VERIFY(xdgSurface()->m_committedConfigureSerial);
 
-    QRasterWindow subWindow;
-    subWindow.setParent(&window);
-    subWindow.resize(64, 64);
-    subWindow.show();
-    QCOMPOSITOR_TRY_VERIFY(subSurface());
+    const Surface *mainSurface = exec([=] {return surface(0);});
+    const Surface *childSurface = exec([=] {return surface(1);});
+    QSignalSpy  mainSurfaceCommitSpy(mainSurface, &Surface::commit);
+    QSignalSpy childSurfaceCommitSpy(childSurface, &Surface::commit);
+
+    // Move subsurface. The parent should redraw and commit
+    subWindow.setGeometry(100, 100, 64, 64);
+    // the toplevel should commit to indicate the subsurface moved
+    QCOMPOSITOR_TRY_COMPARE(mainSurfaceCommitSpy.count(), 1);
+    mainSurfaceCommitSpy.clear();
+    childSurfaceCommitSpy.clear();
+
+    // Move and resize the subSurface. The parent should redraw and commit
+    // The child should also redraw
+    subWindow.setGeometry(50, 50, 80, 80);
+    QCOMPOSITOR_TRY_COMPARE(mainSurfaceCommitSpy.count(), 1);
+    QCOMPOSITOR_TRY_COMPARE(childSurfaceCommitSpy.count(), 1);
+
 }
 
 // Used to cause a crash in libwayland (QTBUG-79674)

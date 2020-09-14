@@ -14,6 +14,7 @@ project(QtWayland # special case
 # TODO: Fix warnings and remove this
 set(QT_REPO_NOT_WARNINGS_CLEAN TRUE)
 
+find_package(X11)
 find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS
     BuildInternals
 )

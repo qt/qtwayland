@@ -17,7 +17,14 @@ if((LINUX) OR QT_FIND_ALL_PACKAGES_ALWAYS)
     qt_find_package(Wayland PROVIDED_TARGETS Wayland::Egl MODULE_NAME waylandclient QMAKE_LIB wayland-egl)
 endif()
 qt_find_package(XComposite PROVIDED_TARGETS PkgConfig::XComposite MODULE_NAME waylandclient QMAKE_LIB xcomposite)
-
+# special case begin
+# X11 is not a public dependency of QtGui anymore, so we need to find it manually in a shared build.
+# In a static build the dependency is still propagated, so check for the target existence to prevent
+# the 'Attempt to promote imported target "X11::X11" to global scope' issue.
+if(NOT TARGET X11::X11)
+  qt_find_package(X11 PROVIDED_TARGETS X11::X11 MODULE_NAME gui QMAKE_LIB xlib)
+endif()
+# special case end
 
 #### Tests
 

@@ -340,7 +340,12 @@ void QWaylandWindow::setGeometry_helper(const QRect &rect)
     if (mSubSurfaceWindow) {
         QMargins m = QPlatformWindow::parent()->frameMargins();
         mSubSurfaceWindow->set_position(rect.x() + m.left(), rect.y() + m.top());
-        mSubSurfaceWindow->parent()->window()->requestUpdate();
+
+        QWaylandWindow *parentWindow = mSubSurfaceWindow->parent();
+        if (parentWindow && parentWindow->isExposed()) {
+            QRect parentExposeGeometry(QPoint(), parentWindow->geometry().size());
+            parentWindow->sendExposeEvent(parentExposeGeometry);
+        }
     }
 }
 

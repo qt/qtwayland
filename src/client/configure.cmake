@@ -24,6 +24,10 @@ qt_find_package(XComposite PROVIDED_TARGETS PkgConfig::XComposite MODULE_NAME wa
 if(NOT TARGET X11::X11)
   qt_find_package(X11 PROVIDED_TARGETS X11::X11 MODULE_NAME gui QMAKE_LIB xlib)
 endif()
+# Same for XKB.
+if(NOT TARGET XKB::XKB)
+    qt_find_package(XKB 0.5.0 PROVIDED_TARGETS XKB::XKB MODULE_NAME gui QMAKE_LIB xkbcommon)
+endif()
 # special case end
 
 #### Tests

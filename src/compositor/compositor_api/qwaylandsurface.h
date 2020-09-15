@@ -79,6 +79,8 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSurface : public QWaylandObject
     Q_PROPERTY(bool hasContent READ hasContent NOTIFY hasContentChanged)
     Q_PROPERTY(bool cursorSurface READ isCursorSurface WRITE markAsCursorSurface NOTIFY cursorSurfaceChanged)
     Q_PROPERTY(bool inhibitsIdle READ inhibitsIdle NOTIFY inhibitsIdleChanged REVISION(1, 14))
+    Q_MOC_INCLUDE("qwaylanddrag.h")
+    Q_MOC_INCLUDE("qwaylandcompositor.h")
 
     QML_NAMED_ELEMENT(WaylandSurfaceBase)
     QML_ADDED_IN_VERSION(1, 0)

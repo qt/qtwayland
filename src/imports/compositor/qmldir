@@ -2,5 +2,5 @@ module QtWayland.Compositor
 plugin qwaylandcompositorplugin
 classname QWaylandCompositorPlugin
 typeinfo plugins.qmltypes
-WaylandCursorItem 1.0 WaylandCursorItem.qml
 WaylandOutputWindow 1.0 WaylandOutputWindow.qml
+WaylandCursorItem 1.0 WaylandCursorItem.qml

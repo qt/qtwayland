@@ -64,6 +64,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSeat : public QWaylandObject
 #endif
     Q_PROPERTY(QWaylandKeymap *keymap READ keymap CONSTANT)
     Q_MOC_INCLUDE("qwaylandkeymap.h")
+    Q_MOC_INCLUDE("qwaylandview.h")
 
     QML_NAMED_ELEMENT(WaylandSeat)
     QML_ADDED_IN_VERSION(1, 0)

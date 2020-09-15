@@ -56,6 +56,7 @@ private slots:
 
 void tst_nooutput::noScreens()
 {
+    QSKIP("QTBUG-86698 - Temporarily skipped for dependency update");
     QRasterWindow window;
     window.resize(16, 16);
     window.show();

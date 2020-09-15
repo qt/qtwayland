@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 Klarälvdalens Datakonsult AB (KDAB).
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
+** This file is part of the plugins of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:GPL$
 ** Commercial License Usage
@@ -27,35 +27,31 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDRESOURCE_H
-#define QWAYLANDRESOURCE_H
+#ifndef QTWAYLANDQMLINCLUDE_H
+#define QTWAYLANDQMLINCLUDE_H
 
-#include <QtCore/QObject>
-#include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
-#include <QtWaylandCompositor/qtwaylandqmlinclude.h>
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
+#include <QtCore/qglobal.h>
+#include <QtWaylandCompositor/qtwaylandcompositor-config.h>
 
-struct wl_resource;
+#if QT_CONFIG(wayland_compositor_quick)
+#include <QtQml/qqml.h>
+#else
+#define QML_NAMED_ELEMENT(x)
+#define QML_UNCREATABLE(x)
+#define QML_ADDED_IN_VERSION(x, y)
+#endif
 
 QT_BEGIN_NAMESPACE
-
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandResource
-{
-    Q_GADGET
-    QML_NAMED_ELEMENT(WaylandResource)
-    QML_UNCREATABLE("")
-    QML_ADDED_IN_VERSION(1, 0)
-public:
-    QWaylandResource();
-    explicit QWaylandResource(wl_resource *resource);
-
-    wl_resource *resource() const { return m_resource; }
-
-private:
-    wl_resource *m_resource = nullptr;
-};
-
 QT_END_NAMESPACE
 
-Q_DECLARE_METATYPE(QWaylandResource)
-
-#endif  /*QWAYLANDRESOURCE_H*/
+#endif // QTWAYLANDQMLINCLUDE_H

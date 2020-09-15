@@ -31,11 +31,10 @@
 #define QWAYLANDDRAG_H
 
 #include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
+#include <QtWaylandCompositor/qtwaylandqmlinclude.h>
 
 #include <QtCore/QObject>
 #include <QtCore/QPointF>
-
-#include <QtQml/qqml.h>
 
 QT_REQUIRE_CONFIG(draganddrop);
 

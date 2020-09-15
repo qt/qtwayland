@@ -58,7 +58,9 @@ QT_BEGIN_NAMESPACE
 
 QT_END_NAMESPACE
 
+#if QT_CONFIG(wayland_compositor_quick)
 void Q_WAYLAND_COMPOSITOR_EXPORT qml_register_types_QtWayland_Compositor();
+#endif
 
 #endif // QWAYLANDCOMPOSITORGLOBAL_H
 

@@ -14,15 +14,12 @@ qt_add_module(WaylandCompositor
         compositor_api/qwaylandbufferref.cpp compositor_api/qwaylandbufferref.h
         compositor_api/qwaylandclient.cpp compositor_api/qwaylandclient.h
         compositor_api/qwaylandcompositor.cpp compositor_api/qwaylandcompositor.h compositor_api/qwaylandcompositor_p.h
-        compositor_api/qwaylandcompositorquickextensions_p.h
         compositor_api/qwaylanddestroylistener.cpp compositor_api/qwaylanddestroylistener.h compositor_api/qwaylanddestroylistener_p.h
         compositor_api/qwaylandkeyboard.cpp compositor_api/qwaylandkeyboard.h compositor_api/qwaylandkeyboard_p.h
         compositor_api/qwaylandkeymap.cpp compositor_api/qwaylandkeymap.h compositor_api/qwaylandkeymap_p.h
-        compositor_api/qwaylandmousetracker.cpp compositor_api/qwaylandmousetracker_p.h
         compositor_api/qwaylandoutput.cpp compositor_api/qwaylandoutput.h compositor_api/qwaylandoutput_p.h
         compositor_api/qwaylandoutputmode.cpp compositor_api/qwaylandoutputmode.h compositor_api/qwaylandoutputmode_p.h
         compositor_api/qwaylandpointer.cpp compositor_api/qwaylandpointer.h compositor_api/qwaylandpointer_p.h
-        compositor_api/qwaylandquickchildren.h
         compositor_api/qwaylandresource.cpp compositor_api/qwaylandresource.h
         compositor_api/qwaylandseat.cpp compositor_api/qwaylandseat.h compositor_api/qwaylandseat_p.h
         compositor_api/qwaylandsurface.cpp compositor_api/qwaylandsurface.h compositor_api/qwaylandsurface_p.h
@@ -47,6 +44,7 @@ qt_add_module(WaylandCompositor
         extensions/qwlqtkey.cpp extensions/qwlqtkey_p.h
         extensions/qwlqttouch.cpp extensions/qwlqttouch_p.h
         global/qtwaylandcompositorglobal.h
+        global/qtwaylandqmlinclude.h
         global/qwaylandcompositorextension.cpp global/qwaylandcompositorextension.h global/qwaylandcompositorextension_p.h
         global/qwaylandquickextension.h
         global/qwaylandutils_p.h
@@ -183,6 +181,9 @@ qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_draganddrop
 
 qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_wayland_compositor_quick
     SOURCES
+        compositor_api/qwaylandcompositorquickextensions_p.h
+        compositor_api/qwaylandmousetracker.cpp compositor_api/qwaylandmousetracker_p.h
+        compositor_api/qwaylandquickchildren.h
         compositor_api/qwaylandquickcompositor.cpp compositor_api/qwaylandquickcompositor.h
         compositor_api/qwaylandquickitem.cpp compositor_api/qwaylandquickitem.h compositor_api/qwaylandquickitem_p.h
         compositor_api/qwaylandquickoutput.cpp compositor_api/qwaylandquickoutput.h
@@ -216,15 +217,19 @@ qt_add_docs(WaylandCompositor
     doc/qtwaylandcompositor.qdocconf
 )
 
-set_target_properties(WaylandCompositor PROPERTIES
-    QT_QML_MODULE_INSTALL_QMLTYPES TRUE
-    QT_QML_MODULE_VERSION ${CMAKE_PROJECT_VERSION}
-    QT_QML_MODULE_URI QtWayland.Compositor
-    QT_QMLTYPES_FILENAME plugins.qmltypes
-    QT_QML_MODULE_INSTALL_DIR "${INSTALL_QMLDIR}/QtWayland/Compositor"
-)
+# special case begin
+if (TARGET Qt::Qml)
+    set_target_properties(WaylandCompositor PROPERTIES
+        QT_QML_MODULE_INSTALL_QMLTYPES TRUE
+        QT_QML_MODULE_VERSION ${CMAKE_PROJECT_VERSION}
+        QT_QML_MODULE_URI QtWayland.Compositor
+        QT_QMLTYPES_FILENAME plugins.qmltypes
+        QT_QML_MODULE_INSTALL_DIR "${INSTALL_QMLDIR}/QtWayland/Compositor"
+    )
 
-qt6_qml_type_registration(WaylandCompositor)
+    qt6_qml_type_registration(WaylandCompositor)
+endif()
+# special case end
 
 # special case begin
 qt_record_extra_qt_package_dependency(WaylandCompositor WaylandScannerTools "")

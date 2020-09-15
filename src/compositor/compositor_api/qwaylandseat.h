@@ -35,8 +35,10 @@
 #include <QtCore/QString>
 
 #include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
+#include <QtWaylandCompositor/qtwaylandqmlinclude.h>
 #include <QtWaylandCompositor/qwaylandcompositorextension.h>
 #include <QtWaylandCompositor/qwaylandkeyboard.h>
+#include <QtWaylandCompositor/qwaylandview.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -44,7 +46,6 @@ class QWaylandCompositor;
 class QWaylandSurface;
 class QKeyEvent;
 class QTouchEvent;
-class QWaylandView;
 class QInputEvent;
 class QWaylandSeatPrivate;
 class QWaylandDrag;

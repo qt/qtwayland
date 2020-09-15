@@ -32,8 +32,10 @@
 #define QWAYLANDSURFACE_H
 
 #include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
+#include <QtWaylandCompositor/qwaylandcompositor.h>
 #include <QtWaylandCompositor/qwaylandcompositorextension.h>
 #include <QtWaylandCompositor/qwaylandclient.h>
+#include <QtWaylandCompositor/qwaylanddrag.h>
 
 #include <QtCore/QScopedPointer>
 #include <QtGui/QImage>
@@ -46,14 +48,11 @@ struct wl_resource;
 QT_BEGIN_NAMESPACE
 
 class QTouchEvent;
-class QWaylandClient;
 class QWaylandSurfacePrivate;
-class QWaylandCompositor;
 class QWaylandBufferRef;
 class QWaylandView;
 class QWaylandSurfaceOp;
 class QWaylandInputMethodControl;
-class QWaylandDrag;
 
 class QWaylandSurfaceRole
 {

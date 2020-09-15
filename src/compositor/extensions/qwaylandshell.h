@@ -30,7 +30,8 @@
 #ifndef QWAYLANDSHELL_H
 #define QWAYLANDSHELL_H
 
-#include <QtWaylandCompositor/QWaylandCompositorExtension>
+#include <QtWaylandCompositor/qtwaylandqmlinclude.h>
+#include <QtWaylandCompositor/qwaylandcompositorextension.h>
 
 QT_BEGIN_NAMESPACE
 

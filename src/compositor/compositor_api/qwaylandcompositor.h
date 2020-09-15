@@ -31,6 +31,7 @@
 #define QWAYLANDCOMPOSITOR_H
 
 #include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
+#include <QtWaylandCompositor/qtwaylandqmlinclude.h>
 #include <QtWaylandCompositor/qwaylandcompositorextension.h>
 #include <QtWaylandCompositor/QWaylandOutput>
 

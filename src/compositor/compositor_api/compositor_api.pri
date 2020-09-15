@@ -27,10 +27,7 @@ HEADERS += \
     compositor_api/qwaylandview_p.h \
     compositor_api/qwaylandresource.h \
     compositor_api/qwaylandsurfacegrabber.h \
-    compositor_api/qwaylandoutputmode_p.h \
-    compositor_api/qwaylandquickchildren.h \
-    compositor_api/qwaylandmousetracker_p.h \
-    compositor_api/qwaylandcompositorquickextensions_p.h
+    compositor_api/qwaylandoutputmode_p.h
 
 SOURCES += \
     compositor_api/qwaylandcompositor.cpp \
@@ -47,8 +44,7 @@ SOURCES += \
     compositor_api/qwaylanddestroylistener.cpp \
     compositor_api/qwaylandview.cpp \
     compositor_api/qwaylandresource.cpp \
-    compositor_api/qwaylandsurfacegrabber.cpp \
-    compositor_api/qwaylandmousetracker.cpp
+    compositor_api/qwaylandsurfacegrabber.cpp
 
 qtConfig(im) {
     HEADERS += \
@@ -69,12 +65,16 @@ qtConfig(draganddrop) {
 
 qtConfig(wayland-compositor-quick) {
     SOURCES += \
+        compositor_api/qwaylandmousetracker.cpp \
         compositor_api/qwaylandquickcompositor.cpp \
         compositor_api/qwaylandquicksurface.cpp \
         compositor_api/qwaylandquickoutput.cpp \
         compositor_api/qwaylandquickitem.cpp
 
     HEADERS += \
+        compositor_api/qwaylandcompositorquickextensions_p.h \
+        compositor_api/qwaylandmousetracker_p.h \
+        compositor_api/qwaylandquickchildren.h \
         compositor_api/qwaylandquickcompositor.h \
         compositor_api/qwaylandquicksurface.h \
         compositor_api/qwaylandquickoutput.h \

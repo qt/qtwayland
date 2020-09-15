@@ -30,8 +30,8 @@
 #ifndef QWAYLANDCLIENT_H
 #define QWAYLANDCLIENT_H
 
-#include <QtQml/qqml.h>
 #include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
+#include <QtWaylandCompositor/qtwaylandqmlinclude.h>
 
 #include <QObject>
 

@@ -31,6 +31,7 @@
 #ifndef QWAYLANDOUTPUT_H
 #define QWAYLANDOUTPUT_H
 
+#include <QtWaylandCompositor/qtwaylandqmlinclude.h>
 #include <QtWaylandCompositor/qwaylandcompositorextension.h>
 #include <QtWaylandCompositor/QWaylandOutputMode>
 #include <QtCore/QObject>

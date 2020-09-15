@@ -70,7 +70,7 @@ SOURCES += \
     extensions/qwaylandiviapplication.cpp \
     extensions/qwaylandivisurface.cpp \
 
-qtHaveModule(quick) {
+qtConfig(wayland-compositor-quick) {
     QT += quick quick-private
 
     HEADERS += \

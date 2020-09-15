@@ -30,8 +30,8 @@
 #ifndef QWAYLANDEXTENSION_H
 #define QWAYLANDEXTENSION_H
 
-#include <QtQml/qqml.h>
 #include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
+#include <QtWaylandCompositor/qtwaylandqmlinclude.h>
 
 #include <QtCore/QObject>
 

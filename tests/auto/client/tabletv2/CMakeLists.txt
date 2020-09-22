@@ -4,7 +4,7 @@
 ## tst_tabletv2 Test:
 #####################################################################
 
-qt_add_test(tst_tabletv2
+qt_internal_add_test(tst_tabletv2
     SOURCES
         ../shared/corecompositor.cpp ../shared/corecompositor.h
         ../shared/coreprotocol.cpp ../shared/coreprotocol.h

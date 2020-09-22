@@ -4,7 +4,7 @@
 ## tst_wlconnect Test:
 #####################################################################
 
-qt_add_test(tst_wlconnect
+qt_internal_add_test(tst_wlconnect
     SOURCES
         tst_wlconnect.cpp
     PUBLIC_LIBRARIES

@@ -4,7 +4,7 @@
 ## qwaylandcompositorwlshellplugin Plugin:
 #####################################################################
 
-qt_add_qml_module(qwaylandcompositorwlshellplugin
+qt_internal_add_qml_module(qwaylandcompositorwlshellplugin
     URI "QtWayland.Compositor.WlShell"
     VERSION "${CMAKE_PROJECT_VERSION}"
     CLASSNAME QWaylandCompositorWlShellPlugin

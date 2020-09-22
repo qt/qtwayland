@@ -4,7 +4,7 @@
 ## qwaylandcompositorxdgshellplugin Plugin:
 #####################################################################
 
-qt_add_qml_module(qwaylandcompositorxdgshellplugin
+qt_internal_add_qml_module(qwaylandcompositorxdgshellplugin
     URI "QtWayland.Compositor.XdgShell"
     VERSION "${CMAKE_PROJECT_VERSION}"
     CLASSNAME QWaylandCompositorXdgShellPlugin

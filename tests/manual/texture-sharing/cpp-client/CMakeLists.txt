@@ -4,7 +4,7 @@
 ## cpp-client Binary:
 #####################################################################
 
-qt_add_manual_test(cpp-client
+qt_internal_add_manual_test(cpp-client
     GUI
     SOURCES
         ../../../../src/imports/texture-sharing/texturesharingextension.cpp ../../../../src/imports/texture-sharing/texturesharingextension.h

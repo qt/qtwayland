@@ -4,7 +4,7 @@
 ## qwaylandcompositorplugin Plugin:
 #####################################################################
 
-qt_add_qml_module(qwaylandcompositorplugin
+qt_internal_add_qml_module(qwaylandcompositorplugin
     URI "QtWayland.Compositor"
     VERSION "${CMAKE_PROJECT_VERSION}"
     CLASSNAME QWaylandCompositorPlugin

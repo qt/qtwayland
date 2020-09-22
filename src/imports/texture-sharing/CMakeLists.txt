@@ -4,7 +4,7 @@
 ## qwaylandtexturesharing Plugin:
 #####################################################################
 
-qt_add_qml_module(qwaylandtexturesharing
+qt_internal_add_qml_module(qwaylandtexturesharing
     URI "QtWayland.Client.TextureSharing"
     VERSION "1.${CMAKE_PROJECT_VERSION_MINOR}"
     CLASSNAME QWaylandTextureSharingPlugin

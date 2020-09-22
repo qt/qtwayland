@@ -4,7 +4,7 @@
 ## tst_compositor Test:
 #####################################################################
 
-qt_add_test(tst_compositor
+qt_internal_add_test(tst_compositor
     SOURCES
         mockclient.cpp mockclient.h
         mockkeyboard.cpp mockkeyboard.h
@@ -38,7 +38,7 @@ qt6_generate_wayland_protocol_client_sources(tst_compositor
 ## Scopes:
 #####################################################################
 
-qt_extend_target(tst_compositor CONDITION QT_FEATURE_xkbcommon
+qt_internal_extend_target(tst_compositor CONDITION QT_FEATURE_xkbcommon
     PUBLIC_LIBRARIES
         XKB::XKB
 )

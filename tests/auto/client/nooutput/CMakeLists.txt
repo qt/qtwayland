@@ -4,7 +4,7 @@
 ## tst_nooutput Test:
 #####################################################################
 
-qt_add_test(tst_nooutput
+qt_internal_add_test(tst_nooutput
     SOURCES
         ../shared/corecompositor.cpp ../shared/corecompositor.h
         ../shared/coreprotocol.cpp ../shared/coreprotocol.h

@@ -4,7 +4,7 @@
 ## scaling-compositor Binary:
 #####################################################################
 
-qt_add_manual_test(scaling-compositor
+qt_internal_add_manual_test(scaling-compositor
     GUI
     SOURCES
         main.cpp
@@ -18,7 +18,7 @@ set(qml_resource_files
     "main.qml"
 )
 
-qt_add_resource(scaling-compositor "qml"
+qt_internal_add_resource(scaling-compositor "qml"
     PREFIX
         "/"
     FILES

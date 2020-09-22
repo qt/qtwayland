@@ -4,7 +4,7 @@
 ## tst_client_fullscreenshellv1 Test:
 #####################################################################
 
-qt_add_test(tst_client_fullscreenshellv1
+qt_internal_add_test(tst_client_fullscreenshellv1
     SOURCES
         ../shared_old/mockcompositor.cpp ../shared_old/mockcompositor.h
         ../shared_old/mockfullscreenshellv1.cpp ../shared_old/mockfullscreenshellv1.h

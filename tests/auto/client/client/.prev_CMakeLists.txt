@@ -4,7 +4,7 @@
 ## tst_client Test:
 #####################################################################
 
-qt_add_test(tst_client
+qt_internal_add_test(tst_client
     SOURCES
         ../shared_old/mockcompositor.cpp ../shared_old/mockcompositor.h
         ../shared_old/mockfullscreenshellv1.cpp ../shared_old/mockfullscreenshellv1.h

@@ -4,7 +4,7 @@
 ## qwaylandcompositoriviapplicationplugin Plugin:
 #####################################################################
 
-qt_add_qml_module(qwaylandcompositoriviapplicationplugin
+qt_internal_add_qml_module(qwaylandcompositoriviapplicationplugin
     URI "QtWayland.Compositor.IviApplication"
     VERSION "${CMAKE_PROJECT_VERSION}"
     CLASSNAME QWaylandCompositorIviApplicationPlugin

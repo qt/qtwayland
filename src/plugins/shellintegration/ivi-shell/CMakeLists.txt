@@ -31,7 +31,7 @@ qt6_generate_wayland_protocol_client_sources(QWaylandIviShellIntegrationPlugin
 ## Scopes:
 #####################################################################
 
-qt_extend_target(QWaylandIviShellIntegrationPlugin CONDITION QT_FEATURE_xkbcommon
+qt_internal_extend_target(QWaylandIviShellIntegrationPlugin CONDITION QT_FEATURE_xkbcommon
     PUBLIC_LIBRARIES
         XKB::XKB
 )

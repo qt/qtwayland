@@ -4,7 +4,7 @@
 ## tst_datadevicev1 Test:
 #####################################################################
 
-qt_add_test(tst_datadevicev1
+qt_internal_add_test(tst_datadevicev1
     SOURCES
         ../shared/corecompositor.cpp ../shared/corecompositor.h
         ../shared/coreprotocol.cpp ../shared/coreprotocol.h

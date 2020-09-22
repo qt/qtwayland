@@ -4,7 +4,7 @@
 ## tst_xdgshell Test:
 #####################################################################
 
-qt_add_test(tst_xdgshell
+qt_internal_add_test(tst_xdgshell
     SOURCES
         ../shared/corecompositor.cpp ../shared/corecompositor.h
         ../shared/coreprotocol.cpp ../shared/coreprotocol.h

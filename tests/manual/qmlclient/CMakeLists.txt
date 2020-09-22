@@ -4,7 +4,7 @@
 ## qmlclient Binary:
 #####################################################################
 
-qt_add_manual_test(qmlclient
+qt_internal_add_manual_test(qmlclient
     GUI
     SOURCES
         main.cpp
@@ -21,7 +21,7 @@ set(qml_resource_files
     "main.qml"
 )
 
-qt_add_resource(qmlclient "qml"
+qt_internal_add_resource(qmlclient "qml"
     PREFIX
         "/"
     FILES

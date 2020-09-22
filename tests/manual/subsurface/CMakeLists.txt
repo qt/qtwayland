@@ -4,7 +4,7 @@
 ## subsurface Binary:
 #####################################################################
 
-qt_add_manual_test(subsurface
+qt_internal_add_manual_test(subsurface
     GUI
     SOURCES
         main.cpp
@@ -23,7 +23,7 @@ set(qml_resource_files
     "main.qml"
 )
 
-qt_add_resource(subsurface "qml"
+qt_internal_add_resource(subsurface "qml"
     PREFIX
         "/"
     FILES

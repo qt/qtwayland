@@ -4,7 +4,7 @@
 ## tst_output Test:
 #####################################################################
 
-qt_add_test(tst_output
+qt_internal_add_test(tst_output
     SOURCES
         ../shared/corecompositor.cpp ../shared/corecompositor.h
         ../shared/coreprotocol.cpp ../shared/coreprotocol.h

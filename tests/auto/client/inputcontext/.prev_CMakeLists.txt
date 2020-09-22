@@ -4,7 +4,7 @@
 ## tst_inputcontext Test:
 #####################################################################
 
-qt_add_test(tst_inputcontext
+qt_internal_add_test(tst_inputcontext
     SOURCES
         ../shared/corecompositor.cpp ../shared/corecompositor.h
         ../shared/coreprotocol.cpp ../shared/coreprotocol.h

@@ -4,7 +4,7 @@
 ## WaylandClient Module:
 #####################################################################
 
-qt_add_module(WaylandClient
+qt_internal_add_module(WaylandClient
     PLUGIN_TYPES wayland-graphics-integration-client wayland-inputdevice-integration wayland-decoration-client wayland-shell-integration
     SOURCES
         ../shared/qwaylandinputmethodeventbuilder.cpp ../shared/qwaylandinputmethodeventbuilder_p.h
@@ -93,31 +93,31 @@ qt6_generate_wayland_protocol_client_sources(WaylandClient
 #
 # Do not explicitly add XKB::XKB. This is already done by Qt::GuiPrivate.
 #
-# qt_extend_target(WaylandClient CONDITION QT_FEATURE_xkbcommon
+# qt_internal_extend_target(WaylandClient CONDITION QT_FEATURE_xkbcommon
 #     PUBLIC_LIBRARIES
 #         XKB::XKB
 # )
 # special case end
 
-qt_extend_target(WaylandClient CONDITION QT_FEATURE_clipboard
+qt_internal_extend_target(WaylandClient CONDITION QT_FEATURE_clipboard
     SOURCES
         qwaylandclipboard.cpp qwaylandclipboard_p.h
 )
 
-qt_extend_target(WaylandClient CONDITION QT_FEATURE_vulkan
+qt_internal_extend_target(WaylandClient CONDITION QT_FEATURE_vulkan
     SOURCES
         qwaylandvulkaninstance.cpp qwaylandvulkaninstance_p.h
         qwaylandvulkanwindow.cpp qwaylandvulkanwindow_p.h
 )
 
-qt_extend_target(WaylandClient CONDITION QT_FEATURE_cursor
+qt_internal_extend_target(WaylandClient CONDITION QT_FEATURE_cursor
     SOURCES
         qwaylandcursor.cpp qwaylandcursor_p.h
     PUBLIC_LIBRARIES
         Wayland::Cursor
 )
 
-qt_extend_target(WaylandClient CONDITION QT_FEATURE_wayland_datadevice
+qt_internal_extend_target(WaylandClient CONDITION QT_FEATURE_wayland_datadevice
     SOURCES
         qwaylanddatadevice.cpp qwaylanddatadevice_p.h
         qwaylanddatadevicemanager.cpp qwaylanddatadevicemanager_p.h
@@ -125,12 +125,12 @@ qt_extend_target(WaylandClient CONDITION QT_FEATURE_wayland_datadevice
         qwaylanddatasource.cpp qwaylanddatasource_p.h
 )
 
-qt_extend_target(WaylandClient CONDITION QT_FEATURE_wayland_client_primary_selection
+qt_internal_extend_target(WaylandClient CONDITION QT_FEATURE_wayland_client_primary_selection
     SOURCES
         qwaylandprimaryselectionv1.cpp qwaylandprimaryselectionv1_p.h
 )
 
-qt_extend_target(WaylandClient CONDITION QT_FEATURE_draganddrop
+qt_internal_extend_target(WaylandClient CONDITION QT_FEATURE_draganddrop
     SOURCES
         qwaylanddnd.cpp qwaylanddnd_p.h
 )

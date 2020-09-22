@@ -4,7 +4,7 @@
 ## tst_xdgoutput Test:
 #####################################################################
 
-qt_add_test(tst_xdgoutput
+qt_internal_add_test(tst_xdgoutput
     SOURCES
         ../shared/corecompositor.cpp ../shared/corecompositor.h
         ../shared/coreprotocol.cpp ../shared/coreprotocol.h

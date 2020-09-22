@@ -4,7 +4,7 @@
 ## tst_surface Test:
 #####################################################################
 
-qt_add_test(tst_surface
+qt_internal_add_test(tst_surface
     SOURCES
         ../shared/corecompositor.cpp ../shared/corecompositor.h
         ../shared/coreprotocol.cpp ../shared/coreprotocol.h

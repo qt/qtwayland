@@ -32,7 +32,7 @@ qt_internal_add_plugin(QWaylandXdgShellV5IntegrationPlugin
 ## Scopes:
 #####################################################################
 
-qt_extend_target(QWaylandXdgShellV5IntegrationPlugin CONDITION QT_FEATURE_xkbcommon
+qt_internal_extend_target(QWaylandXdgShellV5IntegrationPlugin CONDITION QT_FEATURE_xkbcommon
     PUBLIC_LIBRARIES
         XKB::XKB
 )

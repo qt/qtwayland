@@ -11,7 +11,7 @@ if(QT_FEATURE_wayland_compositor_quick)
 endif()
 # special case end
 
-qt_add_module(WaylandCompositor
+qt_internal_add_module(WaylandCompositor
     ${__qt_wayland_compositor_module_args} # special case
     PLUGIN_TYPES wayland-graphics-integration-server wayland-hardware-layer-integration
     SOURCES
@@ -86,7 +86,7 @@ set(compositor_resource_files
     "shaders/surface_y_xuxv.frag.qsb"
 )
 
-qt_add_resource(WaylandCompositor "compositor"
+qt_internal_add_resource(WaylandCompositor "compositor"
     PREFIX
         "/qt-project.org/wayland/compositor"
     FILES
@@ -126,7 +126,7 @@ if(QT_FEATURE_opengl)
     )
 endif()
 
-qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_opengl
+qt_internal_extend_target(WaylandCompositor CONDITION QT_FEATURE_opengl
     SOURCES
         hardware_integration/qwlclientbufferintegration.cpp hardware_integration/qwlclientbufferintegration_p.h
         hardware_integration/qwlclientbufferintegrationfactory.cpp hardware_integration/qwlclientbufferintegrationfactory_p.h
@@ -142,12 +142,12 @@ qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_opengl
         Qt::OpenGL
 )
 
-qt_extend_target(WaylandCompositor CONDITION TARGET Qt::Quick
+qt_internal_extend_target(WaylandCompositor CONDITION TARGET Qt::Quick
     PUBLIC_LIBRARIES
         Qt::Quick
 )
 
-qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_wayland_compositor_quick
+qt_internal_extend_target(WaylandCompositor CONDITION QT_FEATURE_wayland_compositor_quick
     SOURCES
         compositor_api/qwaylandcompositorquickextensions_p.h
         compositor_api/qwaylandmousetracker.cpp compositor_api/qwaylandmousetracker_p.h
@@ -179,7 +179,7 @@ qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_wayland_compositor_quick
 # QML_IMPORT_NAME = "QtWayland.Compositor"
 # QML_IMPORT_VERSION = "$$QT_VERSION"
 
-qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_wayland_datadevice
+qt_internal_extend_target(WaylandCompositor CONDITION QT_FEATURE_wayland_datadevice
     SOURCES
         wayland_wrapper/qwldatadevice.cpp wayland_wrapper/qwldatadevice_p.h
         wayland_wrapper/qwldatadevicemanager.cpp wayland_wrapper/qwldatadevicemanager_p.h
@@ -191,18 +191,18 @@ qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_wayland_datadevice
 #
 # Do not explicitly add XKB::XKB. This is already done by Qt::GuiPrivate.
 #
-#qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_xkbcommon
+#qt_internal_extend_target(WaylandCompositor CONDITION QT_FEATURE_xkbcommon
 #    PUBLIC_LIBRARIES
 #        XKB::XKB
 #)
 # special case end
 
-qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_im
+qt_internal_extend_target(WaylandCompositor CONDITION QT_FEATURE_im
     SOURCES
         compositor_api/qwaylandinputmethodcontrol.cpp compositor_api/qwaylandinputmethodcontrol.h compositor_api/qwaylandinputmethodcontrol_p.h
 )
 
-qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_draganddrop
+qt_internal_extend_target(WaylandCompositor CONDITION QT_FEATURE_draganddrop
     SOURCES
         compositor_api/qwaylanddrag.cpp compositor_api/qwaylanddrag.h
 )
@@ -215,12 +215,12 @@ if(QT_FEATURE_opengl AND QT_FEATURE_wayland_compositor_quick)
     )
 endif()
 
-qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_opengl AND QT_FEATURE_wayland_compositor_quick
+qt_internal_extend_target(WaylandCompositor CONDITION QT_FEATURE_opengl AND QT_FEATURE_wayland_compositor_quick
     SOURCES
         compositor_api/qwaylandquickhardwarelayer.cpp compositor_api/qwaylandquickhardwarelayer_p.h
         extensions/qwltexturesharingextension.cpp extensions/qwltexturesharingextension_p.h
 )
-qt_add_docs(WaylandCompositor
+qt_internal_add_docs(WaylandCompositor
     doc/qtwaylandcompositor.qdocconf
 )
 

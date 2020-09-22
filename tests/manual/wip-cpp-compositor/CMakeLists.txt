@@ -4,7 +4,7 @@
 ## wip-cpp-compositor Binary:
 #####################################################################
 
-qt_add_manual_test(wip-cpp-compositor
+qt_internal_add_manual_test(wip-cpp-compositor
     GUI
     SOURCES
         compositor.cpp compositor.h

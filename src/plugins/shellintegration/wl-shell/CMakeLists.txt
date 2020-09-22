@@ -30,7 +30,7 @@ qt6_generate_wayland_protocol_client_sources(QWaylandWlShellIntegrationPlugin
 ## Scopes:
 #####################################################################
 
-qt_extend_target(QWaylandWlShellIntegrationPlugin CONDITION QT_FEATURE_xkbcommon
+qt_internal_extend_target(QWaylandWlShellIntegrationPlugin CONDITION QT_FEATURE_xkbcommon
     LIBRARIES
         XKB::XKB
 )

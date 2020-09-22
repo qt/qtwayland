@@ -4,7 +4,7 @@
 ## tst_seatv4 Test:
 #####################################################################
 
-qt_add_test(tst_seatv4
+qt_internal_add_test(tst_seatv4
     SOURCES
         ../shared/corecompositor.cpp ../shared/corecompositor.h
         ../shared/coreprotocol.cpp ../shared/coreprotocol.h
@@ -35,7 +35,7 @@ qt6_generate_wayland_protocol_server_sources(tst_seatv4
 ## Scopes:
 #####################################################################
 
-qt_extend_target(tst_seatv4 CONDITION QT_FEATURE_cursor
+qt_internal_extend_target(tst_seatv4 CONDITION QT_FEATURE_cursor
     PUBLIC_LIBRARIES
         Qt::GuiPrivate
         Wayland::Cursor

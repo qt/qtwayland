@@ -4,8 +4,15 @@
 ## WaylandCompositor Module:
 #####################################################################
 
+# special case begin
+set(__qt_wayland_compositor_module_args "")
+if(QT_FEATURE_wayland_compositor_quick)
+    list(APPEND __qt_wayland_compositor_module_args "GENERATE_METATYPES")
+endif()
+# special case end
+
 qt_add_module(WaylandCompositor
-    GENERATE_METATYPES
+    ${__qt_wayland_compositor_module_args} # special case
     PLUGIN_TYPES wayland-graphics-integration-server wayland-hardware-layer-integration
     SOURCES
         ../shared/qwaylandinputmethodeventbuilder.cpp ../shared/qwaylandinputmethodeventbuilder_p.h
@@ -106,10 +113,6 @@ qt6_generate_wayland_protocol_server_sources(WaylandCompositor
 
 #### Keys ignored in scope 1:.:.:compositor.pro:<TRUE>:
 # MODULE = "waylandcompositor"
-# QMLTYPES_FILENAME = "plugins.qmltypes"
-# QMLTYPES_INSTALL_DIR = "$$[QT_INSTALL_QML]/QtWayland/Compositor"
-# QML_IMPORT_NAME = "QtWayland.Compositor"
-# QML_IMPORT_VERSION = "$$QT_VERSION"
 
 ## Scopes:
 #####################################################################
@@ -121,7 +124,6 @@ if(QT_FEATURE_opengl)
             ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/hardware-integration.xml
             ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/server-buffer-extension.xml
     )
-
 endif()
 
 qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_opengl
@@ -141,7 +143,19 @@ qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_opengl
 )
 
 qt_extend_target(WaylandCompositor CONDITION TARGET Qt::Quick
+    PUBLIC_LIBRARIES
+        Qt::Quick
+)
+
+qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_wayland_compositor_quick
     SOURCES
+        compositor_api/qwaylandcompositorquickextensions_p.h
+        compositor_api/qwaylandmousetracker.cpp compositor_api/qwaylandmousetracker_p.h
+        compositor_api/qwaylandquickchildren.h
+        compositor_api/qwaylandquickcompositor.cpp compositor_api/qwaylandquickcompositor.h
+        compositor_api/qwaylandquickitem.cpp compositor_api/qwaylandquickitem.h compositor_api/qwaylandquickitem_p.h
+        compositor_api/qwaylandquickoutput.cpp compositor_api/qwaylandquickoutput.h
+        compositor_api/qwaylandquicksurface.cpp compositor_api/qwaylandquicksurface.h
         extensions/qwaylandivisurfaceintegration.cpp extensions/qwaylandivisurfaceintegration_p.h
         extensions/qwaylandquickshellintegration.cpp extensions/qwaylandquickshellintegration.h
         extensions/qwaylandquickshellsurfaceitem.cpp extensions/qwaylandquickshellsurfaceitem.h extensions/qwaylandquickshellsurfaceitem_p.h
@@ -149,12 +163,21 @@ qt_extend_target(WaylandCompositor CONDITION TARGET Qt::Quick
         extensions/qwaylandwlshellintegration.cpp extensions/qwaylandwlshellintegration_p.h
         extensions/qwaylandxdgshellintegration.cpp extensions/qwaylandxdgshellintegration_p.h
     LIBRARIES
+        Qt::QmlPrivate
         Qt::QuickPrivate
     PUBLIC_LIBRARIES
+        Qt::Qml
         Qt::Quick
     PRIVATE_MODULE_INTERFACE
+        Qt::QmlPrivate
         Qt::QuickPrivate
 )
+
+#### Keys ignored in scope 4:.:.:compositor.pro:QT_FEATURE_wayland_compositor_quick:
+# QMLTYPES_FILENAME = "plugins.qmltypes"
+# QMLTYPES_INSTALL_DIR = "$$[QT_INSTALL_QML]/QtWayland/Compositor"
+# QML_IMPORT_NAME = "QtWayland.Compositor"
+# QML_IMPORT_VERSION = "$$QT_VERSION"
 
 qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_wayland_datadevice
     SOURCES
@@ -184,38 +207,17 @@ qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_draganddrop
         compositor_api/qwaylanddrag.cpp compositor_api/qwaylanddrag.h
 )
 
-qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_wayland_compositor_quick
-    SOURCES
-        compositor_api/qwaylandcompositorquickextensions_p.h
-        compositor_api/qwaylandmousetracker.cpp compositor_api/qwaylandmousetracker_p.h
-        compositor_api/qwaylandquickchildren.h
-        compositor_api/qwaylandquickcompositor.cpp compositor_api/qwaylandquickcompositor.h
-        compositor_api/qwaylandquickitem.cpp compositor_api/qwaylandquickitem.h compositor_api/qwaylandquickitem_p.h
-        compositor_api/qwaylandquickoutput.cpp compositor_api/qwaylandquickoutput.h
-        compositor_api/qwaylandquicksurface.cpp compositor_api/qwaylandquicksurface.h
-    PUBLIC_LIBRARIES
-        Qt::Qml
-        Qt::QmlPrivate
-        Qt::Quick
-        Qt::QuickPrivate
-)
-
-qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_opengl AND QT_FEATURE_wayland_compositor_quick
-    SOURCES
-        compositor_api/qwaylandquickhardwarelayer.cpp compositor_api/qwaylandquickhardwarelayer_p.h
-)
-
-if(QT_FEATURE_opengl AND TARGET Qt::Quick)
+if(QT_FEATURE_opengl AND QT_FEATURE_wayland_compositor_quick)
 
     qt6_generate_wayland_protocol_server_sources(WaylandCompositor
         FILES
             ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-texture-sharing-unstable-v1.xml
     )
-
 endif()
 
-qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_opengl AND TARGET Qt::Quick
+qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_opengl AND QT_FEATURE_wayland_compositor_quick
     SOURCES
+        compositor_api/qwaylandquickhardwarelayer.cpp compositor_api/qwaylandquickhardwarelayer_p.h
         extensions/qwltexturesharingextension.cpp extensions/qwltexturesharingextension_p.h
 )
 qt_add_docs(WaylandCompositor
@@ -234,9 +236,7 @@ if (TARGET Qt::Qml)
 
     qt6_qml_type_registration(WaylandCompositor)
 endif()
-# special case end
 
-# special case begin
 qt_record_extra_qt_main_tools_package_dependency(WaylandCompositor WaylandScannerTools "${PROJECT_VERSION}")
 # special case end
 

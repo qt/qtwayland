@@ -14,6 +14,9 @@ project(QtWayland # special case
 # TODO: Fix warnings and remove this
 set(QT_REPO_NOT_WARNINGS_CLEAN TRUE)
 
+# Make sure we only use latest private CMake API, aka no compatibility wrappers.
+set(QT_NO_INTERNAL_COMPATIBILITY_FUNCTIONS TRUE)
+
 find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS
     BuildInternals
 )

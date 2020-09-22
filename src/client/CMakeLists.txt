@@ -89,6 +89,16 @@ qt6_generate_wayland_protocol_client_sources(WaylandClient
 ## Scopes:
 #####################################################################
 
+# special case begin
+#
+# Do not explicitly add XKB::XKB. This is already done by Qt::GuiPrivate.
+#
+# qt_extend_target(WaylandClient CONDITION QT_FEATURE_xkbcommon
+#     PUBLIC_LIBRARIES
+#         XKB::XKB
+# )
+# special case end
+
 qt_extend_target(WaylandClient CONDITION QT_FEATURE_clipboard
     SOURCES
         qwaylandclipboard.cpp qwaylandclipboard_p.h

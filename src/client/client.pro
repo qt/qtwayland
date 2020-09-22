@@ -14,6 +14,8 @@ CONFIG -= precompile_header
 CONFIG += link_pkgconfig wayland-scanner
 
 QMAKE_USE += wayland-client
+qtConfig(xkbcommon): \
+    QMAKE_USE += xkbcommon
 
 INCLUDEPATH += $$PWD/../shared
 

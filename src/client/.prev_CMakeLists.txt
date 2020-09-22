@@ -89,6 +89,11 @@ qt6_generate_wayland_protocol_client_sources(WaylandClient
 ## Scopes:
 #####################################################################
 
+qt_extend_target(WaylandClient CONDITION QT_FEATURE_xkbcommon
+    PUBLIC_LIBRARIES
+        XKB::XKB
+)
+
 qt_extend_target(WaylandClient CONDITION QT_FEATURE_clipboard
     SOURCES
         qwaylandclipboard.cpp qwaylandclipboard_p.h

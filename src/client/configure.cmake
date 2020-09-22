@@ -26,7 +26,7 @@ if(NOT TARGET X11::X11)
 endif()
 # Same for XKB.
 if(NOT TARGET XKB::XKB)
-    qt_find_package(XKB 0.5.0 PROVIDED_TARGETS XKB::XKB MODULE_NAME gui QMAKE_LIB xkbcommon)
+    qt_find_package(XKB 0.5.0 PROVIDED_TARGETS XKB::XKB MODULE_NAME gui QMAKE_LIB xkbcommon MARK_OPTIONAL)
 endif()
 # special case end
 

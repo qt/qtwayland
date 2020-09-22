@@ -164,10 +164,15 @@ qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_wayland_datadevice
         wayland_wrapper/qwldatasource.cpp wayland_wrapper/qwldatasource_p.h
 )
 
-qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_xkbcommon
-    PUBLIC_LIBRARIES
-        XKB::XKB
-)
+# special case begin
+#
+# Do not explicitly add XKB::XKB. This is already done by Qt::GuiPrivate.
+#
+#qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_xkbcommon
+#    PUBLIC_LIBRARIES
+#        XKB::XKB
+#)
+# special case end
 
 qt_extend_target(WaylandCompositor CONDITION QT_FEATURE_im
     SOURCES

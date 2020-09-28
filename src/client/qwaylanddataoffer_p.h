@@ -106,7 +106,7 @@ public:
 protected:
     bool hasFormat_sys(const QString &mimeType) const override;
     QStringList formats_sys() const override;
-    QVariant retrieveData_sys(const QString &mimeType, QVariant::Type type) const override;
+    QVariant retrieveData_sys(const QString &mimeType, QMetaType type) const override;
 
 private:
     int readData(int fd, QByteArray &data) const;

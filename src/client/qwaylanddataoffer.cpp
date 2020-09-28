@@ -124,7 +124,7 @@ QStringList QWaylandMimeData::formats_sys() const
     return m_types;
 }
 
-QVariant QWaylandMimeData::retrieveData_sys(const QString &mimeType, QVariant::Type type) const
+QVariant QWaylandMimeData::retrieveData_sys(const QString &mimeType, QMetaType type) const
 {
     Q_UNUSED(type);
 

@@ -254,6 +254,7 @@ protected:
 
     Qt::WindowFlags mFlags;
     QRegion mMask;
+    QRegion mOpaqueArea;
     Qt::WindowStates mLastReportedWindowStates = Qt::WindowNoState;
 
     QWaylandShmBackingStore *mBackingStore = nullptr;
@@ -270,6 +271,8 @@ private:
     void sendExposeEvent(const QRect &rect);
     static void closePopups(QWaylandWindow *parent);
     QPlatformScreen *calculateScreenFromSurfaceEvents() const;
+    void setOpaqueArea(const QRegion &opaqueArea);
+    bool isOpaque() const;
 
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
     void handleScreensChanged();

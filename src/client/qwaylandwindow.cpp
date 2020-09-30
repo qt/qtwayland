@@ -364,6 +364,9 @@ void QWaylandWindow::setGeometry(const QRect &rect)
 
     if (mShellSurface)
         mShellSurface->setWindowGeometry(windowContentGeometry());
+
+    if (isOpaque() && mMask.isEmpty())
+        setOpaqueArea(rect);
 }
 
 void QWaylandWindow::resizeFromApplyConfigure(const QSize &sizeWithMargins, const QPoint &offset)
@@ -463,10 +466,16 @@ void QWaylandWindow::setMask(const QRegion &mask)
 
     if (mMask.isEmpty()) {
         mSurface->set_input_region(nullptr);
+
+        if (isOpaque())
+            setOpaqueArea(QRect(QPoint(0, 0), geometry().size()));
     } else {
         struct ::wl_region *region = mDisplay->createRegion(mMask);
         mSurface->set_input_region(region);
         wl_region_destroy(region);
+
+        if (isOpaque())
+            setOpaqueArea(mMask);
     }
 
     mSurface->commit();
@@ -1213,6 +1222,23 @@ bool QtWaylandClient::QWaylandWindow::startSystemMove()
     if (auto seat = display()->lastInputDevice())
         return mShellSurface && mShellSurface->move(seat);
     return false;
+}
+
+bool QWaylandWindow::isOpaque() const
+{
+    return window()->requestedFormat().alphaBufferSize() <= 0;
+}
+
+void QWaylandWindow::setOpaqueArea(const QRegion &opaqueArea)
+{
+    if (opaqueArea == mOpaqueArea || !mSurface)
+        return;
+
+    mOpaqueArea = opaqueArea;
+
+    struct ::wl_region *region = mDisplay->createRegion(opaqueArea);
+    mSurface->set_opaque_region(region);
+    wl_region_destroy(region);
 }
 
 }

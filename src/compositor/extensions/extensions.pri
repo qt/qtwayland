@@ -17,6 +17,7 @@ WAYLANDSERVERSOURCES += \
     ../3rdparty/protocol/xdg-output-unstable-v1.xml \
     ../3rdparty/protocol/ivi-application.xml \
     ../3rdparty/protocol/idle-inhibit-unstable-v1.xml \
+    ../extensions/qt-texture-sharing-unstable-v1.xml \
 
 HEADERS += \
     extensions/qwlqttouch_p.h \
@@ -98,9 +99,6 @@ qtHaveModule(quick) {
         extensions/qwaylandxdgshellintegration.cpp \
 
     qtConfig(opengl) {
-        WAYLANDSERVERSOURCES += \
-            ../extensions/qt-texture-sharing-unstable-v1.xml
-
         HEADERS += \
             extensions/qwltexturesharingextension_p.h
 

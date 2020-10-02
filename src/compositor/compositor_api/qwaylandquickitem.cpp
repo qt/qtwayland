@@ -42,11 +42,14 @@
 #include <QtWaylandCompositor/private/qwlclientbufferintegration_p.h>
 #include <QtWaylandCompositor/private/qwaylandsurface_p.h>
 
+#if QT_CONFIG(opengl)
+#  include <QtGui/QOpenGLTexture>
+#  include <QtGui/QOpenGLFunctions>
+#endif
+
 #include <QtGui/QKeyEvent>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QScreen>
-#include <QtGui/QOpenGLFunctions>
-#include <QtGui/QOpenGLTexture>
 
 #include <QtQuick/QSGSimpleTextureNode>
 #include <QtQuick/QQuickWindow>

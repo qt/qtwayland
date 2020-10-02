@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include <QSGTexture>
-#include <QOpenGLTexture>
 #include <QQuickWindow>
 #include <QDebug>
 

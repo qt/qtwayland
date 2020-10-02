@@ -1,11 +1,17 @@
-qtConfig(opengl) {
-    CONFIG += wayland-scanner
-    WAYLANDSERVERSOURCES += \
-        ../extensions/server-buffer-extension.xml \
-        ../extensions/hardware-integration.xml \
+CONFIG += wayland-scanner
+WAYLANDSERVERSOURCES += \
+    ../extensions/server-buffer-extension.xml \
+    ../extensions/hardware-integration.xml \
 
+HEADERS += \
+    hardware_integration/qwlclientbufferintegration_p.h \
+
+SOURCES += \
+    hardware_integration/qwlclientbufferintegration.cpp \
+
+
+qtConfig(opengl) {
     HEADERS += \
-        hardware_integration/qwlclientbufferintegration_p.h \
         hardware_integration/qwlclientbufferintegrationfactory_p.h \
         hardware_integration/qwlclientbufferintegrationplugin_p.h \
         hardware_integration/qwlserverbufferintegration_p.h \
@@ -17,7 +23,6 @@ qtConfig(opengl) {
         hardware_integration/qwlhardwarelayerintegrationplugin_p.h \
 
     SOURCES += \
-        hardware_integration/qwlclientbufferintegration.cpp \
         hardware_integration/qwlclientbufferintegrationfactory.cpp \
         hardware_integration/qwlclientbufferintegrationplugin.cpp \
         hardware_integration/qwlserverbufferintegration.cpp \

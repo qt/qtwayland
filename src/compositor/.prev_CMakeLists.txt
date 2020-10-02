@@ -47,6 +47,7 @@ qt_internal_add_module(WaylandCompositor
         global/qwaylandcompositorextension.cpp global/qwaylandcompositorextension.h global/qwaylandcompositorextension_p.h
         global/qwaylandquickextension.h
         global/qwaylandutils_p.h
+        hardware_integration/qwlclientbufferintegration.cpp hardware_integration/qwlclientbufferintegration_p.h
         wayland_wrapper/qwlbuffermanager.cpp wayland_wrapper/qwlbuffermanager_p.h
         wayland_wrapper/qwlclientbuffer.cpp wayland_wrapper/qwlclientbuffer_p.h
         wayland_wrapper/qwlregion.cpp wayland_wrapper/qwlregion_p.h
@@ -97,9 +98,12 @@ qt6_generate_wayland_protocol_server_sources(WaylandCompositor
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-decoration-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-output-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-shell.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/hardware-integration.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-key-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-text-input-method-unstable-v1.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-texture-sharing-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-windowmanager.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/server-buffer-extension.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/touch-extension.xml
 )
 
@@ -109,18 +113,8 @@ qt6_generate_wayland_protocol_server_sources(WaylandCompositor
 ## Scopes:
 #####################################################################
 
-if(QT_FEATURE_opengl)
-
-    qt6_generate_wayland_protocol_server_sources(WaylandCompositor
-        FILES
-            ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/hardware-integration.xml
-            ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/server-buffer-extension.xml
-    )
-endif()
-
 qt_internal_extend_target(WaylandCompositor CONDITION QT_FEATURE_opengl
     SOURCES
-        hardware_integration/qwlclientbufferintegration.cpp hardware_integration/qwlclientbufferintegration_p.h
         hardware_integration/qwlclientbufferintegrationfactory.cpp hardware_integration/qwlclientbufferintegrationfactory_p.h
         hardware_integration/qwlclientbufferintegrationplugin.cpp hardware_integration/qwlclientbufferintegrationplugin_p.h
         hardware_integration/qwlhardwarelayerintegration.cpp hardware_integration/qwlhardwarelayerintegration_p.h
@@ -193,14 +187,6 @@ qt_internal_extend_target(WaylandCompositor CONDITION QT_FEATURE_draganddrop
     SOURCES
         compositor_api/qwaylanddrag.cpp compositor_api/qwaylanddrag.h
 )
-
-if(QT_FEATURE_opengl AND QT_FEATURE_wayland_compositor_quick)
-
-    qt6_generate_wayland_protocol_server_sources(WaylandCompositor
-        FILES
-            ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-texture-sharing-unstable-v1.xml
-    )
-endif()
 
 qt_internal_extend_target(WaylandCompositor CONDITION QT_FEATURE_opengl AND QT_FEATURE_wayland_compositor_quick
     SOURCES

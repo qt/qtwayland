@@ -30,9 +30,11 @@
 
 #include <QtQml/QQmlEngine>
 #include <QQuickWindow>
-#include <QOpenGLTextureBlitter>
-#include <QOpenGLTexture>
-#include <QOpenGLFramebufferObject>
+#if QT_CONFIG(opengl)
+#  include <QOpenGLTextureBlitter>
+#  include <QOpenGLTexture>
+#  include <QOpenGLFramebufferObject>
+#endif
 #include <QMatrix4x4>
 #include <QRunnable>
 

@@ -52,6 +52,7 @@ import QtQuick
 import QtWayland.Compositor
 import QtWayland.Compositor.XdgShell
 import QtWayland.Compositor.WlShell
+import QtWayland.Compositor.IviApplication
 
 WaylandCompositor {
     id: waylandCompositor

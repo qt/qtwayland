@@ -53,6 +53,7 @@ import QtQuick.Window
 import QtWayland.Compositor
 import QtWayland.Compositor.XdgShell
 import QtWayland.Compositor.WlShell
+import QtWayland.Compositor.IviApplication
 
 WaylandCompositor {
     // The output defines the screen.

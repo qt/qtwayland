@@ -32,12 +32,15 @@
 #include "mockxdgshellv6.h"
 #include "mockiviapplication.h"
 #include "mockfullscreenshellv1.h"
+#include "mockregion.h"
 
 #include <pthread.h>
 #include <qglobal.h>
 #include <wayland-server-core.h>
 
 #include <QImage>
+#include <QRegion>
+#include <QList>
 #include <QMutex>
 #include <QRect>
 #include <QSharedPointer>
@@ -61,6 +64,7 @@ class Output;
 class IviApplication;
 class WlShell;
 class XdgShellV6;
+class Region;
 
 class Compositor
 {
@@ -158,6 +162,21 @@ private:
 };
 
 Q_DECLARE_METATYPE(QSharedPointer<MockSurface>)
+
+class MockRegion
+{
+public:
+    Impl::Region *handle() const { return m_region; }
+
+private:
+    MockRegion(Impl::Region *region);
+    friend class Impl::Compositor;
+    friend class Impl::Region;
+
+    Impl::Region *m_region = nullptr;
+};
+
+Q_DECLARE_METATYPE(QSharedPointer<MockRegion>)
 
 class MockIviSurface
 {

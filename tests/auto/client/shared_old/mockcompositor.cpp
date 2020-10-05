@@ -382,9 +382,9 @@ static void compositor_create_surface(wl_client *client, wl_resource *compositor
 
 static void compositor_create_region(wl_client *client, wl_resource *compositorResource, uint32_t id)
 {
-    Q_UNUSED(client);
-    Q_UNUSED(compositorResource);
-    Q_UNUSED(id);
+    Compositor *compositor =
+            static_cast<Compositor *>(wl_resource_get_user_data(compositorResource));
+    new Region(client, id, wl_resource_get_version(compositorResource), compositor);
 }
 
 void Compositor::bindCompositor(wl_client *client, void *compositorData, uint32_t version, uint32_t id)

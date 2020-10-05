@@ -21,6 +21,7 @@ SOURCES += \
     ../shared_old/mockwlshell.cpp \
     ../shared_old/mockxdgshellv6.cpp \
     ../shared_old/mocksurface.cpp \
+    ../shared_old/mockregion.cpp \
     ../shared_old/mockoutput.cpp
 
 HEADERS += \
@@ -31,4 +32,5 @@ HEADERS += \
     ../shared_old/mockwlshell.h \
     ../shared_old/mockxdgshellv6.h \
     ../shared_old/mocksurface.h \
+    ../shared_old/mockregion.h \
     ../shared_old/mockoutput.h

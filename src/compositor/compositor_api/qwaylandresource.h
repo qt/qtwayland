@@ -41,7 +41,7 @@ QT_BEGIN_NAMESPACE
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandResource
 {
     Q_GADGET
-    QML_NAMED_ELEMENT(WaylandResource)
+    QML_NAMED_ELEMENT(waylandresource)
     QML_UNCREATABLE("")
     QML_ADDED_IN_VERSION(1, 0)
 public:

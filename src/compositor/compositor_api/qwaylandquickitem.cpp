@@ -312,7 +312,7 @@ public:
                 auto texture = buffer.toOpenGLTexture();
                 GLuint textureId = texture->textureId();
                 auto size = surface->bufferSize();
-                m_sgTex = QPlatformInterface::QSGOpenGLTexture::fromNative(textureId, surfaceItem->window(), size, opt);
+                m_sgTex = QNativeInterface::QSGOpenGLTexture::fromNative(textureId, surfaceItem->window(), size, opt);
 #else
                 qCWarning(qLcWaylandCompositor) << "Without OpenGL support only shared memory textures are supported";
 #endif
@@ -1394,7 +1394,7 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
                 QWaylandQuickSurface *waylandSurface = qobject_cast<QWaylandQuickSurface *>(surface());
                 if (waylandSurface != nullptr && waylandSurface->useTextureAlpha())
                     opt |= QQuickWindow::TextureHasAlphaChannel;
-                QSGTexture *scenegraphTexture = QPlatformInterface::QSGOpenGLTexture::fromNative(texture->textureId(),
+                QSGTexture *scenegraphTexture = QNativeInterface::QSGOpenGLTexture::fromNative(texture->textureId(),
                                                                                                  window(),
                                                                                                  ref.size(),
                                                                                                  opt);

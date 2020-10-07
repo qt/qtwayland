@@ -43,7 +43,7 @@ extern "C" {
 
 #include <qpa/qlatformscreen_p.h>
 
-using namespace QPlatformInterface::Private;
+using namespace QNativeInterface::Private;
 
 QT_BEGIN_NAMESPACE
 

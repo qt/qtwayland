@@ -40,7 +40,7 @@ struct wl_kms_buffer;
 
 QT_BEGIN_NAMESPACE
 
-namespace QPlatformInterface::Private {
+namespace QNativeInterface::Private {
 struct QVsp2Screen;
 }
 

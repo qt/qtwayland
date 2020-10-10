@@ -810,6 +810,8 @@ bool Scanner::process()
             printf("        %s *that = resource->%s_object;\n", interfaceName, interfaceNameStripped);
             printf("        that->m_resource_map.remove(resource->client(), resource);\n");
             printf("        that->%s_destroy_resource(resource);\n", interfaceNameStripped);
+            printf("        if (that->m_resource == resource)\n");
+            printf("            that->m_resource = nullptr;\n");
             printf("        delete resource;\n");
             printf("    }\n");
             printf("\n");

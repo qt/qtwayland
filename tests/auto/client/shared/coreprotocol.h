@@ -139,6 +139,21 @@ protected:
     void surface_frame(Resource *resource, uint32_t callback) override;
 };
 
+class Region : public QtWaylandServer::wl_region
+{
+public:
+    explicit Region(wl_client *client, int id, int version)
+        : QtWaylandServer::wl_region(client, id, version)
+    {
+    }
+
+    void region_destroy_resource(Resource *resource) override
+    {
+        Q_UNUSED(resource);
+        delete this;
+    }
+};
+
 class WlCompositor : public Global, public QtWaylandServer::wl_compositor
 {
     Q_OBJECT
@@ -161,6 +176,12 @@ protected:
         auto *surface = new Surface(this, resource->client(), id, resource->version());
         m_surfaces.append(surface);
         emit surfaceCreated(surface);
+    }
+
+    static void compositor_create_region(wl_client *client, wl_resource *compositorResource,
+                                         uint32_t id)
+    {
+        new Region(client, id, wl_resource_get_version(compositorResource));
     }
 };
 

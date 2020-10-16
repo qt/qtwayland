@@ -19,7 +19,7 @@ find_package(Qt6 COMPONENTS Core)
 find_package(Qt6 COMPONENTS Gui)
 find_package(Qt6 COMPONENTS WaylandClient)
 
-add_qt_gui_executable(custom-extension-cpp-client
+qt_add_executable(custom-extension-cpp-client
     ../client-common/customextension.cpp ../client-common/customextension.h
     main.cpp
 )

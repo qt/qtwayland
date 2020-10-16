@@ -19,7 +19,7 @@ find_package(Qt6 COMPONENTS Core)
 find_package(Qt6 COMPONENTS Gui)
 find_package(Qt6 COMPONENTS Qml)
 
-add_qt_gui_executable(server-side-decoration
+qt_add_executable(server-side-decoration
     main.cpp
 )
 target_link_libraries(server-side-decoration PUBLIC

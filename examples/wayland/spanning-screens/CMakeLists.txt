@@ -19,7 +19,7 @@ find_package(Qt6 COMPONENTS Core)
 find_package(Qt6 COMPONENTS Gui)
 find_package(Qt6 COMPONENTS Qml)
 
-add_qt_gui_executable(spanning-screens
+qt_add_executable(spanning-screens
     main.cpp
 )
 target_link_libraries(spanning-screens PUBLIC

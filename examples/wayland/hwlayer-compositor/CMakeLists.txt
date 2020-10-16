@@ -19,7 +19,7 @@ find_package(Qt6 COMPONENTS Core)
 find_package(Qt6 COMPONENTS Gui)
 find_package(Qt6 COMPONENTS Qml)
 
-add_qt_gui_executable(hwlayer-compositor
+qt_add_executable(hwlayer-compositor
     main.cpp
 )
 target_link_libraries(hwlayer-compositor PUBLIC

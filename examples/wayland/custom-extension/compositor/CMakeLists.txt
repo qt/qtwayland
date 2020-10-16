@@ -20,7 +20,7 @@ find_package(Qt6 COMPONENTS Gui)
 find_package(Qt6 COMPONENTS Qml)
 find_package(Qt6 COMPONENTS WaylandCompositor)
 
-add_qt_gui_executable(custom-extension-compositor
+qt_add_executable(custom-extension-compositor
     customextension.cpp customextension.h
     main.cpp
 )

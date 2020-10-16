@@ -19,7 +19,7 @@ find_package(Qt6 COMPONENTS Core)
 find_package(Qt6 COMPONENTS Gui)
 find_package(Qt6 COMPONENTS Qml)
 
-add_qt_gui_executable(minimal-qml
+qt_add_executable(minimal-qml
     main.cpp
 )
 target_link_libraries(minimal-qml PUBLIC

@@ -20,7 +20,7 @@ find_package(Qt6 COMPONENTS Gui)
 find_package(Qt6 COMPONENTS WaylandClient)
 find_package(Qt6 COMPONENTS OpenGL)
 
-add_qt_gui_executable(server-buffer-cpp-client
+qt_add_executable(server-buffer-cpp-client
     main.cpp
     sharebufferextension.cpp sharebufferextension.h
 )

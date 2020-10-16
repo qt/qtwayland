@@ -19,7 +19,7 @@ find_package(Qt6 COMPONENTS Core)
 find_package(Qt6 COMPONENTS Gui)
 find_package(Qt6 COMPONENTS Qml)
 
-add_qt_gui_executable(multi-output
+qt_add_executable(multi-output
     main.cpp
 )
 target_link_libraries(multi-output PUBLIC

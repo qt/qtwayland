@@ -19,7 +19,7 @@ find_package(Qt6 COMPONENTS Core)
 find_package(Qt6 COMPONENTS Gui)
 find_package(Qt6 COMPONENTS WaylandCompositor)
 
-add_qt_gui_executable(minimal-cpp
+qt_add_executable(minimal-cpp
     compositor.cpp compositor.h
     main.cpp
     window.cpp window.h

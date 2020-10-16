@@ -20,7 +20,7 @@ find_package(Qt6 COMPONENTS Gui)
 find_package(Qt6 COMPONENTS Qml)
 find_package(Qt6 COMPONENTS WaylandCompositor)
 
-add_qt_gui_executable(compositor
+qt_add_executable(compositor
     main.cpp
     sharebufferextension.cpp sharebufferextension.h
 )

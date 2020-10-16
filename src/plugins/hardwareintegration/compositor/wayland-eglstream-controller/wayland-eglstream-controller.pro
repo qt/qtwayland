@@ -10,5 +10,5 @@ TARGET = qt-wayland-compositor-wayland-eglstream-controller
 include(../../../../hardwareintegration/compositor/wayland-eglstream-controller/wayland-eglstream-controller.pri)
 
 PLUGIN_TYPE = wayland-graphics-integration-server
-PLUGIN_CLASS_NAME = QWaylandEglStreamBufferIntegrationPlugin
+PLUGIN_CLASS_NAME = QWaylandEglStreamClientBufferIntegrationPlugin
 load(qt_plugin)

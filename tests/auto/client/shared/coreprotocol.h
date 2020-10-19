@@ -178,10 +178,9 @@ protected:
         emit surfaceCreated(surface);
     }
 
-    static void compositor_create_region(wl_client *client, wl_resource *compositorResource,
-                                         uint32_t id)
+    void compositor_create_region(Resource *resource, uint32_t id) override
     {
-        new Region(client, id, wl_resource_get_version(compositorResource));
+        new Region(resource->client(), id, resource->version());
     }
 };
 

@@ -9,8 +9,6 @@ qt_internal_add_tool(${target_name}
     TOOLS_TARGET WaylandScanner # special case
     SOURCES
         qtwaylandscanner.cpp
-    PUBLIC_LIBRARIES
-        Qt::Gui
 )
 
 #### Keys ignored in scope 1:.:.:qtwaylandscanner.pro:<TRUE>:

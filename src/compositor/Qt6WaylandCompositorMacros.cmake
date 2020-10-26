@@ -56,3 +56,8 @@ function(qt6_generate_wayland_protocol_server_sources target)
     target_include_directories(${target} PRIVATE ${target_binary_dir})
 endfunction()
 
+if(NOT QT_NO_CREATE_VERSIONLESS_FUNCTIONS)
+    function(qt_generate_wayland_protocol_server_sources)
+        qt6_generate_wayland_protocol_server_sources(${ARGV})
+    endfunction()
+endif()

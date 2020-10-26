@@ -22,6 +22,10 @@ find_package(Qt6 COMPONENTS Qml)
 qt_add_executable(server-side-decoration
     main.cpp
 )
+set_target_properties(server-side-decoration PROPERTIES
+    WIN32_EXECUTABLE TRUE
+    MACOSX_BUNDLE TRUE
+)
 target_link_libraries(server-side-decoration PUBLIC
     Qt::Core
     Qt::Gui

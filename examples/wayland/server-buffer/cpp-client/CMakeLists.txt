@@ -29,6 +29,10 @@ qt6_generate_wayland_protocol_client_sources(server-buffer-cpp-client
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../share-buffer.xml
 )
+set_target_properties(server-buffer-cpp-client PROPERTIES
+    WIN32_EXECUTABLE TRUE
+    MACOSX_BUNDLE TRUE
+)
 target_link_libraries(server-buffer-cpp-client PUBLIC
     Qt::Core
     Qt::Gui

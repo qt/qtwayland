@@ -29,6 +29,10 @@ qt6_generate_wayland_protocol_server_sources(custom-extension-compositor
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../protocol/custom.xml
 )
+set_target_properties(custom-extension-compositor PROPERTIES
+    WIN32_EXECUTABLE TRUE
+    MACOSX_BUNDLE TRUE
+)
 target_link_libraries(custom-extension-compositor PUBLIC
     Qt::Core
     Qt::Gui

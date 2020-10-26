@@ -23,6 +23,10 @@ find_package(Qt6 COMPONENTS WaylandCompositor)
 qt_add_executable(texture-sharing-custom-compositor
     main.cpp
 )
+set_target_properties(texture-sharing-custom-compositor PROPERTIES
+    WIN32_EXECUTABLE TRUE
+    MACOSX_BUNDLE TRUE
+)
 target_link_libraries(texture-sharing-custom-compositor PUBLIC
     Qt::Core
     Qt::Gui

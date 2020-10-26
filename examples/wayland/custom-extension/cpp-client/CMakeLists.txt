@@ -28,6 +28,10 @@ qt6_generate_wayland_protocol_client_sources(custom-extension-cpp-client
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../protocol/custom.xml
 )
+set_target_properties(custom-extension-cpp-client PROPERTIES
+    WIN32_EXECUTABLE TRUE
+    MACOSX_BUNDLE TRUE
+)
 target_link_libraries(custom-extension-cpp-client PUBLIC
     Qt::Core
     Qt::Gui

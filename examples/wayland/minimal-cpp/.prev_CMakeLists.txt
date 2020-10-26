@@ -24,6 +24,10 @@ qt_add_executable(minimal-cpp
     main.cpp
     window.cpp window.h
 )
+set_target_properties(minimal-cpp PROPERTIES
+    WIN32_EXECUTABLE TRUE
+    MACOSX_BUNDLE TRUE
+)
 target_include_directories(minimal-cpp PUBLIC
     ../../include
 )

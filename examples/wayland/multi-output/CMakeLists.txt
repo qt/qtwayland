@@ -22,6 +22,10 @@ find_package(Qt6 COMPONENTS Qml)
 qt_add_executable(multi-output
     main.cpp
 )
+set_target_properties(multi-output PROPERTIES
+    WIN32_EXECUTABLE TRUE
+    MACOSX_BUNDLE TRUE
+)
 target_link_libraries(multi-output PUBLIC
     Qt::Core
     Qt::Gui

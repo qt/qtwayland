@@ -22,6 +22,10 @@ find_package(Qt6 COMPONENTS Quick)
 qt_add_executable(qml-client
     main.cpp
 )
+set_target_properties(qml-client PROPERTIES
+    WIN32_EXECUTABLE TRUE
+    MACOSX_BUNDLE TRUE
+)
 target_link_libraries(qml-client PUBLIC
     Qt::Core
     Qt::Gui

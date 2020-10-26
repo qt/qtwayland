@@ -22,6 +22,10 @@ find_package(Qt6 COMPONENTS Qml)
 qt_add_executable(spanning-screens
     main.cpp
 )
+set_target_properties(spanning-screens PROPERTIES
+    WIN32_EXECUTABLE TRUE
+    MACOSX_BUNDLE TRUE
+)
 target_link_libraries(spanning-screens PUBLIC
     Qt::Core
     Qt::Gui

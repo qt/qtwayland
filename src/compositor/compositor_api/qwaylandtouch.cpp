@@ -162,6 +162,9 @@ uint QWaylandTouch::sendTouchPointEvent(QWaylandSurface *surface, int id, const 
     case Qt::TouchPointStationary:
         // stationary points are not sent through wayland, the client must cache them
         break;
+    case Qt::TouchPointUnknownState:
+        // Ignored
+        break;
     }
 
     return serial;
@@ -208,7 +211,7 @@ void QWaylandTouch::sendFullTouchEvent(QWaylandSurface *surface, QTouchEvent *ev
     if (ext && ext->postTouchEvent(event, surface))
         return;
 
-    const QList<QTouchEvent::TouchPoint> points = event->touchPoints();
+    const QList<QTouchEvent::TouchPoint> points = event->points();
     if (points.isEmpty())
         return;
 

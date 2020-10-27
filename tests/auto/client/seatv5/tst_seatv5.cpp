@@ -421,7 +421,7 @@ public:
         explicit Event(const QTouchEvent *event)
             : type(event->type())
             , touchPointStates(event->touchPointStates())
-            , touchPoints(event->touchPoints())
+            , touchPoints(event->points())
         {
         }
         QEvent::Type type{};
@@ -506,7 +506,7 @@ void tst_seatv5::multiTouch()
         t->sendDown(xdgToplevel()->surface(), {48, 48}, 1);
         t->sendFrame(c);
 
-        // Compositor event order should not change the order of the QTouchEvent::touchPoints()
+        // Compositor event order should not change the order of the QTouchEvent::points()
         // See QTBUG-77014
         t->sendMotion(c, {49, 48}, 1);
         t->sendMotion(c, {33, 32}, 0);

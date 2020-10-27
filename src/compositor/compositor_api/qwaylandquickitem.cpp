@@ -683,7 +683,7 @@ void QWaylandQuickItem::touchEvent(QTouchEvent *event)
         QWaylandSeat *seat = compositor()->seatFor(event);
 
         QPointF pointPos;
-        const QList<QTouchEvent::TouchPoint> &points = event->touchPoints();
+        const QList<QTouchEvent::TouchPoint> &points = event->points();
         if (!points.isEmpty())
             pointPos = points.at(0).position();
 

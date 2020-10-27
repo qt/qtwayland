@@ -58,7 +58,7 @@ static inline int toFixed(qreal f)
 
 bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, QWaylandSurface *surface)
 {
-    const QList<QTouchEvent::TouchPoint> points = event->touchPoints();
+    const QList<QTouchEvent::TouchPoint> points = event->points();
     const int pointCount = points.count();
     if (!pointCount)
         return false;
@@ -93,8 +93,8 @@ bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, QWaylandSurface *s
 
             int x = toFixed(tp.position().x());
             int y = toFixed(tp.position().y());
-            int nx = toFixed(tp.normalizedPos().x());
-            int ny = toFixed(tp.normalizedPos().y());
+            int nx = toFixed(tp.normalizedPosition().x());
+            int ny = toFixed(tp.normalizedPosition().y());
             int w = toFixed(tp.ellipseDiameters().width());
             int h = toFixed(tp.ellipseDiameters().height());
             int vx = toFixed(tp.velocity().x());

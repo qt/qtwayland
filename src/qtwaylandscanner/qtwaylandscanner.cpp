@@ -814,7 +814,9 @@ bool Scanner::process()
             printf("        if (Q_LIKELY(that)) {\n");
             printf("            that->m_resource_map.remove(resource->client(), resource);\n");
             printf("            that->%s_destroy_resource(resource);\n", interfaceNameStripped);
-            printf("            if (that->m_resource == resource)\n");
+            printf("\n");
+            printf("            that = resource->%s_object;\n", interfaceNameStripped);
+            printf("            if (that && that->m_resource == resource)\n");
             printf("                that->m_resource = nullptr;\n");
             printf("        }\n");
             printf("        delete resource;\n");

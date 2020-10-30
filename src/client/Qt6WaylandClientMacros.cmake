@@ -1,5 +1,9 @@
 function(qt6_generate_wayland_protocol_client_sources target)
-    qt_parse_all_arguments(arg "qt6_generate_wayland_protocol_client_sources" "" "" "FILES" ${ARGN})
+    cmake_parse_arguments(arg "" "" "FILES" ${ARGN})
+    if(DEFINED arg_UNPARSED_ARGUMENTS)
+        message(FATAL_ERROR "Unknown arguments were passed to qt6_generate_wayland_protocol_client_sources: (${arg_UNPARSED_ARGUMENTS}).")
+    endif()
+
     get_target_property(target_binary_dir ${target} BINARY_DIR)
 
     if(NOT TARGET Wayland::Scanner)

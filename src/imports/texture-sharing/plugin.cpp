@@ -43,6 +43,7 @@
 #include "sharedtextureprovider.h"
 
 /*!
+    \internal
     \qmlmodule QtWayland.Client.TextureSharing 1
     \title Qt Wayland Shared Texture Provider
     \ingroup qmlmodules
@@ -52,6 +53,10 @@
 
     This module allows Qt Wayland clients to use graphical resources exported
     by the compositor, without allocating any graphics memory in the client.
+
+    \note The texture sharing functionality is considered experimental and
+    currently unsupported in Qt 6.
+
     \section2 Usage
 
     To use this module, import it like this:

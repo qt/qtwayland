@@ -43,6 +43,7 @@
 #include "QtWaylandCompositor/private/qwltexturesharingextension_p.h"
 
 /*!
+    \internal
     \qmlmodule QtWayland.Compositor.TextureSharingExtension 1
     \title Qt Wayland Shared Texture Provider
     \ingroup qmlmodules
@@ -52,6 +53,9 @@
 
     This module lets the compositor export graphical resources that can be used by clients,
     without allocating any graphics memory in the client.
+
+    \note The texture sharing functionality is considered experimental and
+    currently unsupported in Qt 6.
 
     \section2 Usage
 

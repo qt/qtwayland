@@ -435,7 +435,7 @@ void QWaylandSeat::sendTouchCancelEvent(QWaylandClient *client)
 /*!
  * Sends the \a event to the specified \a surface on the touch device.
  *
- * \warning This API will automatically map \l QTouchEvent::TouchPoint::id to a
+ * \warning This API will automatically map \l QEventPoint::id() to a
  * sequential id before sending it to the client. It should therefore not be
  * used in combination with the other API using explicit ids, as collisions
  * might occur.

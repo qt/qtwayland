@@ -43,9 +43,9 @@
 
   To link against the module, add this line to your \l qmake \c .pro file:
 
-  \code
+  \badcode
   QT += waylandcompositor
-  \endqml
+  \endcode
 
   For more information about using these types in your application,
   see the \l{Qt Wayland Compositor} documentation.

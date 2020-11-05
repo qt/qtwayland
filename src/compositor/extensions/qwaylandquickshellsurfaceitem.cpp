@@ -60,7 +60,7 @@ QWaylandQuickShellSurfaceItem *QWaylandQuickShellSurfaceItemPrivate::maybeCreate
  * This type is used to render \c wl_shell, \c xdg_shell or \c ivi_application surfaces as part of
  * a Qt Quick scene. It handles moving and resizing triggered by clicking on the window decorations.
  *
- * \sa WaylandQuickItem, WlShellSurface, XdgSurfaceV5, IviSurface
+ * \sa WaylandQuickItem, WlShellSurface, IviSurface
  */
 
 /*!
@@ -72,7 +72,7 @@ QWaylandQuickShellSurfaceItem *QWaylandQuickShellSurfaceItemPrivate::maybeCreate
  * This class is used to render \c wl_shell, \c xdg_shell or \c ivi_application surfaces as part of
  * a Qt Quick scene. It handles moving and resizing triggered by clicking on the window decorations.
  *
- * \sa QWaylandQuickItem, QWaylandWlShellSurface, QWaylandXdgSurfaceV5, QWaylandIviSurface
+ * \sa QWaylandQuickItem, QWaylandWlShellSurface, QWaylandIviSurface
  */
 
 /*!

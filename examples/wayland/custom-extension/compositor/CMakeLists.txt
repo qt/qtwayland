@@ -1,7 +1,7 @@
 # Generated from compositor.pro.
 
 cmake_minimum_required(VERSION 3.14)
-project(custom-extension-compositor LANGUAGES CXX)
+project(custom-extension-compositor) # special case
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 

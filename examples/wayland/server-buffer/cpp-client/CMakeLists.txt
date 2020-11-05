@@ -1,7 +1,7 @@
 # Generated from cpp-client.pro.
 
 cmake_minimum_required(VERSION 3.14)
-project(server-buffer-cpp-client LANGUAGES CXX)
+project(server-buffer-cpp-client) # special case
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 

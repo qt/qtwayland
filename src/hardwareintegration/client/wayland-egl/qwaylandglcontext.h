@@ -93,6 +93,7 @@ private:
     DecorationsBlitter *m_blitter = nullptr;
     uint m_api;
     bool m_supportNonBlockingSwap = true;
+    bool m_supportSurfaceLessContext = false;
 };
 
 }

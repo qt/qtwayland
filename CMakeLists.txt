@@ -28,11 +28,11 @@ endif()
 
 find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS
     Core
-    Gui
-    OpenGL
 )
 
-find_package(Qt6 ${PROJECT_VERSION} CONFIG OPTIONAL_COMPONENTS
+find_package(Qt6 ${PROJECT_VERSION} QUIET CONFIG OPTIONAL_COMPONENTS
+    Gui
+    OpenGL
     Quick
 )
 # special case end

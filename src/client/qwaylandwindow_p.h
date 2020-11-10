@@ -230,12 +230,16 @@ public:
     void handleUpdate();
     void deliverUpdateRequest() override;
 
+    void setXdgActivationToken(const QString &token);
+    void requestXdgActivationToken(uint serial);
+
 public slots:
     void applyConfigure();
 
 signals:
     void wlSurfaceCreated();
     void wlSurfaceDestroyed();
+    void xdgActivationTokenCreated(const QString &token);
 
 protected:
     virtual void doHandleFrameCallback();

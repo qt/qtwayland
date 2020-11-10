@@ -103,6 +103,8 @@ public:
     virtual void setWindowPosition(const QPoint &position) { Q_UNUSED(position); }
 
     virtual bool requestActivate() { return false; }
+    virtual void setXdgActivationToken(const QString &token);
+    virtual void requestXdgActivationToken(quint32 serial);
 
     inline QWaylandWindow *window() { return m_window; }
     QPlatformWindow *platformWindow();

@@ -1249,8 +1249,8 @@ void QWaylandWindow::restoreMouseCursor(QWaylandInputDevice *device)
 
 void QWaylandWindow::requestActivateWindow()
 {
-    if (mShellSurface == nullptr || !mShellSurface->requestActivate())
-        qCWarning(lcQpaWayland) << "Wayland does not support QWindow::requestActivate()";
+    if (mShellSurface)
+        mShellSurface->requestActivate();
 }
 
 bool QWaylandWindow::isExposed() const
@@ -1497,6 +1497,15 @@ void QWaylandWindow::setOpaqueArea(const QRegion &opaqueArea)
     wl_region_destroy(region);
 }
 
+void QWaylandWindow::requestXdgActivationToken(uint serial)
+{
+    mShellSurface->requestXdgActivationToken(serial);
+}
+
+void QWaylandWindow::setXdgActivationToken(const QString &token)
+{
+    mShellSurface->setXdgActivationToken(token);
+}
 }
 
 QT_END_NAMESPACE

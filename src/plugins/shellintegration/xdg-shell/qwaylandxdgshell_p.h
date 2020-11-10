@@ -55,6 +55,7 @@
 #include "qwayland-xdg-shell.h"
 
 #include "qwaylandxdgdecorationv1_p.h"
+#include "qwaylandxdgactivationv1_p.h"
 
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <QtWaylandClient/private/qwaylandshellsurface_p.h>
@@ -94,6 +95,9 @@ public:
     bool wantsDecorations() const override;
     void propagateSizeHints() override;
     void setWindowGeometry(const QRect &rect) override;
+    bool requestActivate() override;
+    void setXdgActivationToken(const QString &token) override;
+    void requestXdgActivationToken(quint32 serial) override;
 
     void setSizeHints();
 
@@ -157,6 +161,8 @@ private:
     QRegion m_exposeRegion;
     uint m_pendingConfigureSerial = 0;
     uint m_appliedConfigureSerial = 0;
+    QString m_activationToken;
+    QString m_appId;
 
     friend class QWaylandXdgShell;
 };
@@ -168,6 +174,7 @@ public:
     ~QWaylandXdgShell() override;
 
     QWaylandXdgDecorationManagerV1 *decorationManager() { return m_xdgDecorationManager.data(); }
+    QWaylandXdgActivationV1 *activation() const { return m_xdgActivation.data(); }
     QWaylandXdgSurface *getXdgSurface(QWaylandWindow *window);
 
 protected:
@@ -179,6 +186,7 @@ private:
 
     QWaylandDisplay *m_display = nullptr;
     QScopedPointer<QWaylandXdgDecorationManagerV1> m_xdgDecorationManager;
+    QScopedPointer<QWaylandXdgActivationV1> m_xdgActivation;
     QWaylandXdgSurface::Popup *m_topmostGrabbingPopup = nullptr;
 
     friend class QWaylandXdgSurface;

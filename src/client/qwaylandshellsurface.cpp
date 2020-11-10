@@ -105,6 +105,17 @@ uint32_t QWaylandShellSurface::getSerial(QWaylandInputDevice *inputDevice)
     return inputDevice->serial();
 }
 
+void QWaylandShellSurface::setXdgActivationToken(const QString &token)
+{
+    Q_UNUSED(token);
+    qCWarning(lcQpaWayland) << "setXdgActivationToken not implemented" << token;
+}
+
+void QWaylandShellSurface::requestXdgActivationToken(quint32 serial)
+{
+    Q_UNUSED(serial);
+    Q_EMIT m_window->xdgActivationTokenCreated({});
+}
 }
 
 QT_END_NAMESPACE

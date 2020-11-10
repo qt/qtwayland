@@ -318,6 +318,8 @@ void QWaylandXdgSurface::setAppId(const QString &appId)
 {
     if (m_toplevel)
         m_toplevel->set_app_id(appId);
+
+    m_appId = appId;
 }
 
 void QWaylandXdgSurface::setWindowFlags(Qt::WindowFlags flags)
@@ -477,6 +479,39 @@ void QWaylandXdgSurface::xdg_surface_configure(uint32_t serial)
     }
 }
 
+bool QWaylandXdgSurface::requestActivate()
+{
+    if (auto *activation = m_shell->activation()) {
+        activation->activate(m_activationToken, window()->wlSurface());
+        return true;
+    }
+    return false;
+}
+
+void QWaylandXdgSurface::requestXdgActivationToken(quint32 serial)
+{
+    if (auto *activation = m_shell->activation()) {
+        auto tokenProvider = activation->requestXdgActivationToken(
+                m_shell->m_display, m_window->wlSurface(), serial, m_appId);
+        connect(tokenProvider, &QWaylandXdgActivationTokenV1::done, this,
+                [this, tokenProvider](const QString &token) {
+                    Q_EMIT m_window->xdgActivationTokenCreated(token);
+                    tokenProvider->deleteLater();
+                });
+    } else {
+        QWaylandShellSurface::requestXdgActivationToken(serial);
+    }
+}
+
+void QWaylandXdgSurface::setXdgActivationToken(const QString &token)
+{
+    if (auto *activation = m_shell->activation()) {
+        m_activationToken = token;
+    } else {
+        qCWarning(lcQpaWayland) << "zxdg_activation_v1 not available";
+    }
+}
+
 QWaylandXdgShell::QWaylandXdgShell(QWaylandDisplay *display, uint32_t id, uint32_t availableVersion)
     : QtWayland::xdg_wm_base(display->wl_registry(), id, qMin(availableVersion, 2u))
     , m_display(display)
@@ -506,6 +541,10 @@ void QWaylandXdgShell::handleRegistryGlobal(void *data, wl_registry *registry, u
     QWaylandXdgShell *xdgShell = static_cast<QWaylandXdgShell *>(data);
     if (interface == QLatin1String(QWaylandXdgDecorationManagerV1::interface()->name))
         xdgShell->m_xdgDecorationManager.reset(new QWaylandXdgDecorationManagerV1(registry, id, version));
+
+    if (interface == QLatin1String(QWaylandXdgActivationV1::interface()->name)) {
+        xdgShell->m_xdgActivation.reset(new QWaylandXdgActivationV1(registry, id, version));
+    }
 }
 
 }

@@ -31,13 +31,13 @@
 #define QWAYLANDIVIAPPLICATION_H
 
 #include <QtWaylandCompositor/QWaylandCompositorExtension>
+#include <QtWaylandCompositor/QWaylandSurface>
+#include <QtWaylandCompositor/QWaylandResource>
+#include <QtWaylandCompositor/QWaylandIviSurface>
 #include <QtCore/QSize>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandIviSurface;
-class QWaylandSurface;
-class QWaylandResource;
 class QWaylandIviApplicationPrivate;
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandIviApplication : public QWaylandCompositorExtensionTemplate<QWaylandIviApplication>

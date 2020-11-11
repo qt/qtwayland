@@ -77,12 +77,12 @@ public:
                                                    &clearFunction);
     }
 
-    static int countFunction(QQmlListProperty<QWaylandCompositorExtension> *list)
+    static qsizetype countFunction(QQmlListProperty<QWaylandCompositorExtension> *list)
     {
         return static_cast<QWaylandQuickCompositorQuickExtensionContainer *>(list->data)->extension_vector.size();
     }
 
-    static QWaylandCompositorExtension *atFunction(QQmlListProperty<QWaylandCompositorExtension> *list, int index)
+    static QWaylandCompositorExtension *atFunction(QQmlListProperty<QWaylandCompositorExtension> *list, qsizetype index)
     {
         return static_cast<QWaylandQuickCompositorQuickExtensionContainer *>(list->data)->extension_vector.at(index);
     }

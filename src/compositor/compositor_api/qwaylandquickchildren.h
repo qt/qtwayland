@@ -66,11 +66,11 @@ QT_BEGIN_NAMESPACE
         { \
             static_cast<className *>(list->data)->m_children.append(object); \
         } \
-        static int countFunction(QQmlListProperty<QObject> *list) \
+        static qsizetype countFunction(QQmlListProperty<QObject> *list) \
         { \
             return static_cast<className *>(list->data)->m_children.size(); \
         } \
-        static QObject *atFunction(QQmlListProperty<QObject> *list, int index) \
+        static QObject *atFunction(QQmlListProperty<QObject> *list, qsizetype index) \
         { \
             return static_cast<className *>(list->data)->m_children.at(index); \
         } \

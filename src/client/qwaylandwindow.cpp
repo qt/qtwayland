@@ -547,8 +547,8 @@ void QWaylandWindow::sendRecursiveExposeEvent()
 
 void QWaylandWindow::attach(QWaylandBuffer *buffer, int x, int y)
 {
-    Q_ASSERT(!buffer->committed());
     if (buffer) {
+        Q_ASSERT(!buffer->committed());
         handleUpdate();
         buffer->setBusy();
 

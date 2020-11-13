@@ -83,7 +83,7 @@ QWaylandXdgSurface::Toplevel::~Toplevel()
 void QWaylandXdgSurface::Toplevel::applyConfigure()
 {
     if (!(m_applied.states & (Qt::WindowMaximized|Qt::WindowFullScreen)))
-        m_normalSize = m_xdgSurface->m_window->window()->frameGeometry().size();
+        m_normalSize = m_xdgSurface->m_window->windowFrameGeometry().size();
 
     if ((m_pending.states & Qt::WindowActive) && !(m_applied.states & Qt::WindowActive))
         m_xdgSurface->m_window->display()->handleWindowActivated(m_xdgSurface->m_window);

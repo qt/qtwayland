@@ -134,7 +134,7 @@ void QWaylandWlShellSurface::applyConfigure()
 {
     if ((m_pending.states & (Qt::WindowMaximized|Qt::WindowFullScreen))
             && !(m_applied.states & (Qt::WindowMaximized|Qt::WindowFullScreen))) {
-        m_normalSize = m_window->window()->frameGeometry().size();
+        m_normalSize = m_window->windowFrameGeometry().size();
     }
 
     if (m_pending.states != m_applied.states)

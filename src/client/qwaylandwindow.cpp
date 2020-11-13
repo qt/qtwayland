@@ -194,10 +194,11 @@ void QWaylandWindow::initWindow()
     if (QScreen *s = window()->screen())
         setOrientationMask(s->orientationUpdateMask());
     setWindowFlags(window()->flags());
-    if (window()->geometry().isEmpty())
+    QRect geometry = windowGeometry();
+    if (geometry.isEmpty())
         setGeometry_helper(QRect(QPoint(), QSize(500,500)));
     else
-        setGeometry_helper(window()->geometry());
+        setGeometry_helper(geometry);
     setMask(window()->mask());
     if (mShellSurface)
         mShellSurface->requestWindowStates(window()->windowStates());
@@ -431,7 +432,7 @@ void QWaylandWindow::setVisible(bool visible)
         initWindow();
         mDisplay->flushRequests();
 
-        setGeometry(window()->geometry());
+        setGeometry(windowGeometry());
         // Don't flush the events here, or else the newly visible window may start drawing, but since
         // there was no frame before it will be stuck at the waitForFrameSync() in
         // QWaylandShmBackingStore::beginPaint().

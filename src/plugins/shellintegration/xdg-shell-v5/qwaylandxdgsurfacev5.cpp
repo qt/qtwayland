@@ -157,7 +157,7 @@ void QWaylandXdgSurfaceV5::applyConfigure()
     if (m_pending.isResizing)
         m_normalSize = m_pending.size;
     else if (!(m_acked.states & (Qt::WindowMaximized|Qt::WindowFullScreen)))
-        m_normalSize = m_window->window()->frameGeometry().size();
+        m_normalSize = m_window->windowFrameGeometry().size();
 
     if ((m_pending.states & Qt::WindowActive) && !(m_acked.states & Qt::WindowActive))
         m_window->display()->handleWindowActivated(m_window);

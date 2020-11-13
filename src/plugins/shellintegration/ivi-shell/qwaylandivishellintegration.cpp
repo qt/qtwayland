@@ -149,7 +149,7 @@ QWaylandShellSurface *QWaylandIviShellIntegration::createShellSurface(QWaylandWi
             transientPos.setX(transientPos.x() + parent->decoration()->margins().left());
             transientPos.setY(transientPos.y() + parent->decoration()->margins().top());
         }
-        QSize size = window->window()->geometry().size();
+        QSize size = window->windowGeometry().size();
         iviSurface->ivi_controller_surface::set_destination_rectangle(transientPos.x(),
                                                                       transientPos.y(),
                                                                       size.width(),

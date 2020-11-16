@@ -332,9 +332,11 @@ void QWaylandWindow::setWindowIcon(const QIcon &icon)
 
 void QWaylandWindow::setGeometry_helper(const QRect &rect)
 {
+    QSize minimum = windowMinimumSize();
+    QSize maximum = windowMaximumSize();
     QPlatformWindow::setGeometry(QRect(rect.x(), rect.y(),
-                qBound(window()->minimumWidth(), rect.width(), window()->maximumWidth()),
-                qBound(window()->minimumHeight(), rect.height(), window()->maximumHeight())));
+                qBound(minimum.width(), rect.width(), maximum.width()),
+                qBound(minimum.height(), rect.height(), maximum.height())));
 
     if (mSubSurfaceWindow) {
         QMargins m = QPlatformWindow::parent()->frameMargins();

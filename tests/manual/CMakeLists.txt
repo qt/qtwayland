@@ -1,0 +1,11 @@
+if(TARGET Qt::WaylandClient)
+    add_subdirectory(qmlclient)
+    add_subdirectory(subsurface)
+    add_subdirectory(texture-sharing/cpp-client)
+    add_subdirectory(texture-sharing-2)
+endif()
+
+if(TARGET Qt::WaylandCompositor)
+    #add_subdirectory(wip-cpp-compositor)
+    add_subdirectory(scaling-compositor)
+endif()

@@ -14,6 +14,7 @@ qt_internal_add_manual_test(cpp-client
     PUBLIC_LIBRARIES
         Qt::Gui
         Qt::GuiPrivate
+        Qt::OpenGL
         Qt::WaylandClientPrivate
 )
 

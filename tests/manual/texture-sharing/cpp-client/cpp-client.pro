@@ -1,4 +1,4 @@
-QT += waylandclient-private gui-private
+QT += waylandclient-private gui-private opengl
 CONFIG += wayland-scanner
 
 WAYLANDCLIENTSOURCES += $$PWD/../../../../src/extensions/qt-texture-sharing-unstable-v1.xml

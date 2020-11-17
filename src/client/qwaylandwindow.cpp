@@ -162,7 +162,7 @@ void QWaylandWindow::initWindow()
                     name.chop(8);
                 mShellSurface->setAppId(name);
             } else {
-                QFileInfo fi = QCoreApplication::instance()->applicationFilePath();
+                QFileInfo fi = QFileInfo(QCoreApplication::instance()->applicationFilePath());
                 QStringList domainName =
                         QCoreApplication::instance()->organizationDomain().split(QLatin1Char('.'),
                                                                                  Qt::SkipEmptyParts);

@@ -117,7 +117,7 @@ void QWaylandInputMethodEventBuilder::setPreeditCursor(int32_t index)
     m_preeditCursor = index;
 }
 
-QInputMethodEvent QWaylandInputMethodEventBuilder::buildCommit(const QString &text)
+QInputMethodEvent *QWaylandInputMethodEventBuilder::buildCommit(const QString &text)
 {
     QList<QInputMethodEvent::Attribute> attributes;
 
@@ -141,13 +141,13 @@ QInputMethodEvent QWaylandInputMethodEventBuilder::buildCommit(const QString &te
                                                           QVariant()));
     }
 
-    QInputMethodEvent event(QString(), attributes);
-    event.setCommitString(text, replacement.first, replacement.second);
+    QInputMethodEvent *event = new QInputMethodEvent(QString(), attributes);
+    event->setCommitString(text, replacement.first, replacement.second);
 
     return event;
 }
 
-QInputMethodEvent QWaylandInputMethodEventBuilder::buildPreedit(const QString &text)
+QInputMethodEvent *QWaylandInputMethodEventBuilder::buildPreedit(const QString &text)
 {
     QList<QInputMethodEvent::Attribute> attributes;
 
@@ -163,10 +163,10 @@ QInputMethodEvent QWaylandInputMethodEventBuilder::buildPreedit(const QString &t
         attributes.append(QInputMethodEvent::Attribute(attr.type, start, length, attr.value));
     }
 
-    QInputMethodEvent event(text, attributes);
+    QInputMethodEvent *event = new QInputMethodEvent(text, attributes);
 
     const QPair<int, int> replacement = replacementForDeleteSurrounding();
-    event.setCommitString(QString(), replacement.first, replacement.second);
+    event->setCommitString(QString(), replacement.first, replacement.second);
 
     return event;
 }

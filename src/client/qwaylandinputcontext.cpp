@@ -269,12 +269,13 @@ void QWaylandTextInput::zwp_text_input_v2_preedit_string(const QString &text, co
     if (!QGuiApplication::focusObject())
         return;
 
-    QInputMethodEvent event = m_builder.buildPreedit(text);
+    QInputMethodEvent *event = m_builder.buildPreedit(text);
 
     m_builder.reset();
     m_preeditCommit = commit;
 
-    QCoreApplication::sendEvent(QGuiApplication::focusObject(), &event);
+    QCoreApplication::sendEvent(QGuiApplication::focusObject(), event);
+    delete event;
 }
 
 void QWaylandTextInput::zwp_text_input_v2_preedit_styling(uint32_t index, uint32_t length, uint32_t style)
@@ -298,11 +299,12 @@ void QWaylandTextInput::zwp_text_input_v2_commit_string(const QString &text)
     if (!QGuiApplication::focusObject())
         return;
 
-    QInputMethodEvent event = m_builder.buildCommit(text);
+    QInputMethodEvent *event = m_builder.buildCommit(text);
 
     m_builder.reset();
 
-    QCoreApplication::sendEvent(QGuiApplication::focusObject(), &event);
+    QCoreApplication::sendEvent(QGuiApplication::focusObject(), event);
+    delete event;
 }
 
 void QWaylandTextInput::zwp_text_input_v2_cursor_position(int32_t index, int32_t anchor)

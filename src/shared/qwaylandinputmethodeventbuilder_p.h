@@ -58,8 +58,8 @@ public:
     void addPreeditStyling(uint32_t index, uint32_t length, uint32_t style);
     void setPreeditCursor(int32_t index);
 
-    QInputMethodEvent buildCommit(const QString &text);
-    QInputMethodEvent buildPreedit(const QString &text);
+    QInputMethodEvent *buildCommit(const QString &text);
+    QInputMethodEvent *buildPreedit(const QString &text);
 
     static int indexFromWayland(const QString &text, int length, int base = 0);
     static int indexToWayland(const QString &text, int length, int base = 0);

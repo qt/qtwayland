@@ -178,9 +178,12 @@ void QWaylandXdgSurface::Toplevel::requestWindowStates(Qt::WindowStates states)
     }
 
     if (changedStates & Qt::WindowFullScreen) {
-        if (states & Qt::WindowFullScreen)
-            set_fullscreen(nullptr);
-        else
+        if (states & Qt::WindowFullScreen) {
+            auto screen = m_xdgSurface->window()->waylandScreen();
+            if (screen) {
+                set_fullscreen(screen->output());
+            }
+        } else
             unset_fullscreen();
     }
 

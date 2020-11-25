@@ -148,7 +148,7 @@ void QWaylandXdgShellPrivate::xdg_wm_base_pong(Resource *resource, uint32_t seri
  * an instance of the XdgShell component and add it to the list of extensions
  * supported by the compositor:
  *
- * \qml \QtMinorVersion
+ * \qml
  * import QtWayland.Compositor.XdgShell
  *
  * WaylandCompositor {

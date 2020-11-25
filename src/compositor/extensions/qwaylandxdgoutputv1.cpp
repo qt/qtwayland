@@ -56,8 +56,8 @@ QT_BEGIN_NAMESPACE
  * XdgOutputManagerV1 component and add it to the list of extensions supported by the compositor,
  * and associated each XdgOutputV1 with its WaylandOutput:
  *
- * \qml \QtMinorVersion
- * import QtWayland.Compositor 1.\1
+ * \qml
+ * import QtWayland.Compositor
  *
  * WaylandCompositor {
  *     XdgOutputManagerV1 {

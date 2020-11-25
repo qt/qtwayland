@@ -64,8 +64,8 @@ QT_BEGIN_NAMESPACE
     To provide the functionality of the extension in a compositor, create an instance of the
     IdleInhibitManagerV1 component and add it to the list of extensions supported by the compositor:
 
-    \qml \QtMinorVersion
-    import QtWayland.Compositor 1.\1
+    \qml
+    import QtWayland.Compositor
 
     WaylandCompositor {
         IdleInhibitManagerV1 {

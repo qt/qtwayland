@@ -258,7 +258,7 @@ void QWaylandWlShellSurfacePrivate::shell_surface_set_class(Resource *resource,
  * an instance of the WlShell component and add it to the list of extensions
  * supported by the compositor:
  *
- * \qml \QtMinorVersion
+ * \qml
  * import QtWayland.Compositor.WlShell
  *
  * WaylandCompositor {

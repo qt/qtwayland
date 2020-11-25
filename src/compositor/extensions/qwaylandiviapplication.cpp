@@ -53,7 +53,7 @@ QT_BEGIN_NAMESPACE
  * an instance of the IviApplication component and add it to the list of extensions
  * supported by the compositor:
  *
- * \qml \QtMinorVersion
+ * \qml
  * import QtWayland.Compositor.IviApplication
  *
  * WaylandCompositor {

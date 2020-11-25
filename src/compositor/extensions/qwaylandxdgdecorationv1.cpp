@@ -52,8 +52,8 @@ QT_BEGIN_NAMESPACE
     To provide the functionality of the extension in a compositor, create an instance of the
     XdgDecorationManagerV1 component and add it to the list of extensions supported by the compositor:
 
-    \qml \QtMinorVersion
-    import QtWayland.Compositor 1.\1
+    \qml
+    import QtWayland.Compositor
 
     WaylandCompositor {
         // Xdg decoration manager assumes xdg-shell is being used

@@ -39,6 +39,9 @@ imagedirs  += images
 
 examplesinstallpath = wayland
 
+# Add generic thumbnail for all examples
+manifestmeta.thumbnail.names = *
+
 Cpp.ignoretokens         += Q_WAYLAND_COMPOSITOR_EXPORT
 Cpp.ignoredirectives     += Q_DECLARE_LOGGING_CATEGORY
 

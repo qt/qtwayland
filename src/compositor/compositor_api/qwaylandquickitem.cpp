@@ -737,6 +737,7 @@ void QWaylandQuickItem::handleSubsurfaceAdded(QWaylandSurface *childSurface)
         childItem->setVisible(true);
         childItem->setParentItem(this);
         connect(childSurface, &QWaylandSurface::subsurfacePositionChanged, childItem, &QWaylandQuickItem::handleSubsurfacePosition);
+        connect(childSurface, &QWaylandSurface::destroyed, childItem, &QObject::deleteLater);
     } else {
         bool success = QMetaObject::invokeMethod(d->subsurfaceHandler, "handleSubsurfaceAdded", Q_ARG(QWaylandSurface *, childSurface));
         if (!success)

@@ -161,7 +161,7 @@ void QWaylandQuickCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const
     GrabState *state = new GrabState;
     state->grabber = grabber;
     state->buffer = buffer;
-    static_cast<QQuickWindow *>(output->window())->scheduleRenderJob(state, QQuickWindow::NoStage);
+    static_cast<QQuickWindow *>(output->window())->scheduleRenderJob(state, QQuickWindow::AfterRenderingStage);
 #else
     emit grabber->failed(QWaylandSurfaceGrabber::UnknownBufferType);
 #endif

@@ -1,0 +1,62 @@
+# Generated from compositor.pro.
+
+cmake_minimum_required(VERSION 3.14)
+project(compositor LANGUAGES CXX)
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+if(NOT DEFINED INSTALL_EXAMPLESDIR)
+  set(INSTALL_EXAMPLESDIR "examples")
+endif()
+
+set(INSTALL_EXAMPLEDIR "${INSTALL_EXAMPLESDIR}/wayland/server-buffer/compositor")
+
+find_package(Qt6 COMPONENTS Core)
+find_package(Qt6 COMPONENTS Gui)
+find_package(Qt6 COMPONENTS Qml)
+find_package(Qt6 COMPONENTS WaylandCompositor)
+
+qt_add_executable(compositor
+    main.cpp
+    sharebufferextension.cpp sharebufferextension.h
+)
+
+qt6_generate_wayland_protocol_server_sources(compositor
+    FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/../share-buffer.xml
+)
+set_target_properties(compositor PROPERTIES
+    WIN32_EXECUTABLE TRUE
+    MACOSX_BUNDLE TRUE
+)
+target_link_libraries(compositor PUBLIC
+    Qt::Core
+    Qt::Gui
+    Qt::Qml
+    Qt::WaylandCompositorPrivate
+)
+
+
+# Resources:
+set(compositor_resource_files
+    "images/Siberischer_tiger_de_edit02.jpg"
+    "images/background.png"
+    "qml/main.qml"
+)
+
+qt6_add_resources(compositor "compositor"
+    PREFIX
+        "/"
+    FILES
+        ${compositor_resource_files}
+)
+
+install(TARGETS compositor
+    RUNTIME DESTINATION "${INSTALL_EXAMPLEDIR}"
+    BUNDLE DESTINATION "${INSTALL_EXAMPLEDIR}"
+    LIBRARY DESTINATION "${INSTALL_EXAMPLEDIR}"
+)

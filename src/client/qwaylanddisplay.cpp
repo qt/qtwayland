@@ -322,25 +322,6 @@ void QWaylandDisplay::handleScreenInitialized(QWaylandScreen *screen)
     }
 }
 
-void QWaylandDisplay::waitForScreens()
-{
-    flushRequests();
-
-    while (true) {
-        bool screensReady = !mScreens.isEmpty();
-
-        for (int ii = 0; screensReady && ii < mScreens.count(); ++ii) {
-            if (mScreens.at(ii)->geometry() == QRect(0, 0, 0, 0))
-                screensReady = false;
-        }
-
-        if (!screensReady)
-            blockingReadEvents();
-        else
-            return;
-    }
-}
-
 void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uint32_t version)
 {
     struct ::wl_registry *registry = object();

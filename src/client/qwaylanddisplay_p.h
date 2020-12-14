@@ -224,7 +224,6 @@ public slots:
     void flushRequests();
 
 private:
-    void waitForScreens();
     void checkError() const;
 
     void handleWaylandSync();

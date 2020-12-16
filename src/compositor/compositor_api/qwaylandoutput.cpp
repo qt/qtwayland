@@ -258,6 +258,9 @@ QWaylandOutput::QWaylandOutput()
    a screen managed by the WaylandCompositor.
 
    The type corresponds to the \c wl_output interface in the Wayland protocol.
+
+   \note If the compositor has multiple Wayland outputs, the \l Qt::AA_ShareOpenGLContexts
+   attribute must be set before the \l QGuiApplication object is constructed.
 */
 
 /*!

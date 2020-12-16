@@ -42,4 +42,8 @@
  * WaylandQuickItem::setPrimary() is called at appropriate times to set the
  * primary view for the ShellSurface, which is used when the client asks to be
  * maximized or fullscreen.
+ *
+ * \note In order to support multiple Wayland outputs in the same compositor, the
+ * \l Qt::AA_ShareOpenGLContexts attribute must be set before the \l QGuiApplication
+ * object is constructed.
  */

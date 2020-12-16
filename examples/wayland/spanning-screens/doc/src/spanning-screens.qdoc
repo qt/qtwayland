@@ -33,4 +33,8 @@
  *
  * Spanning screens is a Wayland compositor example that maximizes clients
  * across a top and a bottom screen.
+ *
+ * \note In order to support multiple Wayland outputs in the same compositor, the
+ * \l Qt::AA_ShareOpenGLContexts attribute must be set before the \l QGuiApplication
+ * object is constructed.
  */

@@ -38,4 +38,8 @@
     WaylandSurface is displayed in a GridView on one of the outputs, while a ShellSurface
     associated with the WaylandSurface is displayed with desktop-style composition on
     the other output.
+
+    \note In order to support multiple Wayland outputs in the same compositor, the
+    \l Qt::AA_ShareOpenGLContexts attribute must be set before the \l QGuiApplication
+    object is constructed.
 */

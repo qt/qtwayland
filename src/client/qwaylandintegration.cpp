@@ -52,6 +52,7 @@
 #include "qwaylanddnd_p.h"
 #include "qwaylandwindowmanagerintegration_p.h"
 #include "qwaylandscreen_p.h"
+#include "qwaylandcursor_p.h"
 
 #if defined(Q_OS_MACOS)
 #  include <QtGui/private/qcoretextfontdatabase_p.h>
@@ -112,22 +113,12 @@ QWaylandIntegration::QWaylandIntegration()
 #else
     : mFontDb(new QGenericUnixFontDatabase())
 #endif
-    , mNativeInterface(new QWaylandNativeInterface(this))
 {
-    initializeInputDeviceIntegration();
     mDisplay.reset(new QWaylandDisplay(this));
     if (!mDisplay->isInitialized()) {
         mFailed = true;
         return;
     }
-#if QT_CONFIG(clipboard)
-    mClipboard.reset(new QWaylandClipboard(mDisplay.data()));
-#endif
-#if QT_CONFIG(draganddrop)
-    mDrag.reset(new QWaylandDrag(mDisplay.data()));
-#endif
-
-    reconfigureInputContext();
 }
 
 QWaylandIntegration::~QWaylandIntegration()
@@ -193,8 +184,30 @@ QAbstractEventDispatcher *QWaylandIntegration::createEventDispatcher() const
     return createUnixEventDispatcher();
 }
 
+QPlatformNativeInterface *QWaylandIntegration::createPlatformNativeInterface()
+{
+    return new QWaylandNativeInterface(this);
+}
+
+void QWaylandIntegration::initializePlatform()
+{
+    mNativeInterface.reset(createPlatformNativeInterface());
+    initializeInputDeviceIntegration();
+#if QT_CONFIG(clipboard)
+    mClipboard.reset(new QWaylandClipboard(mDisplay.data()));
+#endif
+#if QT_CONFIG(draganddrop)
+    mDrag.reset(new QWaylandDrag(mDisplay.data()));
+#endif
+
+    reconfigureInputContext();
+}
+
 void QWaylandIntegration::initialize()
 {
+    // Support platform specicif initialization
+    initializePlatform();
+
     QAbstractEventDispatcher *dispatcher = QGuiApplicationPrivate::eventDispatcher;
     QObject::connect(dispatcher, SIGNAL(aboutToBlock()), mDisplay.data(), SLOT(flushRequests()));
     QObject::connect(dispatcher, SIGNAL(awake()), mDisplay.data(), SLOT(flushRequests()));
@@ -280,6 +293,16 @@ QStringList QWaylandIntegration::themeNames() const
 QPlatformTheme *QWaylandIntegration::createPlatformTheme(const QString &name) const
 {
     return QGenericUnixTheme::createUnixTheme(name);
+}
+
+QWaylandScreen *QWaylandIntegration::createPlatformScreen(QWaylandDisplay *waylandDisplay, int version, uint32_t id) const
+{
+   return new QWaylandScreen(waylandDisplay, version, id);
+}
+
+QWaylandCursor *QWaylandIntegration::createPlatformCursor(QWaylandDisplay *display) const
+{
+   return new QWaylandCursor(display);
 }
 
 #if QT_CONFIG(vulkan)
@@ -418,7 +441,7 @@ void QWaylandIntegration::initializeShellIntegration()
     QWindowSystemInterfacePrivate::TabletEvent::setPlatformSynthesizesMouse(false);
 }
 
-QWaylandInputDevice *QWaylandIntegration::createInputDevice(QWaylandDisplay *display, int version, uint32_t id)
+QWaylandInputDevice *QWaylandIntegration::createInputDevice(QWaylandDisplay *display, int version, uint32_t id) const
 {
     if (mInputDeviceIntegration) {
         return mInputDeviceIntegration->createInputDevice(display, version, id);

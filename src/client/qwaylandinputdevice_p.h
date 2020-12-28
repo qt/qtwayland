@@ -160,7 +160,7 @@ public:
     Pointer *pointer() const;
     Touch *touch() const;
 
-private:
+protected:
     QWaylandDisplay *mQDisplay = nullptr;
     struct wl_display *mDisplay = nullptr;
 

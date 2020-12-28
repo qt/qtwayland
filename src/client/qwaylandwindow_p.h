@@ -214,6 +214,8 @@ signals:
     void wlSurfaceDestroyed();
 
 protected:
+    void sendExposeEvent(const QRect &rect);
+
     QWaylandDisplay *mDisplay = nullptr;
     QScopedPointer<QWaylandSurface> mSurface;
     QWaylandShellSurface *mShellSurface = nullptr;
@@ -268,7 +270,6 @@ private:
     bool shouldCreateShellSurface() const;
     bool shouldCreateSubSurface() const;
     void reset();
-    void sendExposeEvent(const QRect &rect);
     static void closePopups(QWaylandWindow *parent);
     QPlatformScreen *calculateScreenFromSurfaceEvents() const;
     void setOpaqueArea(const QRegion &opaqueArea);

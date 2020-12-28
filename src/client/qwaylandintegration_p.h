@@ -67,6 +67,8 @@ class QWaylandServerBufferIntegration;
 class QWaylandShellIntegration;
 class QWaylandInputDeviceIntegration;
 class QWaylandInputDevice;
+class QWaylandScreen;
+class QWaylandCursor;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandIntegration : public QPlatformIntegration
 {
@@ -117,7 +119,9 @@ public:
     QPlatformVulkanInstance *createPlatformVulkanInstance(QVulkanInstance *instance) const override;
 #endif
 
-    QWaylandInputDevice *createInputDevice(QWaylandDisplay *display, int version, uint32_t id);
+    virtual QWaylandInputDevice *createInputDevice(QWaylandDisplay *display, int version, uint32_t id) const;
+    virtual QWaylandScreen *createPlatformScreen(QWaylandDisplay *waylandDisplay, int version, uint32_t id) const;
+    virtual QWaylandCursor *createPlatformCursor(QWaylandDisplay *display) const;
 
     virtual QWaylandClientBufferIntegration *clientBufferIntegration() const;
     virtual QWaylandServerBufferIntegration *serverBufferIntegration() const;
@@ -125,19 +129,24 @@ public:
 
     void reconfigureInputContext();
 
-private:
+protected:
     // NOTE: mDisplay *must* be destructed after mDrag and mClientBufferIntegration
     // and mShellIntegration.
     // Do not move this definition into the private section at the bottom.
     QScopedPointer<QWaylandDisplay> mDisplay;
 
 protected:
+    virtual QPlatformNativeInterface *createPlatformNativeInterface();
+
     QScopedPointer<QWaylandClientBufferIntegration> mClientBufferIntegration;
     QScopedPointer<QWaylandServerBufferIntegration> mServerBufferIntegration;
     QScopedPointer<QWaylandShellIntegration> mShellIntegration;
     QScopedPointer<QWaylandInputDeviceIntegration> mInputDeviceIntegration;
 
+    QScopedPointer<QPlatformInputContext> mInputContext;
+
 private:
+    void initializePlatform();
     void initializeClientBufferIntegration();
     void initializeServerBufferIntegration();
     void initializeShellIntegration();
@@ -152,7 +161,6 @@ private:
     QScopedPointer<QPlatformDrag> mDrag;
 #endif
     QScopedPointer<QPlatformNativeInterface> mNativeInterface;
-    QScopedPointer<QPlatformInputContext> mInputContext;
 #if QT_CONFIG(accessibility)
     mutable QScopedPointer<QPlatformAccessibility> mAccessibility;
 #endif

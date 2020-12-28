@@ -113,7 +113,7 @@ public:
     static QWaylandScreen *waylandScreenFromWindow(QWindow *window);
     static QWaylandScreen *fromWlOutput(::wl_output *output);
 
-private:
+protected:
     void output_mode(uint32_t flags, int width, int height, int refresh) override;
     void output_geometry(int32_t x, int32_t y,
                          int32_t width, int32_t height,
@@ -149,10 +149,6 @@ private:
     bool mOutputDone = false;
     bool mXdgOutputDone = false;
     bool mInitialized = false;
-
-#if QT_CONFIG(cursor)
-    QScopedPointer<QWaylandCursor> mWaylandCursor;
-#endif
 };
 
 }

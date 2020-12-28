@@ -327,7 +327,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
     struct ::wl_registry *registry = object();
 
     if (interface == QStringLiteral("wl_output")) {
-        mWaitingScreens << new QWaylandScreen(this, version, id);
+        mWaitingScreens << mWaylandIntegration->createPlatformScreen(this, version, id);
     } else if (interface == QStringLiteral("wl_compositor")) {
         mCompositorVersion = qMin((int)version, 4);
         mCompositor.init(registry, id, mCompositorVersion);
@@ -627,7 +627,7 @@ QWaylandInputDevice *QWaylandDisplay::defaultInputDevice() const
 QWaylandCursor *QWaylandDisplay::waylandCursor()
 {
     if (!mCursor)
-        mCursor.reset(new QWaylandCursor(this));
+        mCursor.reset(mWaylandIntegration->createPlatformCursor(this));
     return mCursor.data();
 }
 

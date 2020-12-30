@@ -37,10 +37,10 @@
 **
 ****************************************************************************/
 
-#include "qwaylandeglclientbufferintegration.h"
+#include "qwaylandeglclientbufferintegration_p.h"
 
-#include "qwaylandeglwindow.h"
-#include "qwaylandglcontext.h"
+#include "qwaylandeglwindow_p.h"
+#include "qwaylandglcontext_p.h"
 
 #include <wayland-client-core.h>
 

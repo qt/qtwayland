@@ -52,6 +52,7 @@ if (QT_FEATURE_wayland_server)
 endif()
 
 if (QT_FEATURE_wayland_server OR QT_FEATURE_wayland_client)
+    add_subdirectory(hardwareintegration)
     add_subdirectory(plugins)
     add_subdirectory(imports)
 endif()

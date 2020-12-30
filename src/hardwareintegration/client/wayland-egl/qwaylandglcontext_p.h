@@ -40,7 +40,7 @@
 #ifndef QWAYLANDGLCONTEXT_H
 #define QWAYLANDGLCONTEXT_H
 
-#include "qwaylandeglinclude.h" //must be first
+#include "qwaylandeglinclude_p.h" //must be first
 
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QtGui/private/qeglplatformcontext_p.h>
@@ -57,7 +57,7 @@ class QWaylandWindow;
 class QWaylandGLWindowSurface;
 class DecorationsBlitter;
 
-class QWaylandGLContext : public QEGLPlatformContext
+class Q_WAYLAND_CLIENT_EXPORT QWaylandGLContext : public QEGLPlatformContext
 {
 public:
     QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *display, const QSurfaceFormat &format, QPlatformOpenGLContext *share);

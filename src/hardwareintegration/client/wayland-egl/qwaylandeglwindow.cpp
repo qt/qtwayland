@@ -37,10 +37,10 @@
 **
 ****************************************************************************/
 
-#include "qwaylandeglwindow.h"
+#include "qwaylandeglwindow_p.h"
 
 #include <QtWaylandClient/private/qwaylandscreen_p.h>
-#include "qwaylandglcontext.h"
+#include "qwaylandglcontext_p.h"
 
 #include <QtGui/private/qeglconvenience_p.h>
 

@@ -9,22 +9,12 @@ qt_internal_add_plugin(QWaylandEglPlatformIntegrationPlugin
     OUTPUT_NAME qwayland-egl
     TYPE platforms
     SOURCES
-        ../../../hardwareintegration/client/wayland-egl/qwaylandeglclientbufferintegration.cpp ../../../hardwareintegration/client/wayland-egl/qwaylandeglclientbufferintegration.h
-        ../../../hardwareintegration/client/wayland-egl/qwaylandeglinclude.h
-        ../../../hardwareintegration/client/wayland-egl/qwaylandeglwindow.cpp ../../../hardwareintegration/client/wayland-egl/qwaylandeglwindow.h
-        ../../../hardwareintegration/client/wayland-egl/qwaylandglcontext.cpp ../../../hardwareintegration/client/wayland-egl/qwaylandglcontext.h
         main.cpp
-    INCLUDE_DIRECTORIES
-        ../../../hardwareintegration/client/wayland-egl
     PUBLIC_LIBRARIES
-        ${CMAKE_DL_LIBS}
-        EGL::EGL
         Qt::Core
         Qt::Gui
-        Qt::OpenGLPrivate
         Qt::WaylandClientPrivate
-        Wayland::Client
-        Wayland::Egl
+        Qt::WaylandEglClientHwIntegrationPrivate
 )
 
 #### Keys ignored in scope 1:.:.:qwayland-egl.pro:<TRUE>:

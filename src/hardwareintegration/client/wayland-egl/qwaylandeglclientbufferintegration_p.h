@@ -42,7 +42,7 @@
 
 #include <QtWaylandClient/private/qwaylandclientbufferintegration_p.h>
 
-#include "qwaylandeglinclude.h"
+#include "qwaylandeglinclude_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -52,7 +52,7 @@ namespace QtWaylandClient {
 
 class QWaylandWindow;
 
-class QWaylandEglClientBufferIntegration : public QWaylandClientBufferIntegration
+class Q_WAYLAND_CLIENT_EXPORT QWaylandEglClientBufferIntegration : public QWaylandClientBufferIntegration
 {
 public:
     QWaylandEglClientBufferIntegration();

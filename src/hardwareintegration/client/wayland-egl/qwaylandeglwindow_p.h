@@ -41,8 +41,8 @@
 #define QWAYLANDEGLWINDOW_H
 
 #include <QtWaylandClient/private/qwaylandwindow_p.h>
-#include "qwaylandeglinclude.h"
-#include "qwaylandeglclientbufferintegration.h"
+#include "qwaylandeglinclude_p.h"
+#include "qwaylandeglclientbufferintegration_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -52,7 +52,7 @@ namespace QtWaylandClient {
 
 class QWaylandGLContext;
 
-class QWaylandEglWindow : public QWaylandWindow
+class Q_WAYLAND_CLIENT_EXPORT QWaylandEglWindow : public QWaylandWindow
 {
     Q_OBJECT
 public:

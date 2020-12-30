@@ -37,14 +37,14 @@
 **
 ****************************************************************************/
 
-#include "qwaylandglcontext.h"
+#include "qwaylandglcontext_p.h"
 
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QtWaylandClient/private/qwaylandwindow_p.h>
 #include <QtWaylandClient/private/qwaylandsubsurface_p.h>
 #include <QtWaylandClient/private/qwaylandabstractdecoration_p.h>
 #include <QtWaylandClient/private/qwaylandintegration_p.h>
-#include "qwaylandeglwindow.h"
+#include "qwaylandeglwindow_p.h"
 
 #include <QDebug>
 #include <QtGui/private/qeglconvenience_p.h>

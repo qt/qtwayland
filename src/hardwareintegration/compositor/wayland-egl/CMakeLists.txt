@@ -1,0 +1,21 @@
+#####################################################################
+## WaylandEglCompositorHwIntegration Module:
+#####################################################################
+qt_find_package(EGL) # special case
+
+qt_internal_add_module(WaylandEglCompositorHwIntegration
+    CONFIG_MODULE_NAME wayland_egl_compositor_hw_integration
+    INTERNAL_MODULE
+    SOURCES
+        waylandeglclientbufferintegration.cpp waylandeglclientbufferintegration_p.h
+    INCLUDE_DIRECTORIES
+        ${CMAKE_CURRENT_SOURCE_DIR}
+    LIBRARIES
+        EGL::EGL
+        Wayland::Egl
+        Wayland::Server
+    PUBLIC_LIBRARIES
+        Qt::Core
+        Qt::Gui
+        Qt::WaylandCompositorPrivate
+)

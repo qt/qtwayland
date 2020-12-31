@@ -6,4 +6,4 @@ SOURCES += \
     $$PWD/waylandeglclientbufferintegration.cpp
 
 HEADERS += \
-    $$PWD/waylandeglclientbufferintegration.h
+    $$PWD/waylandeglclientbufferintegration_p.h

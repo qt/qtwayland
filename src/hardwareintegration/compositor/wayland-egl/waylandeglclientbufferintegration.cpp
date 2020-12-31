@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "waylandeglclientbufferintegration.h"
+#include "waylandeglclientbufferintegration_p.h"
 
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <qpa/qplatformnativeinterface.h>

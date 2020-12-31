@@ -38,7 +38,7 @@ QT_BEGIN_NAMESPACE
 
 class WaylandEglClientBufferIntegrationPrivate;
 
-class WaylandEglClientBufferIntegration : public QtWayland::ClientBufferIntegration
+class Q_WAYLAND_COMPOSITOR_EXPORT WaylandEglClientBufferIntegration : public QtWayland::ClientBufferIntegration
 {
     Q_DECLARE_PRIVATE(WaylandEglClientBufferIntegration)
 public:
@@ -56,9 +56,10 @@ private:
 
 struct BufferState;
 
-class WaylandEglClientBuffer : public QtWayland::ClientBuffer
+class Q_WAYLAND_COMPOSITOR_EXPORT WaylandEglClientBuffer : public QtWayland::ClientBuffer
 {
 public:
+    WaylandEglClientBuffer(WaylandEglClientBufferIntegration* integration, wl_resource *bufferResource);
     ~WaylandEglClientBuffer() override;
 
     QWaylandBufferRef::BufferFormatEgl bufferFormatEgl() const override;
@@ -73,8 +74,6 @@ public:
 private:
     friend class WaylandEglClientBufferIntegration;
     friend class WaylandEglClientBufferIntegrationPrivate;
-
-    WaylandEglClientBuffer(WaylandEglClientBufferIntegration* integration, wl_resource *bufferResource);
 
     BufferState *d = nullptr;
     WaylandEglClientBufferIntegration *m_integration = nullptr;

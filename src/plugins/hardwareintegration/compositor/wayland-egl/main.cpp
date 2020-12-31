@@ -29,7 +29,7 @@
 
 #include <QtWaylandCompositor/private/qwlclientbufferintegrationfactory_p.h>
 #include <QtWaylandCompositor/private/qwlclientbufferintegrationplugin_p.h>
-#include "waylandeglclientbufferintegration.h"
+#include <QtWaylandEglCompositorHwIntegration/private/waylandeglclientbufferintegration_p.h>
 
 QT_BEGIN_NAMESPACE
 

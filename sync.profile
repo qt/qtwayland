@@ -3,6 +3,7 @@
     "QtWaylandClient" => "$basedir/src/client",
     "QtWaylandEglClientHwIntegration" => "$basedir/src/hardwareintegration/client/wayland-egl",
     "QtWaylandEglCompositorHwIntegration" => "$basedir/src/hardwareintegration/compositor/wayland-egl",
+    "QtWlShellIntegration" => "$basedir/src/plugins/shellintegration/wl-shell",
 );
 %moduleheaders = ( # restrict the module headers to those found in relative path
 );

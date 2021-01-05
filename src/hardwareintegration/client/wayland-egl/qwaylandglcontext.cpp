@@ -297,6 +297,8 @@ QWaylandGLContext::~QWaylandGLContext()
 {
     delete m_blitter;
     m_blitter = nullptr;
+    if (m_decorationsContext != EGL_NO_CONTEXT)
+        eglDestroyContext(eglDisplay(), m_decorationsContext);
 }
 
 bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)

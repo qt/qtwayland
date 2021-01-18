@@ -531,7 +531,8 @@ void QWaylandOutput::addMode(const QWaylandOutputMode &mode, bool preferred)
         return;
     }
 
-    d->modes.append(mode);
+    if (d->modes.indexOf(mode) < 0)
+        d->modes.append(mode);
 
     if (preferred)
         d->preferredMode = d->modes.indexOf(mode);

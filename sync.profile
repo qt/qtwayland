@@ -23,6 +23,7 @@
 %inject_headers = (
     "$basedir/src/client" => [
         "^qwayland-hardware-integration.h",
+        "^qwayland-pointer-gestures-unstable-v1.h",
         "^qwayland-qt-windowmanager.h",
         "^qwayland-qt-key-unstable-v1.h" ,
         "^qwayland-server-buffer-extension.h",
@@ -35,6 +36,7 @@
         "^qwayland-wp-primary-selection-unstable-v1.h",
         "^qwayland-xdg-output-unstable-v1.h",
         "^wayland-hardware-integration-client-protocol.h",
+        "^wayland-pointer-gestures-unstable-v1-client-protocol.h",
         "^wayland-qt-windowmanager-client-protocol.h",
         "^wayland-qt-key-unstable-v1-client-protocol.h",
         "^wayland-server-buffer-extension-client-protocol.h",

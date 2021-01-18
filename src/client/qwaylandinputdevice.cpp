@@ -51,6 +51,7 @@
 #include "qwaylandprimaryselectionv1_p.h"
 #endif
 #include "qwaylandtabletv2_p.h"
+#include "qwaylandpointergestures_p.h"
 #include "qwaylandtouch_p.h"
 #include "qwaylandscreen_p.h"
 #include "qwaylandcursor_p.h"
@@ -81,6 +82,10 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 Q_LOGGING_CATEGORY(lcQpaWaylandInput, "qt.qpa.wayland.input");
+
+// The maximum number of concurrent touchpoints is not exposed in wayland, so we assume a
+// reasonable number of them. As of 2021 most touchscreen panels support 10 concurrent touchpoints.
+static const int MaxTouchPoints = 10;
 
 QWaylandInputDevice::Keyboard::Keyboard(QWaylandInputDevice *p)
     : mParent(p)
@@ -446,9 +451,28 @@ void QWaylandInputDevice::seat_capabilities(uint32_t caps)
     if (caps & WL_SEAT_CAPABILITY_POINTER && !mPointer) {
         mPointer = createPointer(this);
         mPointer->init(get_pointer());
+
+        auto *pointerGestures = mQDisplay->pointerGestures();
+        if (pointerGestures) {
+            // NOTE: The name of the device and its system ID are not exposed on Wayland.
+            mTouchPadDevice = new QPointingDevice(QLatin1String("touchpad"), 0,
+                                                  QInputDevice::DeviceType::TouchPad,
+                                                  QPointingDevice::PointerType::Finger,
+                                                  QInputDevice::Capability::Position,
+                                                  MaxTouchPoints, 0);
+            QWindowSystemInterface::registerInputDevice(mTouchPadDevice);
+            mPointerGesturePinch = pointerGestures->createPointerGesturePinch(this);
+            mPointerGesturePinch->init(pointerGestures->get_pinch_gesture(get_pointer()));
+            mPointerGestureSwipe = pointerGestures->createPointerGestureSwipe(this);
+            mPointerGestureSwipe->init(pointerGestures->get_swipe_gesture(get_pointer()));
+        }
     } else if (!(caps & WL_SEAT_CAPABILITY_POINTER) && mPointer) {
         delete mPointer;
         mPointer = nullptr;
+        delete mPointerGesturePinch;
+        mPointerGesturePinch = nullptr;
+        delete mPointerGestureSwipe;
+        mPointerGestureSwipe = nullptr;
     }
 
     if (caps & WL_SEAT_CAPABILITY_TOUCH && !mTouch) {
@@ -458,8 +482,8 @@ void QWaylandInputDevice::seat_capabilities(uint32_t caps)
         if (!mTouchDevice) {
             // TODO number of touchpoints, actual name and ID
             mTouchDevice = new QPointingDevice(QLatin1String("some touchscreen"), 0,
-                                                   QInputDevice::DeviceType::TouchScreen, QPointingDevice::PointerType::Finger,
-                                                   QInputDevice::Capability::Position, 10, 0);
+                                               QInputDevice::DeviceType::TouchScreen, QPointingDevice::PointerType::Finger,
+                                               QInputDevice::Capability::Position, MaxTouchPoints, 0);
             QWindowSystemInterface::registerInputDevice(mTouchDevice);
         }
     } else if (!(caps & WL_SEAT_CAPABILITY_TOUCH) && mTouch) {
@@ -491,6 +515,16 @@ QWaylandInputDevice::Keyboard *QWaylandInputDevice::keyboard() const
 QWaylandInputDevice::Pointer *QWaylandInputDevice::pointer() const
 {
     return mPointer;
+}
+
+QWaylandPointerGestureSwipe *QWaylandInputDevice::pointerGestureSwipe() const
+{
+    return mPointerGestureSwipe;
+}
+
+QWaylandPointerGesturePinch *QWaylandInputDevice::pointerGesturePinch() const
+{
+    return mPointerGesturePinch;
 }
 
 QWaylandInputDevice::Touch *QWaylandInputDevice::touch() const

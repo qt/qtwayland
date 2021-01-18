@@ -68,6 +68,7 @@
 #include "qwaylandclientbufferintegration_p.h"
 
 #include "qwaylandextendedsurface_p.h"
+#include "qwaylandpointergestures_p.h"
 #include "qwaylandsubsurface_p.h"
 #include "qwaylandtouch_p.h"
 #include "qwaylandtabletv2_p.h"
@@ -355,6 +356,8 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mQtKeyExtension.reset(new QWaylandQtKeyExtension(this, id));
     } else if (interface == QStringLiteral("zwp_tablet_manager_v2")) {
         mTabletManager.reset(new QWaylandTabletManagerV2(this, id, qMin(1, int(version))));
+    } else if (interface == QStringLiteral("zwp_pointer_gestures_v1")) {
+        mPointerGestures.reset(new QWaylandPointerGestures(this, id, 1));
 #if QT_CONFIG(wayland_client_primary_selection)
     } else if (interface == QStringLiteral("zwp_primary_selection_device_manager_v1")) {
         mPrimarySelectionManager.reset(new QWaylandPrimarySelectionDeviceManagerV1(this, id, 1));

@@ -83,6 +83,8 @@ class QWaylandInputDevice;
 class QWaylandScreen;
 class QWaylandShmBackingStore;
 class QWaylandPointerEvent;
+class QWaylandPointerGestureSwipeEvent;
+class QWaylandPointerGesturePinchEvent;
 class QWaylandSurface;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandWindow : public QObject, public QPlatformWindow
@@ -177,6 +179,12 @@ public:
     QWaylandAbstractDecoration *decoration() const;
 
     void handleMouse(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
+#ifndef QT_NO_GESTURES
+    void handleSwipeGesture(QWaylandInputDevice *inputDevice,
+                            const QWaylandPointerGestureSwipeEvent &e);
+    void handlePinchGesture(QWaylandInputDevice *inputDevice,
+                            const QWaylandPointerGesturePinchEvent &e);
+#endif
 
     bool touchDragDecoration(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,
                              Qt::TouchPointState state, Qt::KeyboardModifiers mods);
@@ -240,6 +248,23 @@ protected:
     QWaylandAbstractDecoration *mWindowDecoration = nullptr;
     bool mMouseEventsInContentArea = false;
     Qt::MouseButtons mMousePressedInContentArea = Qt::NoButton;
+
+#ifndef QT_NO_GESTURES
+    enum GestureState {
+        GestureNotActive,
+        GestureActiveInContentArea,
+        GestureActiveInDecoration
+    };
+
+    // We want gestures started in the decoration area to be completely ignored even if the mouse
+    // pointer is later moved to content area. Likewise, gestures started in the content area should
+    // keep sending events even if the mouse pointer is moved over the decoration (consider that
+    // the events for that gesture will be sent to us even if it's moved outside the window).
+    // So we track the gesture state and accept or ignore events based on that. Note that
+    // concurrent gestures of different types are not allowed in the protocol, so single state is
+    // enough
+    GestureState mGestureState = GestureNotActive;
+#endif
 
     WId mWindowId;
     bool mWaitingForFrameCallback = false;

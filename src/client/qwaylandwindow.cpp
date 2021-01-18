@@ -978,6 +978,133 @@ void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, const QWaylan
 #endif
 }
 
+#ifndef QT_NO_GESTURES
+void QWaylandWindow::handleSwipeGesture(QWaylandInputDevice *inputDevice,
+                                        const QWaylandPointerGestureSwipeEvent &e)
+{
+    switch (e.state) {
+        case Qt::GestureStarted:
+            if (mGestureState != GestureNotActive)
+                qCWarning(lcQpaWaylandInput) << "Unexpected gesture state. Gestures will act weird.";
+
+            if (mWindowDecoration && !mMouseEventsInContentArea) {
+                // whole gesture sequence will be ignored
+                mGestureState = GestureActiveInDecoration;
+                return;
+            }
+
+            mGestureState = GestureActiveInContentArea;
+            QWindowSystemInterface::handleGestureEvent(window(), e.timestamp,
+                                                       inputDevice->mTouchPadDevice,
+                                                       Qt::BeginNativeGesture,
+                                                       e.local, e.global, e.fingers);
+            break;
+        case Qt::GestureUpdated:
+            if (mGestureState != GestureActiveInContentArea)
+                return;
+
+            if (!e.delta.isNull()) {
+                QWindowSystemInterface::handleGestureEventWithValueAndDeltas(
+                            window(), e.timestamp, inputDevice->mTouchPadDevice,
+                            Qt::PanNativeGesture,
+                            0, QVector2D(e.delta), e.local, e.global, e.fingers);
+            }
+            break;
+        case Qt::GestureFinished:
+        case Qt::GestureCanceled:
+            if (mGestureState == GestureActiveInDecoration) {
+                mGestureState = GestureNotActive;
+                return;
+            }
+
+            if (mGestureState != GestureActiveInContentArea)
+                qCWarning(lcQpaWaylandInput) << "Unexpected gesture state. Gestures will act weird.";
+
+            mGestureState = GestureNotActive;
+
+            // There's currently no way to expose cancelled gestures to the rest of Qt, so
+            // this part of information is lost.
+            QWindowSystemInterface::handleGestureEvent(window(), e.timestamp,
+                                                       inputDevice->mTouchPadDevice,
+                                                       Qt::EndNativeGesture,
+                                                       e.local, e.global, e.fingers);
+            break;
+        default:
+            break;
+    }
+}
+
+void QWaylandWindow::handlePinchGesture(QWaylandInputDevice *inputDevice,
+                                        const QWaylandPointerGesturePinchEvent &e)
+{
+    switch (e.state) {
+        case Qt::GestureStarted:
+            if (mGestureState != GestureNotActive)
+                qCWarning(lcQpaWaylandInput) << "Unexpected gesture state. Gestures will act weird.";
+
+            if (mWindowDecoration && !mMouseEventsInContentArea) {
+                // whole gesture sequence will be ignored
+                mGestureState = GestureActiveInDecoration;
+                return;
+            }
+
+            mGestureState = GestureActiveInContentArea;
+            QWindowSystemInterface::handleGestureEvent(window(), e.timestamp,
+                                                       inputDevice->mTouchPadDevice,
+                                                       Qt::BeginNativeGesture,
+                                                       e.local, e.global, e.fingers);
+            break;
+        case Qt::GestureUpdated:
+            if (mGestureState != GestureActiveInContentArea)
+                return;
+
+            if (!e.delta.isNull()) {
+                QWindowSystemInterface::handleGestureEventWithValueAndDeltas(
+                            window(), e.timestamp, inputDevice->mTouchPadDevice,
+                            Qt::PanNativeGesture,
+                            0, QVector2D(e.delta), e.local, e.global, e.fingers);
+            }
+            if (e.rotation_delta != 0) {
+                QWindowSystemInterface::handleGestureEventWithRealValue(window(), e.timestamp,
+                                                                        inputDevice->mTouchPadDevice,
+                                                                        Qt::RotateNativeGesture,
+                                                                        e.rotation_delta,
+                                                                        e.local, e.global, e.fingers);
+            }
+            if (e.scale_delta != 0) {
+                QWindowSystemInterface::handleGestureEventWithRealValue(window(), e.timestamp,
+                                                                        inputDevice->mTouchPadDevice,
+                                                                        Qt::ZoomNativeGesture,
+                                                                        e.scale_delta,
+                                                                        e.local, e.global, e.fingers);
+            }
+            break;
+        case Qt::GestureFinished:
+        case Qt::GestureCanceled:
+            if (mGestureState == GestureActiveInDecoration) {
+                mGestureState = GestureNotActive;
+                return;
+            }
+
+            if (mGestureState != GestureActiveInContentArea)
+                qCWarning(lcQpaWaylandInput) << "Unexpected gesture state. Gestures will act weird.";
+
+            mGestureState = GestureNotActive;
+
+            // There's currently no way to expose cancelled gestures to the rest of Qt, so
+            // this part of information is lost.
+            QWindowSystemInterface::handleGestureEvent(window(), e.timestamp,
+                                                       inputDevice->mTouchPadDevice,
+                                                       Qt::EndNativeGesture,
+                                                       e.local, e.global, e.fingers);
+            break;
+        default:
+            break;
+    }
+}
+#endif // #ifndef QT_NO_GESTURES
+
+
 bool QWaylandWindow::touchDragDecoration(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods)
 {
     if (!mWindowDecoration)

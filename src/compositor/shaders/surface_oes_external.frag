@@ -1,17 +1,15 @@
-#version 440
-#extension GL_OES_EGL_image_external_essl3 : require
+// This shader stump cannot be precompiled and is compiled at run-time.
+// Appropriate target preamble added when it is loaded.
 
-layout(location = 0) in vec2 v_texcoord;
-layout(location = 0) out vec4 fragColor;
-
-layout(std140, binding = 0) uniform buf {
+varying vec2 v_texcoord;
+struct buf {
     mat4 qt_Matrix;
     float qt_Opacity;
 };
-
-layout(binding = 1) uniform samplerExternalOES tex0;
+uniform buf ubuf;
+uniform samplerExternalOES tex0;
 
 void main()
 {
-    fragColor = qt_Opacity * texture(tex0, v_texcoord);
+    gl_FragColor = ubuf.qt_Opacity * texture2D(tex0, v_texcoord);
 }

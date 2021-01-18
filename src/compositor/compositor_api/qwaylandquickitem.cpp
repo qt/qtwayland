@@ -56,11 +56,16 @@
 #include <QtQuick/QQuickWindow>
 #include <QtQuick/qsgtexture.h>
 
+#include <QtCore/QFile>
 #include <QtCore/QMutexLocker>
 #include <QtCore/QMutex>
 
 #include <wayland-server-core.h>
 #include <QThread>
+
+#if QT_CONFIG(opengl)
+#include <QtGui/private/qshaderdescription_p_p.h>
+#endif
 
 #ifndef GL_TEXTURE_EXTERNAL_OES
 #define GL_TEXTURE_EXTERNAL_OES 0x8D65
@@ -102,7 +107,7 @@ static const struct {
     // BufferFormatEgl_EXTERNAL_OES
     {
         ":/qt-project.org/wayland/compositor/shaders/surface.vert.qsb",
-        ":/qt-project.org/wayland/compositor/shaders/surface_oes_external.frag.qsb",
+        ":/qt-project.org/wayland/compositor/shaders/surface_oes_external.frag",
         GL_TEXTURE_EXTERNAL_OES, 1, false,
         QSGMaterial::Blending,
         {}
@@ -140,7 +145,88 @@ QWaylandBufferMaterialShader::QWaylandBufferMaterialShader(QWaylandBufferRef::Bu
     : m_format(format)
 {
     setShaderFileName(VertexStage, QString::fromLatin1(bufferTypes[format].vertexShaderSourceFile));
-    setShaderFileName(FragmentStage, QString::fromLatin1(bufferTypes[format].fragmentShaderSourceFile));
+    auto fragmentShaderSourceFile = QString::fromLatin1(bufferTypes[format].fragmentShaderSourceFile);
+
+    if (format == QWaylandBufferRef::BufferFormatEgl_EXTERNAL_OES)
+        setupExternalOESShader(fragmentShaderSourceFile);
+    else
+        setShaderFileName(FragmentStage, fragmentShaderSourceFile);
+}
+
+void QWaylandBufferMaterialShader::setupExternalOESShader(const QString &shaderFilename)
+{
+#if QT_CONFIG(opengl)
+    QFile shaderFile(shaderFilename);
+    if (!shaderFile.open(QIODevice::ReadOnly)) {
+        qCWarning(qLcWaylandCompositor) << "Cannot find external OES shader file:" << shaderFilename;
+        return;
+    }
+    QByteArray FS = shaderFile.readAll();
+
+    static const char *FS_GLES_PREAMBLE =
+        "#extension GL_OES_EGL_image_external : require\n"
+        "precision highp float;\n";
+    static const char *FS_GL_PREAMBLE =
+            "#version 120\n"
+            "#extension GL_OES_EGL_image_external : require\n";
+    QByteArray fsGLES = FS_GLES_PREAMBLE + FS;
+    QByteArray fsGL = FS_GL_PREAMBLE + FS;
+
+    QShaderDescription desc;
+    QShaderDescriptionPrivate *descData = QShaderDescriptionPrivate::get(&desc);
+
+    QShaderDescription::InOutVariable texCoordInput;
+    texCoordInput.name = "v_texcoord";
+    texCoordInput.type = QShaderDescription::Vec2;
+    texCoordInput.location = 0;
+
+    descData->inVars = { texCoordInput };
+
+    QShaderDescription::InOutVariable fragColorOutput;
+    texCoordInput.name = "gl_FragColor";
+    texCoordInput.type = QShaderDescription::Vec4;
+    texCoordInput.location = 0;
+
+    descData->outVars = { fragColorOutput };
+
+    QShaderDescription::BlockVariable matrixBlockVar;
+    matrixBlockVar.name = "qt_Matrix";
+    matrixBlockVar.type = QShaderDescription::Mat4;
+    matrixBlockVar.offset = 0;
+    matrixBlockVar.size = 64;
+
+    QShaderDescription::BlockVariable opacityBlockVar;
+    opacityBlockVar.name = "qt_Opacity";
+    opacityBlockVar.type = QShaderDescription::Float;
+    opacityBlockVar.offset = 64;
+    opacityBlockVar.size = 4;
+
+    QShaderDescription::UniformBlock ubufStruct;
+    ubufStruct.blockName = "buf";
+    ubufStruct.structName = "ubuf";
+    ubufStruct.size = 64 + 4;
+    ubufStruct.binding = 0;
+    ubufStruct.members = { matrixBlockVar, opacityBlockVar };
+
+    descData->uniformBlocks = { ubufStruct };
+
+    QShaderDescription::InOutVariable samplerTex0;
+    samplerTex0.name = "tex0";
+    samplerTex0.type = QShaderDescription::SamplerExternalOES;
+    samplerTex0.binding = 1;
+
+    descData->combinedImageSamplers = { samplerTex0 };
+
+    QShader shaderPack;
+    shaderPack.setStage(QShader::FragmentStage);
+    shaderPack.setDescription(desc);
+    shaderPack.setShader(QShaderKey(QShader::GlslShader, QShaderVersion(100, QShaderVersion::GlslEs)), QShaderCode(fsGLES));
+    shaderPack.setShader(QShaderKey(QShader::GlslShader, QShaderVersion(120)), QShaderCode(fsGL));
+
+    setShader(FragmentStage, shaderPack);
+#else
+    Q_UNUSED(shaderFilename);
+#endif
 }
 
 bool QWaylandBufferMaterialShader::updateUniformData(RenderState &state, QSGMaterial *, QSGMaterial *)

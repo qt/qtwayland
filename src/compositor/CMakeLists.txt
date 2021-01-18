@@ -85,6 +85,7 @@ set(compositor_resource_files
     "shaders/surface_y_u_v.frag.qsb"
     "shaders/surface_y_uv.frag.qsb"
     "shaders/surface_y_xuxv.frag.qsb"
+    "shaders/surface_oes_external.frag"
 )
 
 qt_internal_add_resource(WaylandCompositor "compositor"

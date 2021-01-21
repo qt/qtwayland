@@ -404,9 +404,8 @@ QtWayland::ServerBuffer *QWaylandTextureSharingExtension::getCompressedBuffer(co
         return nullptr;
     }
 
-    QByteArray pixelData = QByteArray::fromRawData(td.data().constData() + td.dataOffset(), td.dataLength());
-
-    return m_server_buffer_integration->createServerBufferFromData(pixelData, td.size(), td.glInternalFormat());
+    return m_server_buffer_integration->createServerBufferFromData(td.getDataView(), td.size(),
+                                                                   td.glInternalFormat());
 }
 
 void QWaylandTextureSharingExtension::cleanupBuffers()

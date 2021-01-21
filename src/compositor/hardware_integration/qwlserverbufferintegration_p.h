@@ -97,9 +97,10 @@ public:
 
     virtual bool supportsFormat(ServerBuffer::Format format) const = 0;
     virtual ServerBuffer *createServerBufferFromImage(const QImage &qimage, ServerBuffer::Format format) = 0;
-    virtual ServerBuffer *createServerBufferFromData(const QByteArray &data, const QSize &size, uint glInternalFormat)
+    virtual ServerBuffer *createServerBufferFromData(QByteArrayView view, const QSize &size,
+                                                     uint glInternalFormat)
     {
-        Q_UNUSED(data);
+        Q_UNUSED(view);
         Q_UNUSED(size);
         Q_UNUSED(glInternalFormat);
         return nullptr;

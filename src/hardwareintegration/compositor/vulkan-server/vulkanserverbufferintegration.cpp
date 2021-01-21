@@ -294,14 +294,17 @@ QtWayland::ServerBuffer *VulkanServerBufferIntegration::createServerBufferFromIm
     return new VulkanServerBuffer(this, qimage, format);
 }
 
-QtWayland::ServerBuffer *VulkanServerBufferIntegration::createServerBufferFromData(const QByteArray &data, const QSize &size, uint glInternalFormat)
+QtWayland::ServerBuffer *
+VulkanServerBufferIntegration::createServerBufferFromData(QByteArrayView view, const QSize &size,
+                                                          uint glInternalFormat)
 {
     if (!m_vulkanWrapper) {
         CurrentContext current;
         m_vulkanWrapper = new VulkanWrapper(current.context());
     }
 
-    auto *vImage = m_vulkanWrapper->createTextureImageFromData(reinterpret_cast<const uchar*>(data.constData()), data.size(), size, glInternalFormat);
+    auto *vImage = m_vulkanWrapper->createTextureImageFromData(
+            reinterpret_cast<const uchar *>(view.constData()), view.size(), size, glInternalFormat);
 
     if (vImage)
         return new VulkanServerBuffer(this, vImage, glInternalFormat, size);

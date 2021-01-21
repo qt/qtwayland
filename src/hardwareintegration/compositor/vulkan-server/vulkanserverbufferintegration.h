@@ -90,7 +90,8 @@ public:
 
     bool supportsFormat(QtWayland::ServerBuffer::Format format) const override;
     QtWayland::ServerBuffer *createServerBufferFromImage(const QImage &qimage, QtWayland::ServerBuffer::Format format) override;
-    QtWayland::ServerBuffer *createServerBufferFromData(const QByteArray &data, const QSize &size, uint glInternalFormat) override;
+    QtWayland::ServerBuffer *createServerBufferFromData(QByteArrayView view, const QSize &size,
+                                                        uint glInternalFormat) override;
 
 private:
     VulkanWrapper *m_vulkanWrapper = nullptr;

@@ -122,7 +122,7 @@ const QImage &QWaylandAbstractDecoration::contentImage()
     if (d->m_isDirty) {
         // Update the decoration backingstore
 
-        const int bufferScale = waylandWindow()->scale();
+        const qreal bufferScale = waylandWindow()->scale();
         const QSize imageSize = waylandWindow()->surfaceSize() * bufferScale;
         d->m_decorationContentImage = QImage(imageSize, QImage::Format_ARGB32_Premultiplied);
         // Only scale by buffer scale, not QT_SCALE_FACTOR etc.

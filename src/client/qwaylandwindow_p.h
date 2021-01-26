@@ -154,7 +154,7 @@ public:
 
     void setMask(const QRegion &region) override;
 
-    int scale() const;
+    qreal scale() const;
     qreal devicePixelRatio() const override;
 
     void requestActivateWindow() override;

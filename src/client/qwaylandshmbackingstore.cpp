@@ -68,7 +68,7 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
-                     const QSize &size, QImage::Format format, int scale)
+                     const QSize &size, QImage::Format format, qreal scale)
 {
     int stride = size.width() * 4;
     int alloc = stride * size.height();
@@ -108,7 +108,7 @@ QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
     QWaylandShm* shm = display->shm();
     wl_shm_format wl_format = shm->formatFrom(format);
     mImage = QImage(data, size.width(), size.height(), stride, format);
-    mImage.setDevicePixelRatio(qreal(scale));
+    mImage.setDevicePixelRatio(scale);
 
     mShmPool = wl_shm_create_pool(shm->object(), fd, alloc);
     init(wl_shm_pool_create_buffer(mShmPool,0, size.width(), size.height(),
@@ -271,7 +271,7 @@ QWaylandShmBuffer *QWaylandShmBackingStore::getBuffer(const QSize &size)
 void QWaylandShmBackingStore::resize(const QSize &size)
 {
     QMargins margins = windowDecorationMargins();
-    int scale = waylandWindow()->scale();
+    qreal scale = waylandWindow()->scale();
     QSize sizeWithMargins = (size + QSize(margins.left()+margins.right(),margins.top()+margins.bottom())) * scale;
 
     // We look for a free buffer to draw into. If the buffer is not the last buffer we used,

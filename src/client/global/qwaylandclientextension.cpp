@@ -71,10 +71,13 @@ void QWaylandClientExtensionPrivate::handleRegistryGlobal(void *data, ::wl_regis
     }
 }
 
-void QWaylandClientExtension::addRegistryListener()
+void QWaylandClientExtension::initialize()
 {
     Q_D(QWaylandClientExtension);
-    d->waylandIntegration->display()->addRegistryListener(&QWaylandClientExtensionPrivate::handleRegistryGlobal, this);
+    if (!d->registered) {
+        d->waylandIntegration->display()->addRegistryListener(&QWaylandClientExtensionPrivate::handleRegistryGlobal, this);
+        d->registered = true;
+    }
 }
 
 QWaylandClientExtension::QWaylandClientExtension(const int ver)
@@ -85,7 +88,7 @@ QWaylandClientExtension::QWaylandClientExtension(const int ver)
 
     // The registry listener uses virtual functions and we don't want it to be called from
     // the constructor.
-    QMetaObject::invokeMethod(this, "addRegistryListener", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(this, "initialize", Qt::QueuedConnection);
 }
 
 QtWaylandClient::QWaylandIntegration *QWaylandClientExtension::integration() const

@@ -68,6 +68,7 @@ public:
     QtWaylandClient::QWaylandIntegration *waylandIntegration = nullptr;
     int version = -1;
     bool active = false;
+    bool registered = false;
 };
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandClientExtensionTemplatePrivate : public QWaylandClientExtensionPrivate

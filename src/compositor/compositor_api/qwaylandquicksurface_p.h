@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 Jolla Ltd, author: <giulio.camuffo@jollamobile.com>
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -27,42 +27,40 @@
 **
 ****************************************************************************/
 
-#ifndef QQUICKWAYLANDSURFACE_H
-#define QQUICKWAYLANDSURFACE_H
+#ifndef QWAYLANDQUICKSURFACE_P_H
+#define QWAYLANDQUICKSURFACE_P_H
 
-#include <QtWaylandCompositor/qwaylandsurface.h>
-#include <QtWaylandCompositor/qwaylandquickchildren.h>
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists purely as an
+// implementation detail.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
-struct wl_client;
+#include <QtWaylandCompositor/private/qwaylandsurface_p.h>
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandQuickSurfacePrivate;
-class QWaylandQuickCompositor;
-
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickSurface : public QWaylandSurface
+class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickSurfacePrivate : public QWaylandSurfacePrivate
 {
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandQuickSurface)
-    Q_WAYLAND_COMPOSITOR_DECLARE_QUICK_CHILDREN(QWaylandQuickSurface)
-    Q_PROPERTY(bool useTextureAlpha READ useTextureAlpha WRITE setUseTextureAlpha NOTIFY useTextureAlphaChanged)
-    QML_NAMED_ELEMENT(WaylandSurface)
-    QML_ADDED_IN_VERSION(1, 0)
+    Q_DECLARE_PUBLIC(QWaylandQuickSurface)
 public:
-    QWaylandQuickSurface();
-    QWaylandQuickSurface(QWaylandCompositor *compositor, QWaylandClient *client, quint32 id, int version);
-    ~QWaylandQuickSurface() override;
+    QWaylandQuickSurfacePrivate()
+    {
+    }
 
-    bool useTextureAlpha() const;
-    void setUseTextureAlpha(bool useTextureAlpha);
+    ~QWaylandQuickSurfacePrivate() override
+    {
+    }
 
-protected:
-    QWaylandQuickSurface(QWaylandQuickSurfacePrivate &dptr);
-
-Q_SIGNALS:
-    void useTextureAlphaChanged();
+    bool useTextureAlpha = true;
+    bool clientRenderingEnabled = true;
 };
 
 QT_END_NAMESPACE
 
-#endif
+#endif // QWAYLANDQUICKSURFACE_P_H

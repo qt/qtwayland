@@ -32,6 +32,7 @@
 #include <QDebug>
 
 #include "qwaylandquicksurface.h"
+#include "qwaylandquicksurface_p.h"
 #include "qwaylandquickcompositor.h"
 #include "qwaylandquickitem.h"
 #include <QtWaylandCompositor/qwaylandbufferref.h>
@@ -39,22 +40,6 @@
 #include <QtWaylandCompositor/private/qwaylandsurface_p.h>
 
 QT_BEGIN_NAMESPACE
-
-class QWaylandQuickSurfacePrivate : public QWaylandSurfacePrivate
-{
-    Q_DECLARE_PUBLIC(QWaylandQuickSurface)
-public:
-    QWaylandQuickSurfacePrivate()
-    {
-    }
-
-    ~QWaylandQuickSurfacePrivate() override
-    {
-    }
-
-    bool useTextureAlpha = true;
-    bool clientRenderingEnabled = true;
-};
 
 QWaylandQuickSurface::QWaylandQuickSurface()
     : QWaylandSurface(* new QWaylandQuickSurfacePrivate())
@@ -65,6 +50,11 @@ QWaylandQuickSurface::QWaylandQuickSurface(QWaylandCompositor *compositor, QWayl
                     : QWaylandSurface(* new QWaylandQuickSurfacePrivate())
 {
     initialize(compositor, client, id, version);
+}
+
+QWaylandQuickSurface::QWaylandQuickSurface(QWaylandQuickSurfacePrivate &dptr)
+    : QWaylandSurface(dptr)
+{
 }
 
 QWaylandQuickSurface::~QWaylandQuickSurface()

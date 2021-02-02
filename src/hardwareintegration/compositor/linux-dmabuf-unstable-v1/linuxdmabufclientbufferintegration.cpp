@@ -452,6 +452,7 @@ QOpenGLTexture *LinuxDmabufClientBuffer::toOpenGlTexture(int plane)
     }
 
     if (m_textureDirty) {
+        m_textureDirty = false;
         texture->bind();
         glTexParameterf(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         m_integration->gl_egl_image_target_texture_2d(target, d->image(plane));

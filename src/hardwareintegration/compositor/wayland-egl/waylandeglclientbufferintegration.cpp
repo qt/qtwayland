@@ -569,6 +569,7 @@ QOpenGLTexture *WaylandEglClientBuffer::toOpenGlTexture(int plane)
     }
 
     if (m_textureDirty) {
+        m_textureDirty = false;
         texture->bind();
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         p->gl_egl_image_target_texture_2d(target, d->egl_images[plane]);

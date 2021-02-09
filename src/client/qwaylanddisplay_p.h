@@ -158,7 +158,6 @@ public:
 
     const struct wl_compositor *wl_compositor() const { return mCompositor.object(); }
     QtWayland::wl_compositor *compositor() { return &mCompositor; }
-    int compositorVersion() const { return mCompositorVersion; }
 
     QList<QWaylandInputDevice *> inputDevices() const { return mInputDevices; }
     QWaylandInputDevice *defaultInputDevice() const;
@@ -287,7 +286,6 @@ private:
     int mFd = -1;
     int mWritableNotificationFd = -1;
     QList<RegistryGlobal> mGlobals;
-    int mCompositorVersion = -1;
     uint32_t mLastInputSerial = 0;
     QWaylandInputDevice *mLastInputDevice = nullptr;
     QPointer<QWaylandWindow> mLastInputWindow;

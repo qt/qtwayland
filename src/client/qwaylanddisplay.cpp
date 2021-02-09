@@ -329,8 +329,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
     if (interface == QStringLiteral("wl_output")) {
         mWaitingScreens << new QWaylandScreen(this, version, id);
     } else if (interface == QStringLiteral("wl_compositor")) {
-        mCompositorVersion = qMin((int)version, 4);
-        mCompositor.init(registry, id, mCompositorVersion);
+        mCompositor.init(registry, id, qMin((int)version, 4));
     } else if (interface == QStringLiteral("wl_shm")) {
         mShm.reset(new QWaylandShm(this, version, id));
     } else if (interface == QStringLiteral("wl_seat")) {

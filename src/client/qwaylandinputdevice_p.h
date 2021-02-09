@@ -164,7 +164,6 @@ private:
     QWaylandDisplay *mQDisplay = nullptr;
     struct wl_display *mDisplay = nullptr;
 
-    int mVersion;
     uint32_t mCaps = 0;
 
 #if QT_CONFIG(cursor)

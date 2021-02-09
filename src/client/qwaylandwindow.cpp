@@ -188,7 +188,7 @@ void QWaylandWindow::initWindow()
     // Enable high-dpi rendering. Scale() returns the screen scale factor and will
     // typically be integer 1 (normal-dpi) or 2 (high-dpi). Call set_buffer_scale()
     // to inform the compositor that high-resolution buffers will be provided.
-    if (mDisplay->compositorVersion() >= 3)
+    if (mSurface->version() >= 3)
         mSurface->set_buffer_scale(scale());
 
     setWindowFlags(window()->flags());
@@ -567,7 +567,7 @@ void QWaylandWindow::attachOffset(QWaylandBuffer *buffer)
 void QWaylandWindow::damage(const QRect &rect)
 {
     const int s = scale();
-    if (mDisplay->compositorVersion() >= 4)
+    if (mSurface->version() >= 4)
         mSurface->damage_buffer(s * rect.x(), s * rect.y(), s * rect.width(), s * rect.height());
     else
         mSurface->damage(rect.x(), rect.y(), rect.width(), rect.height());
@@ -604,7 +604,7 @@ void QWaylandWindow::commit(QWaylandBuffer *buffer, const QRegion &damage)
         return;
 
     attachOffset(buffer);
-    if (mDisplay->compositorVersion() >= 4) {
+    if (mSurface->version() >= 4) {
         const int s = scale();
         for (const QRect &rect: damage)
             mSurface->damage_buffer(s * rect.x(), s * rect.y(), s * rect.width(), s * rect.height());
@@ -734,7 +734,7 @@ QWaylandScreen *QWaylandWindow::waylandScreen() const
 
 void QWaylandWindow::handleContentOrientationChange(Qt::ScreenOrientation orientation)
 {
-    if (mDisplay->compositorVersion() < 2)
+    if (mSurface->version() < 2)
         return;
 
     wl_output_transform transform;
@@ -1014,7 +1014,7 @@ void QWaylandWindow::handleScreensChanged()
     int scale = newScreen->isPlaceholder() ? 1 : static_cast<QWaylandScreen *>(newScreen)->scale();
     if (scale != mScale) {
         mScale = scale;
-        if (mSurface && mDisplay->compositorVersion() >= 3)
+        if (mSurface && mSurface->version() >= 3)
             mSurface->set_buffer_scale(mScale);
         ensureSize();
     }

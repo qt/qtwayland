@@ -132,7 +132,7 @@ QWaylandInputDevice::Keyboard::~Keyboard()
 {
     if (mFocus)
         QWindowSystemInterface::handleWindowActivated(nullptr);
-    if (mParent->mVersion >= 3)
+    if (version() >= 3)
         wl_keyboard_release(object());
     else
         wl_keyboard_destroy(object());
@@ -156,7 +156,7 @@ QWaylandInputDevice::Pointer::Pointer(QWaylandInputDevice *seat)
 
 QWaylandInputDevice::Pointer::~Pointer()
 {
-    if (mParent->mVersion >= 3)
+    if (version() >= 3)
         wl_pointer_release(object());
     else
         wl_pointer_destroy(object());
@@ -197,8 +197,6 @@ public:
         : QWaylandSurface(display)
         , m_pointer(pointer)
     {
-        //TODO: When we upgrade to libwayland 1.10, use wl_surface_get_version instead.
-        m_version = display->compositorVersion();
         connect(this, &QWaylandSurface::screensChanged,
                 m_pointer, &QWaylandInputDevice::Pointer::updateCursor);
     }
@@ -215,7 +213,7 @@ public:
     void update(wl_buffer *buffer, const QPoint &hotspot, const QSize &size, int bufferScale, bool animated = false)
     {
         // Calling code needs to ensure buffer scale is supported if != 1
-        Q_ASSERT(bufferScale == 1 || m_version >= 3);
+        Q_ASSERT(bufferScale == 1 || version() >= 3);
 
         auto enterSerial = m_pointer->mEnterSerial;
         if (m_setSerial < enterSerial || m_hotspot != hotspot) {
@@ -224,7 +222,7 @@ public:
             m_hotspot = hotspot;
         }
 
-        if (m_version >= 3)
+        if (version() >= 3)
             set_buffer_scale(bufferScale);
 
         attach(buffer, 0, 0);
@@ -250,7 +248,6 @@ public:
 private:
     QScopedPointer<WlCallback> m_frameCallback;
     QWaylandInputDevice::Pointer *m_pointer = nullptr;
-    uint m_version = 0;
     uint m_setSerial = 0;
     QPoint m_hotspot;
 };
@@ -270,9 +267,9 @@ int QWaylandInputDevice::Pointer::cursorSize() const
 
 int QWaylandInputDevice::Pointer::idealCursorScale() const
 {
-    // set_buffer_scale is not supported on earlier versions
-    if (seat()->mQDisplay->compositorVersion() < 3)
+    if (seat()->mQDisplay->compositor()->version() < 3) {
         return 1;
+    }
 
     if (auto *s = mCursor.surface.data()) {
         if (s->outputScale() > 0)
@@ -394,7 +391,7 @@ QWaylandInputDevice::Touch::Touch(QWaylandInputDevice *p)
 
 QWaylandInputDevice::Touch::~Touch()
 {
-    if (mParent->mVersion >= 3)
+    if (version() >= 3)
         wl_touch_release(object());
     else
         wl_touch_destroy(object());
@@ -404,7 +401,6 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, 
     : QtWayland::wl_seat(display->wl_registry(), id, qMin(version, 5))
     , mQDisplay(display)
     , mDisplay(display->wl_display())
-    , mVersion(qMin(version, 5))
 {
 #if QT_CONFIG(wayland_datadevice)
     if (mQDisplay->dndSelectionHandler()) {
@@ -901,7 +897,7 @@ void QWaylandInputDevice::Pointer::pointer_axis(uint32_t time, uint32_t axis, in
 
     mParent->mTime = time;
 
-    if (mParent->mVersion < WL_POINTER_FRAME_SINCE_VERSION) {
+    if (version() < WL_POINTER_FRAME_SINCE_VERSION) {
         qCDebug(lcQpaWaylandInput) << "Flushing new event; no frame event in this version";
         flushFrameEvent();
     }
@@ -1000,7 +996,7 @@ void QWaylandInputDevice::Pointer::setFrameEvent(QWaylandPointerEvent *event)
 
     mFrameData.event = event;
 
-    if (mParent->mVersion < WL_POINTER_FRAME_SINCE_VERSION) {
+    if (version() < WL_POINTER_FRAME_SINCE_VERSION) {
         qCDebug(lcQpaWaylandInput) << "Flushing new event; no frame event in this version";
         flushFrameEvent();
     }

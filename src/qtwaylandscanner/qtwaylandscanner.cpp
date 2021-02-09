@@ -1045,6 +1045,8 @@ bool Scanner::process()
             printf("\n");
             printf("        bool isInitialized() const;\n");
             printf("\n");
+            printf("        uint32_t version() const;");
+            printf("\n");
             printf("        static const struct ::wl_interface *interface();\n");
 
             printEnums(interface.enums);
@@ -1195,6 +1197,12 @@ bool Scanner::process()
             printf("    bool %s::isInitialized() const\n", interfaceName);
             printf("    {\n");
             printf("        return m_%s != nullptr;\n", interfaceName);
+            printf("    }\n");
+            printf("\n");
+
+            printf("    uint32_t %s::version() const\n", interfaceName);
+            printf("    {\n");
+            printf("        return wl_proxy_get_version(reinterpret_cast<wl_proxy*>(m_%s));\n", interfaceName);
             printf("    }\n");
             printf("\n");
 

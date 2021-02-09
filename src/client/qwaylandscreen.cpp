@@ -55,7 +55,6 @@ namespace QtWaylandClient {
 
 QWaylandXdgOutputManagerV1::QWaylandXdgOutputManagerV1(QWaylandDisplay* display, uint id, uint version)
     : QtWayland::zxdg_output_manager_v1(display->wl_registry(), id, qMin(3u, version))
-    , m_version(qMin(3u, version))
 {
 }
 

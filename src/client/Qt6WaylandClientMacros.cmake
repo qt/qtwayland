@@ -44,6 +44,7 @@ function(qt6_generate_wayland_protocol_client_sources target)
         add_custom_command(
             OUTPUT "${qtwaylandscanner_header_output}"
             COMMAND Qt6::qtwaylandscanner client-header "${protocol_file}" "${wayland_include_dir}" > "${qtwaylandscanner_header_output}"
+            DEPENDS ${protocol_file} Qt6::qtwaylandscanner
         )
 
         # TODO: We need this hack in order to get the xcomposite plugins to build...
@@ -61,6 +62,7 @@ function(qt6_generate_wayland_protocol_client_sources target)
         add_custom_command(
             OUTPUT "${qtwaylandscanner_code_output}"
             COMMAND Qt6::qtwaylandscanner client-code "${protocol_file}" --header-path='${wayland_include_dir}' --add-include='${qtwaylandscanner_code_include}' > "${qtwaylandscanner_code_output}"
+            DEPENDS ${protocol_file} Qt6::qtwaylandscanner
         )
 
         target_sources(${target} PRIVATE

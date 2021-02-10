@@ -162,6 +162,9 @@ public:
     bool newTexture = false;
     bool focusOnClick = true;
     bool belowParent = false;
+#if QT_CONFIG(opengl)
+    bool paintByProvider = false;
+#endif
     QPointF hoverPos;
     QMatrix4x4 lastMatrix;
 

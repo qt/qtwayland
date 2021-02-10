@@ -1341,6 +1341,14 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
             || bufferTypes[ref.bufferFormatEgl()].canProvideTexture
 #endif
     ) {
+#if QT_CONFIG(opengl)
+        if (oldNode && !d->paintByProvider) {
+            // Need to re-create a node
+            delete oldNode;
+            oldNode = nullptr;
+        }
+        d->paintByProvider = true;
+#endif
         // This case could covered by the more general path below, but this is more efficient (especially when using ShaderEffect items).
         QSGSimpleTextureNode *node = static_cast<QSGSimpleTextureNode *>(oldNode);
 
@@ -1370,6 +1378,13 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
 
 #if QT_CONFIG(opengl)
     Q_ASSERT(!d->provider);
+
+    if (oldNode && d->paintByProvider) {
+        // Need to re-create a node
+        delete oldNode;
+        oldNode = nullptr;
+    }
+    d->paintByProvider = false;
 
     QSGGeometryNode *node = static_cast<QSGGeometryNode *>(oldNode);
 

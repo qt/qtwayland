@@ -1420,10 +1420,18 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
                 QWaylandQuickSurface *waylandSurface = qobject_cast<QWaylandQuickSurface *>(surface());
                 if (waylandSurface != nullptr && waylandSurface->useTextureAlpha())
                     opt |= QQuickWindow::TextureHasAlphaChannel;
-                QSGTexture *scenegraphTexture = QNativeInterface::QSGOpenGLTexture::fromNative(texture->textureId(),
-                                                                                                 window(),
-                                                                                                 ref.size(),
-                                                                                                 opt);
+                QSGTexture *scenegraphTexture;
+                if (ref.bufferFormatEgl() == QWaylandBufferRef::BufferFormatEgl_EXTERNAL_OES) {
+                    scenegraphTexture = QNativeInterface::QSGOpenGLTexture::fromNativeExternalOES(texture->textureId(),
+                                                                                                     window(),
+                                                                                                     ref.size(),
+                                                                                                     opt);
+                } else {
+                    scenegraphTexture = QNativeInterface::QSGOpenGLTexture::fromNative(texture->textureId(),
+                                                                                                     window(),
+                                                                                                     ref.size(),
+                                                                                                     opt);
+                }
                 scenegraphTexture->setFiltering(smooth() ? QSGTexture::Linear : QSGTexture::Nearest);
                 material->setTextureForPlane(plane, texture, scenegraphTexture);
             }

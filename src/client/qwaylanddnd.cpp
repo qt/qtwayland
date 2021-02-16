@@ -66,7 +66,7 @@ void QWaylandDrag::startDrag()
 {
     QBasicDrag::startDrag();
     QWaylandWindow *icon = static_cast<QWaylandWindow *>(shapedPixmapWindow()->handle());
-    if (m_display->currentInputDevice()->dataDevice()->startDrag(drag()->mimeData(), icon)) {
+    if (m_display->currentInputDevice()->dataDevice()->startDrag(drag()->mimeData(), drag()->supportedActions(), icon)) {
         icon->addAttachOffset(-drag()->hotSpot());
     } else {
         // Cancelling immediately does not work, since the event loop for QDrag::exec is started
@@ -103,31 +103,31 @@ void QWaylandDrag::endDrag()
     m_display->currentInputDevice()->handleEndDrag();
 }
 
-void QWaylandDrag::updateTarget(const QString &mimeType)
+void QWaylandDrag::setResponse(bool accepted)
 {
-    setCanDrop(!mimeType.isEmpty());
-
-    if (canDrop()) {
-        updateCursor(defaultAction(drag()->supportedActions(), m_display->currentInputDevice()->modifiers()));
-    } else {
-        updateCursor(Qt::IgnoreAction);
-    }
+    // This method is used for old DataDevices where the drag action is not communicated
+    Qt::DropAction action = defaultAction(drag()->supportedActions(), m_display->currentInputDevice()->modifiers());
+    setResponse(QPlatformDropQtResponse(accepted, action));
 }
 
-void QWaylandDrag::setResponse(const QPlatformDragQtResponse &response)
+void QWaylandDrag::setResponse(const QPlatformDropQtResponse &response)
 {
     setCanDrop(response.isAccepted());
 
     if (canDrop()) {
-        updateCursor(defaultAction(drag()->supportedActions(), m_display->currentInputDevice()->modifiers()));
+        updateCursor(response.acceptedAction());
     } else {
         updateCursor(Qt::IgnoreAction);
     }
 }
 
-void QWaylandDrag::finishDrag(const QPlatformDropQtResponse &response)
+void QWaylandDrag::setDropResponse(const QPlatformDropQtResponse &response)
 {
     setExecutedDropAction(response.acceptedAction());
+}
+
+void QWaylandDrag::finishDrag()
+{
     QKeyEvent event(QEvent::KeyPress, Qt::Key_Escape, Qt::NoModifier);
     eventFilter(shapedPixmapWindow(), &event);
 }

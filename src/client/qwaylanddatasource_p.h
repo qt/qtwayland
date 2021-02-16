@@ -77,17 +77,25 @@ public:
     QMimeData *mimeData() const;
 
 Q_SIGNALS:
-    void targetChanged(const QString &mime_type);
     void cancelled();
+    void finished();
+
+    void dndResponseUpdated(bool accepted, Qt::DropAction action);
+    void dndDropped(bool accepted, Qt::DropAction action);
 
 protected:
     void data_source_cancelled() override;
     void data_source_send(const QString &mime_type, int32_t fd) override;
     void data_source_target(const QString &mime_type) override;
+    void data_source_dnd_drop_performed() override;
+    void data_source_dnd_finished() override;
+    void data_source_action(uint32_t action) override;
 
 private:
     QWaylandDisplay *m_display = nullptr;
     QMimeData *m_mime_data = nullptr;
+    bool m_accepted = false;
+    Qt::DropAction m_dropAction = Qt::IgnoreAction;
 };
 
 }

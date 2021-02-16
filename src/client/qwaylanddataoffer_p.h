@@ -82,6 +82,7 @@ public:
     explicit QWaylandDataOffer(QWaylandDisplay *display, struct ::wl_data_offer *offer);
     ~QWaylandDataOffer() override;
     QMimeData *mimeData() override;
+    Qt::DropActions supportedActions() const;
 
     QString firstFormat() const;
 
@@ -89,10 +90,13 @@ public:
 
 protected:
     void data_offer_offer(const QString &mime_type) override;
+    void data_offer_source_actions(uint32_t source_actions) override;
+    void data_offer_action(uint32_t dnd_action) override;
 
 private:
     QWaylandDisplay *m_display = nullptr;
     QScopedPointer<QWaylandMimeData> m_mimeData;
+    Qt::DropActions m_supportedActions;
 };
 
 

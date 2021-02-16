@@ -514,7 +514,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mInputDevices.append(inputDevice);
 #if QT_CONFIG(wayland_datadevice)
     } else if (interface == QLatin1String(QWaylandDataDeviceManager::interface()->name)) {
-        mDndSelectionHandler.reset(new QWaylandDataDeviceManager(this, id));
+        mDndSelectionHandler.reset(new QWaylandDataDeviceManager(this, version, id));
 #endif
     } else if (interface == QLatin1String(QtWayland::qt_surface_extension::interface()->name)) {
         mWindowExtension.reset(new QtWayland::qt_surface_extension(registry, id, 1));

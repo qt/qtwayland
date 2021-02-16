@@ -71,9 +71,10 @@ public:
     QWaylandDrag(QWaylandDisplay *display);
     ~QWaylandDrag() override;
 
-    void updateTarget(const QString &mimeType);
-    void setResponse(const QPlatformDragQtResponse &response);
-    void finishDrag(const QPlatformDropQtResponse &response);
+    void setResponse(bool accepted);
+    void setResponse(const QPlatformDropQtResponse &response);
+    void setDropResponse(const QPlatformDropQtResponse &response);
+    void finishDrag();
 
 protected:
     void startDrag() override;

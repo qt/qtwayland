@@ -64,6 +64,7 @@ QT_REQUIRE_CONFIG(wayland_datadevice);
 QT_BEGIN_NAMESPACE
 
 class QMimeData;
+class QPlatformDragQtResponse;
 class QWindow;
 
 namespace QtWaylandClient {
@@ -89,7 +90,7 @@ public:
 
 #if QT_CONFIG(draganddrop)
     QWaylandDataOffer *dragOffer() const;
-    bool startDrag(QMimeData *mimeData, QWaylandWindow *icon);
+    bool startDrag(QMimeData *mimeData, Qt::DropActions supportedActions, QWaylandWindow *icon);
     void cancelDrag();
 #endif
 
@@ -109,13 +110,16 @@ private Q_SLOTS:
 
 #if QT_CONFIG(draganddrop)
     void dragSourceCancelled();
-    void dragSourceTargetChanged(const QString &mimeType);
 #endif
 
 private:
 #if QT_CONFIG(draganddrop)
     QPoint calculateDragPosition(int x, int y, QWindow *wnd) const;
 #endif
+    void sendResponse(Qt::DropActions supportedActions, const QPlatformDragQtResponse &response);
+
+    static int dropActionsToWl(Qt::DropActions dropActions);
+
 
     QWaylandDisplay *m_display = nullptr;
     QWaylandInputDevice *m_inputDevice = nullptr;

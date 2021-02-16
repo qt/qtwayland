@@ -101,7 +101,32 @@ void QWaylandDataSource::data_source_send(const QString &mime_type, int32_t fd)
 
 void QWaylandDataSource::data_source_target(const QString &mime_type)
 {
-    Q_EMIT targetChanged(mime_type);
+    m_accepted = !mime_type.isEmpty();
+    Q_EMIT dndResponseUpdated(m_accepted, m_dropAction);
+}
+
+void QWaylandDataSource::data_source_action(uint32_t action)
+{
+    Qt::DropAction qtAction = Qt::IgnoreAction;
+
+    if (action == WL_DATA_DEVICE_MANAGER_DND_ACTION_MOVE)
+        qtAction = Qt::MoveAction;
+    else if (action == WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY)
+        qtAction = Qt::CopyAction;
+
+    m_dropAction = qtAction;
+    Q_EMIT dndResponseUpdated(m_accepted, m_dropAction);
+}
+
+void QWaylandDataSource::data_source_dnd_finished()
+{
+    Q_EMIT finished();
+}
+
+void QWaylandDataSource::data_source_dnd_drop_performed()
+{
+
+    Q_EMIT dndDropped(m_accepted, m_dropAction);
 }
 
 }

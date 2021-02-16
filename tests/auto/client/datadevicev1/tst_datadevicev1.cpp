@@ -35,7 +35,7 @@
 
 using namespace MockCompositor;
 
-constexpr int dataDeviceVersion = 1;
+constexpr int dataDeviceVersion = 3;
 
 class DataDeviceCompositor : public DefaultCompositor {
 public:

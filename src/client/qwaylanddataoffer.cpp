@@ -82,6 +82,15 @@ QMimeData *QWaylandDataOffer::mimeData()
     return m_mimeData.data();
 }
 
+Qt::DropActions QWaylandDataOffer::supportedActions() const
+{
+    if (version() < 3) {
+        return Qt::MoveAction | Qt::CopyAction;
+    }
+
+    return m_supportedActions;
+}
+
 void QWaylandDataOffer::startReceiving(const QString &mimeType, int fd)
 {
     receive(mimeType, fd);
@@ -91,6 +100,22 @@ void QWaylandDataOffer::startReceiving(const QString &mimeType, int fd)
 void QWaylandDataOffer::data_offer_offer(const QString &mime_type)
 {
     m_mimeData->appendFormat(mime_type);
+}
+
+void QWaylandDataOffer::data_offer_action(uint32_t dnd_action)
+{
+    Q_UNUSED(dnd_action);
+    // This is the compositor telling the drag target what action it should perform
+    // It does not map nicely into Qt final drop semantics, other than pretending there is only one supported action?
+}
+
+void QWaylandDataOffer::data_offer_source_actions(uint32_t source_actions)
+{
+    m_supportedActions = Qt::DropActions();
+    if (source_actions & WL_DATA_DEVICE_MANAGER_DND_ACTION_MOVE)
+        m_supportedActions |= Qt::MoveAction;
+    if (source_actions & WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY)
+        m_supportedActions |= Qt::CopyAction;
 }
 
 QWaylandMimeData::QWaylandMimeData(QWaylandAbstractDataOffer *dataOffer)

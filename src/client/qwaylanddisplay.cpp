@@ -162,13 +162,6 @@ QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
     if (!mXkbContext)
         qCWarning(lcQpaWayland, "failed to create xkb context");
 #endif
-
-    forceRoundTrip();
-
-    if (!mWaitingScreens.isEmpty()) {
-        // Give wl_output.done and zxdg_output_v1.done events a chance to arrive
-        forceRoundTrip();
-    }
 }
 
 QWaylandDisplay::~QWaylandDisplay(void)
@@ -191,6 +184,18 @@ QWaylandDisplay::~QWaylandDisplay(void)
 #endif
     if (mDisplay)
         wl_display_disconnect(mDisplay);
+}
+
+// Steps which is called just after constructor. This separates registry_global() out of the constructor
+// so that factory functions in integration can be overridden.
+void QWaylandDisplay::initialize()
+{
+    forceRoundTrip();
+
+    if (!mWaitingScreens.isEmpty()) {
+        // Give wl_output.done and zxdg_output_v1.done events a chance to arrive
+        forceRoundTrip();
+    }
 }
 
 void QWaylandDisplay::ensureScreen()

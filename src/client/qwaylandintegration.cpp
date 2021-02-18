@@ -189,8 +189,11 @@ QPlatformNativeInterface *QWaylandIntegration::createPlatformNativeInterface()
     return new QWaylandNativeInterface(this);
 }
 
+// Support platform specific initialization
 void QWaylandIntegration::initializePlatform()
 {
+    mDisplay->initialize();
+
     mNativeInterface.reset(createPlatformNativeInterface());
     initializeInputDeviceIntegration();
 #if QT_CONFIG(clipboard)
@@ -205,9 +208,6 @@ void QWaylandIntegration::initializePlatform()
 
 void QWaylandIntegration::initialize()
 {
-    // Support platform specicif initialization
-    initializePlatform();
-
     QAbstractEventDispatcher *dispatcher = QGuiApplicationPrivate::eventDispatcher;
     QObject::connect(dispatcher, SIGNAL(aboutToBlock()), mDisplay.data(), SLOT(flushRequests()));
     QObject::connect(dispatcher, SIGNAL(awake()), mDisplay.data(), SLOT(flushRequests()));
@@ -215,6 +215,9 @@ void QWaylandIntegration::initialize()
     int fd = wl_display_get_fd(mDisplay->wl_display());
     QSocketNotifier *sn = new QSocketNotifier(fd, QSocketNotifier::Read, mDisplay.data());
     QObject::connect(sn, SIGNAL(activated(QSocketDescriptor)), mDisplay.data(), SLOT(flushRequests()));
+
+    // Call after eventDispatcher is fully connected, for QWaylandDisplay::forceRoundTrip()
+    initializePlatform();
 
     // Qt does not support running with no screens
     mDisplay->ensureScreen();

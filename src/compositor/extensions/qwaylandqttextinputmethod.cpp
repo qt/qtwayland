@@ -123,7 +123,7 @@ void QWaylandQtTextInputMethodPrivate::text_input_method_v1_start_update(Resourc
 void QWaylandQtTextInputMethodPrivate::text_input_method_v1_update_hints(Resource *resource, int32_t hints)
 {
     if (this->resource == resource)
-        hints = Qt::InputMethodHints(hints);
+        this->hints = Qt::InputMethodHints(hints);
 }
 
 void QWaylandQtTextInputMethodPrivate::text_input_method_v1_update_anchor_position(Resource *resource, int32_t anchorPosition)

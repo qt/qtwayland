@@ -408,6 +408,8 @@ void QWaylandInputMethodContext::setFocusObject(QObject *)
                 m_currentWindow = window;
             }
         }
+
+        update(Qt::ImQueryAll);
     }
 }
 

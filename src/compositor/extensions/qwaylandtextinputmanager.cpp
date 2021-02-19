@@ -51,6 +51,8 @@ void QWaylandTextInputManagerPrivate::zwp_text_input_manager_v2_get_text_input(R
         textInput = new QWaylandTextInput(seat, compositor);
     }
     textInput->add(resource->client(), id, wl_resource_get_version(resource->handle));
+    if (!textInput->isInitialized())
+        textInput->initialize();
 }
 
 QWaylandTextInputManager::QWaylandTextInputManager()

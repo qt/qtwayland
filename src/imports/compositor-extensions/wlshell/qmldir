@@ -1,5 +1,0 @@
-module QtWayland.Compositor.WlShell
-plugin qwaylandcompositorwlshellplugin
-classname QWaylandCompositorWlShellPlugin
-typeinfo plugins.qmltypes
-typeinfo plugins.qmltypes

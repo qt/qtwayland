@@ -1,5 +1,0 @@
-module QtWayland.Compositor.XdgShell
-plugin qwaylandcompositorxdgshellplugin
-classname QWaylandCompositorXdgShellPlugin
-typeinfo plugins.qmltypes
-typeinfo plugins.qmltypes

@@ -1,4 +1,0 @@
-module QtWayland.Client.TextureSharing
-plugin qwaylandtexturesharing
-classname QWaylandTextureSharingPlugin
-typeinfo plugins.qmltypes

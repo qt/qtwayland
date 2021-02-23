@@ -82,6 +82,12 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandAbstractDecoration : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandAbstractDecoration)
 public:
+    enum MarginsType {
+        Full,
+        ShadowsExcluded,
+        ShadowsOnly
+    };
+
     QWaylandAbstractDecoration();
     ~QWaylandAbstractDecoration() override;
 
@@ -91,7 +97,8 @@ public:
     void update();
     bool isDirty() const;
 
-    virtual QMargins margins() const = 0;
+    virtual QMargins margins(MarginsType marginsType = Full) const = 0;
+
     QWindow *window() const;
     const QImage &contentImage();
 

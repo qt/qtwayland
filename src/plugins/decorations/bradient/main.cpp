@@ -73,7 +73,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandBradientDecoration : public QWaylandAbstra
 public:
     QWaylandBradientDecoration();
 protected:
-    QMargins margins() const override;
+    QMargins margins(MarginsType marginsType = Full) const override;
     void paint(QPaintDevice *device) override;
     bool handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,Qt::MouseButtons b,Qt::KeyboardModifiers mods) override;
     bool handleTouch(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods) override;
@@ -130,8 +130,11 @@ QRectF QWaylandBradientDecoration::minimizeButtonRect() const
                   (margins().top() - BUTTON_WIDTH) / 2, BUTTON_WIDTH, BUTTON_WIDTH);
 }
 
-QMargins QWaylandBradientDecoration::margins() const
+QMargins QWaylandBradientDecoration::margins(MarginsType marginsType) const
 {
+    if (marginsType == ShadowsOnly)
+        return QMargins();
+
     return QMargins(3, 30, 3, 3);
 }
 

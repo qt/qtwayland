@@ -369,7 +369,7 @@ void QWaylandWindow::setGeometry(const QRect &rect)
         sendExposeEvent(exposeGeometry);
 
     if (mShellSurface && isExposed())
-        mShellSurface->setWindowGeometry(windowContentGeometry());
+        mShellSurface->setWindowGeometry(QRect(QPoint(), surfaceSize()));
 
     if (isOpaque() && mMask.isEmpty())
         setOpaqueArea(rect);
@@ -697,7 +697,12 @@ QSize QWaylandWindow::surfaceSize() const
  */
 QRect QWaylandWindow::windowContentGeometry() const
 {
-    return QRect(QPoint(), surfaceSize());
+    QMargins shadowMargins;
+
+    if (mWindowDecoration)
+        shadowMargins = mWindowDecoration->margins(QWaylandAbstractDecoration::ShadowsOnly);
+
+    return QRect(QPoint(shadowMargins.left(), shadowMargins.right()), surfaceSize().shrunkBy(shadowMargins));
 }
 
 /*!

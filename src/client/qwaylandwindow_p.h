@@ -214,6 +214,7 @@ signals:
     void wlSurfaceDestroyed();
 
 protected:
+    virtual void doHandleFrameCallback();
     void sendExposeEvent(const QRect &rect);
 
     QWaylandDisplay *mDisplay = nullptr;

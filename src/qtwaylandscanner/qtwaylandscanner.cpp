@@ -637,7 +637,6 @@ bool Scanner::process()
             printf("        QMultiMap<struct ::wl_client*, Resource*> m_resource_map;\n");
             printf("        Resource *m_resource;\n");
             printf("        struct ::wl_global *m_global;\n");
-            printf("        uint32_t m_globalVersion;\n");
             printf("        struct DisplayDestroyedListener : ::wl_listener {\n");
             printf("            %s *parent;\n", interfaceName);
             printf("        };\n");
@@ -762,7 +761,6 @@ bool Scanner::process()
             printf("    void %s::init(struct ::wl_display *display, int version)\n", interfaceName);
             printf("    {\n");
             printf("        m_global = wl_global_create(display, &::%s_interface, version, this, bind_func);\n", interfaceName);
-            printf("        m_globalVersion = version;\n");
             printf("        m_displayDestroyedListener.notify = %s::display_destroy_func;\n", interfaceName);
             printf("        m_displayDestroyedListener.parent = this;\n");
             printf("        wl_display_add_destroy_listener(display, &m_displayDestroyedListener);\n");
@@ -794,7 +792,7 @@ bool Scanner::process()
             printf("    void %s::bind_func(struct ::wl_client *client, void *data, uint32_t version, uint32_t id)\n", interfaceName);
             printf("    {\n");
             printf("        %s *that = static_cast<%s *>(data);\n", interfaceName, interfaceName);
-            printf("        that->add(client, id, qMin(that->m_globalVersion, version));\n");
+            printf("        that->add(client, id, version);\n");
             printf("    }\n");
             printf("\n");
 

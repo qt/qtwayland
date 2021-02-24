@@ -1419,7 +1419,7 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
     d->lastMatrix = data->transformNode->combinedMatrix();
     const bool bufferHasContent = d->view->currentBuffer().hasContent();
 
-    if (d->view->isBufferLocked() && !bufferHasContent && d->paintEnabled)
+    if (d->view->isBufferLocked() && d->paintEnabled)
         return oldNode;
 
     if (!bufferHasContent || !d->paintEnabled || !surface()) {

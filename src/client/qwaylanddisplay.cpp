@@ -206,10 +206,11 @@ void QWaylandDisplay::checkError() const
     int ecode = wl_display_get_error(mDisplay);
     if ((ecode == EPIPE || ecode == ECONNRESET)) {
         // special case this to provide a nicer error
-        qFatal("The Wayland connection broke. Did the Wayland compositor die?");
+        qWarning("The Wayland connection broke. Did the Wayland compositor die?");
     } else {
-        qFatal("The Wayland connection experienced a fatal error: %s", strerror(ecode));
+        qWarning("The Wayland connection experienced a fatal error: %s", strerror(ecode));
     }
+    _exit(1);
 }
 
 void QWaylandDisplay::flushRequests()

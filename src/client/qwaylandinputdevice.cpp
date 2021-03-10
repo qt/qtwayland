@@ -1201,7 +1201,7 @@ void QWaylandInputDevice::Keyboard::handleKey(ulong timestamp, QEvent::Type type
     QPlatformInputContext *inputContext = QGuiApplicationPrivate::platformIntegration()->inputContext();
     bool filtered = false;
 
-    if (inputContext && !mParent->mQDisplay->usingInputContextFromCompositor()) {
+    if (inputContext) {
         QKeyEvent event(type, key, modifiers, nativeScanCode, nativeVirtualKey,
                         nativeModifiers, text, autorepeat, count);
         event.setTimestamp(timestamp);

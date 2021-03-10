@@ -474,12 +474,10 @@ void QWaylandIntegration::reconfigureInputContext()
 
 #if QT_CONFIG(xkbcommon)
     QXkbCommon::setXkbContext(mInputContext.data(), mDisplay->xkbContext());
+    if (QWaylandInputContext* waylandInput = qobject_cast<QWaylandInputContext*>(mInputContext.get())) {
+        waylandInput->setXkbContext(mDisplay->xkbContext());
+    }
 #endif
-
-    // Even if compositor-side input context handling has been requested, we fallback to
-    // client-side handling if compositor does not provide the text-input extension. This
-    // is why we need to check here which input context actually is being used.
-    mDisplay->mUsingInputContextFromCompositor = qobject_cast<QWaylandInputContext *>(mInputContext.data());
 
     qCDebug(lcQpaWayland) << "using input method:" << inputContext()->metaObject()->className();
 }

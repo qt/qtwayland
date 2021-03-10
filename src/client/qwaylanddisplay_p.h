@@ -178,8 +178,6 @@ public:
     QWaylandHardwareIntegration *hardwareIntegration() const { return mHardwareIntegration.data(); }
     QWaylandXdgOutputManagerV1 *xdgOutputManager() const { return mXdgOutputManager.data(); }
 
-    bool usingInputContextFromCompositor() const { return mUsingInputContextFromCompositor; }
-
     struct RegistryGlobal {
         uint32_t id;
         QString interface;
@@ -299,7 +297,6 @@ private:
     QReadWriteLock m_frameQueueLock;
 
     bool mClientSideInputContextRequested = !QPlatformInputContextFactory::requested().isNull();
-    bool mUsingInputContextFromCompositor = false;
 
     void registry_global(uint32_t id, const QString &interface, uint32_t version) override;
     void registry_global_remove(uint32_t id) override;

@@ -1450,6 +1450,8 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
 
         if (!node) {
             node = new QSGSimpleTextureNode();
+            if (smooth())
+                node->setFiltering(QSGTexture::Linear);
             d->newTexture = true;
         }
 

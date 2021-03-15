@@ -93,6 +93,72 @@
       \endlist
   \endlist
 
+  \section1 Running the Wayland compositor
+
+  As long as it does not depend on any unavailable platform-specific features, the compositor can
+  easily be tested on an X11-based desktop system. This can be useful during development, both for
+  simplified debugging and efficient turn-around on trying out new features.
+
+  Qt Wayland supports several backends for sharing graphics buffers between clients and the
+  server. The main ones are:
+
+  \list
+    \li \c{wayland-egl}: This is the default backend and should be preferred whenever possible.
+  However, it requires support in the OpenGL driver on the system for this to work.
+    \li \c{xcomposite-glx}: This uses the \c XComposite extension to the X11 display server for
+  sharing buffers. It requires that an X11 server is running on the system and that the xcb platform
+  plugin is used with the "GLX" backend. This is usually the default on X11 systems, but can be
+  forced by setting the \c QT_XCB_GL_INTEGRATION environment variable to "xcb_glx".
+    \li \c{xcomposite-egl}: This uses the \c XComposite extension to the X11 display server for
+  sharing buffers. It requires that an X11 server is running on the system and that the xcb platform
+  plugin is used with the "EGL" backend. This can be forced by setting \c QT_XCB_GL_INTEGRATION
+  environment variable to "xcb_egl".
+  \endlist
+
+  Select the backend by setting the \c QT_WAYLAND_CLIENT_BUFFER_INTEGRATION environment variable.
+
+  \note If Qt Wayland Compositor is unable to initialize the client buffer backend, then it will
+  fall back to using the "shared memory" backend (based on \c{wl_shm}) as a fail-safe. This backend
+  will use CPU memory for sharing the graphics buffers and copy the data back and forth as needed.
+  This has performance implications, especially on high density screens and limited graphics
+  hardware. When investigating performance issues with Qt Wayland Compositor, start by checking that
+  the correct client buffer integration is used.
+
+  Also bear in mind that if your system is already running a Wayland compositor, you may have to set
+  \c XDG_RUNTIME_DIR to point to a different location. If this is the case, you will see warnings
+  when starting the compositor. The \c XDG_RUNTIME_DIR can point to any accessible location which
+  is not already in use.
+
+  For instance, if you want to run the \l{Qt Wayland Compositor Examples - Pure QML}{pure-qml}
+  example with the \c wayland-egl backend, you could use the following command line:
+
+  \code
+  % XDG_RUNTIME_DIR=~/my_temporary_runtime QT_XCB_GL_INTEGRATION=xcb_egl QT_WAYLAND_CLIENT_BUFFER_INTEGRATION=wayland-egl ./pure-qml
+  \endcode
+
+  The client can subsequently be run on the compositor by setting the same \c XDG_RUNTIME_DIR and
+  by passing "-platform wayland" as a command line argument. The \c QT_QPA_PLATFORM environment
+  variable can also be used to select the Wayland QPA plugin on the client side.
+
+  \note In most cases, the client will adapt to the same OpenGL as the server when it connects.
+  However, when running with the EGL backend on some specific drivers, it is required that the
+  initialization happens earlier. If you encounter this problem, you may pass
+  "-platform wayland-egl" instead to pre-initialize the client to EGL.
+
+  \section1 Troubleshooting
+
+  Sometimes, when you are developing a complex compositor, you may encounter issues that require
+  further investigation.
+
+  Setting the \c WAYLAND_DEBUG environment variable to "1" will enable log output for the Wayland
+  library itself. This can be very useful, for example, when debugging custom extensions to the
+  Wayland protocol. It will show you exactly which events and requests are being passed between
+  the client and the server, as well as timestamps for these.
+
+  In addition, Qt has logging categories \c qt.waylandcompositor.* and \c qt.qpa.wayland.* to
+  enable additional logging. The latter should be set on the client side, as it enables logging
+  from the Wayland QPA plugin.
+
   \section1 Examples
 
   Take a look at the \l{Qt Wayland Compositor Examples} to learn how these APIs

@@ -208,16 +208,19 @@ void QWaylandIntegration::initializePlatform()
 
 void QWaylandIntegration::initialize()
 {
-    QAbstractEventDispatcher *dispatcher = QGuiApplicationPrivate::eventDispatcher;
-    QObject::connect(dispatcher, SIGNAL(aboutToBlock()), mDisplay.data(), SLOT(flushRequests()));
-    QObject::connect(dispatcher, SIGNAL(awake()), mDisplay.data(), SLOT(flushRequests()));
-
     int fd = wl_display_get_fd(mDisplay->wl_display());
     QSocketNotifier *sn = new QSocketNotifier(fd, QSocketNotifier::Read, mDisplay.data());
     QObject::connect(sn, SIGNAL(activated(QSocketDescriptor)), mDisplay.data(), SLOT(flushRequests()));
 
-    // Call after eventDispatcher is fully connected, for QWaylandDisplay::forceRoundTrip()
+    // Call this after eventDispatcher is connected with QSocketNotifier for QWaylandDisplay::forceRoundTrip()
     initializePlatform();
+
+    // But the aboutToBlock() and awake() should be connected after initializePlatform().
+    // Otherwise the connected flushRequests() may consumes up all events before processEvents starts to wait,
+    // so that processEvents(QEventLoop::WaitForMoreEvents) may be blocked in the forceRoundTrip().
+    QAbstractEventDispatcher *dispatcher = QGuiApplicationPrivate::eventDispatcher;
+    QObject::connect(dispatcher, SIGNAL(aboutToBlock()), mDisplay.data(), SLOT(flushRequests()));
+    QObject::connect(dispatcher, SIGNAL(awake()), mDisplay.data(), SLOT(flushRequests()));
 
     // Qt does not support running with no screens
     mDisplay->ensureScreen();

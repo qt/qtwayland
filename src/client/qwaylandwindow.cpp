@@ -374,7 +374,7 @@ void QWaylandWindow::setGeometry(const QRect &rect)
         sendExposeEvent(exposeGeometry);
 
     if (mShellSurface && isExposed())
-        mShellSurface->setWindowGeometry(QRect(QPoint(), surfaceSize()));
+        mShellSurface->setWindowGeometry(windowContentGeometry());
 
     if (isOpaque() && mMask.isEmpty())
         setOpaqueArea(rect);
@@ -383,6 +383,16 @@ void QWaylandWindow::setGeometry(const QRect &rect)
 void QWaylandWindow::resizeFromApplyConfigure(const QSize &sizeWithMargins, const QPoint &offset)
 {
     QMargins margins = frameMargins();
+
+    // Exclude shadows from margins once they are excluded from window geometry
+    // 1) First resizeFromApplyConfigure() call will have sizeWithMargins equal to surfaceSize()
+    //    which has full margins (shadows included).
+    // 2) Following resizeFromApplyConfigure() calls should have sizeWithMargins equal to
+    //    windowContentGeometry() which excludes shadows, therefore in this case we have to
+    //    exclude them too in order not to accidentally apply smaller size to the window.
+    if (mWindowDecoration && (sizeWithMargins != surfaceSize()))
+        margins = mWindowDecoration->margins(QWaylandAbstractDecoration::ShadowsExcluded);
+
     int widthWithoutMargins = qMax(sizeWithMargins.width() - (margins.left() + margins.right()), 1);
     int heightWithoutMargins = qMax(sizeWithMargins.height() - (margins.top() + margins.bottom()), 1);
     QRect geometry(windowGeometry().topLeft(), QSize(widthWithoutMargins, heightWithoutMargins));
@@ -708,7 +718,7 @@ QRect QWaylandWindow::windowContentGeometry() const
     if (mWindowDecoration)
         shadowMargins = mWindowDecoration->margins(QWaylandAbstractDecoration::ShadowsOnly);
 
-    return QRect(QPoint(shadowMargins.left(), shadowMargins.right()), surfaceSize().shrunkBy(shadowMargins));
+    return QRect(QPoint(shadowMargins.left(), shadowMargins.top()), surfaceSize().shrunkBy(shadowMargins));
 }
 
 /*!

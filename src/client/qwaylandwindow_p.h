@@ -215,6 +215,7 @@ signals:
 
 protected:
     virtual void doHandleFrameCallback();
+    virtual QRect defaultGeometry() const;
     void sendExposeEvent(const QRect &rect);
 
     QWaylandDisplay *mDisplay = nullptr;

@@ -194,7 +194,7 @@ void QWaylandWindow::initWindow()
     setWindowFlags(window()->flags());
     QRect geometry = windowGeometry();
     if (geometry.isEmpty())
-        setGeometry_helper(QRect(QPoint(), QSize(500,500)));
+        setGeometry_helper(defaultGeometry());
     else
         setGeometry_helper(geometry);
     setMask(window()->mask());
@@ -327,6 +327,11 @@ void QWaylandWindow::setWindowIcon(const QIcon &icon)
 
     if (mWindowDecoration && window()->isVisible())
         mWindowDecoration->update();
+}
+
+QRect QWaylandWindow::defaultGeometry() const
+{
+    return QRect(QPoint(), QSize(500,500));
 }
 
 void QWaylandWindow::setGeometry_helper(const QRect &rect)

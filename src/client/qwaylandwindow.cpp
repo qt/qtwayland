@@ -1107,6 +1107,21 @@ bool QWaylandWindow::setMouseGrabEnabled(bool grab)
     return true;
 }
 
+QWaylandWindow::ToplevelWindowTilingStates QWaylandWindow::toplevelWindowTilingStates() const
+{
+    return mLastReportedToplevelWindowTilingStates;
+}
+
+void QWaylandWindow::handleToplevelWindowTilingStatesChanged(ToplevelWindowTilingStates states)
+{
+    mLastReportedToplevelWindowTilingStates = states;
+}
+
+Qt::WindowStates QWaylandWindow::windowStates() const
+{
+    return mLastReportedWindowStates;
+}
+
 void QWaylandWindow::handleWindowStatesChanged(Qt::WindowStates states)
 {
     createDecoration();

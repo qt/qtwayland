@@ -95,6 +95,15 @@ public:
         Vulkan
     };
 
+    enum ToplevelWindowTilingState {
+        WindowNoState = 0,
+        WindowTiledLeft = 1,
+        WindowTiledRight = 2,
+        WindowTiledTop = 4,
+        WindowTiledBottom = 8
+    };
+    Q_DECLARE_FLAGS(ToplevelWindowTilingStates, ToplevelWindowTilingState)
+
     QWaylandWindow(QWindow *window, QWaylandDisplay *display);
     ~QWaylandWindow() override;
 
@@ -145,6 +154,10 @@ public:
     void handleContentOrientationChange(Qt::ScreenOrientation orientation) override;
     void setOrientationMask(Qt::ScreenOrientations mask);
 
+    ToplevelWindowTilingStates toplevelWindowTilingStates() const;
+    void handleToplevelWindowTilingStatesChanged(ToplevelWindowTilingStates states);
+
+    Qt::WindowStates windowStates() const;
     void setWindowState(Qt::WindowStates states) override;
     void setWindowFlags(Qt::WindowFlags flags) override;
     void handleWindowStatesChanged(Qt::WindowStates states);
@@ -260,6 +273,7 @@ protected:
     QRegion mMask;
     QRegion mOpaqueArea;
     Qt::WindowStates mLastReportedWindowStates = Qt::WindowNoState;
+    ToplevelWindowTilingStates mLastReportedToplevelWindowTilingStates = WindowNoState;
 
     QWaylandShmBackingStore *mBackingStore = nullptr;
     QWaylandBuffer *mQueuedBuffer = nullptr;
@@ -294,6 +308,8 @@ private:
 
     friend class QWaylandSubSurface;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QWaylandWindow::ToplevelWindowTilingStates)
 
 inline QIcon QWaylandWindow::windowIcon() const
 {

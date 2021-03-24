@@ -263,6 +263,12 @@ public:
 
     struct ::wl_keyboard *wl_keyboard() { return QtWayland::wl_keyboard::object(); }
 
+#if QT_CONFIG(xkbcommon)
+    virtual int keysymToQtKey(xkb_keysym_t keysym, Qt::KeyboardModifiers modifiers, xkb_state *state, xkb_keycode_t code) {
+        return QXkbCommon::keysymToQtKey(keysym, modifiers, state, code);
+    }
+#endif
+
 private slots:
     void handleFocusDestroyed();
     void handleFocusLost();

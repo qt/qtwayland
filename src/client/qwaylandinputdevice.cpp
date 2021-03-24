@@ -1268,7 +1268,7 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
 
         Qt::KeyboardModifiers modifiers = mParent->modifiers();
 
-        int qtkey = QXkbCommon::keysymToQtKey(sym, modifiers, mXkbState.get(), code);
+        int qtkey = keysymToQtKey(sym, modifiers, mXkbState.get(), code);
         QString text = QXkbCommon::lookupString(mXkbState.get(), code);
 
         QEvent::Type type = isDown ? QEvent::KeyPress : QEvent::KeyRelease;

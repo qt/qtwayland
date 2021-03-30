@@ -7,6 +7,7 @@
 qt_get_tool_target_name(target_name qtwaylandscanner)
 qt_internal_add_tool(${target_name}
     TOOLS_TARGET WaylandScanner # special case
+    INSTALL_DIR "${INSTALL_LIBEXECDIR}"
     SOURCES
         qtwaylandscanner.cpp
 )

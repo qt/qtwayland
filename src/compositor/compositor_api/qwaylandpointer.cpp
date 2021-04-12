@@ -92,7 +92,6 @@ void QWaylandPointerPrivate::sendLeave()
         send_leave(resource->handle, serial, enteredSurface->resource());
     localPosition = QPointF();
     enteredSurfaceDestroyListener.reset();
-    seat->cursorSurfaceRequested(nullptr, 0, 0, QWaylandClient::fromWlClient(compositor(), enteredSurface->waylandClient()));
     enteredSurface = nullptr;
 }
 

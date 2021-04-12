@@ -39,5 +39,16 @@
     In this topic we summarize those changes in Qt Wayland Compositor, and
     provide guidance to handle them.
 
-    \section1 ADD STUFF HERE
+    \section1 Import of Shell Classes
+
+    In Qt 5, a few auxiliary classes were available through the Qt Wayland
+    Compositor namespace. In order to improve the logical separation of
+    these from the primary functionality of the compositor, they have been
+    moved into separate imports in Qt 6.
+
+    \list
+      \li \l WlShell types are now available in \c QtWayland.Compositor.WlShell
+      \li \l XdgShell types are now available in \c QtWayland.Compositor.XdgShell
+      \li \l IviApplication types are now available in \c QtWayland.Compositor.IviApplication
+    \endlist
 */

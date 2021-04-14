@@ -241,8 +241,3 @@ qt_configure_add_summary_entry(ARGS "wayland-client-ivi-shell")
 qt_configure_add_summary_entry(ARGS "wayland-client-wl-shell")
 qt_configure_end_summary_section() # end of "Qt Wayland Client Shell Integrations" section
 qt_configure_add_summary_entry(ARGS "wayland-client")
-qt_configure_add_report_entry(
-    TYPE NOTE
-    MESSAGE "No wayland-egl support detected. Cross-toolkit compatibility disabled."
-    CONDITION NOT Wayland_FOUND
-)

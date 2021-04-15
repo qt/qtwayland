@@ -6,7 +6,7 @@
 
 qt_internal_add_qml_module(qwaylandtexturesharing
     URI "QtWayland.Client.TextureSharing"
-    VERSION "1.${CMAKE_PROJECT_VERSION_MINOR}"
+    VERSION "1.${PROJECT_VERSION_MINOR}"
     CLASSNAME QWaylandTextureSharingPlugin
     SKIP_TYPE_REGISTRATION
     SOURCES

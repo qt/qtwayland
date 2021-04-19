@@ -39,6 +39,7 @@ QT_BEGIN_NAMESPACE
 
 /*!
  * \qmltype IviApplication
+ * \instantiates QWaylandIviApplication
  * \inqmlmodule QtWayland.Compositor.IviApplication
  * \since 5.8
  * \brief Provides a shell extension for embedded-style user interfaces.

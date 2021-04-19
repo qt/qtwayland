@@ -1204,6 +1204,9 @@ void QWaylandWindow::handleUpdate()
         return;
 
     if (mFrameCallback) {
+        if (!isExposed())
+            return;
+
         wl_callback_destroy(mFrameCallback);
         mFrameCallback = nullptr;
     }

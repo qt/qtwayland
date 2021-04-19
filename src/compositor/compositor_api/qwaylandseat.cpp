@@ -136,6 +136,7 @@ void QWaylandSeatPrivate::seat_get_touch(wl_seat::Resource *resource, uint32_t i
 
 /*!
  * \qmltype WaylandSeat
+ * \instantiates QWaylandSeat
  * \inqmlmodule QtWayland.Compositor
  * \since 5.8
  * \brief Provides access to keyboard, mouse, and touch input.

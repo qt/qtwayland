@@ -56,6 +56,7 @@ void QWaylandQtTextInputMethodManagerPrivate::text_input_method_manager_v1_get_t
 
 /*!
   \qmltype QtTextInputMethodManager
+  \instantiates QWaylandQtTextInputMethodManager
   \inqmlmodule QtWayland.Compositor
   \since 6.0
   \brief Provides access to input methods in the compositor.

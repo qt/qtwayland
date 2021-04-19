@@ -52,6 +52,7 @@ QWaylandQuickShellSurfaceItem *QWaylandQuickShellSurfaceItemPrivate::maybeCreate
 
 /*!
  * \qmltype ShellSurfaceItem
+ * \instantiates QWaylandQuickShellSurfaceItem
  * \inherits WaylandQuickItem
  * \inqmlmodule QtWayland.Compositor
  * \since 5.8

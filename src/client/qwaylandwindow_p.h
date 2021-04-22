@@ -287,7 +287,7 @@ private:
 
     static QWaylandWindow *mMouseGrab;
 
-    QReadWriteLock mSurfaceLock;
+    mutable QReadWriteLock mSurfaceLock;
 
     friend class QWaylandSubSurface;
 };

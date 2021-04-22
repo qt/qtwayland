@@ -408,8 +408,10 @@ bool QWaylandInputContext::isValid() const
 void QWaylandInputContext::reset()
 {
     qCDebug(qLcQpaInputMethods) << Q_FUNC_INFO;
+#if QT_CONFIG(xkbcommon)
     if (m_composeState)
         xkb_compose_state_reset(m_composeState);
+#endif
 
     QPlatformInputContext::reset();
 

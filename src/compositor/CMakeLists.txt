@@ -4,15 +4,7 @@
 ## WaylandCompositor Module:
 #####################################################################
 
-# special case begin
-set(__qt_wayland_compositor_module_args "")
-if(QT_FEATURE_wayland_compositor_quick)
-    list(APPEND __qt_wayland_compositor_module_args "GENERATE_METATYPES")
-endif()
-# special case end
-
 qt_internal_add_module(WaylandCompositor
-    ${__qt_wayland_compositor_module_args} # special case
     PLUGIN_TYPES wayland-graphics-integration-server wayland-hardware-layer-integration
     SOURCES
         ../shared/qwaylandinputmethodeventbuilder.cpp ../shared/qwaylandinputmethodeventbuilder_p.h

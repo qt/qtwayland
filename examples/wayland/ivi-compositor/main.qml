@@ -54,6 +54,7 @@ import QtWayland.Compositor.IviApplication
 import QtQuick.Window
 
 WaylandCompositor {
+    //! [wayland output]
     WaylandOutput {
         sizeFollowsWindow: true
         window: Window {
@@ -84,18 +85,22 @@ WaylandCompositor {
             }
         }
     }
+    //! [wayland output]
     Component {
         id: chromeComponent
         ShellSurfaceItem {
             anchors.fill: parent
             onSurfaceDestroyed: destroy()
+            //! [resizing]
             onWidthChanged: handleResized()
             onHeightChanged: handleResized()
             function handleResized() {
                 shellSurface.sendConfigure(Qt.size(width, height));
             }
+            //! [resizing]
         }
     }
+    //! [connecting]
     IviApplication {
         onIviSurfaceCreated: {
             var surfaceArea = iviSurface.iviId === 1337 ? leftArea : rightArea;
@@ -103,4 +108,5 @@ WaylandCompositor {
             item.handleResized();
         }
     }
+    //! [connecting]
 }

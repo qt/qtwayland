@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the documentation of the Qt Toolkit.
@@ -31,14 +31,105 @@
  * \brief IVI Compositor is an example that demonstrates how to use the IviApplication extension.
  * \ingroup qtwaylandcompositor-examples
  *
- * IVI Compositor is a Wayland compositor example demonstrating how to create a
- * compositor supporting the \c ivi-application protocol.
+ * \section1 Introduction
  *
- * IVI application windows with the id 1337 will be resized to cover one half
- * of the screen, while all other windows will be resized to cover the other
- * half.
+ * This example demonstrates using the \l IviApplication shell extension in a Wayland display
+ * server (also known as a Wayland compositor).
  *
- * To start a Qt application using the \c ivi-application protocol with the
- * right id, you need to set QT_WAYLAND_SHELL_INTEGRATION to ivi-shell and
- * QT_IVI_SURFACE_ID to 1337.
+ * For an introduction to the basic principles of creating a \l{Qt Wayland Compositor} with Qt,
+ * see the \l{Qt Wayland Compositor Examples - Minimal QML}{Minimal QML example}.
+ *
+ * \section1 The Protocol
+ *
+ * \l IviApplication is a \l{Shell Extensions - Qt Wayland Compositor}{shell extension} that was
+ * designed specifically for making In-vehice Infotainment systems.
+ *
+ * It is a minimalistic protocol, and only provides the following functionality:
+ *
+ * \list 1
+ *   \li The client can identify itself with an \e{IVI-id}.
+ *   \li The server can request that the client resizes itself.
+ * \endlist
+ *
+ * \section2 The Identification Numbers
+ *
+ * In a typical \l IviApplication setup, you will have a predefined set of applications that can
+ * connect to the server. Since these applications are already known when the system is designed,
+ * they can be assigned hardcoded numbers that identify them. Given that the client and server
+ * agree on these numbers ahead of time, semantics can be built into the ID numbers.
+ *
+ * For instance, if a client identifies itself as the navigation application, the server can
+ * recognize this and allocate a large, centered part of the screen for its window. An application
+ * identifying itself as a clock, on the other hand, might be delegated to a smaller area in the
+ * margins of the screen.
+ *
+ * By default, Qt applications will advertise their system PIDs ("process IDs") as the \e{IVI-id}.
+ * The client can override this by setting \c{QT_IVI_SURFACE_ID} in its environment before
+ * connecting to the server.
+ *
+ * \section1 The Example
+ *
+ * A Qt Wayland Compositor may support multiple shell extensions at once, but the
+ * \e{IVICompositor example} only supports the \l IVIApplication protocol. This means that the
+ * clients have to also support this shell extension in order to connect to the server.
+ *
+ * The compositor window in the example is split into two horizontally: A left area which is
+ * designated for a specialized application with the id "1337", and a right area which is for all
+ * other applications.
+ *
+ * \image ivi-compositor-1.png
+ *
+ * \section2 Creating the Layout
+ *
+ * The layout of the window is created inside a \l WaylandOutput. This typically corresponds to
+ * a physical screen available to the compositor. If a single \l WaylandOutput is created, as in
+ * the \e{IVICompositor example}, it will usually correspond to the primary screen.
+ *
+ * \snippet ivi-compositor/main.qml wayland output
+ *
+ * The code creates a \l WaylandOutput for the screen and creates a \l Window on this as the top
+ * level container of all compositor contents. Inside this window, it creates two rectangles that
+ * will serve as containers for applications as they connect.
+ *
+ * \section2 Connecting Clients
+ *
+ * If no additional configuration has been done, a Qt application will connect with an \e{IVI-id}
+ * equal to its process ID. For instance, if we run the \l{Wiggly Example} with
+ * \c{-platform wayland}, it will be delegated to the right-hand side of the layout, granted that
+ * its ID is different from "1337".
+ *
+ * \image ivi-compositor-2.png
+ *
+ * However, if we set the \c{QT_IVI_SURFACE_ID} environment variable to "1337" before starting
+ * the example, it will be delegated to the left-hand side of the layout.
+ *
+ * \image ivi-compositor-3.png
+ *
+ * When a client connects to the \c IVIApplication interface, it will emit the \c{iviSurfaceCreated}
+ * signal. This is where the positioning of the application's surface is handled.
+ *
+ * \snippet ivi-compositor/main.qml connecting
+ *
+ * The \c{iviSurfaceCreated} signal receives an \l IviSurface argument which can be used to access
+ * the client's ID. The compositor then creates a \l ShellSurfaceItem for the surface (as defined by
+ * the \c chromeComponent). \c ShellSurfaceItem is the class used for placing shell surfaces into
+ * the Qt Quick scene, and you will see this same pattern in all the Qt Wayland Compositor examples.
+ *
+ * What makes the \e{IVICompositor example} special is that it checks the \c iviId property of the
+ * incoming shell surface and decides on a parent for the \l ShellSurfaceItem depending on what
+ * this is. If the ID is equal to "1337" it will be parented to the \c leftArea, and if not it will
+ * be in the \c rightArea.
+ *
+ * The implementation of the \l ShellSurfaceItem handles resizing by informing the client whenever
+ * the size changes (which can happen if the compositor is running inside a desktop-style windowing
+ * system and its window is resized).
+ *
+ * \snippet ivi-compositor/main.qml resizing
+ *
+ * The \c{sendConfigure()} method is defined in \l IviSurface and will send an event to the client.
+ * The client will receive a resize event with the new size, so it can relayout its contents.
+ *
+ * If multiple applications connect to the same area in the layout, they will simply be stacked
+ * according to normal Qt Quick ordering rules. There are no built-in mechanisms for closing
+ * applications or managing state, but this can easily be added as ordinary Qt Quick code.
  */

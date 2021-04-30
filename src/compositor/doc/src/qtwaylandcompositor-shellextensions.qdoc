@@ -1,0 +1,72 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+    \page qtwaylandcompositor-shellextensions.html
+    \title Shell Extensions - Qt Wayland Compositor
+
+    In Wayland, \e{shells} are extensions which provide \e{surface semantics}. This means that they
+    provide ways for the server and client to communicate about surfaces. Surfaces, in this context,
+    are often also referred to as "windows", which is typically the representation of the surface in
+    the compositor.
+
+    Shell extensions provide tools for the client and server to communicate about certain things:
+    \list
+      \li They can provide a way for the client to inform the server about the purpose of a surface:
+          Is it a tool-tip, a pop-up menu, or a regular application window, for instance? Based on
+          this, the server can decide on the geometry of the window and how the user can interact
+          with it.
+      \li They can also provide protocols for manipulating the surface, such as resizing, moving,
+          and hiding them.
+    \endlist
+
+    Like other extensions, support for shells is added to a compositor by instantiating them
+    as direct children of the \l WaylandCompositor top-level object. The shell extensions supported
+    by Qt are: \l{WlShell}, \l{XdgShell} and \l{IviApplication}.
+
+    \list
+      \li \l XdgShell is an appropriate shell for desktop-style systems, where any number of
+          applications can connect and where windows can be manually resized and repositioned by
+          the user.
+      \li \l IviApplication is a minimalistic protocol, originally intended for In-vehicle
+          Infotainment systems. It is useful for embedded systems, where a pre-defined set of
+          applications can run, often with pre-assigned screen real estate. For some more details
+          on this protocol, see the
+          \l{Qt Wayland Compositor Examples - IVI Compositor}{IVI Compositor example}.
+      \li \l WlShell is mostly useful for compatibility with third-party applications. This is also
+          a desktop-style shell, but it has been deprecated and replaced by \l XdgShell.
+    \endlist
+
+    When designing an embedded system from the bottom up, there are no rules determining which
+    shell extension to use. It will typically be either \l XdgShell or \l{IviApplication}. The
+    decision should be influenced by what features the system will need, and whether there are
+    applications involved which are not written in Qt and which have their own requirements.
+
+    A Qt Wayland Compositor can also support multiple shell extensions at once. See the
+    \l{Qt Wayland Compositor Examples - Minimal QML}{Minimal QML example} for an example where
+    all three shell extensions listed above are supported.
+*/

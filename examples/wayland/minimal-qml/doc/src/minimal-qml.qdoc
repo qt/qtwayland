@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the documentation of the Qt Toolkit.
@@ -32,5 +32,85 @@
  * \ingroup qtwaylandcompositor-examples
  *
  * Minimal QML is a desktop-style Wayland compositor example implementing a
- * complete Qt Wayland Compositor with as little code as possible.
+ * complete Qt Wayland Compositor with as little code as possible. The compositor is implemented
+ * with Qt Quick and QML.
+ *
+ * \image minimal-qml.png
+ *
+ * \section1 The WaylandCompositor Object
+ *
+ * The top-level item of the compositor is a \l WaylandCompositor. This represents the Wayland
+ * server itself and manages the connections to clients as they come in.
+ *
+ * \snippet minimal-qml/main.qml compositor
+ *
+ * By default, the server supports the core Wayland protocol for communicating with clients.
+ * Usually, though, you will also want to support one or more extensions to the protocol. This
+ * gives the client more tools to influence its role in the windowing system.
+ *
+ * Qt supports several standard and common extensions. In addition, it is easy to create and support
+ * custom extensions, as long as support can be added in both the client and server code.
+ *
+ * \section1 Shell Extensions
+ *
+ * Typically, a compositor will support at least one
+ * \l{Shell Extensions - Qt Wayland Compositor}{shell extension}. Extensions are added to
+ * the compositor by instantiating them as direct children of the \l WaylandCompositor object. They
+ * will automatically be added to its \c extensions property and broadcast to clients when they
+ * connect.
+ *
+ * \snippet minimal-qml/main.qml shells
+ *
+ * The \e{Minimal QML} example supports three different shells: \l{WlShell}, \l{XdgShell} and
+ * \l{IviApplication}.
+ *
+ * A client can connect to either of these and it will be used as a channel for communicating
+ * about certain things between the client and compositor, such as creating new windows,
+ * negotiating size, and so on.
+ *
+ * When a client creates a new surface, its active extension will receive a signal of this. The
+ * signal contains a \l ShellSurface argument. Depending on which extension received the signal,
+ * this argument will be of a subclass of \l{ShellSurface}: \l{WlShellSurface}, \l{XdgSurface}
+ * or \l{IviSurface} respectively.
+ *
+ * The \l ShellSurface can be used to access features of the shell extension for the specific
+ * surface. In the \e{Minimal QML} example, we simply want to add the client to our scene. To
+ * record existence of the new window, we add it to a simple \l ListModel for safe-keeping.
+ *
+ * \snippet minimal-qml/main.qml model
+ *
+ * \section1 Creating the Scene
+ *
+ * Most of the necessary compositor code is already ready. The final step is to make sure
+ * applications are actually visible on the screen.
+ *
+ * For all compositors, we have to define at least one output. This is done by instantiating
+ * a \l WaylandOutput object as the direct child of the \l WaylandCompositor. If there is only
+ * a single output, this will represent the primary screen on the system. (You may also create
+ * multiple \l WaylandOutput objects to address multiple screens if they are available. See
+ * the \l{Qt Wayland Compositor Examples - Multi Screen}{Multi Screen example} for more details
+ * about this.)
+ *
+ * \snippet minimal-qml/main.qml output
+ *
+ * Inside the \l{WaylandOutput}, we create a \l Window that serves as the container for
+ * our scene. In the example, we give this a size. The size used if the compositor is running as
+ * an application inside another windowing system which supports custom-sized windows. In a
+ * typical use case on an embedded device, where the compositor is the only display server running,
+ * it will probably be running on a full-screen platform plugin (such as \c{eglfs}) and the size
+ * set here will not matter.
+ *
+ * The final step is to create items for each of the \l ShellSurface objects that have been created.
+ * For this, we can use the \l ShellSurfaceItem class.
+ *
+ * \snippet minimal-qml/main.qml shell surface item
+ *
+ * We create a \l ShellSurfaceItem for each of the shell surfaces in our model, and assign them
+ * to the \c shellSurface property. In addition, we make sure the model is updated when the shell
+ * surface is destroyed. This can happen when a client manually closes a window, and if it exits
+ * or crashes.
+ *
+ * And this is all the code needed to create a functional Wayland compositor using Qt Quick and
+ * QML. For another example of a compositor written in QML but which has a few more features, take
+ * a look at the \l{Qt Wayland Compositor Examples - Pure QML}{Pure QML example}.
  */

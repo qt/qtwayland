@@ -55,14 +55,21 @@ import QtWayland.Compositor.XdgShell
 import QtWayland.Compositor.WlShell
 import QtWayland.Compositor.IviApplication
 
+//! [compositor]
 WaylandCompositor {
+//! [compositor]
     // The output defines the screen.
+
+    //! [output]
     WaylandOutput {
         sizeFollowsWindow: true
         window: Window {
             width: 1024
             height: 768
             visible: true
+    //! [output]
+
+            //! [shell surface item]
             Repeater {
                 model: shellSurfaces
                 // ShellSurfaceItem handles displaying a shell surface.
@@ -74,13 +81,17 @@ WaylandCompositor {
                     onSurfaceDestroyed: shellSurfaces.remove(index)
                 }
             }
+            //! [shell surface item]
         }
     }
+
     // Extensions are additions to the core Wayland
     // protocol. We choose to support three different
     // shells (window management protocols). When the
     // client creates a new shell surface (i.e. a window)
     // we append it to our list of shellSurfaces.
+
+    //! [shells]
     WlShell {
         onWlShellSurfaceCreated:
             shellSurfaces.append({shellSurface: shellSurface});
@@ -94,5 +105,9 @@ WaylandCompositor {
             shellSurfaces.append({shellSurface: iviSurface});
         }
     }
+    //! [shells]
+
+    //! [model]
     ListModel { id: shellSurfaces }
+    //! [model]
 }

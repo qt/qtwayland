@@ -105,8 +105,6 @@ void QWaylandXdgSurface::Toplevel::applyConfigure()
         m_xdgSurface->m_window->resizeFromApplyConfigure(m_pending.size);
     }
 
-    m_xdgSurface->setSizeHints();
-
     m_applied = m_pending;
     qCDebug(lcQpaWayland) << "Applied pending xdg_toplevel configure event:" << m_applied.size << m_applied.states;
 }
@@ -257,6 +255,7 @@ QWaylandXdgSurface::QWaylandXdgSurface(QWaylandXdgShell *shell, ::xdg_surface *s
                 m_toplevel->set_parent(parentXdgSurface->m_toplevel->object());
         }
     }
+    setSizeHints();
 }
 
 QWaylandXdgSurface::~QWaylandXdgSurface()

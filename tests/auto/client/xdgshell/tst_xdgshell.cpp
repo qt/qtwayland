@@ -506,7 +506,7 @@ void tst_xdgshell::minMaxSize()
     window.show();
     QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
 
-    exec([=] { xdgToplevel()->sendCompleteConfigure(); });
+    // we don't roundtrip with our configuration the initial commit should be correct
 
     QCOMPOSITOR_TRY_COMPARE(xdgToplevel()->m_committed.minSize, QSize(100, 100));
     QCOMPOSITOR_TRY_COMPARE(xdgToplevel()->m_committed.maxSize, QSize(1000, 1000));

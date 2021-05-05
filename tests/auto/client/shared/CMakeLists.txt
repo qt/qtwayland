@@ -8,6 +8,7 @@ add_library(SharedClientTest
         coreprotocol.cpp coreprotocol.h
         datadevice.cpp datadevice.h
         fullscreenshellv1.cpp fullscreenshellv1.h
+        iviapplication.cpp iviapplication.h
         mockcompositor.cpp mockcompositor.h
         textinput.cpp textinput.h
         xdgoutputv1.cpp xdgoutputv1.h
@@ -19,6 +20,7 @@ set_property(TARGET SharedClientTest PROPERTY AUTOMOC ON)
 qt6_generate_wayland_protocol_server_sources(SharedClientTest
     FILES
         ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/fullscreen-shell-unstable-v1.xml
+        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/ivi-application.xml
         ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/wp-primary-selection-unstable-v1.xml
         ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/tablet-unstable-v2.xml
         ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/text-input-unstable-v2.xml

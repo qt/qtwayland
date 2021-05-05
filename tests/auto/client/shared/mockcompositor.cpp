@@ -1,5 +1,6 @@
 /****************************************************************************
 **
+** Copyright (C) 2021 David Edmundson <davidedmundson@kde.org>
 ** Copyright (C) 2018 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
@@ -45,6 +46,8 @@ DefaultCompositor::DefaultCompositor()
         add<XdgWmBase>();
         add<Shm>();
         add<FullScreenShellV1>();
+        add<IviApplication>();
+
         // TODO: other shells, viewporter, xdgoutput etc
 
         QObject::connect(get<WlCompositor>(), &WlCompositor::surfaceCreated, [&] (Surface *surface){

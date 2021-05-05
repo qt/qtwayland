@@ -1,5 +1,7 @@
 # Generated from client.pro.
 
+add_subdirectory(shared)
+
 add_subdirectory(client)
 add_subdirectory(datadevicev1)
 add_subdirectory(fullscreenshellv1)

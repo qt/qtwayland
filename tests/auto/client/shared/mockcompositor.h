@@ -33,6 +33,7 @@
 #include "coreprotocol.h"
 #include "datadevice.h"
 #include "xdgshell.h"
+#include "fullscreenshellv1.h"
 
 #include <QtGui/QGuiApplication>
 
@@ -64,6 +65,7 @@ public:
     Touch *touch() { auto *seat = get<Seat>(); Q_ASSERT(seat); return seat->m_touch; }
     Surface *cursorSurface() { auto *p = pointer(); return p ? p->cursorSurface() : nullptr; }
     Keyboard *keyboard() { auto *seat = get<Seat>(); Q_ASSERT(seat); return seat->m_keyboard; }
+    FullScreenShellV1 *fullScreenShellV1() {return get<FullScreenShellV1>();};
     uint sendXdgShellPing();
     void xdgPingAndWaitForPong();
     // Things that can be changed run-time without confusing the client (i.e. don't require separate tests)

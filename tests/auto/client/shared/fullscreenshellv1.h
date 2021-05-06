@@ -1,8 +1,6 @@
 /****************************************************************************
 **
 ** Copyright (C) 2021 David Edmundson <davidedmundson@kde.org>
-** Copyright (C) 2018 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
-** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the test suite of the Qt Toolkit.
@@ -28,47 +26,34 @@
 **
 ****************************************************************************/
 
-#include "mockcompositor.h"
+#ifndef MOCKCOMPOSITOR_FULLSCREENSHELLV1_H
+#define MOCKCOMPOSITOR_FULLSCREENSHELLV1_H
 
-#include <QRasterWindow>
+#include "coreprotocol.h"
+#include <qwayland-server-fullscreen-shell-unstable-v1.h>
 
-#include <QtTest/QtTest>
+#include <QList>
 
-using namespace MockCompositor;
+namespace MockCompositor {
 
-class tst_WaylandClientFullScreenShellV1 : public QObject, private DefaultCompositor
+class Surface;
+class FullScreenShellV1;
+
+class FullScreenShellV1 : public Global, public QtWaylandServer::zwp_fullscreen_shell_v1
 {
     Q_OBJECT
+public:
+    explicit FullScreenShellV1(CoreCompositor *compositor);
 
-private slots:
-    void createDestroyWindow();
+    QList<Surface *> surfaces() const { return m_surfaces; }
+
+protected:
+    void zwp_fullscreen_shell_v1_present_surface(Resource *resource, struct ::wl_resource *surface, uint32_t method, struct ::wl_resource *output) override;
+
+private:
+    QList<Surface *> m_surfaces;
 };
 
-void tst_WaylandClientFullScreenShellV1::createDestroyWindow()
-{
-    QRasterWindow window;
-    window.resize(800, 600);
-    window.show();
+} // namespace MockCompositor
 
-    QCOMPOSITOR_TRY_VERIFY(fullScreenShellV1()->surfaces().count() == 1);
-    QCOMPOSITOR_VERIFY(surface(0));
-
-    window.destroy();
-    QCOMPOSITOR_TRY_VERIFY(!surface(0));
-}
-
-int main(int argc, char **argv)
-{
-    QTemporaryDir tmpRuntimeDir;
-    setenv("XDG_RUNTIME_DIR", tmpRuntimeDir.path().toLocal8Bit(), 1);
-    setenv("QT_QPA_PLATFORM", "wayland", 1); // force QGuiApplication to use wayland plugin
-    setenv("QT_WAYLAND_SHELL_INTEGRATION", "fullscreen-shell-v1", 1);
-    setenv("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1", 1); // window decorations don't make much sense here
-
-    tst_WaylandClientFullScreenShellV1 tc;
-    QGuiApplication app(argc, argv);
-    QTEST_SET_MAIN_SOURCE_PATH
-    return QTest::qExec(&tc, argc, argv);
-}
-
-#include <tst_fullscreenshellv1.moc>
+#endif // MOCKCOMPOSITOR_FULLSCREENSHELLV1_H

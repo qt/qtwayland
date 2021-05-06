@@ -1,8 +1,6 @@
 /****************************************************************************
 **
 ** Copyright (C) 2021 David Edmundson <davidedmundson@kde.org>
-** Copyright (C) 2018 Pier Luigi Fiorini <pierluigi.fiorini@gmail.com>
-** Copyright (C) 2017 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the test suite of the Qt Toolkit.
@@ -28,47 +26,22 @@
 **
 ****************************************************************************/
 
-#include "mockcompositor.h"
+#include "fullscreenshellv1.h"
 
-#include <QRasterWindow>
+namespace MockCompositor {
 
-#include <QtTest/QtTest>
-
-using namespace MockCompositor;
-
-class tst_WaylandClientFullScreenShellV1 : public QObject, private DefaultCompositor
+FullScreenShellV1::FullScreenShellV1(CoreCompositor *compositor)
 {
-    Q_OBJECT
-
-private slots:
-    void createDestroyWindow();
-};
-
-void tst_WaylandClientFullScreenShellV1::createDestroyWindow()
-{
-    QRasterWindow window;
-    window.resize(800, 600);
-    window.show();
-
-    QCOMPOSITOR_TRY_VERIFY(fullScreenShellV1()->surfaces().count() == 1);
-    QCOMPOSITOR_VERIFY(surface(0));
-
-    window.destroy();
-    QCOMPOSITOR_TRY_VERIFY(!surface(0));
+    init(compositor->m_display, 1);
 }
 
-int main(int argc, char **argv)
+void FullScreenShellV1::zwp_fullscreen_shell_v1_present_surface(Resource *resource, struct ::wl_resource *surface, uint32_t method, struct ::wl_resource *output)
 {
-    QTemporaryDir tmpRuntimeDir;
-    setenv("XDG_RUNTIME_DIR", tmpRuntimeDir.path().toLocal8Bit(), 1);
-    setenv("QT_QPA_PLATFORM", "wayland", 1); // force QGuiApplication to use wayland plugin
-    setenv("QT_WAYLAND_SHELL_INTEGRATION", "fullscreen-shell-v1", 1);
-    setenv("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1", 1); // window decorations don't make much sense here
+    Q_UNUSED(resource);
+    Q_UNUSED(method);
+    Q_UNUSED(output);
 
-    tst_WaylandClientFullScreenShellV1 tc;
-    QGuiApplication app(argc, argv);
-    QTEST_SET_MAIN_SOURCE_PATH
-    return QTest::qExec(&tc, argc, argv);
+    m_surfaces.append(fromResource<Surface>(surface));
 }
 
-#include <tst_fullscreenshellv1.moc>
+} // namespace MockCompositor

@@ -44,6 +44,7 @@ DefaultCompositor::DefaultCompositor()
         add<Seat>(Seat::capability_pointer | Seat::capability_keyboard | Seat::capability_touch);
         add<XdgWmBase>();
         add<Shm>();
+        add<FullScreenShellV1>();
         // TODO: other shells, viewporter, xdgoutput etc
 
         QObject::connect(get<WlCompositor>(), &WlCompositor::surfaceCreated, [&] (Surface *surface){

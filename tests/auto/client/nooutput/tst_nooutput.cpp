@@ -37,7 +37,7 @@ public:
     NoOutputCompositor()
     {
         exec([this] { removeAll<Output>(); });
-        m_config.autoConfigure = true;
+        m_config.autoConfigure = false;
     }
 };
 
@@ -68,6 +68,7 @@ void tst_nooutput::noScreens()
 
     exec([=] {
         xdgToplevel()->sendConfigure({0, 0}, {}); // Let the window decide the size
+        xdgSurface()->sendConfigure(nextSerial());
     });
 
     QTRY_VERIFY(window.isExposed());

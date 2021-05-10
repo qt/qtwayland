@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the documentation of the Qt Toolkit.
@@ -31,19 +31,57 @@
  * \brief Multi Screen is a desktop-style Wayland compositor for multiple screens.
  * \ingroup qtwaylandcompositor-examples
  *
+ * \section1 Introduction
+ *
  * Multi-screen is a desktop-style Wayland compositor example for multiple
  * screens.
  *
- * When a client creates a shell surface, one ShellSurfaceItem is created on
- * each screen. The ShellSurfaceItem will be visible only on one (or two)
- * screens at a time. ShellSurfaceItem positions are synchronized so that when
- * windows enter one screen they are moved off another at the same time.
+ * For an introduction to the basic principles of creating a \l{Qt Wayland Compositor} with Qt,
+ * see the \l{Qt Wayland Compositor Examples - Minimal QML}{Minimal QML example}.
  *
- * WaylandQuickItem::setPrimary() is called at appropriate times to set the
- * primary view for the ShellSurface, which is used when the client asks to be
- * maximized or fullscreen.
+ * \section1 Supporting multiple screens
+ *
+ * For each available screen on the system, the example creates a \c CompositorScreen, which is
+ * a subclass of \l WaylandOutput. If there is only one physical screen available, the example
+ * emulates three screens with dummy data.
+ *
+ * \snippet multi-screen/qml/main.qml screens
+ *
+ * Each \l WaylandOutput contains a \l{Window}, which is used for containing client content, as
+ * is the standard setup with \l{Qt Wayland Compositor}. Since each \l Window is isolated from the
+ * others, we cannot share any Qt Quick items between them. Therefore, when a client connects and
+ * a \l ShellSurface is created, one \l ShellSurfaceItem is created on each of the screens.
+ *
+ * \snippet multi-screen/qml/main.qml createShellSurfaceItems
+ *
+ * These items serve as views of the same client content. The client's surface itself will only be
+ * created once, and will be shared by the surface items.
+ *
+ * Top-level surface items are created as children of the background \l Rectangle in each of the
+ * outputs. These views are stored for later, and if the client spawns any child windows, these are
+ * parented to the top-level window's item.
+ *
+ * \snippet multi-screen/qml/main.qml parenting
+ *
+ * The client content will be visible only on one or two screens at a time. \l ShellSurfaceItem
+ * positions are synchronized so that when windows enter one screen, they are moved off of another
+ * at the same time. This gives the appearance of a single item which moves seamlessly between
+ * screens. The global position of the client is stored in a shared
+ * \l{ShellSurfaceItem::moveItem}{moveItem} and relative position of each screen's
+ * \l ShellSurfaceItem is calculated based on this. If the \c moveItem is currently outside the
+ * bounds of one screen, its coordinates will reflect this, and it will be not be visible on that
+ * screen.
+ *
+ * \snippet multi-screen/qml/Chrome.qml position sync
+ *
+ * Finally, \l{WaylandQuickItem::setPrimary()} is called at appropriate times to set the primary
+ * view for the \l ShellSurface, which is used when the client asks to be maximized or fullscreen.
+ * The primary \l ShellSurfaceItem is selected based on how much of it is currently visible.
  *
  * \note In order to support multiple Wayland outputs in the same compositor, the
  * \l Qt::AA_ShareOpenGLContexts attribute must be set before the \l QGuiApplication
- * object is constructed.
+ * object is constructed. In the example, we do this at the very beginning of the \c main()
+ * function.
+ *
+ * \snippet multi-screen/main.cpp share context
  */

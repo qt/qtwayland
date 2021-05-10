@@ -69,6 +69,7 @@ WaylandCompositor {
 
     property bool emulated: Qt.application.screens.length < 2
 
+    //! [screens]
     Instantiator {
         id: screens
         model: emulated ? emulatedScreens : Qt.application.screens
@@ -83,6 +84,7 @@ WaylandCompositor {
             windowed: emulated
         }
     }
+    //! [screens]
 
     Component {
         id: chromeComponent
@@ -107,8 +109,10 @@ WaylandCompositor {
     }
 
     function createShellSurfaceItem(shellSurface, moveItem, output) {
+        // ![parenting]
         var parentSurfaceItem = output.viewsBySurface[shellSurface.parentSurface];
         var parent = parentSurfaceItem || output.surfaceArea;
+        // ![parenting]
         var item = chromeComponent.createObject(parent, {
             "shellSurface": shellSurface,
             "moveItem": moveItem,
@@ -128,7 +132,9 @@ WaylandCompositor {
             "width": Qt.binding(function() { return shellSurface.surface.width; }),
             "height": Qt.binding(function() { return shellSurface.surface.height; })
         });
+        //! [createShellSurfaceItems]
         for (var i = 0; i < screens.count; ++i)
             createShellSurfaceItem(shellSurface, moveItem, screens.objectAt(i));
+        //! [createShellSurfaceItems]
     }
 }

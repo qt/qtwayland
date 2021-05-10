@@ -51,6 +51,10 @@
 #include "qwaylandinputmethodeventbuilder_p.h"
 #include "qwaylandwindow_p.h"
 
+#if QT_CONFIG(xkbcommon)
+#include <locale.h>
+#endif
+
 QT_BEGIN_NAMESPACE
 
 Q_LOGGING_CATEGORY(qLcQpaInputMethods, "qt.qpa.input.methods")

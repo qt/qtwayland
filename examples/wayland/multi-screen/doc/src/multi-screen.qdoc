@@ -84,4 +84,6 @@
  * function.
  *
  * \snippet multi-screen/main.cpp share context
+ *
+ * \sa {Qt Wayland Compositor Examples - Multi Output}
  */

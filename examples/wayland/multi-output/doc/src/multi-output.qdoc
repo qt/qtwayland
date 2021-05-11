@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the documentation of the Qt Toolkit.
@@ -31,15 +31,48 @@
     \brief Multi Output is an example that demonstrates a compositor with multiple outputs.
     \ingroup qtwaylandcompositor-examples
 
-    Multi Output demonstrates how to display the same clients on different
-    \l{WaylandOutput}{WaylandOutputs} with different types of composition.
+    \section1 Introduction
 
-    The example opens two different windows, one for each output. When a client connects, its
-    WaylandSurface is displayed in a GridView on one of the outputs, while a ShellSurface
-    associated with the WaylandSurface is displayed with desktop-style composition on
-    the other output.
+    The Multi Output example demonstrates how to display the same clients on different
+    \l{WaylandOutput}{WaylandOutputs} with different types of composition. One output shows
+    the clients in a uniform grid, scaled to the same size. The other output is a normal
+    desktop-style interactive compositor window.
+
+    \image multi-output.jpg
+
+    For an introduction to the basic principles of creating a \l{Qt Wayland Compositor} with Qt,
+    see the \l{Qt Wayland Compositor Examples - Minimal QML}{Minimal QML example}.
+
+    \section1 Multiple Outputs
+
+    The example creates two different windows, one for each output. For the grid view, we connect to the
+    \l{WaylandCompositor::surfaceRequested}{surfaceRequested} signal. This signal is emitted for every
+    surface that the client creates. This allows the application to override the default response to the request
+    and create a custom \l{WaylandSurface}.
+
+    \snippet multi-output/qml/main.qml onSurfaceRequested
+
+    Upon receiving the signal, the example creates a \l WaylandQuickItem as a view of the surface.
+    This can be added to the Qt Quick scene like any other item. In the example, we add it to
+    a \l{GridView}.
+
+    For the desktop-style window, we use the features of the \l XdgShell extension.
+    When the surface has been created, the \l XdgShell emits a
+    \l{XdgShell::toplevelCreated}{toplevelCreated} signal.
+
+    \snippet multi-output/qml/main.qml xdgshell
+
+    We create a \l ShellSurfaceItem to add the \l XdgToplevel to the second output. This enables
+    desktop-style interaction with the surface.
+
+    When these steps are done, the client's contents are visible in both windows. The buffers
+    containing the client's contents are the same for both the outputs, but are visualized in two
+    different ways, and provide different ways for the user to interact with them.
 
     \note In order to support multiple Wayland outputs in the same compositor, the
     \l Qt::AA_ShareOpenGLContexts attribute must be set before the \l QGuiApplication
     object is constructed.
+
+    \sa {Qt Wayland Compositor Examples - Multi Screen},
+        {Qt Wayland Compositor Examples - Overview Compositor}
 */

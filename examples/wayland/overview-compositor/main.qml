@@ -77,6 +77,7 @@ WaylandCompositor {
 
                 anchors.fill: parent
                 columns: Math.ceil(Math.sqrt(toplevels.count))
+                // ![zoom transform]
                 transform: [
                     Scale {
                         xScale: grid.overview ? (1.0/grid.columns) : 1
@@ -91,7 +92,9 @@ WaylandCompositor {
                         Behavior on y { PropertyAnimation { easing.type: Easing.InOutQuad; duration: 200 } }
                     }
                 ]
+                // ![zoom transform]
 
+                // ![toplevels repeater]
                 Repeater {
                     model: toplevels
                     Item {
@@ -112,6 +115,7 @@ WaylandCompositor {
                         }
                     }
                 }
+                // ![toplevels repeater]
             }
 
             Button {
@@ -131,10 +135,12 @@ WaylandCompositor {
 
     ListModel { id: toplevels }
 
+    // ![XdgShell]
     XdgShell {
         onToplevelCreated: {
             toplevels.append({xdgSurface});
             toplevel.sendFullscreen(Qt.size(win.pixelWidth, win.pixelHeight));
         }
     }
+    // ![XdgShell]
 }

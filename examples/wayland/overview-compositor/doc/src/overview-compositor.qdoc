@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the documentation of the Qt Toolkit.
@@ -29,6 +29,61 @@
  * \title Qt Wayland Compositor Examples - Overview Compositor
  * \example overview-compositor
  * \brief Overview Compositor shows how to switch between clients in a grid.
+ *
+ * \section1 Introduction
+ *
+ * Overview Compositor demonstrates selecting and activating an application
+ * from a grid of currently connected clients.
+ *
+ * \image overview-compositor.jpg
+ *
+ * For an introduction to the basic principles of creating a \l{Qt Wayland Compositor} with Qt,
+ * see the \l{Qt Wayland Compositor Examples - Minimal QML}{Minimal QML example}.
+ *
+ * \section1 Application Grid
+ *
+ * In this example, the compositor supports two different modes of operation:
+ *
+ * \list
+ *   \li A \e fullscreen mode, where a single application window occupies the whole compositor
+ *       window and is interactable.
+ *   \li An \e overview mode, where all application windows are visible in a grid. Clicking on a
+ *       window in the grid causes it to be selected. The compositor enters fullscreen mode,
+ *       showing the selected application window.
+ * \endlist
+ *
+ * When a client connects to the compositor and creates a top-level surface, the surface will be
+ * connected to a \l{Shell Extensions - Qt Wayland Compositor}{shell extension}. The example only
+ * supports the \l{XdgShell} extension, so the client will connect to this.
+ *
+ * \snippet overview-compositor/main.qml XdgShell
+ *
+ * For each surface, we tell the client to configure it as fullscreen. In addition, the surfaces
+ * are added to a \l ListModel for easy access.
+ *
+ * This model is used by a \l Repeater to create \l{ShellSurfaceItem}{ShellSurfaceItems} inside
+ * a \l{Grid}. The \l Grid component positions the items in a grid.
+ *
+ * \snippet overview-compositor/main.qml toplevels repeater
+ *
+ * For each of the items, we create a \l MouseArea which covers the item and intercepts all mouse
+ * and touch input. This is only active when the compositor is in \e{overview} mode, and activates
+ * the application that was clicked.
+ *
+ * When the compositor goes into fullscreen mode, the same \l Grid component is used, but is scaled
+ * and translated into a position where the single selected cell fills the compositor's window. The
+ * idea is to "zoom in" on the selected cell, allowing the user to interact with the application it
+ * contains.
+ *
+ * \snippet overview-compositor/main.qml zoom transform
+ *
+ * At the bottom side of the window, there is a button which toggles between the modes. This can
+ * be used to bring back the application grid while the compositor is in fullscreen mode.
+ *
+ * This example shows one way to have the compositor visualize clients in different modes. Another
+ * way to achieve similar effects is to create multiple Qt Quick items that refer to the same
+ * surface. See \l{Qt Wayland Compositor Examples - Multi Output}{the Multi Output example} for a
+ * demonstration.
  *
  * \ingroup qtwaylandcompositor-examples
  */

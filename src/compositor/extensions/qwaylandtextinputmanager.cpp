@@ -55,6 +55,33 @@ void QWaylandTextInputManagerPrivate::zwp_text_input_manager_v2_get_text_input(R
         textInput->initialize();
 }
 
+/*!
+  \qmltype TextInputManager
+  \instantiates QWaylandTextInputManager
+  \inqmlmodule QtWayland.Compositor
+  \brief Provides access to input methods in the compositor.
+
+  The \c TextInputManager corresponds to the \c zwp_text_input_manager_v2 interface
+  in the \c text_input_unstable_v2 extension protocol.
+
+  Instantiating this as child of a \l WaylandCompositor adds it to the list of interfaces available
+  to the client. If a client binds to it, then it will be used to communciate text input to
+  that client.
+*/
+
+/*!
+  \class QWaylandTextInputManager
+  \inmodule QtWaylandCompositor
+  \brief Provides access to input methods in the compositor.
+
+  The \c QWaylandTextInputManager corresponds to the \c zwp_text_input_manager_v2 interface
+  in the \c text_input_unstable_v2 extension protocol.
+
+  Instantiating this as child of a \l WaylandCompositor adds it to the list of interfaces available
+  to the client. If a client binds to it, then it will be used to communciate text input to
+  that client.
+*/
+
 QWaylandTextInputManager::QWaylandTextInputManager()
     : QWaylandCompositorExtensionTemplate<QWaylandTextInputManager>(*new QWaylandTextInputManagerPrivate)
 {

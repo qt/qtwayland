@@ -65,7 +65,9 @@ void QWaylandQtTextInputMethodManagerPrivate::text_input_method_manager_v1_get_t
   in the \c qt-text-input-method-unstable-v1 extension protocol. It is specifically designed
   to be used with a Qt-based input method, such as Qt Virtual Keyboard.
 
-  To use it, simply instanitate a \c QtTextInputMethodManager object inside the \l WaylandCompositor.
+  Instantiating this as child of a \l WaylandCompositor adds it to the list of interfaces available
+  to the client. If a client binds to it, then it will be used to communciate text input to
+  that client.
 */
 
 /*!
@@ -78,7 +80,9 @@ void QWaylandQtTextInputMethodManagerPrivate::text_input_method_manager_v1_get_t
    in the \c qt-text-input-method-unstable-v1 extension protocol. It is specifically designed
    to be used with a Qt-based input method, such as Qt Virtual Keyboard.
 
-   To use it, simply instanitate a \c QtTextInputMethodManager object as a child of the \l QWaylandCompositor.
+  Instantiating this as child of a \l WaylandCompositor adds it to the list of interfaces available
+  to the client. If a client binds to it, then it will be used to communciate text input to
+  that client.
 */
 
 QWaylandQtTextInputMethodManager::QWaylandQtTextInputMethodManager()

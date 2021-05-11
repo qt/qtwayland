@@ -58,10 +58,24 @@ ShellSurfaceItem {
 
     signal destroyAnimationFinished
 
+    // ![destruction]
     onSurfaceDestroyed: {
         bufferLocked = true;
         destroyAnimation.start();
     }
+
+    SequentialAnimation {
+        id: destroyAnimation
+
+        ParallelAnimation {
+            NumberAnimation { target: scaleTransform; property: "yScale"; to: 2/height; duration: 150 }
+            NumberAnimation { target: scaleTransform; property: "xScale"; to: 0.4; duration: 150 }
+            NumberAnimation { target: chrome; property: "opacity"; to: chrome.isChild ? 0 : 1; duration: 150 }
+        }
+        NumberAnimation { target: scaleTransform; property: "xScale"; to: 0; duration: 150 }
+        ScriptAction { script: destroyAnimationFinished() }
+    }
+    // ![destruction]
 
     transform: [
         Scale {
@@ -71,6 +85,7 @@ ShellSurfaceItem {
         }
     ]
 
+    // ![activation]
     Connections {
         target: shellSurface.toplevel !== undefined ? shellSurface.toplevel : null
 
@@ -85,18 +100,6 @@ ShellSurfaceItem {
     }
 
     SequentialAnimation {
-        id: destroyAnimation
-
-        ParallelAnimation {
-            NumberAnimation { target: scaleTransform; property: "yScale"; to: 2/height; duration: 150 }
-            NumberAnimation { target: scaleTransform; property: "xScale"; to: 0.4; duration: 150 }
-            NumberAnimation { target: chrome; property: "opacity"; to: chrome.isChild ? 0 : 1; duration: 150 }
-        }
-        NumberAnimation { target: scaleTransform; property: "xScale"; to: 0; duration: 150 }
-        ScriptAction { script: destroyAnimationFinished() }
-    }
-
-    SequentialAnimation {
         id: receivedFocusAnimation
 
         ParallelAnimation {
@@ -108,4 +111,5 @@ ShellSurfaceItem {
             NumberAnimation { target: scaleTransform; property: "xScale"; to: 1; duration: 100; easing.type: Easing.InOutQuad }
         }
     }
+    // ![activation]
 }

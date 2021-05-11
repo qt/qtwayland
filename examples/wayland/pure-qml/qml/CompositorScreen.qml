@@ -58,9 +58,11 @@ WaylandOutput {
     property ListModel shellSurfaces: ListModel {}
     property bool isNestedCompositor: Qt.platform.pluginName.startsWith("wayland") || Qt.platform.pluginName === "xcb"
 
+    // ![handleShellSurface]
     function handleShellSurface(shellSurface) {
         shellSurfaces.append({shellSurface: shellSurface});
     }
+    // ![handleShellSurface]
 
     // During development, it can be useful to start the compositor inside X11 or
     // another Wayland compositor. In such cases, set sizeFollowsWindow to true to
@@ -91,6 +93,7 @@ WaylandOutput {
                 source: "qrc:/images/background.jpg"
                 smooth: true
 
+                // ![repeater]
                 Repeater {
                     model: output.shellSurfaces
                     // Chrome displays a shell surface on the screen (See Chrome.qml)
@@ -99,13 +102,16 @@ WaylandOutput {
                         onDestroyAnimationFinished: output.shellSurfaces.remove(index)
                     }
                 }
+                // ![repeater]
             }
 
             // Virtual Keyboard
+            // ![keyboard]
             Loader {
                 anchors.fill: parent
                 source: "Keyboard.qml"
             }
+            // ![keyboard]
 
             // Draws the mouse cursor for a given Wayland seat
             WaylandCursorItem {

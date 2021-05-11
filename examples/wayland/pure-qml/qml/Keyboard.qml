@@ -48,6 +48,7 @@
 **
 ****************************************************************************/
 
+// ![keyboard]
 import QtQuick
 import QtQuick.VirtualKeyboard
 
@@ -57,4 +58,5 @@ InputPanel {
     anchors.left: parent.left
     anchors.right: parent.right
 }
+// ![keyboard]
 

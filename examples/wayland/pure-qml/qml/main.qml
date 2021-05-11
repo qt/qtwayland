@@ -59,6 +59,7 @@ WaylandCompositor {
 
     CompositorScreen { id: screen; compositor: waylandCompositor }
 
+    // ![shell extensions]
     // Shell surface extension. Needed to provide a window concept for Wayland clients.
     // I.e. requests and events for maximization, minimization, resizing, closing etc.
     XdgShell {
@@ -74,7 +75,10 @@ WaylandCompositor {
     WlShell {
         onWlShellSurfaceCreated: screen.handleShellSurface(shellSurface)
     }
+    // ![shell extensions]
 
     // Extension for Input Method (QT_IM_MODULE) support at compositor-side
+    // ![text input]
     QtTextInputMethodManager {}
+    // ![text input]
 }

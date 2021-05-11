@@ -95,17 +95,19 @@ WaylandCompositor {
 
     XdgOutputManagerV1 {}
 
-    WlShell {
-        id: defaultShell
-
-        onWlShellSurfaceCreated: {
-            var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": shellSurface } );
+    // ![xdgshell]
+    XdgShell {
+        onToplevelCreated: {
+            var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": xdgSurface } );
             item.surface.activated.connect(item.raise);
         }
     }
+    // ![xdgshell]
 
+    // ![onSurfaceRequested]
     onSurfaceRequested: {
         var surface = surfaceComponent.createObject(comp, { } );
         surface.initialize(comp, client, id, version);
     }
+    // ![onSurfaceRequested]
 }

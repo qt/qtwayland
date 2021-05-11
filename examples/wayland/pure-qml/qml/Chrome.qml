@@ -72,13 +72,13 @@ ShellSurfaceItem {
     ]
 
     Connections {
-        target: shellSurface
+        target: shellSurface.toplevel !== undefined ? shellSurface.toplevel : null
 
         // some signals are not available on wl_shell, so let's ignore them
         ignoreUnknownSignals: true
 
         function onActivatedChanged() { // xdg_shell only
-            if (shellSurface.activated) {
+            if (shellSurface.toplevel.activated) {
                 receivedFocusAnimation.start();
             }
         }

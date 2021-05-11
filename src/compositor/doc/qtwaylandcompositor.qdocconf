@@ -4,6 +4,7 @@ include($QT_INSTALL_DOCS/config/exampleurl-qtwayland.qdocconf)
 project                                                     = QtWaylandCompositor
 description                                                 = Qt Wayland Compositor Reference Documentation
 version                                                     = $QT_VERSION
+buildversion                                                = Qt Wayland Compositor | Commercial or GPLv3
 
 qhp.projects                                                = QtWaylandCompositor
 

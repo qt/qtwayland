@@ -69,6 +69,8 @@ WaylandCompositor {
 
             Repeater {
                 model: shellSurfaces
+
+                // ![decoration]
                 Column {
                     id: chrome
                     width: shellSurfaceItem.implicitWidth
@@ -101,14 +103,18 @@ WaylandCompositor {
                         onSurfaceDestroyed: shellSurfaces.remove(index)
                     }
                 }
+                // ![decoration]
             }
         }
     }
+
+    // ![XdgShell]
     XdgShell {
         onToplevelCreated: shellSurfaces.append({shellSurface: xdgSurface});
     }
     XdgDecorationManagerV1 {
         preferredMode: XdgToplevel.ServerSideDecoration
     }
+    // ![XdgShell]
     ListModel { id: shellSurfaces }
 }

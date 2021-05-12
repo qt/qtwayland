@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the documentation of the Qt Toolkit.
@@ -26,11 +26,73 @@
 ****************************************************************************/
 
 /*!
- * \title Qt Wayland Compositor Examples - Sever Side Decoration Compositor
+ * \title Qt Wayland Compositor Examples - Server Side Decoration Compositor
  * \example server-side-decoration
  * \brief Server Side Decoration Compositor is a simple example that demonstrates server side window decorations on xdg-shell.
  * \ingroup qtwaylandcompositor-examples
  *
+ * \image server-side-decoration.png
+ *
+ * \section1 Introduction
+ *
  * Server Side Decoration Compositor is a desktop-style Wayland compositor example implementing
  * server-side window decorations.
+ *
+ * For an introduction to the basic principles of creating a \l{Qt Wayland Compositor} with Qt,
+ * see the \l{Qt Wayland Compositor Examples - Minimal QML}{Minimal QML example}.
+ *
+ * \section1 Decorations
+ *
+ * The term \e{window decorations} refers to the additional UI that accompanies most windows in the
+ * windowing system. Examples of this are:
+ *
+ * \list
+ *   \li The graphical frame around the window surface, which a user can click and drag to resize
+ *       the window.
+ *   \li The title bar of the window, which might be used to move the window.
+ *   \li The system tool buttons for maximizing, minimizing and closing a window.
+ * \endlist
+ *
+ * Traditionally in Wayland, it has been the client's task to render these decorations. At the same
+ * time, the position, size and state of the window is the compositor's domain.
+ * Some \l{Shell Extensions - Qt Wayland Compositor}{shell extensions} optionally support
+ * \e{server-side decorations}. This enables a compositor to communicate to clients that they should
+ * not draw their own window decorations.  Instead, the compositor is responsible for drawing the
+ * window decorations.  This corresponds to how decorations are handled on other windowing systems,
+ * such as macOS, Windows and X11.  It is worth noting that certain clients may not support this at
+ * all. If the system is expected to run such applications, then this should also be taken into
+ * account.
+ *
+ * Benefits of server-side decorations:
+ * \list
+ *   \li Clients do not have to reserve space for system UI in their Wayland buffers.
+ *   \li Qt Quick and OpenGL-based clients do not have to render into a separate FBO and copy
+ *       the content into their Wayland buffers.
+ *   \li Client windows will have a consistent appearance, independent of which UI toolkit is in
+ *       use.
+ *   \li System functionality, such as resizing, closing and changing window state, is centralized
+ *       in the server instead of being shared between the server and client.
+ * \endlist
+ *
+ * \section1 The Code
+ *
+ * The example compositor only supports the \l{XdgShell} extension. It initializes the extension in
+ * the usual way and adds surfaces to a \l ListModel in order to access them later.
+ *
+ * \snippet server-side-decoration/main.qml XdgShell
+ *
+ * In addition, the example initializes the \l XdgDecorationManagerV1 extension. This allows it
+ * to communicate to the client that it prefers server-side decorations.
+ *
+ * Since the interface is optional, it could be that the client does not support it and will always
+ * draw its own decorations. Therefore, the mode is only "preferred" and we need to check the actual
+ * mode of the top-level window before we decorate it.
+ *
+ * \snippet server-side-decoration/main.qml decoration
+ *
+ * For each window, we create a simple title bar above it. The title bar has a gradient, some text,
+ * a \l DragHandler which manages its position, and a close button.
+ *
+ * The image shows a client which supports the decoration manager extensions on the upper left-hand
+ * side, and the same client with client-side decorations on the lower, right-hand side.
  */

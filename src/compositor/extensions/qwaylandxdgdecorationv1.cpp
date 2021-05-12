@@ -69,7 +69,8 @@ QT_BEGIN_NAMESPACE
     }
     \endqml
 
-    \sa QWaylandXdgToplevel::decorationMode
+    \sa QWaylandXdgToplevel::decorationMode,
+        {Qt Wayland Compositor Examples - Server Side Decoration Compositor}
 */
 
 /*!

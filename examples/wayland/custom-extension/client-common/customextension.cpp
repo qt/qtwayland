@@ -82,14 +82,12 @@ QWindow *CustomExtension::windowForSurface(struct ::wl_surface *surface)
 bool CustomExtension::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::Expose) {
-        auto *exposeEvent = static_cast<QExposeEvent *>(event);
-        if (exposeEvent->region().isNull())
-            return false;
-
         QWindow *window = qobject_cast<QWindow*>(object);
         Q_ASSERT(window);
-        window->removeEventFilter(this);
-        QtWayland::qt_example_extension::register_surface(getWlSurface(window));
+        if (window->isExposed()) {
+            window->removeEventFilter(this);
+            QtWayland::qt_example_extension::register_surface(getWlSurface(window));
+        }
     }
     return false;
 }

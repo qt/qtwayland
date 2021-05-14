@@ -71,7 +71,6 @@ QT_BEGIN_NAMESPACE
 class QWaylandCompositor;
 class QWaylandSurface;
 class QWaylandView;
-class QWaylandSurfaceInterface;
 class QWaylandInputMethodControl;
 
 namespace QtWayland {

@@ -91,6 +91,13 @@ QWaylandClientExtension::QWaylandClientExtension(const int ver)
     QMetaObject::invokeMethod(this, "initialize", Qt::QueuedConnection);
 }
 
+QWaylandClientExtension::~QWaylandClientExtension()
+{
+    Q_D(QWaylandClientExtension);
+    if (d->registered && !QCoreApplication::closingDown())
+        d->waylandIntegration->display()->removeListener(&QWaylandClientExtensionPrivate::handleRegistryGlobal, this);
+}
+
 QtWaylandClient::QWaylandIntegration *QWaylandClientExtension::integration() const
 {
     Q_D(const QWaylandClientExtension);

@@ -100,8 +100,12 @@ WaylandCompositor {
 
     Component {
         id: chromeComponent
-        ShellSurfaceItem {
-            onSurfaceDestroyed: destroy()
+        Item {
+            property alias shellSurface: ssi.shellSurface
+            ShellSurfaceItem {
+                id: ssi
+                onSurfaceDestroyed: destroy()
+            }
         }
     }
 

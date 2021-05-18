@@ -69,10 +69,12 @@ WaylandCompositor {
 
             Text { text: "Top screen" }
 
+            // ![enable screens]
             // Enable the following to make the output target an actual screen,
             // for example when running on eglfs in a multi-display embedded system.
 
             // screen: Qt.application.screens[0]
+            // ![enable screens]
         }
     }
 
@@ -113,6 +115,7 @@ WaylandCompositor {
         onToplevelCreated: {
             const shellSurface = xdgSurface;
 
+            // ![create items]
             const topItem = chromeComponent.createObject(topSurfaceArea, {
                 shellSurface
             });
@@ -121,11 +124,14 @@ WaylandCompositor {
                 shellSurface,
                 y: Qt.binding(function() { return -topSurfaceArea.height;})
             });
+            // ![create items]
 
+            // ![size]
             const height = topSurfaceArea.pixelHeight + bottomSurfaceArea.pixelHeight;
             const width = Math.max(bottomSurfaceArea.pixelWidth, topSurfaceArea.pixelWidth);
             const size = Qt.size(width, height);
             toplevel.sendFullscreen(size);
+            // ![size]
         }
     }
 }

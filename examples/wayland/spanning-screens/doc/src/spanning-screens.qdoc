@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the documentation of the Qt Toolkit.
@@ -31,8 +31,52 @@
  * \brief Spanning Screens is an example that demonstrates how to let Wayland clients span multiple screens.
  * \ingroup qtwaylandcompositor-examples
  *
- * Spanning screens is a Wayland compositor example that maximizes clients
- * across a top and a bottom screen.
+ * \section1 Introduction
+ *
+ * Spanning screens is a Wayland compositor example that maximizes clients across a top and a bottom
+ * screen.
+ *
+ * \image spanning-screens.jpg
+ *
+ * For an introduction to the basic principles of creating a \l{Qt Wayland Compositor} with Qt,
+ * see the \l{Qt Wayland Compositor Examples - Minimal QML}{Minimal QML example}.
+ *
+ * \section1 Supporting Multiple Screens
+ *
+ * In \l{Qt Wayland Compositor} a screen is represented by a \l{WaylandOutput}, and a \l Window is
+ * used to contain the \l{Qt Quick} scene representing both clients and the compositor's UI.
+ *
+ * In this example, a multi-screen setup is emulated by creating two windows on the primary screen,
+ * but the code can easily be modified to target multiple physical screens.
+ *
+ * \snippet spanning-screens/main.qml enable screens
+ *
+ * Since each \l Window represents an isolated \l{Qt Quick} scene, this means we need a trick to
+ * have the same client content display inside both windows. The way to do this in
+ * \l{Qt Wayland Compositor} is to create two views of the same client content: One for the "top"
+ * window and one for the "bottom". The views share a reference to the same underlying graphics buffer.
+ * This allows us to copy different areas of the client's surface onto each of the windows.
+ *
+ * \snippet spanning-screens/main.qml create items
+ *
+ * When the client connects to the \l{Shell Extensions - Qt Wayland Compositor}{shell extension}
+ * \l{XdgShell}, we create two references to the surface. One of them is added to the "top" output,
+ * and the second to the "bottom". The item on the bottom output also gets an offset corresponding
+ * to the height of the top output. This ensures that the part of the client surface showing on
+ * the bottom output starts where the top output ends.
+ *
+ * \snippet spanning-screens/main.qml size
+ *
+ * In addition, we tell the client to resize its surface so that it fills both the top and bottom
+ * window. The end result is a client that spans two windows, or "screens".
+ *
+ * Referencing the same client surface from multiple items is a tool which can be used for many
+ * things. For a demonstration of a desktop-style compositor where windows can be moved from screen
+ * to screen, take a look at the
+ * \l{Qt Wayland Compositor Examples - Multi Screen}{Multi Screen example}.
+ *
+ * The \l{Qt Wayland Compositor Examples - Multi Output}{Multi Output example} shows how client
+ * surfaces can be displayed on multiple outputs with different sizes and other properties.
  *
  * \note In order to support multiple Wayland outputs in the same compositor, the
  * \l Qt::AA_ShareOpenGLContexts attribute must be set before the \l QGuiApplication

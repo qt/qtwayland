@@ -17,6 +17,9 @@ set(QT_REPO_NOT_WARNINGS_CLEAN TRUE)
 # Make sure we only use latest private CMake API, aka no compatibility wrappers.
 set(QT_NO_INTERNAL_COMPATIBILITY_FUNCTIONS TRUE)
 
+# Make sure we use the fixed BASE argument of qt_add_resource.
+set(QT_USE_FIXED_QT_ADD_RESOURCE_BASE TRUE)
+
 find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS
     BuildInternals
 )

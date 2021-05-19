@@ -1,10 +1,10 @@
 # Generated from wl-shell.pro.
 
 #####################################################################
-## WlShellIntegration Module:
+## WlShellIntegrationPrivate Module:
 #####################################################################
 
-qt_internal_add_module(WlShellIntegration
+qt_internal_add_module(WlShellIntegrationPrivate
     CONFIG_MODULE_NAME wl_shell_integration
     INTERNAL_MODULE
     SOURCES
@@ -16,7 +16,7 @@ qt_internal_add_module(WlShellIntegration
         Wayland::Client
 )
 
-qt6_generate_wayland_protocol_client_sources(WlShellIntegration
+qt6_generate_wayland_protocol_client_sources(WlShellIntegrationPrivate
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../3rdparty/protocol/wayland.xml
 )
@@ -27,7 +27,7 @@ qt6_generate_wayland_protocol_client_sources(WlShellIntegration
 ## Scopes:
 #####################################################################
 
-qt_internal_extend_target(WlShellIntegration CONDITION QT_FEATURE_xkbcommon
+qt_internal_extend_target(WlShellIntegrationPrivate CONDITION QT_FEATURE_xkbcommon
     LIBRARIES
         XKB::XKB
 )

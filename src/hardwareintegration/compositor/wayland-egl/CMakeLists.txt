@@ -1,9 +1,9 @@
 #####################################################################
-## WaylandEglCompositorHwIntegration Module:
+## WaylandEglCompositorHwIntegrationPrivate Module:
 #####################################################################
 qt_find_package(EGL) # special case
 
-qt_internal_add_module(WaylandEglCompositorHwIntegration
+qt_internal_add_module(WaylandEglCompositorHwIntegrationPrivate
     CONFIG_MODULE_NAME wayland_egl_compositor_hw_integration
     INTERNAL_MODULE
     SOURCES

@@ -1,11 +1,11 @@
 # Generated from wayland-egl.pro.
 
 #####################################################################
-## WaylandEglClientHwIntegration Module:
+## WaylandEglClientHwIntegrationPrivate Module:
 #####################################################################
 qt_find_package(EGL) # special case
 
-qt_internal_add_module(WaylandEglClientHwIntegration
+qt_internal_add_module(WaylandEglClientHwIntegrationPrivate
     CONFIG_MODULE_NAME wayland_egl_client_hw_integration
     INTERNAL_MODULE
     SOURCES

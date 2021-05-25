@@ -67,7 +67,8 @@ public:
     void classBegin() override;
     void componentComplete() override;
 
-    void disableSceneGraphPainting();
+    void setSceneGraphPainting(bool);
+    void initialize();
 
 Q_SIGNALS:
     void stackingLevelChanged();

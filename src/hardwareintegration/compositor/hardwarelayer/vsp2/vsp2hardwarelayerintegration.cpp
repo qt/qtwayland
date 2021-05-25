@@ -68,7 +68,7 @@ Vsp2Layer::Vsp2Layer(QWaylandQuickHardwareLayer *hwLayer, Vsp2HardwareLayerInteg
     connect(hwLayer->waylandItem(), &QWaylandQuickItem::surfaceChanged, this, &Vsp2Layer::handleSurfaceChanged);
     connect(hwLayer->waylandItem(), &QQuickItem::opacityChanged, this, &Vsp2Layer::updateOpacity);
     connect(hwLayer->waylandItem()->window(), &QQuickWindow::afterSynchronizing, this, &Vsp2Layer::updatePosition);
-    hwLayer->disableSceneGraphPainting();
+    hwLayer->setSceneGraphPainting(false);
     QWaylandViewPrivate::get(hwLayer->waylandItem()->view())->independentFrameCallback = true;
     handleSurfaceChanged();
 }

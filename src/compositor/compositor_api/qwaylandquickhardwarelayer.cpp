@@ -160,9 +160,16 @@ void QWaylandQuickHardwareLayer::componentComplete()
         qWarning() << "No hardware layer integration. WaylandHarwareLayer has no effect.";
 }
 
-void QWaylandQuickHardwareLayer::disableSceneGraphPainting()
+void QWaylandQuickHardwareLayer::setSceneGraphPainting(bool enable)
 {
-    waylandItem()->setPaintEnabled(false);
+    waylandItem()->setPaintEnabled(enable);
+}
+
+// This should be called if QWaylandQuickHardwareLayer used as a native instance, not a qml component.
+void QWaylandQuickHardwareLayer::initialize()
+{
+    classBegin();
+    componentComplete();
 }
 
 QT_END_NAMESPACE

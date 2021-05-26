@@ -59,6 +59,7 @@
 #include <QtGui/QColor>
 #include <QtGui/QStaticText>
 #include <QtGui/QImage>
+#include <QtGui/QEventPoint>
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 
 #include <QtCore/QDebug>
@@ -103,7 +104,7 @@ public:
     const QImage &contentImage();
 
     virtual bool handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,Qt::MouseButtons b,Qt::KeyboardModifiers mods) = 0;
-    virtual bool handleTouch(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods) = 0;
+    virtual bool handleTouch(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, QEventPoint::State state, Qt::KeyboardModifiers mods) = 0;
 
 protected:
     virtual void paint(QPaintDevice *device) = 0;

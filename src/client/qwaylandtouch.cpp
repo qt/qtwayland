@@ -172,7 +172,7 @@ void QWaylandTouchExtension::sendTouchEvent()
         states |= mTouchPoints.at(i).state;
 
     if (mFlags & QT_TOUCH_EXTENSION_FLAGS_MOUSE_FROM_TOUCH) {
-        const bool firstPress = states == Qt::TouchPointPressed;
+        const bool firstPress = states == QEventPoint::Pressed;
         if (firstPress)
             mMouseSourceId = mTouchPoints.first().id;
         for (int i = 0; i < mTouchPoints.count(); ++i) {
@@ -199,7 +199,7 @@ void QWaylandTouchExtension::sendTouchEvent()
     mPrevTouchPoints = mTouchPoints;
     mTouchPoints.clear();
 
-    if (states == Qt::TouchPointReleased)
+    if (states == QEventPoint::Released)
         mPrevTouchPoints.clear();
 }
 

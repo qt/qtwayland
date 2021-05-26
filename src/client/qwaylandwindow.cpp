@@ -1105,7 +1105,7 @@ void QWaylandWindow::handlePinchGesture(QWaylandInputDevice *inputDevice,
 #endif // #ifndef QT_NO_GESTURES
 
 
-bool QWaylandWindow::touchDragDecoration(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods)
+bool QWaylandWindow::touchDragDecoration(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, QEventPoint::State state, Qt::KeyboardModifiers mods)
 {
     if (!mWindowDecoration)
         return false;

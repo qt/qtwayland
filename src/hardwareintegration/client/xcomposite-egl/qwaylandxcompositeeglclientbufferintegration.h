@@ -54,6 +54,8 @@
 #include <QWaitCondition>
 
 #include <X11/Xlib.h>
+// conflict with QInputDevice::Capability::None
+#undef None
 #include <EGL/egl.h>
 
 // avoid clashes with Qt::CursorShape

@@ -76,7 +76,7 @@ protected:
     QMargins margins(MarginsType marginsType = Full) const override;
     void paint(QPaintDevice *device) override;
     bool handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,Qt::MouseButtons b,Qt::KeyboardModifiers mods) override;
-    bool handleTouch(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods) override;
+    bool handleTouch(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, QEventPoint::State state, Qt::KeyboardModifiers mods) override;
 private:
     void processMouseTop(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b,Qt::KeyboardModifiers mods);
     void processMouseBottom(QWaylandInputDevice *inputDevice, const QPointF &local, Qt::MouseButtons b,Qt::KeyboardModifiers mods);
@@ -293,12 +293,12 @@ bool QWaylandBradientDecoration::handleMouse(QWaylandInputDevice *inputDevice, c
     return true;
 }
 
-bool QWaylandBradientDecoration::handleTouch(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, Qt::TouchPointState state, Qt::KeyboardModifiers mods)
+bool QWaylandBradientDecoration::handleTouch(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, QEventPoint::State state, Qt::KeyboardModifiers mods)
 {
     Q_UNUSED(inputDevice);
     Q_UNUSED(global);
     Q_UNUSED(mods);
-    bool handled = state == Qt::TouchPointPressed;
+    bool handled = state == QEventPoint::Pressed;
     if (handled) {
         if (closeButtonRect().contains(local))
             QWindowSystemInterface::handleCloseEvent(window());

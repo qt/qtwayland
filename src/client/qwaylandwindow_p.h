@@ -56,6 +56,7 @@
 #include <QtCore/QReadWriteLock>
 
 #include <QtGui/QIcon>
+#include <QtGui/QEventPoint>
 #include <QtCore/QVariant>
 #include <QtCore/QLoggingCategory>
 #include <QtCore/QElapsedTimer>
@@ -187,7 +188,7 @@ public:
 #endif
 
     bool touchDragDecoration(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,
-                             Qt::TouchPointState state, Qt::KeyboardModifiers mods);
+                             QEventPoint::State state, Qt::KeyboardModifiers mods);
 
     bool createDecoration();
 

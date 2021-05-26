@@ -50,6 +50,8 @@
 #include <QtGui/QWindow>
 
 #include <X11/Xlib.h>
+// conflict with QInputDevice::Capability::None
+#undef None
 
 // avoid clashes with Qt::CursorShape
 #ifdef CursorShape

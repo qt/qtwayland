@@ -659,9 +659,13 @@ void QWaylandWindow::commit()
 
 const wl_callback_listener QWaylandWindow::callbackListener = {
     [](void *data, wl_callback *callback, uint32_t time) {
-        Q_UNUSED(callback);
         Q_UNUSED(time);
         auto *window = static_cast<QWaylandWindow*>(data);
+
+        Q_ASSERT(callback == window->mFrameCallback);
+        wl_callback_destroy(callback);
+        window->mFrameCallback = nullptr;
+
         window->handleFrameCallback();
     }
 };
@@ -1365,14 +1369,6 @@ void QWaylandWindow::handleUpdate()
     QReadLocker lock(&mSurfaceLock);
     if (!mSurface)
         return;
-
-    if (mFrameCallback) {
-        if (!isExposed())
-            return;
-
-        wl_callback_destroy(mFrameCallback);
-        mFrameCallback = nullptr;
-    }
 
     QMutexLocker locker(mFrameQueue.mutex);
     struct ::wl_surface *wrappedSurface = reinterpret_cast<struct ::wl_surface *>(wl_proxy_create_wrapper(mSurface->object()));

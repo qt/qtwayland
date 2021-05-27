@@ -1357,6 +1357,10 @@ void QWaylandWindow::requestUpdate()
 void QWaylandWindow::handleUpdate()
 {
     qCDebug(lcWaylandBackingstore) << "handleUpdate" << QThread::currentThread();
+
+    if (mWaitingForFrameCallback)
+        return;
+
     // TODO: Should sync subsurfaces avoid requesting frame callbacks?
     QReadLocker lock(&mSurfaceLock);
     if (!mSurface)

@@ -138,6 +138,7 @@ void tst_xdgshell::configureSize()
 
 void tst_xdgshell::configureStates()
 {
+    QVERIFY(qputenv("QT_WAYLAND_FRAME_CALLBACK_TIMEOUT", "0"));
     QRasterWindow window;
     window.resize(64, 48);
     window.show();
@@ -186,6 +187,7 @@ void tst_xdgshell::configureStates()
     QCOMPARE(window.windowStates(), Qt::WindowNoState);
     QCOMPARE(window.frameGeometry().size(), windowedSize);
 //    QCOMPARE(window.frameGeometry().topLeft(), QPoint()); // TODO: this doesn't currently work when window decorations are enabled
+    QVERIFY(qunsetenv("QT_WAYLAND_FRAME_CALLBACK_TIMEOUT"));
 }
 
 void tst_xdgshell::popup()

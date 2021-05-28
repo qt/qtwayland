@@ -2,6 +2,18 @@
 ##Client test shared components:
 #####################################################################
 
+qt_manual_moc(moc_files
+    mockcompositor.h
+    coreprotocol.h
+    corecompositor.h
+    datadevice.h
+    fullscreenshellv1.h
+    iviapplication.h
+    textinput.h
+    xdgoutputv1.h
+    xdgshell.h
+)
+
 add_library(SharedClientTest
     OBJECT
         corecompositor.cpp corecompositor.h
@@ -13,9 +25,8 @@ add_library(SharedClientTest
         textinput.cpp textinput.h
         xdgoutputv1.cpp xdgoutputv1.h
         xdgshell.cpp xdgshell.h
+        ${moc_files}
 )
-
-set_property(TARGET SharedClientTest PROPERTY AUTOMOC ON)
 
 qt6_generate_wayland_protocol_server_sources(SharedClientTest
     FILES

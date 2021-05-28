@@ -985,7 +985,7 @@ void QWaylandWindow::handleSwipeGesture(QWaylandInputDevice *inputDevice,
     switch (e.state) {
         case Qt::GestureStarted:
             if (mGestureState != GestureNotActive)
-                qCWarning(lcQpaWaylandInput) << "Unexpected gesture state. Gestures will act weird.";
+                qCWarning(lcQpaWaylandInput) << "Unexpected GestureStarted while already active";
 
             if (mWindowDecoration && !mMouseEventsInContentArea) {
                 // whole gesture sequence will be ignored
@@ -1018,7 +1018,7 @@ void QWaylandWindow::handleSwipeGesture(QWaylandInputDevice *inputDevice,
             }
 
             if (mGestureState != GestureActiveInContentArea)
-                qCWarning(lcQpaWaylandInput) << "Unexpected gesture state. Gestures will act weird.";
+                qCWarning(lcQpaWaylandInput) << "Unexpected" << (e.state == Qt::GestureFinished ? "GestureFinished" : "GestureCanceled");
 
             mGestureState = GestureNotActive;
 
@@ -1040,7 +1040,7 @@ void QWaylandWindow::handlePinchGesture(QWaylandInputDevice *inputDevice,
     switch (e.state) {
         case Qt::GestureStarted:
             if (mGestureState != GestureNotActive)
-                qCWarning(lcQpaWaylandInput) << "Unexpected gesture state. Gestures will act weird.";
+                qCWarning(lcQpaWaylandInput) << "Unexpected GestureStarted while already active";
 
             if (mWindowDecoration && !mMouseEventsInContentArea) {
                 // whole gesture sequence will be ignored
@@ -1087,7 +1087,7 @@ void QWaylandWindow::handlePinchGesture(QWaylandInputDevice *inputDevice,
             }
 
             if (mGestureState != GestureActiveInContentArea)
-                qCWarning(lcQpaWaylandInput) << "Unexpected gesture state. Gestures will act weird.";
+                qCWarning(lcQpaWaylandInput) << "Unexpected" << (e.state == Qt::GestureFinished ? "GestureFinished" : "GestureCanceled");
 
             mGestureState = GestureNotActive;
 

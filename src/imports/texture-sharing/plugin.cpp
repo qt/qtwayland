@@ -40,7 +40,7 @@
 #include <QtQml/qqmlextensionplugin.h>
 #include <QtQml/qqmlengine.h>
 
-#include "sharedtextureprovider.h"
+#include "sharedtextureprovider_p.h"
 
 /*!
     \internal

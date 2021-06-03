@@ -4,11 +4,14 @@
 ## qwaylandcompositoriviapplicationplugin Plugin:
 #####################################################################
 
-qt_internal_add_qml_module(qwaylandcompositoriviapplicationplugin
+qt_internal_add_qml_module(WaylandCompositorIviapplication
     URI "QtWayland.Compositor.IviApplication"
     VERSION "${PROJECT_VERSION}"
-    CLASSNAME QWaylandCompositorIviApplicationPlugin
-    SKIP_TYPE_REGISTRATION
+    CLASS_NAME QWaylandCompositorIviApplicationPlugin
+    PLUGIN_TARGET WaylandCompositorIviapplication
+    NO_PLUGIN_OPTIONAL
+    NO_GENERATE_PLUGIN_SOURCE
+    NO_GENERATE_QMLTYPES
     SOURCES
         qwaylandcompositoriviapplicationplugin.cpp
     PUBLIC_LIBRARIES

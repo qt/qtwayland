@@ -38,7 +38,7 @@
 ****************************************************************************/
 
 
-#include "sharedtextureprovider.h"
+#include "sharedtextureprovider_p.h"
 
 #include <QFile>
 #include <QDebug>
@@ -57,7 +57,7 @@
 
 #include <QTimer>
 
-#include "texturesharingextension.h"
+#include "texturesharingextension_p.h"
 
 QT_BEGIN_NAMESPACE
 

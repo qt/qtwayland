@@ -4,11 +4,15 @@
 ## qwaylandcompositorwlshellplugin Plugin:
 #####################################################################
 
-qt_internal_add_qml_module(qwaylandcompositorwlshellplugin
+qt_internal_add_qml_module(WaylandCompositorWLShell
     URI "QtWayland.Compositor.WlShell"
     VERSION "${PROJECT_VERSION}"
-    CLASSNAME QWaylandCompositorWlShellPlugin
-    SKIP_TYPE_REGISTRATION
+    CLASS_NAME QWaylandCompositorWlShellPlugin
+    NO_PLUGIN_OPTIONAL
+    PLUGIN_TARGET WaylandCompositorWLShell
+    NO_GENERATE_PLUGIN_SOURCE
+    NO_GENERATE_QMLTYPES
+    INSTALL_SOURCE_QMLTYPES "plugins.qmltypes"
     SOURCES
         qwaylandcompositorwlshellplugin.cpp
     PUBLIC_LIBRARIES

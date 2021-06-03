@@ -4,15 +4,19 @@
 ## qwaylandtexturesharing Plugin:
 #####################################################################
 
-qt_internal_add_qml_module(qwaylandtexturesharing
+qt_internal_add_qml_module(WaylandTextureSharing
     URI "QtWayland.Client.TextureSharing"
     VERSION "1.${PROJECT_VERSION_MINOR}"
-    CLASSNAME QWaylandTextureSharingPlugin
-    SKIP_TYPE_REGISTRATION
+    NO_PLUGIN_OPTIONAL
+    NO_GENERATE_PLUGIN_SOURCE
+    NO_GENERATE_QMLTYPES
+    PLUGIN_TARGET WaylandTextureSharing
+    # no qmltypes file available, so nothing to install
+    CLASS_NAME QWaylandTextureSharingPlugin
     SOURCES
         plugin.cpp
-        sharedtextureprovider.cpp sharedtextureprovider.h
-        texturesharingextension.cpp texturesharingextension.h
+        sharedtextureprovider.cpp sharedtextureprovider_p.h
+        texturesharingextension.cpp texturesharingextension_p.h
     PUBLIC_LIBRARIES
         Qt::Core
         Qt::CorePrivate
@@ -25,7 +29,7 @@ qt_internal_add_qml_module(qwaylandtexturesharing
         Qt::WaylandClientPrivate
 )
 
-qt6_generate_wayland_protocol_client_sources(qwaylandtexturesharing
+qt6_generate_wayland_protocol_client_sources(WaylandTextureSharing
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../extensions/qt-texture-sharing-unstable-v1.xml
 )

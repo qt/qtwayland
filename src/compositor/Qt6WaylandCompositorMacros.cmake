@@ -34,9 +34,11 @@ function(qt6_generate_wayland_protocol_server_sources target)
 
         # TODO: make this less hacky
         set(wayland_include_dir "")
-        #get_target_property(qt_module "${target}" QT_MODULE)
+        get_target_property(qt_module ${target} _qt_module_interface_name)
         get_target_property(is_for_module "${target}" INTERFACE_MODULE_HAS_HEADERS)
-        if (is_for_module)
+        if (qt_module)
+            set(wayland_include_dir "Qt${qt_module}/private")
+        elseif (is_for_module)
             set(wayland_include_dir "QtWaylandCompositor/private")
         endif()
 

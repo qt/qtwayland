@@ -94,7 +94,7 @@ class QWaylandTabletSeatV2;
 class QWaylandPointerGestures;
 class QWaylandPointerGestureSwipe;
 class QWaylandPointerGesturePinch;
-class QWaylandTextInput;
+class QWaylandTextInputInterface;
 class QWaylandTextInputMethod;
 #if QT_CONFIG(cursor)
 class QWaylandCursorTheme;
@@ -138,8 +138,8 @@ public:
     void setTabletSeat(QWaylandTabletSeatV2 *tabletSeat);
     QWaylandTabletSeatV2* tabletSeat() const;
 
-    void setTextInput(QWaylandTextInput *textInput);
-    QWaylandTextInput *textInput() const;
+    void setTextInput(QWaylandTextInputInterface *textInput);
+    QWaylandTextInputInterface *textInput() const;
 
     void setTextInputMethod(QWaylandTextInputMethod *textInputMethod);
     QWaylandTextInputMethod *textInputMethod() const;
@@ -199,7 +199,7 @@ protected:
     QScopedPointer<QWaylandPointerGesturePinch> mPointerGesturePinch;
     QScopedPointer<Touch> mTouch;
 
-    QScopedPointer<QWaylandTextInput> mTextInput;
+    QScopedPointer<QWaylandTextInputInterface> mTextInput;
     QScopedPointer<QWaylandTextInputMethod> mTextInputMethod;
     QScopedPointer<QWaylandTabletSeatV2> mTabletSeat;
 

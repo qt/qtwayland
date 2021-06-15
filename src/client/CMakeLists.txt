@@ -29,6 +29,8 @@ qt_internal_add_module(WaylandClient
         qwaylanddisplay.cpp qwaylanddisplay_p.h
         qwaylandextendedsurface.cpp qwaylandextendedsurface_p.h
         qwaylandinputcontext.cpp qwaylandinputcontext_p.h
+        qwaylandtextinputv2.cpp qwaylandtextinputv2_p.h
+        qwaylandtextinputinterface.cpp qwaylandtextinputinterface_p.h
         qwaylandinputdevice.cpp qwaylandinputdevice_p.h
         qwaylandinputmethodcontext.cpp qwaylandinputmethodcontext_p.h
         qwaylandintegration.cpp qwaylandintegration_p.h

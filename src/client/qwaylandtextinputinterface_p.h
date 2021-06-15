@@ -1,9 +1,9 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QtWaylandClient module of the Qt Toolkit.
+** This file is part of the plugins of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:LGPL$
 ** Commercial License Usage
@@ -37,10 +37,8 @@
 **
 ****************************************************************************/
 
-
-#ifndef QWAYLANDINPUTCONTEXT_H
-#define QWAYLANDINPUTCONTEXT_H
-
+#ifndef QWAYLANDTEXTINPUTINTERFACE_P_H
+#define QWAYLANDTEXTINPUTINTERFACE_P_H
 //
 //  W A R N I N G
 //  -------------
@@ -52,76 +50,46 @@
 // We mean it.
 //
 
-#include <qpa/qplatforminputcontext.h>
+#include <QtCore/qlocale.h>
+#include <QtCore/qrect.h>
 
-#include <QPointer>
-
-#include "qwaylandtextinputinterface_p.h"
-#include <qtwaylandclientglobal_p.h>
-#if QT_CONFIG(xkbcommon)
-#include <xkbcommon/xkbcommon-compose.h>
-#endif
-
-struct wl_callback;
-struct wl_callback_listener;
+struct wl_surface;
 
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-class QWaylandDisplay;
-
-class QWaylandInputContext : public QPlatformInputContext
+class QWaylandTextInputInterface
 {
-    Q_OBJECT
 public:
-    explicit QWaylandInputContext(QWaylandDisplay *display);
-    ~QWaylandInputContext() override;
+    virtual ~QWaylandTextInputInterface() {}
+    virtual void reset() = 0;
+    virtual void commit() = 0;
+    virtual void disableSurface(::wl_surface *surface) = 0;
+    virtual void enableSurface(::wl_surface *surface) = 0;
+    virtual void updateState(Qt::InputMethodQueries queries, uint32_t flags) = 0;
+    virtual void showInputPanel() = 0;
+    virtual void hideInputPanel() = 0;
+    virtual bool isInputPanelVisible() const = 0;
+    virtual QRectF keyboardRect() const = 0;
+    virtual QLocale locale() const = 0;
+    virtual Qt::LayoutDirection inputDirection() const = 0;
+    virtual void setCursorInsidePreedit(int cursor) = 0;
 
-    bool isValid() const override;
-
-    void reset() override;
-    void commit() override;
-    void update(Qt::InputMethodQueries) override;
-
-    void invokeAction(QInputMethod::Action, int cursorPosition) override;
-
-    void showInputPanel() override;
-    void hideInputPanel() override;
-    bool isInputPanelVisible() const override;
-    QRectF keyboardRect() const override;
-
-    QLocale locale() const override;
-    Qt::LayoutDirection inputDirection() const override;
-
-    void setFocusObject(QObject *object) override;
-
-#if QT_CONFIG(xkbcommon)
-    bool filterEvent(const QEvent *event) override;
-
-    // This invokable is called from QXkbCommon::setXkbContext().
-    Q_INVOKABLE void setXkbContext(struct xkb_context *context) { m_XkbContext = context; }
-#endif
-
-private:
-    QWaylandTextInputInterface *textInput() const;
-
-    QWaylandDisplay *mDisplay = nullptr;
-    QPointer<QWindow> mCurrentWindow;
-
-#if QT_CONFIG(xkbcommon)
-    void ensureInitialized();
-
-    bool m_initialized = false;
-    QObject *m_focusObject = nullptr;
-    xkb_compose_table *m_composeTable = nullptr;
-    xkb_compose_state *m_composeState = nullptr;
-    struct xkb_context *m_XkbContext = nullptr;
-#endif
+    // This enum should be compatible with update_state of text-input-unstable-v2.
+    // Higher versions of text-input-* protocol may not use it directly
+    // but QtWaylandClient can determine clients' states based on the values
+    enum TextInputState {
+        update_state_change = 0, // updated state because it changed
+        update_state_full = 1, // full state after enter or input_method_changed event
+        update_state_reset = 2, // full state after reset
+        update_state_enter = 3, // full state after switching focus to a different widget on client side
+    };
 };
 
 }
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDINPUTCONTEXT_H
+#endif // QWAYLANDTEXTINPUTINTERFACE_P_H
+

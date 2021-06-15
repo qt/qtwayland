@@ -57,6 +57,8 @@
 #include "qwaylandcursor_p.h"
 #include "qwaylanddisplay_p.h"
 #include "qwaylandshmbackingstore_p.h"
+#include "qwaylandtextinputv2_p.h"
+#include "qwaylandtextinputinterface_p.h"
 #include "qwaylandinputcontext_p.h"
 #include "qwaylandinputmethodcontext_p.h"
 
@@ -420,7 +422,7 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, 
 #endif
 
     if (mQDisplay->textInputManager())
-        mTextInput.reset(new QWaylandTextInput(mQDisplay, mQDisplay->textInputManager()->get_text_input(wl_seat())));
+        mTextInput.reset(new QWaylandTextInputv2(mQDisplay, mQDisplay->textInputManager()->get_text_input(wl_seat())));
 
     if (mQDisplay->textInputMethodManager())
         mTextInputMethod.reset(new QWaylandTextInputMethod(mQDisplay, mQDisplay->textInputMethodManager()->get_text_input_method(wl_seat())));
@@ -555,7 +557,7 @@ QWaylandPrimarySelectionDeviceV1 *QWaylandInputDevice::primarySelectionDevice() 
 }
 #endif
 
-void QWaylandInputDevice::setTextInput(QWaylandTextInput *textInput)
+void QWaylandInputDevice::setTextInput(QWaylandTextInputInterface *textInput)
 {
     mTextInput.reset(textInput);
 }
@@ -565,7 +567,7 @@ void QWaylandInputDevice::setTextInputMethod(QWaylandTextInputMethod *textInputM
     mTextInputMethod.reset(textInputMethod);
 }
 
-QWaylandTextInput *QWaylandInputDevice::textInput() const
+QWaylandTextInputInterface *QWaylandInputDevice::textInput() const
 {
     return mTextInput.data();
 }

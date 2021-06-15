@@ -60,6 +60,7 @@
 #include <wayland-cursor.h>
 #endif
 #include "qwaylandhardwareintegration_p.h"
+#include "qwaylandtextinputv2_p.h"
 #include "qwaylandinputcontext_p.h"
 #include "qwaylandinputmethodcontext_p.h"
 
@@ -510,7 +511,7 @@ bool QWaylandDisplay::registerTextInputManager(const QStringList &protocols, int
                 qCDebug(lcQpaWayland) << "text input: register zwp_text_input_manager_v2";
                 mTextInputManager.reset(new QtWayland::zwp_text_input_manager_v2(global.registry, global.id, 1));
                 for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
-                    inputDevice->setTextInput(new QWaylandTextInput(this, mTextInputManager->get_text_input(inputDevice->wl_seat())));
+                    inputDevice->setTextInput(new QWaylandTextInputv2(this, mTextInputManager->get_text_input(inputDevice->wl_seat())));
                 mWaylandIntegration->reconfigureInputContext();
                 return true;
             }

@@ -17,6 +17,8 @@ qt_internal_add_module(WlShellIntegrationPrivate
 )
 
 qt6_generate_wayland_protocol_client_sources(WlShellIntegrationPrivate
+    # this is just a helper module and still part of the QtWaylandClient build
+    WAYLAND_INCLUDE_DIR QtWaylandClient/private
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../3rdparty/protocol/wayland.xml
 )

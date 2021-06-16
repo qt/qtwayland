@@ -1,5 +1,5 @@
 function(qt6_generate_wayland_protocol_server_sources target)
-    cmake_parse_arguments(arg "" "" "FILES" ${ARGN})
+    cmake_parse_arguments(arg "" "WAYLAND_INCLUDE_DIR" "FILES" ${ARGN})
     if(DEFINED arg_UNPARSED_ARGUMENTS)
         message(FATAL_ERROR "Unknown arguments were passed to qt6_generate_wayland_protocol_server_sources: (${arg_UNPARSED_ARGUMENTS}).")
     endif()
@@ -32,14 +32,17 @@ function(qt6_generate_wayland_protocol_server_sources target)
             COMMAND Wayland::Scanner --strict --include-core-only public-code < "${protocol_file}" > "${waylandscanner_code_output}"
         )
 
-        # TODO: make this less hacky
         set(wayland_include_dir "")
-        get_target_property(qt_module ${target} _qt_module_interface_name)
-        get_target_property(is_for_module "${target}" INTERFACE_MODULE_HAS_HEADERS)
-        if (qt_module)
-            set(wayland_include_dir "Qt${qt_module}/private")
-        elseif (is_for_module)
-            set(wayland_include_dir "QtWaylandCompositor/private")
+        if(arg_WAYLAND_INCLUDE_DIR)
+            set(wayland_include_dir "${arg_WAYLAND_INCLUDE_DIR}")
+        else()
+            get_target_property(qt_module ${target} _qt_module_interface_name)
+            get_target_property(is_for_module "${target}" INTERFACE_MODULE_HAS_HEADERS)
+            if (qt_module)
+                set(wayland_include_dir "Qt${qt_module}/private")
+            elseif (is_for_module)
+                set(wayland_include_dir "QtWaylandCompositor/private")
+            endif()
         endif()
 
         add_custom_command(

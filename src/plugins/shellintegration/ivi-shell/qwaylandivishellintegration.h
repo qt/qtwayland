@@ -52,7 +52,6 @@ namespace QtWaylandClient {
 
 class QWaylandWindow;
 class QWaylandDisplay;
-class QWaylandIviControllerSurface;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandIviShellIntegration : public QWaylandShellIntegration
 {

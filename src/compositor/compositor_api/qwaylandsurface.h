@@ -51,7 +51,6 @@ class QTouchEvent;
 class QWaylandSurfacePrivate;
 class QWaylandBufferRef;
 class QWaylandView;
-class QWaylandSurfaceOp;
 class QWaylandInputMethodControl;
 
 class QWaylandSurfaceRole

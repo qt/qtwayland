@@ -65,7 +65,6 @@ class QOpenGLTextureCache;
 namespace QtWaylandClient {
 
 class QWaylandWindow;
-class QWaylandGLWindowSurface;
 class DecorationsBlitter;
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandGLContext : public QEGLPlatformContext

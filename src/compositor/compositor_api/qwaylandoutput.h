@@ -50,7 +50,6 @@ class QWindow;
 class QWaylandSurface;
 class QWaylandView;
 class QWaylandClient;
-class QWaylandOutputSpace;
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandOutput : public QWaylandObject
 {

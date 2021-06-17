@@ -53,7 +53,6 @@ class QWaylandCompositorPrivate;
 class QWaylandClient;
 class QWaylandSurface;
 class QWaylandSeat;
-class QWaylandGlobalInterface;
 class QWaylandView;
 class QWaylandPointer;
 class QWaylandKeyboard;

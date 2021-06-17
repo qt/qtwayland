@@ -37,8 +37,6 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandQuickShellIntegration;
 class QWaylandQuickShellSurfaceItem;
-class QWaylandShellSurfacePrivate;
-class QWaylandShellSurfaceTemplatePrivate;
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShellSurface : public QWaylandCompositorExtension
 {

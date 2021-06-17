@@ -51,7 +51,6 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 class QWaylandWindow;
-class QWaylandGLWindowSurface;
 
 class QWaylandBrcmGLContext : public QPlatformOpenGLContext {
 public:

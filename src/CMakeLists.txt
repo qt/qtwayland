@@ -11,30 +11,8 @@ configure the module on targets that are missing dependencies.")
     return()
 endif()
 
-# We conditionally add_subdirectory(client) based on a feature that is defined
-# in client/configure.cmake, so we need this hack to make sure the feature is
-# defined on this level as well.
-# TODO: when we remove configure.json support and stop generating
-# configure.cmake, we should move the features up one level and deduplicate the
-# features shared with the compositor.
-qt_feature_module_begin(
-    NO_MODULE
-    PUBLIC_FILE "qtwayland-client-config.h"
-    PRIVATE_FILE "qtwayland-client-config_p.h"
-)
-include("${CMAKE_CURRENT_SOURCE_DIR}/client/configure.cmake")
-qt_feature_module_end(NO_MODULE)
-
-# Similar hack as above, but for the compositor
-qt_feature_module_begin(
-    NO_MODULE
-    PUBLIC_FILE "qtwayland-compositor-config.h"
-    PRIVATE_FILE "qtwayland-compositor-config_p.h"
-)
-include("${CMAKE_CURRENT_SOURCE_DIR}/compositor/configure.cmake")
-qt_feature_module_end(NO_MODULE)
-# special case end
-
+# See global/README for a description of the following module.
+qt_internal_add_module(WaylandGlobalPrivate INTERNAL_MODULE HEADER_MODULE)
 add_subdirectory(qtwaylandscanner)
 
 # special case begin

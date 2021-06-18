@@ -41,6 +41,7 @@
 // We mean it.
 //
 
+#include <QtWaylandGlobal/private/qtwaylandglobal-config_p.h>
 #include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 #include <QtGui/private/qtguiglobal_p.h>
 #include <QtWaylandCompositor/private/qtwaylandcompositor-config_p.h>

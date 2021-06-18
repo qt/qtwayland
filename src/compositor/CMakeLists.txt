@@ -60,6 +60,7 @@ qt_internal_add_module(WaylandCompositor
     LIBRARIES
         Qt::CorePrivate
         Qt::GuiPrivate
+        Qt::WaylandGlobalPrivate
     PUBLIC_LIBRARIES
         Qt::Core
         Qt::Gui
@@ -67,6 +68,7 @@ qt_internal_add_module(WaylandCompositor
     PRIVATE_MODULE_INTERFACE
         Qt::CorePrivate
         Qt::GuiPrivate
+        Qt::WaylandGlobalPrivate
 )
 
 # Resources:

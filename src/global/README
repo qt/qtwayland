@@ -1,0 +1,9 @@
+The WaylandGlobalPrivate module is a module that contains configure
+features, shared by the modules of the qtwayland repository.
+
+The actual definition of this module is in src/CMakeLists.txt,
+because we need to have the qt_find_package calls in a directory scope
+above src/client and src/compositor.
+
+This file here mostly exists to make the otherwise empty src/global
+directory known to git.

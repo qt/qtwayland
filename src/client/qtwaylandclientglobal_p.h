@@ -51,9 +51,9 @@
 // We mean it.
 //
 
+#include <QtWaylandGlobal/private/qtwaylandglobal-config_p.h>
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <QtGui/private/qtguiglobal_p.h>
 #include <QtWaylandClient/private/qtwaylandclient-config_p.h>
 
 #endif //QWAYLANDCLIENTGLOBAL_P_H
-

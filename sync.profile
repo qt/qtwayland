@@ -1,4 +1,5 @@
 %modules = ( # path to module name map
+    "QtWaylandGlobal" => "$basedir/src/global",
     "QtWaylandCompositor" => "$basedir/src/compositor",
     "QtWaylandClient" => "$basedir/src/client",
     "QtWaylandEglClientHwIntegration" => "$basedir/src/hardwareintegration/client/wayland-egl",

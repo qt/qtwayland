@@ -58,6 +58,7 @@ WaylandQuickItem {
     WaylandQuickItem {
         id: dragIcon
         property point offset
+        inputEventsEnabled: false
 
         x: cursorItem.hotspotX + offset.x
         y: cursorItem.hotspotY + offset.y

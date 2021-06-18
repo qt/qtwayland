@@ -207,7 +207,6 @@ if (TARGET Qt::Qml)
         URI QtWayland.Compositor
         VERSION ${PROJECT_VERSION}
         CLASS_NAME QWaylandCompositorPlugin
-        NO_CREATE_BACKING_TARGET
         PLUGIN_TARGET qwaylandcompositorplugin
         QML_FILES ${qmlfiles}
         DEPENDENCIES

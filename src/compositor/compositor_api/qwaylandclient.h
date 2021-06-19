@@ -65,6 +65,7 @@ public:
         NoProtocol = 0,
         QtTextInputMethodV1 = 1,
         TextInputV2 = 2,
+        TextInputV4 = 4,
 
         QtTextInputMethod = QtTextInputMethodV1,
         TextInput = TextInputV2

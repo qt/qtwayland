@@ -63,6 +63,8 @@ public:
 
     static int indexFromWayland(const QString &text, int length, int base = 0);
     static int indexToWayland(const QString &text, int length, int base = 0);
+
+    static int trimmedIndexFromWayland(const QString &text, int length, int base = 0);
 private:
     QPair<int, int> replacementForDeleteSurrounding();
 
@@ -76,10 +78,11 @@ private:
 };
 
 struct QWaylandInputMethodContentType {
-    uint32_t hint;
-    uint32_t purpose;
+    uint32_t hint = 0;
+    uint32_t purpose = 0;
 
     static QWaylandInputMethodContentType convert(Qt::InputMethodHints hints);
+    static QWaylandInputMethodContentType convertV4(Qt::InputMethodHints hints);
 };
 
 

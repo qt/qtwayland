@@ -49,6 +49,9 @@
 #include <QtWaylandCompositor/qwaylandquickcompositor.h>
 #include <QtWaylandCompositor/qwaylandqtwindowmanager.h>
 #include <QtWaylandCompositor/qwaylandtextinputmanager.h>
+#if QT_WAYLAND_TEXT_INPUT_V4_WIP
+#include <QtWaylandCompositor/qwaylandtextinputmanagerv4.h>
+#endif // QT_WAYLAND_TEXT_INPUT_V4_WIP
 #include <QtWaylandCompositor/qwaylandqttextinputmethodmanager.h>
 #include <QtWaylandCompositor/qwaylandidleinhibitv1.h>
 
@@ -107,6 +110,9 @@ private:
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_CLASS(QWaylandQtWindowManager, QtWindowManager)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_CLASS(QWaylandIdleInhibitManagerV1, IdleInhibitManagerV1)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_CLASS(QWaylandTextInputManager, TextInputManager)
+#if QT_WAYLAND_TEXT_INPUT_V4_WIP
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_CLASS(QWaylandTextInputManagerV4, TextInputManagerV4)
+#endif // QT_WAYLAND_TEXT_INPUT_V4_WIP
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_CLASS(QWaylandQtTextInputMethodManager, QtTextInputMethodManager)
 
 QT_END_NAMESPACE

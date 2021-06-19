@@ -70,7 +70,11 @@ QWaylandInputContext::~QWaylandInputContext()
 
 bool QWaylandInputContext::isValid() const
 {
-    return mDisplay->textInputManager() != nullptr;
+#if QT_WAYLAND_TEXT_INPUT_V4_WIP
+    return mDisplay->textInputManagerv2() != nullptr || mDisplay->textInputManagerv4() != nullptr;
+#else //  QT_WAYLAND_TEXT_INPUT_V4_WIP
+    return mDisplay->textInputManagerv2() != nullptr;
+#endif // QT_WAYLAND_TEXT_INPUT_V4_WIP
 }
 
 void QWaylandInputContext::reset()

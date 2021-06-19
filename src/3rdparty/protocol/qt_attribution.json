@@ -119,6 +119,21 @@
     },
 
     {
+        "Id": "wayland-text-input-unstable-v4-wip",
+        "Name": "Wayland Text Input Protocol",
+        "QDocModule": "qtwaylandcompositor",
+        "QtUsage": "Used in the Qt Wayland Compositor, and the Qt Wayland platform plugin.",
+        "Files": "text-input-unstable-v4-wip.xml",
+        "Description": "Adds support for compositors to act as input methods and send text to applications.",
+        "Homepage": "https://wayland.freedesktop.org",
+        "Version": "unstable v4, WIP",
+        "LicenseId": "HPND",
+        "License": "HPND License",
+        "LicenseFile": "HPND_LICENSE.txt",
+        "Copyright": "Copyright © 2012, 2013 Intel Corporation\nCopyright © 2015, 2016 Jan Arne Petersen\nCopyright © 2017, 2018 Red Hat, Inc.\nCopyright © 2018       Purism SPC"
+    },
+
+    {
         "Id": "wayland-viewporter-protocol",
         "Name": "Wayland Viewporter Protocol",
         "QDocModule": "qtwaylandcompositor",

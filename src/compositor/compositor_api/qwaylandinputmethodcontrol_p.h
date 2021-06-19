@@ -52,6 +52,9 @@ class QWaylandCompositor;
 class QWaylandSeat;
 class QWaylandSurface;
 class QWaylandTextInput;
+#if QT_WAYLAND_TEXT_INPUT_V4_WIP
+class QWaylandTextInputV4;
+#endif // QT_WAYLAND_TEXT_INPUT_V4_WIP
 class QWaylandQtTextInputMethod;
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandInputMethodControlPrivate : public QObjectPrivate
@@ -62,6 +65,9 @@ public:
     explicit QWaylandInputMethodControlPrivate(QWaylandSurface *surface);
 
     QWaylandTextInput *textInput() const;
+#if QT_WAYLAND_TEXT_INPUT_V4_WIP
+    QWaylandTextInputV4 *textInputV4() const;
+#endif // QT_WAYLAND_TEXT_INPUT_V4_WIP
     QWaylandQtTextInputMethod *textInputMethod() const;
 
     QWaylandCompositor *compositor = nullptr;

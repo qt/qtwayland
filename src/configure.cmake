@@ -1,6 +1,7 @@
 # configure.cmake for the QtWaylandGlobalPrivate module
 
 #### Inputs
+set(INPUT_wayland_text_input_v4_wip OFF CACHE BOOL "")
 
 
 
@@ -233,7 +234,12 @@ qt_feature("xcomposite-glx" PRIVATE
               AND QT_FEATURE_opengl AND NOT QT_FEATURE_opengles2
               AND QT_FEATURE_xlib AND XComposite_FOUND
 )
+qt_feature("wayland-text-input-v4-wip" PRIVATE
+    LABEL "Qt Wayland TextInput Protocol V4(WIP)"
+    PURPOSE "Enables wayland_text_input_unstable_v4(wip)"
+)
 
+qt_configure_add_summary_entry(ARGS "wayland-text-input-v4-wip")
 qt_configure_add_summary_entry(ARGS "wayland-client")
 qt_configure_add_summary_entry(ARGS "wayland-server")
 qt_configure_add_summary_section(NAME "Qt Wayland Drivers")

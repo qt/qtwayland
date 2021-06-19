@@ -83,6 +83,7 @@ class QPlatformPlaceholderScreen;
 namespace QtWayland {
     class qt_surface_extension;
     class zwp_text_input_manager_v2;
+    class zwp_text_input_manager_v4;
     class qt_text_input_method_manager_v1;
 }
 
@@ -171,7 +172,8 @@ public:
     QWaylandPointerGestures *pointerGestures() const { return mPointerGestures.data(); }
     QWaylandTouchExtension *touchExtension() const { return mTouchExtension.data(); }
     QtWayland::qt_text_input_method_manager_v1 *textInputMethodManager() const { return mTextInputMethodManager.data(); }
-    QtWayland::zwp_text_input_manager_v2 *textInputManager() const { return mTextInputManager.data(); }
+    QtWayland::zwp_text_input_manager_v2 *textInputManagerv2() const { return mTextInputManagerv2.data(); }
+    QtWayland::zwp_text_input_manager_v4 *textInputManagerv4() const { return mTextInputManagerv4.data(); }
     QWaylandHardwareIntegration *hardwareIntegration() const { return mHardwareIntegration.data(); }
     QWaylandXdgOutputManagerV1 *xdgOutputManager() const { return mXdgOutputManager.data(); }
 
@@ -280,7 +282,8 @@ private:
     QScopedPointer<QWaylandPrimarySelectionDeviceManagerV1> mPrimarySelectionManager;
 #endif
     QScopedPointer<QtWayland::qt_text_input_method_manager_v1> mTextInputMethodManager;
-    QScopedPointer<QtWayland::zwp_text_input_manager_v2> mTextInputManager;
+    QScopedPointer<QtWayland::zwp_text_input_manager_v2> mTextInputManagerv2;
+    QScopedPointer<QtWayland::zwp_text_input_manager_v4> mTextInputManagerv4;
     QScopedPointer<QWaylandHardwareIntegration> mHardwareIntegration;
     QScopedPointer<QWaylandXdgOutputManagerV1> mXdgOutputManager;
     int mFd = -1;

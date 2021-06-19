@@ -61,6 +61,9 @@
 #endif
 #include "qwaylandhardwareintegration_p.h"
 #include "qwaylandtextinputv2_p.h"
+#if QT_WAYLAND_TEXT_INPUT_V4_WIP
+#include "qwaylandtextinputv4_p.h"
+#endif // QT_WAYLAND_TEXT_INPUT_V4_WIP
 #include "qwaylandinputcontext_p.h"
 #include "qwaylandinputmethodcontext_p.h"
 
@@ -76,6 +79,7 @@
 #include "qwaylandqtkey_p.h"
 
 #include <QtWaylandClient/private/qwayland-text-input-unstable-v2.h>
+#include <QtWaylandClient/private/qwayland-text-input-unstable-v4-wip.h>
 #include <QtWaylandClient/private/qwayland-wp-primary-selection-unstable-v1.h>
 #include <QtWaylandClient/private/qwayland-qt-text-input-method-unstable-v1.h>
 
@@ -450,6 +454,10 @@ void QWaylandDisplay::checkTextInputProtocol()
          << QLatin1String(QtWayland::zwp_text_input_v2::interface()->name);
     timps << QLatin1String(QtWayland::qt_text_input_method_manager_v1::interface()->name)
           << QLatin1String(QtWayland::zwp_text_input_manager_v2::interface()->name);
+#if QT_WAYLAND_TEXT_INPUT_V4_WIP
+    tips << QLatin1String(QtWayland::zwp_text_input_v4::interface()->name);
+    timps << QLatin1String(QtWayland::zwp_text_input_manager_v4::interface()->name);
+#endif // QT_WAYLAND_TEXT_INPUT_V4_WIP
 
     QString tiProtocols = QString::fromLocal8Bit(qgetenv("QT_WAYLAND_TEXT_INPUT_PROTOCOL"));
     qCDebug(lcQpaWayland) << "QT_WAYLAND_TEXT_INPUT_PROTOCOL=" << tiProtocols;
@@ -528,7 +536,10 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
             && (mTextInputManagerList.contains(interface) && mTextInputManagerList.indexOf(interface) < mTextInputManagerIndex)) {
         qCDebug(lcQpaWayland) << "text input: register qt_text_input_method_manager_v1";
         if (mTextInputManagerIndex < INT_MAX) {
-            mTextInputManager.reset();
+            mTextInputManagerv2.reset();
+#if QT_WAYLAND_TEXT_INPUT_V4_WIP
+            mTextInputManagerv4.reset();
+#endif // QT_WAYLAND_TEXT_INPUT_V4_WIP
             for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
                 inputDevice->setTextInput(nullptr);
         }
@@ -543,15 +554,35 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         qCDebug(lcQpaWayland) << "text input: register zwp_text_input_v2";
         if (mTextInputManagerIndex < INT_MAX) {
             mTextInputMethodManager.reset();
+#if QT_WAYLAND_TEXT_INPUT_V4_WIP
+            mTextInputManagerv4.reset();
+#endif // QT_WAYLAND_TEXT_INPUT_V4_WIP
             for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
                 inputDevice->setTextInputMethod(nullptr);
         }
 
-        mTextInputManager.reset(new QtWayland::zwp_text_input_manager_v2(registry, id, 1));
+        mTextInputManagerv2.reset(new QtWayland::zwp_text_input_manager_v2(registry, id, 1));
         for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
-            inputDevice->setTextInput(new QWaylandTextInputv2(this, mTextInputManager->get_text_input(inputDevice->wl_seat())));
+            inputDevice->setTextInput(new QWaylandTextInputv2(this, mTextInputManagerv2->get_text_input(inputDevice->wl_seat())));
         mWaylandIntegration->reconfigureInputContext();
         mTextInputManagerIndex = mTextInputManagerList.indexOf(interface);
+#if QT_WAYLAND_TEXT_INPUT_V4_WIP
+    } else if (interface == QLatin1String(QtWayland::zwp_text_input_manager_v4::interface()->name)
+            && (mTextInputManagerList.contains(interface) && mTextInputManagerList.indexOf(interface) < mTextInputManagerIndex)) {
+        qCDebug(lcQpaWayland) << "text input: register zwp_text_input_v4";
+        if (mTextInputManagerIndex < INT_MAX) {
+            mTextInputMethodManager.reset();
+            mTextInputManagerv2.reset();
+            for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
+                inputDevice->setTextInputMethod(nullptr);
+        }
+
+        mTextInputManagerv4.reset(new QtWayland::zwp_text_input_manager_v4(registry, id, 1));
+        for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
+            inputDevice->setTextInput(new QWaylandTextInputv4(this, mTextInputManagerv4->get_text_input(inputDevice->wl_seat())));
+        mWaylandIntegration->reconfigureInputContext();
+        mTextInputManagerIndex = mTextInputManagerList.indexOf(interface);
+#endif // QT_WAYLAND_TEXT_INPUT_V4_WIP
     } else if (interface == QLatin1String(QWaylandHardwareIntegration::interface()->name)) {
         bool disableHardwareIntegration = qEnvironmentVariableIntValue("QT_WAYLAND_DISABLE_HW_INTEGRATION");
         if (!disableHardwareIntegration) {
@@ -599,11 +630,19 @@ void QWaylandDisplay::registry_global_remove(uint32_t id)
                 }
             }
             if (global.interface == QLatin1String(QtWayland::zwp_text_input_manager_v2::interface()->name)) {
-                mTextInputManager.reset();
+                mTextInputManagerv2.reset();
                 for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
                     inputDevice->setTextInput(nullptr);
                 mWaylandIntegration->reconfigureInputContext();
             }
+#if QT_WAYLAND_TEXT_INPUT_V4_WIP
+            if (global.interface == QLatin1String(QtWayland::zwp_text_input_manager_v4::interface()->name)) {
+                mTextInputManagerv4.reset();
+                for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
+                    inputDevice->setTextInput(nullptr);
+                mWaylandIntegration->reconfigureInputContext();
+            }
+#endif // QT_WAYLAND_TEXT_INPUT_V4_WIP
             if (global.interface == QLatin1String(QtWayland::qt_text_input_method_manager_v1::interface()->name)) {
                 mTextInputMethodManager.reset();
                 for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))

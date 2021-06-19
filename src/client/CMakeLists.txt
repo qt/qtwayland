@@ -76,6 +76,7 @@ qt6_generate_wayland_protocol_client_sources(WaylandClient
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/pointer-gestures-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/tablet-unstable-v2.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input-unstable-v2.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input-unstable-v4-wip.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/wayland.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/wp-primary-selection-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-output-unstable-v1.xml
@@ -104,6 +105,13 @@ qt6_generate_wayland_protocol_client_sources(WaylandClient
 #         XKB::XKB
 # )
 # special case end
+
+qt_internal_extend_target(WaylandClient CONDITION QT_FEATURE_wayland_text_input_v4_wip
+    SOURCES
+        qwaylandtextinputv4.cpp qwaylandtextinputv4_p.h
+    DEFINES
+        QT_WAYLAND_TEXT_INPUT_V4_WIP=1
+)
 
 qt_internal_extend_target(WaylandClient CONDITION QT_FEATURE_clipboard
     SOURCES

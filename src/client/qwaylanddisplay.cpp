@@ -333,46 +333,46 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
 {
     struct ::wl_registry *registry = object();
 
-    if (interface == QStringLiteral("wl_output")) {
+    if (interface == QLatin1String(QtWayland::wl_output::interface()->name)) {
         mWaitingScreens << mWaylandIntegration->createPlatformScreen(this, version, id);
-    } else if (interface == QStringLiteral("wl_compositor")) {
+    } else if (interface == QLatin1String(QtWayland::wl_compositor::interface()->name)) {
         mCompositor.init(registry, id, qMin((int)version, 4));
-    } else if (interface == QStringLiteral("wl_shm")) {
+    } else if (interface == QLatin1String(QWaylandShm::interface()->name)) {
         mShm.reset(new QWaylandShm(this, version, id));
-    } else if (interface == QStringLiteral("wl_seat")) {
+    } else if (interface == QLatin1String(QWaylandInputDevice::interface()->name)) {
         QWaylandInputDevice *inputDevice = mWaylandIntegration->createInputDevice(this, version, id);
         mInputDevices.append(inputDevice);
 #if QT_CONFIG(wayland_datadevice)
-    } else if (interface == QStringLiteral("wl_data_device_manager")) {
+    } else if (interface == QLatin1String(QWaylandDataDeviceManager::interface()->name)) {
         mDndSelectionHandler.reset(new QWaylandDataDeviceManager(this, id));
 #endif
-    } else if (interface == QStringLiteral("qt_surface_extension")) {
+    } else if (interface == QLatin1String(QtWayland::qt_surface_extension::interface()->name)) {
         mWindowExtension.reset(new QtWayland::qt_surface_extension(registry, id, 1));
-    } else if (interface == QStringLiteral("wl_subcompositor")) {
+    } else if (interface == QLatin1String(QtWayland::wl_subcompositor::interface()->name)) {
         mSubCompositor.reset(new QtWayland::wl_subcompositor(registry, id, 1));
-    } else if (interface == QStringLiteral("qt_touch_extension")) {
+    } else if (interface == QLatin1String(QWaylandTouchExtension::interface()->name)) {
         mTouchExtension.reset(new QWaylandTouchExtension(this, id));
-    } else if (interface == QStringLiteral("zqt_key_v1")) {
+    } else if (interface == QLatin1String(QWaylandQtKeyExtension::interface()->name)) {
         mQtKeyExtension.reset(new QWaylandQtKeyExtension(this, id));
-    } else if (interface == QStringLiteral("zwp_tablet_manager_v2")) {
+    } else if (interface == QLatin1String(QWaylandTabletManagerV2::interface()->name)) {
         mTabletManager.reset(new QWaylandTabletManagerV2(this, id, qMin(1, int(version))));
-    } else if (interface == QStringLiteral("zwp_pointer_gestures_v1")) {
+    } else if (interface == QLatin1String(QWaylandPointerGestures::interface()->name)) {
         mPointerGestures.reset(new QWaylandPointerGestures(this, id, 1));
 #if QT_CONFIG(wayland_client_primary_selection)
-    } else if (interface == QStringLiteral("zwp_primary_selection_device_manager_v1")) {
+    } else if (interface == QLatin1String(QWaylandPrimarySelectionDeviceManagerV1::interface()->name)) {
         mPrimarySelectionManager.reset(new QWaylandPrimarySelectionDeviceManagerV1(this, id, 1));
 #endif
-    } else if (interface == QStringLiteral("qt_text_input_method_manager_v1") && !mClientSideInputContextRequested) {
+    } else if (interface == QLatin1String(QtWayland::qt_text_input_method_manager_v1::interface()->name) && !mClientSideInputContextRequested) {
         mTextInputMethodManager.reset(new QtWayland::qt_text_input_method_manager_v1(registry, id, 1));
         for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
             inputDevice->setTextInputMethod(new QWaylandTextInputMethod(this, mTextInputMethodManager->get_text_input_method(inputDevice->wl_seat())));
         mWaylandIntegration->reconfigureInputContext();
-    } else if (interface == QStringLiteral("zwp_text_input_manager_v2") && !mClientSideInputContextRequested) {
+    } else if (interface == QLatin1String(QtWayland::zwp_text_input_manager_v2::interface()->name) && !mClientSideInputContextRequested) {
         mTextInputManager.reset(new QtWayland::zwp_text_input_manager_v2(registry, id, 1));
         for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
             inputDevice->setTextInput(new QWaylandTextInput(this, mTextInputManager->get_text_input(inputDevice->wl_seat())));
         mWaylandIntegration->reconfigureInputContext();
-    } else if (interface == QStringLiteral("qt_hardware_integration")) {
+    } else if (interface == QLatin1String(QWaylandHardwareIntegration::interface()->name)) {
         bool disableHardwareIntegration = qEnvironmentVariableIntValue("QT_WAYLAND_DISABLE_HW_INTEGRATION");
         if (!disableHardwareIntegration) {
             mHardwareIntegration.reset(new QWaylandHardwareIntegration(registry, id));
@@ -380,7 +380,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
             // qt_hardware_integration before creating windows
             forceRoundTrip();
         }
-    } else if (interface == QLatin1String("zxdg_output_manager_v1")) {
+    } else if (interface == QLatin1String(QWaylandXdgOutputManagerV1::interface()->name)) {
         mXdgOutputManager.reset(new QWaylandXdgOutputManagerV1(this, id, version));
         for (auto *screen : qAsConst(mWaitingScreens))
             screen->initXdgOutput(xdgOutputManager());
@@ -399,7 +399,7 @@ void QWaylandDisplay::registry_global_remove(uint32_t id)
     for (int i = 0, ie = mGlobals.count(); i != ie; ++i) {
         RegistryGlobal &global = mGlobals[i];
         if (global.id == id) {
-            if (global.interface == QStringLiteral("wl_output")) {
+            if (global.interface == QLatin1String(QtWayland::wl_output::interface()->name)) {
                 for (auto *screen : mWaitingScreens) {
                     if (screen->outputId() == id) {
                         mWaitingScreens.removeOne(screen);
@@ -418,13 +418,13 @@ void QWaylandDisplay::registry_global_remove(uint32_t id)
                     }
                 }
             }
-            if (global.interface == QStringLiteral("zwp_text_input_manager_v2")) {
+            if (global.interface == QLatin1String(QtWayland::zwp_text_input_manager_v2::interface()->name)) {
                 mTextInputManager.reset();
                 for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
                     inputDevice->setTextInput(nullptr);
                 mWaylandIntegration->reconfigureInputContext();
             }
-            if (global.interface == QStringLiteral("qt_text_input_method_manager_v1")) {
+            if (global.interface == QLatin1String(QtWayland::qt_text_input_method_manager_v1::interface()->name)) {
                 mTextInputMethodManager.reset();
                 for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
                     inputDevice->setTextInputMethod(nullptr);

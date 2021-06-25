@@ -37,8 +37,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWAYLANDXCOMPOSITEEGLPLATFROMINTEGRATION_H
-#define QWAYLANDXCOMPOSITEEGLPLATFROMINTEGRATION_H
+#ifndef QWAYLANDXCOMPOSITEEGLPLATFORMINTEGRATION_H
+#define QWAYLANDXCOMPOSITEEGLPLATFORMINTEGRATION_H
 
 #include <QtWaylandClient/private/qwaylandintegration_p.h>
 

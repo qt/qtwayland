@@ -1,7 +1,5 @@
 .*.callgrind.out.*
 Makefile*
-*.pro.user*
-*.qmlproject.user*
 .*.swp
 *.o
 *.moc
@@ -59,3 +57,8 @@ tests/auto/client/*/tst_*
 !tests/auto/client/*/tst_*.cpp
 tests/auto/compositor/compositor/tst_compositor
 *~
+
+# Qt Creator generated files
+*.pro.user*
+*.qmlproject.user*
+CMakeLists.txt.user*

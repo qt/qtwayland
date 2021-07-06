@@ -12,7 +12,7 @@ qt_internal_add_plugin(DmaBufServerBufferPlugin
         main.cpp
     INCLUDE_DIRECTORIES
         ../../../../hardwareintegration/client/dmabuf-server
-    PUBLIC_LIBRARIES
+    LIBRARIES
         EGL::EGL
         Qt::Core
         Qt::Gui

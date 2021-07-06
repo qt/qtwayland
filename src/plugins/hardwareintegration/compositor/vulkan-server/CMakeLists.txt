@@ -15,13 +15,12 @@ qt_internal_add_plugin(VulkanServerBufferIntegrationPlugin
         ../../../../hardwareintegration/compositor/vulkan-server
         ../../../../hardwareintegration/compositor/vulkan-server/../../../3rdparty/util
     LIBRARIES
-        Wayland::Server
-    PUBLIC_LIBRARIES
         Qt::CorePrivate
         Qt::GuiPrivate
         Qt::OpenGLPrivate
         Qt::WaylandCompositor
         Qt::WaylandCompositorPrivate
+        Wayland::Server
 )
 
 qt6_generate_wayland_protocol_server_sources(VulkanServerBufferIntegrationPlugin

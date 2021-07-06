@@ -11,7 +11,7 @@ qt_internal_add_plugin(QWaylandFullScreenShellV1IntegrationPlugin
         main.cpp
         qwaylandfullscreenshellv1integration.cpp qwaylandfullscreenshellv1integration.h
         qwaylandfullscreenshellv1surface.cpp qwaylandfullscreenshellv1surface.h
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Core
         Qt::Gui
         Qt::GuiPrivate

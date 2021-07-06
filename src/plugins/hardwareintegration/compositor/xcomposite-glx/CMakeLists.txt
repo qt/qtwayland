@@ -17,9 +17,6 @@ qt_internal_add_plugin(QWaylandXCompositeGlxClientBufferIntegrationPlugin
         ../../../../hardwareintegration/compositor/xcomposite-glx
         ../../../../hardwareintegration/compositor/xcomposite_share
     LIBRARIES
-        Wayland::Server
-        X11::X11
-    PUBLIC_LIBRARIES
         PkgConfig::XComposite
         Qt::Core
         Qt::CorePrivate
@@ -27,6 +24,8 @@ qt_internal_add_plugin(QWaylandXCompositeGlxClientBufferIntegrationPlugin
         Qt::GuiPrivate
         Qt::WaylandCompositor
         Qt::WaylandCompositorPrivate
+        Wayland::Server
+        X11::X11
 )
 
 qt6_generate_wayland_protocol_server_sources(QWaylandXCompositeGlxClientBufferIntegrationPlugin

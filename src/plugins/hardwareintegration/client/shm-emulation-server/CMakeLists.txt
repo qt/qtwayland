@@ -12,7 +12,7 @@ qt_internal_add_plugin(ShmServerBufferPlugin
         main.cpp
     INCLUDE_DIRECTORIES
         ../../../../hardwareintegration/client/shm-emulation-server
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Core
         Qt::Gui
         Qt::OpenGL

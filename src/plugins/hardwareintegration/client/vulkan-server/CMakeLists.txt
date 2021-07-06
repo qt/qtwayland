@@ -12,7 +12,7 @@ qt_internal_add_plugin(VulkanServerBufferPlugin
         main.cpp
     INCLUDE_DIRECTORIES
         ../../../../hardwareintegration/client/vulkan-server
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Core
         Qt::Gui
         Qt::OpenGL

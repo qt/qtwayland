@@ -12,7 +12,7 @@ qt_internal_add_plugin(QWaylandXdgShellIntegrationPlugin
         qwaylandxdgdecorationv1.cpp qwaylandxdgdecorationv1_p.h
         qwaylandxdgshell.cpp qwaylandxdgshell_p.h
         qwaylandxdgshellintegration.cpp qwaylandxdgshellintegration_p.h
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Core
         Qt::Gui
         Qt::GuiPrivate

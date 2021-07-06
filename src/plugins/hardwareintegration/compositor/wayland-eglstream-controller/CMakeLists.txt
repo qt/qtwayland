@@ -16,13 +16,12 @@ qt_internal_add_plugin(QWaylandEglStreamClientBufferIntegrationPlugin
         ../../../../hardwareintegration/compositor/wayland-eglstream-controller
     LIBRARIES
         EGL::EGL
-        Wayland::Egl
-        Wayland::Server
-    PUBLIC_LIBRARIES
         Qt::CorePrivate
         Qt::GuiPrivate
         Qt::WaylandCompositor
         Qt::WaylandCompositorPrivate
+        Wayland::Egl
+        Wayland::Server
 )
 
 qt6_generate_wayland_protocol_server_sources(QWaylandEglStreamClientBufferIntegrationPlugin

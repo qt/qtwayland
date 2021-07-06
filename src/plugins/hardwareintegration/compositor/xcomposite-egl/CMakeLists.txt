@@ -19,9 +19,6 @@ qt_internal_add_plugin(QWaylandXCompositeEglClientBufferIntegrationPlugin
         ../../../../hardwareintegration/compositor/xcomposite_share
     LIBRARIES
         EGL::EGL
-        Wayland::Server
-        X11::X11
-    PUBLIC_LIBRARIES
         PkgConfig::XComposite
         Qt::Core
         Qt::CorePrivate
@@ -29,6 +26,8 @@ qt_internal_add_plugin(QWaylandXCompositeEglClientBufferIntegrationPlugin
         Qt::GuiPrivate
         Qt::WaylandCompositor
         Qt::WaylandCompositorPrivate
+        Wayland::Server
+        X11::X11
 )
 
 qt6_generate_wayland_protocol_server_sources(QWaylandXCompositeEglClientBufferIntegrationPlugin

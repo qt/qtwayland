@@ -9,7 +9,7 @@ qt_internal_add_plugin(QWaylandBradientDecorationPlugin
     TYPE wayland-decoration-client
     SOURCES
         main.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Core
         Qt::Gui
         Qt::WaylandClientPrivate

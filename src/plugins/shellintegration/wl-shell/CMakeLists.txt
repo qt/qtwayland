@@ -10,7 +10,7 @@ qt_internal_add_module(WlShellIntegrationPrivate
     SOURCES
         qwaylandwlshellintegration.cpp qwaylandwlshellintegration_p.h
         qwaylandwlshellsurface.cpp qwaylandwlshellsurface_p.h
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::GuiPrivate
         Qt::WaylandClientPrivate
         Wayland::Client
@@ -42,7 +42,7 @@ qt_internal_add_plugin(QWaylandWlShellIntegrationPlugin
     TYPE wayland-shell-integration
     SOURCES
         main.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::GuiPrivate
         Qt::WaylandClientPrivate
         Qt::WlShellIntegrationPrivate

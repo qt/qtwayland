@@ -17,7 +17,7 @@ qt_internal_add_plugin(QWaylandXCompositeEglPlatformIntegrationPlugin
     INCLUDE_DIRECTORIES
         ../../../hardwareintegration/client/xcomposite-egl
         ../../../hardwareintegration/client/xcomposite_share
-    PUBLIC_LIBRARIES
+    LIBRARIES
         EGL::EGL
         PkgConfig::XComposite
         Qt::Core

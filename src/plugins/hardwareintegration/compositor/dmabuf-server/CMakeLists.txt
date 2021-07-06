@@ -15,12 +15,11 @@ qt_internal_add_plugin(DmaBufServerBufferIntegrationPlugin
     LIBRARIES
         EGL::EGL
         Libdrm::Libdrm
-        Wayland::Server
-    PUBLIC_LIBRARIES
         Qt::CorePrivate
         Qt::GuiPrivate
         Qt::WaylandCompositor
         Qt::WaylandCompositorPrivate
+        Wayland::Server
 )
 
 qt6_generate_wayland_protocol_server_sources(DmaBufServerBufferIntegrationPlugin

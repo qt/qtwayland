@@ -14,7 +14,7 @@ qt_internal_add_qml_module(WaylandCompositorIviapplication
     NO_GENERATE_QMLTYPES
     SOURCES
         qwaylandcompositoriviapplicationplugin.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Core
         Qt::Gui
         Qt::WaylandCompositor

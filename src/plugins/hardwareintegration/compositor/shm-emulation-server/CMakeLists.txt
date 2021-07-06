@@ -13,12 +13,11 @@ qt_internal_add_plugin(ShmServerBufferIntegrationPlugin
     INCLUDE_DIRECTORIES
         ../../../../hardwareintegration/compositor/shm-emulation-server
     LIBRARIES
-        Wayland::Server
-    PUBLIC_LIBRARIES
         Qt::CorePrivate
         Qt::GuiPrivate
         Qt::WaylandCompositor
         Qt::WaylandCompositorPrivate
+        Wayland::Server
 )
 
 qt6_generate_wayland_protocol_server_sources(ShmServerBufferIntegrationPlugin

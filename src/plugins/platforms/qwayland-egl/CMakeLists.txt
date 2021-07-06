@@ -10,7 +10,7 @@ qt_internal_add_plugin(QWaylandEglPlatformIntegrationPlugin
     TYPE platforms
     SOURCES
         main.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Core
         Qt::Gui
         Qt::WaylandClientPrivate

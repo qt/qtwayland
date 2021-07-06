@@ -10,7 +10,7 @@ qt_internal_add_plugin(QWaylandEglClientBufferPlugin
     TYPE wayland-graphics-integration-client
     SOURCES
         main.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Core
         Qt::Gui
         Qt::WaylandClientPrivate

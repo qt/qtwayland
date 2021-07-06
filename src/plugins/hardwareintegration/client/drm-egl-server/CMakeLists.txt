@@ -12,7 +12,7 @@ qt_internal_add_plugin(DrmEglServerBufferPlugin
         main.cpp
     INCLUDE_DIRECTORIES
         ../../../../hardwareintegration/client/drm-egl-server
-    PUBLIC_LIBRARIES
+    LIBRARIES
         EGL::EGL
         Qt::Core
         Qt::Gui

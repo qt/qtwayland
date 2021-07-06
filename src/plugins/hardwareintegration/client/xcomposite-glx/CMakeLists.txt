@@ -16,7 +16,7 @@ qt_internal_add_plugin(QWaylandXCompositeGlxClientBufferPlugin
     INCLUDE_DIRECTORIES
         ../../../../hardwareintegration/client/xcomposite-glx
         ../../../../hardwareintegration/client/xcomposite_share
-    PUBLIC_LIBRARIES
+    LIBRARIES
         ${CMAKE_DL_LIBS}
         PkgConfig::XComposite
         Qt::Core

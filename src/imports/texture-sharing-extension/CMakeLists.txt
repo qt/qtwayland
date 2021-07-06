@@ -15,7 +15,7 @@ qt_internal_add_qml_module(WaylandTextureSharingExtension
     # misses a plugin.qmltypes files, so nothing to install
     SOURCES
         plugin.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Core
         Qt::CorePrivate
         Qt::Gui

@@ -17,7 +17,7 @@ qt_internal_add_qml_module(WaylandTextureSharing
         plugin.cpp
         sharedtextureprovider.cpp sharedtextureprovider_p.h
         texturesharingextension.cpp texturesharingextension_p.h
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Core
         Qt::CorePrivate
         Qt::Gui

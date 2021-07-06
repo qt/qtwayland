@@ -15,7 +15,7 @@ qt_internal_add_qml_module(WaylandCompositorWLShell
     INSTALL_SOURCE_QMLTYPES "plugins.qmltypes"
     SOURCES
         qwaylandcompositorwlshellplugin.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Core
         Qt::Gui
         Qt::WaylandCompositor

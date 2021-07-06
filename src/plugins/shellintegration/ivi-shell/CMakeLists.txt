@@ -11,7 +11,7 @@ qt_internal_add_plugin(QWaylandIviShellIntegrationPlugin
         main.cpp
         qwaylandivishellintegration.cpp qwaylandivishellintegration.h
         qwaylandivisurface.cpp qwaylandivisurface_p.h
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Core
         Qt::Gui
         Qt::GuiPrivate
@@ -32,6 +32,6 @@ qt6_generate_wayland_protocol_client_sources(QWaylandIviShellIntegrationPlugin
 #####################################################################
 
 qt_internal_extend_target(QWaylandIviShellIntegrationPlugin CONDITION QT_FEATURE_xkbcommon
-    PUBLIC_LIBRARIES
+    LIBRARIES
         XKB::XKB
 )

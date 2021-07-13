@@ -1004,10 +1004,10 @@ void QWaylandWindow::handleSwipeGesture(QWaylandInputDevice *inputDevice,
                 return;
 
             if (!e.delta.isNull()) {
-                QWindowSystemInterface::handleGestureEventWithValueAndDeltas(
+                QWindowSystemInterface::handleGestureEventWithValueAndDelta(
                             window(), e.timestamp, inputDevice->mTouchPadDevice,
                             Qt::PanNativeGesture,
-                            0, QVector2D(e.delta), e.local, e.global, e.fingers);
+                            0, e.delta, e.local, e.global, e.fingers);
             }
             break;
         case Qt::GestureFinished:
@@ -1059,10 +1059,10 @@ void QWaylandWindow::handlePinchGesture(QWaylandInputDevice *inputDevice,
                 return;
 
             if (!e.delta.isNull()) {
-                QWindowSystemInterface::handleGestureEventWithValueAndDeltas(
+                QWindowSystemInterface::handleGestureEventWithValueAndDelta(
                             window(), e.timestamp, inputDevice->mTouchPadDevice,
                             Qt::PanNativeGesture,
-                            0, QVector2D(e.delta), e.local, e.global, e.fingers);
+                            0, e.delta, e.local, e.global, e.fingers);
             }
             if (e.rotation_delta != 0) {
                 QWindowSystemInterface::handleGestureEventWithRealValue(window(), e.timestamp,

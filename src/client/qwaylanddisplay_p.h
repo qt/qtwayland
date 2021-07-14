@@ -285,7 +285,6 @@ private:
     QScopedPointer<QtWayland::zwp_text_input_manager_v2> mTextInputManager;
     QScopedPointer<QWaylandHardwareIntegration> mHardwareIntegration;
     QScopedPointer<QWaylandXdgOutputManagerV1> mXdgOutputManager;
-    QSocketNotifier *mReadNotifier = nullptr;
     int mFd = -1;
     int mWritableNotificationFd = -1;
     QList<RegistryGlobal> mGlobals;

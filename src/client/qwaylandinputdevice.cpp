@@ -1337,14 +1337,6 @@ void QWaylandInputDevice::Keyboard::handleFocusDestroyed()
 void QWaylandInputDevice::Keyboard::handleFocusLost()
 {
     mFocus = nullptr;
-#if QT_CONFIG(clipboard)
-    if (auto *dataDevice = mParent->dataDevice())
-        dataDevice->invalidateSelectionOffer();
-#endif
-#if QT_CONFIG(wayland_client_primary_selection)
-    if (auto *device = mParent->primarySelectionDevice())
-        device->invalidateSelectionOffer();
-#endif
     mParent->mQDisplay->handleKeyboardFocusChanged(mParent);
     mRepeatTimer.stop();
 }

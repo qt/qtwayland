@@ -70,7 +70,7 @@
  * \section1 The Example
  *
  * A Qt Wayland Compositor may support multiple shell extensions at once, but the
- * \e{IVICompositor example} only supports the \l IVIApplication protocol. This means that the
+ * \e{IVICompositor example} only supports the \l IviApplication protocol. This means that the
  * clients have to also support this shell extension in order to connect to the server.
  *
  * The compositor window in the example is split into two horizontally: A left area which is

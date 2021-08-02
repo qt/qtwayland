@@ -374,8 +374,7 @@ public:
 
     ~QWaylandSurfaceTextureProvider() override
     {
-        if (m_sgTex)
-            m_sgTex->deleteLater();
+        delete m_sgTex;
     }
 
     void setBufferRef(QWaylandQuickItem *surfaceItem, const QWaylandBufferRef &buffer)

@@ -933,8 +933,9 @@ void QWaylandQuickItem::handlePlaceBelow(QWaylandSurface *referenceSurface)
   \code
   ShellSurfaceItem {
       subsurfaceHandler: QtObject {
-      function handleSubsurfaceAdded(child) {
-        //create custom surface item, and connect the subsurfacePositionChanged signal
+          function handleSubsurfaceAdded(child) {
+            // create custom surface item, and connect the subsurfacePositionChanged signal
+          }
       }
   }
   \endcode

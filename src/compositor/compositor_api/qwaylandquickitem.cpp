@@ -846,6 +846,10 @@ void QWaylandQuickItem::handleSubsurfaceAdded(QWaylandSurface *childSurface)
     } else {
         bool success = QMetaObject::invokeMethod(d->subsurfaceHandler, "handleSubsurfaceAdded", Q_ARG(QWaylandSurface *, childSurface));
         if (!success)
+            success = QMetaObject::invokeMethod(d->subsurfaceHandler, "handleSubsurfaceAdded",
+                                                Q_ARG(QVariant, QVariant::fromValue(childSurface)));
+
+        if (!success)
             qWarning("QWaylandQuickItem: subsurfaceHandler does not implement handleSubsurfaceAdded()");
     }
 }

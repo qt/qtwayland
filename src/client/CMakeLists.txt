@@ -139,6 +139,5 @@ qt_internal_extend_target(WaylandClient CONDITION QT_FEATURE_draganddrop
         qwaylanddnd.cpp qwaylanddnd_p.h
 )
 
-# special case begin
 qt_record_extra_qt_main_tools_package_dependency(WaylandClient WaylandScannerTools "${PROJECT_VERSION}")
-# special case end
+qt_record_extra_qt_package_dependency(WaylandClient WaylandGlobalPrivate "${PROJECT_VERSION}")

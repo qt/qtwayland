@@ -1527,7 +1527,17 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
         material->bind();
     }
 
-    QSGGeometry::updateTexturedRectGeometry(geometry, rect, QRectF(0, 0, 1, 1));
+    const QSize surfaceSize = ref.size() / surface()->bufferScale();
+    const QRectF sourceGeometry = surface()->sourceGeometry();
+    const QRectF normalizedCoordinates =
+            sourceGeometry.isValid()
+            ? QRectF(sourceGeometry.x() / surfaceSize.width(),
+                     sourceGeometry.y() / surfaceSize.height(),
+                     sourceGeometry.width() / surfaceSize.width(),
+                     sourceGeometry.height() / surfaceSize.height())
+            : QRectF(0, 0, 1, 1);
+
+    QSGGeometry::updateTexturedRectGeometry(geometry, rect, normalizedCoordinates);
 
     node->setGeometry(geometry);
     node->setFlag(QSGNode::OwnsGeometry, true);

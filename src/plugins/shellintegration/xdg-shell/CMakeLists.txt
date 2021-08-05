@@ -6,7 +6,7 @@
 
 qt_internal_add_plugin(QWaylandXdgShellIntegrationPlugin
     OUTPUT_NAME xdg-shell
-    TYPE wayland-shell-integration
+    PLUGIN_TYPE wayland-shell-integration
     SOURCES
         main.cpp
         qwaylandxdgdecorationv1.cpp qwaylandxdgdecorationv1_p.h

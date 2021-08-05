@@ -6,7 +6,7 @@
 
 qt_internal_add_plugin(VulkanServerBufferPlugin
     OUTPUT_NAME vulkan-server
-    TYPE wayland-graphics-integration-client
+    PLUGIN_TYPE wayland-graphics-integration-client
     SOURCES
         ../../../../hardwareintegration/client/vulkan-server/vulkanserverbufferintegration.cpp ../../../../hardwareintegration/client/vulkan-server/vulkanserverbufferintegration.h
         main.cpp

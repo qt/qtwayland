@@ -7,7 +7,7 @@ qt_find_package(EGL) # special case
 
 qt_internal_add_plugin(QWaylandXCompositeEglPlatformIntegrationPlugin
     OUTPUT_NAME qwayland-xcomposite-egl
-    TYPE platforms
+    PLUGIN_TYPE platforms
     SOURCES
         ../../../hardwareintegration/client/xcomposite-egl/qwaylandxcompositeeglclientbufferintegration.cpp ../../../hardwareintegration/client/xcomposite-egl/qwaylandxcompositeeglclientbufferintegration.h
         ../../../hardwareintegration/client/xcomposite-egl/qwaylandxcompositeeglcontext.cpp ../../../hardwareintegration/client/xcomposite-egl/qwaylandxcompositeeglcontext.h

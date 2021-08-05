@@ -7,7 +7,7 @@ qt_find_package(EGL) # special case
 
 qt_internal_add_plugin(QWaylandXCompositeEglClientBufferIntegrationPlugin
     OUTPUT_NAME qt-wayland-compositor-xcomposite-egl
-    TYPE wayland-graphics-integration-server
+    PLUGIN_TYPE wayland-graphics-integration-server
     SOURCES
         ../../../../hardwareintegration/compositor/xcomposite-egl/xcompositeeglintegration.cpp ../../../../hardwareintegration/compositor/xcomposite-egl/xcompositeeglintegration.h
         ../../../../hardwareintegration/compositor/xcomposite_share/xcompositebuffer.cpp ../../../../hardwareintegration/compositor/xcomposite_share/xcompositebuffer.h

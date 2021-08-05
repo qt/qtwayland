@@ -6,7 +6,7 @@
 
 qt_internal_add_plugin(QWaylandXCompositeGlxPlatformIntegrationPlugin
     OUTPUT_NAME qwayland-xcomposite-glx
-    TYPE platforms
+    PLUGIN_TYPE platforms
     SOURCES
         ../../../hardwareintegration/client/xcomposite-glx/qwaylandxcompositeglxcontext.cpp ../../../hardwareintegration/client/xcomposite-glx/qwaylandxcompositeglxcontext.h
         ../../../hardwareintegration/client/xcomposite-glx/qwaylandxcompositeglxintegration.cpp ../../../hardwareintegration/client/xcomposite-glx/qwaylandxcompositeglxintegration.h

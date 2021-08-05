@@ -7,7 +7,7 @@ qt_find_package(EGL) # special case
 
 qt_internal_add_plugin(QWaylandEglClientBufferPlugin
     OUTPUT_NAME qt-plugin-wayland-egl
-    TYPE wayland-graphics-integration-client
+    PLUGIN_TYPE wayland-graphics-integration-client
     SOURCES
         main.cpp
     LIBRARIES

@@ -6,7 +6,7 @@
 
 qt_internal_add_plugin(QWaylandBrcmEglClientBufferPlugin
     OUTPUT_NAME brcm-egl
-    TYPE wayland-graphics-integration-client
+    PLUGIN_TYPE wayland-graphics-integration-client
     SOURCES
         ../../../../hardwareintegration/client/brcm-egl/qwaylandbrcmeglintegration.cpp ../../../../hardwareintegration/client/brcm-egl/qwaylandbrcmeglintegration.h
         ../../../../hardwareintegration/client/brcm-egl/qwaylandbrcmeglwindow.cpp ../../../../hardwareintegration/client/brcm-egl/qwaylandbrcmeglwindow.h

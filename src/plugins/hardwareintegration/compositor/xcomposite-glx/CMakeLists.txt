@@ -6,7 +6,7 @@
 
 qt_internal_add_plugin(QWaylandXCompositeGlxClientBufferIntegrationPlugin
     OUTPUT_NAME qt-wayland-compositor-xcomposite-glx
-    TYPE wayland-graphics-integration-server
+    PLUGIN_TYPE wayland-graphics-integration-server
     SOURCES
         ../../../../hardwareintegration/compositor/xcomposite-glx/xcompositeglxintegration.cpp ../../../../hardwareintegration/compositor/xcomposite-glx/xcompositeglxintegration.h
         ../../../../hardwareintegration/compositor/xcomposite_share/xcompositebuffer.cpp ../../../../hardwareintegration/compositor/xcomposite_share/xcompositebuffer.h

@@ -6,7 +6,7 @@
 
 qt_internal_add_plugin(Vsp2HardwareLayerIntegrationPlugin
     OUTPUT_NAME qt-wayland-compositor-vsp2
-    TYPE wayland-hardware-layer-integration
+    PLUGIN_TYPE wayland-hardware-layer-integration
     SOURCES
         ../../../../../hardwareintegration/compositor/hardwarelayer/vsp2/vsp2hardwarelayerintegration.cpp ../../../../../hardwareintegration/compositor/hardwarelayer/vsp2/vsp2hardwarelayerintegration.h
         main.cpp

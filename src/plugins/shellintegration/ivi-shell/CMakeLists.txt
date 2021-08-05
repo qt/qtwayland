@@ -6,7 +6,7 @@
 
 qt_internal_add_plugin(QWaylandIviShellIntegrationPlugin
     OUTPUT_NAME ivi-shell
-    TYPE wayland-shell-integration
+    PLUGIN_TYPE wayland-shell-integration
     SOURCES
         main.cpp
         qwaylandivishellintegration.cpp qwaylandivishellintegration.h

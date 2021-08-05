@@ -7,7 +7,7 @@ qt_find_package(EGL) # special case
 
 qt_internal_add_plugin(QWaylandEglPlatformIntegrationPlugin
     OUTPUT_NAME qwayland-egl
-    TYPE platforms
+    PLUGIN_TYPE platforms
     SOURCES
         main.cpp
     LIBRARIES

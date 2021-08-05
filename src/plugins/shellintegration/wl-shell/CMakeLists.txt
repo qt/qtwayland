@@ -39,7 +39,7 @@ qt_internal_extend_target(WlShellIntegrationPrivate CONDITION QT_FEATURE_xkbcomm
 
 qt_internal_add_plugin(QWaylandWlShellIntegrationPlugin
     OUTPUT_NAME wl-shell-plugin
-    TYPE wayland-shell-integration
+    PLUGIN_TYPE wayland-shell-integration
     SOURCES
         main.cpp
     LIBRARIES

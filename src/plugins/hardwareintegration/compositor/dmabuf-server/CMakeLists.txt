@@ -6,7 +6,7 @@
 
 qt_internal_add_plugin(DmaBufServerBufferIntegrationPlugin
     OUTPUT_NAME qt-wayland-compositor-dmabuf-server-buffer
-    TYPE wayland-graphics-integration-server
+    PLUGIN_TYPE wayland-graphics-integration-server
     SOURCES
         ../../../../hardwareintegration/compositor/dmabuf-server/dmabufserverbufferintegration.cpp ../../../../hardwareintegration/compositor/dmabuf-server/dmabufserverbufferintegration.h
         main.cpp

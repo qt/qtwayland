@@ -6,7 +6,7 @@
 
 qt_internal_add_plugin(DrmEglServerBufferIntegrationPlugin
     OUTPUT_NAME qt-wayland-compositor-drm-egl-server-buffer
-    TYPE wayland-graphics-integration-server
+    PLUGIN_TYPE wayland-graphics-integration-server
     SOURCES
         ../../../../hardwareintegration/compositor/drm-egl-server/drmeglserverbufferintegration.cpp ../../../../hardwareintegration/compositor/drm-egl-server/drmeglserverbufferintegration.h
         main.cpp

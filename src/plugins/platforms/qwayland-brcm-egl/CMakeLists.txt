@@ -6,7 +6,7 @@
 
 qt_internal_add_plugin(QWaylandBrcmEglPlatformIntegrationPlugin
     OUTPUT_NAME qwayland-brcm-egl
-    TYPE platforms
+    PLUGIN_TYPE platforms
     SOURCES
         ../../../hardwareintegration/client/brcm-egl/qwaylandbrcmeglintegration.cpp ../../../hardwareintegration/client/brcm-egl/qwaylandbrcmeglintegration.h
         ../../../hardwareintegration/client/brcm-egl/qwaylandbrcmeglwindow.cpp ../../../hardwareintegration/client/brcm-egl/qwaylandbrcmeglwindow.h

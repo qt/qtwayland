@@ -7,7 +7,7 @@ qt_find_package(EGL) # special case
 
 qt_internal_add_plugin(QWaylandEglStreamClientBufferIntegrationPlugin
     OUTPUT_NAME qt-wayland-compositor-wayland-eglstream-controller
-    TYPE wayland-graphics-integration-server
+    PLUGIN_TYPE wayland-graphics-integration-server
     SOURCES
         ../../../../hardwareintegration/compositor/wayland-eglstream-controller/waylandeglstreamcontroller.cpp ../../../../hardwareintegration/compositor/wayland-eglstream-controller/waylandeglstreamcontroller.h
         ../../../../hardwareintegration/compositor/wayland-eglstream-controller/waylandeglstreamintegration.cpp ../../../../hardwareintegration/compositor/wayland-eglstream-controller/waylandeglstreamintegration.h

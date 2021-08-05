@@ -6,7 +6,7 @@
 
 qt_internal_add_plugin(LibHybrisEglServerBufferIntegrationPlugin
     OUTPUT_NAME qt-wayland-compositor-libybris-egl-server.json
-    TYPE wayland-graphics-integration-server
+    PLUGIN_TYPE wayland-graphics-integration-server
     SOURCES
         ../../../../hardwareintegration/compositor/libhybris-egl-server/libhybriseglserverbufferintegration.cpp ../../../../hardwareintegration/compositor/libhybris-egl-server/libhybriseglserverbufferintegration.h
         main.cpp

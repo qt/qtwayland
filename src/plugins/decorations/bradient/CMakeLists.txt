@@ -6,7 +6,7 @@
 
 qt_internal_add_plugin(QWaylandBradientDecorationPlugin
     OUTPUT_NAME bradient
-    TYPE wayland-decoration-client
+    PLUGIN_TYPE wayland-decoration-client
     SOURCES
         main.cpp
     LIBRARIES

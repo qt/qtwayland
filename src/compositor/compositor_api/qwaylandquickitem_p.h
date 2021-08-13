@@ -77,6 +77,7 @@ public:
     ~QWaylandBufferMaterial() override;
 
     void setTextureForPlane(int plane, QOpenGLTexture *texture, QSGTexture *scenegraphTexture);
+    void setBufferRef(QWaylandQuickItem *surfaceItem, const QWaylandBufferRef &ref);
 
     void bind();
     void updateScenegraphTextures(QRhi *rhi);
@@ -93,6 +94,7 @@ private:
     const QWaylandBufferRef::BufferFormatEgl m_format;
     QVarLengthArray<QOpenGLTexture*, 3> m_textures;
     QVarLengthArray<QSGTexture*, 3> m_scenegraphTextures;
+    QWaylandBufferRef m_bufferRef;
 };
 #endif // QT_CONFIG(opengl)
 

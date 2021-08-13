@@ -361,6 +361,35 @@ void QWaylandBufferMaterial::ensureTextures(int count)
         m_scenegraphTextures << nullptr;
     }
 }
+
+void QWaylandBufferMaterial::setBufferRef(QWaylandQuickItem *surfaceItem, const QWaylandBufferRef &ref)
+{
+    m_bufferRef = ref;
+    for (int plane = 0; plane < bufferTypes[ref.bufferFormatEgl()].planeCount; plane++) {
+        if (auto texture = ref.toOpenGLTexture(plane)) {
+            QQuickWindow::CreateTextureOptions opt;
+            QWaylandQuickSurface *waylandSurface = qobject_cast<QWaylandQuickSurface *>(surfaceItem->surface());
+            if (waylandSurface != nullptr && waylandSurface->useTextureAlpha())
+                opt |= QQuickWindow::TextureHasAlphaChannel;
+            QSGTexture *scenegraphTexture;
+            if (ref.bufferFormatEgl() == QWaylandBufferRef::BufferFormatEgl_EXTERNAL_OES) {
+                scenegraphTexture = QNativeInterface::QSGOpenGLTexture::fromNativeExternalOES(texture->textureId(),
+                                                                                              surfaceItem->window(),
+                                                                                              ref.size(),
+                                                                                              opt);
+            } else {
+                scenegraphTexture = QNativeInterface::QSGOpenGLTexture::fromNative(texture->textureId(),
+                                                                                   surfaceItem->window(),
+                                                                                   ref.size(),
+                                                                                   opt);
+            }
+            scenegraphTexture->setFiltering(surfaceItem->smooth() ? QSGTexture::Linear : QSGTexture::Nearest);
+            setTextureForPlane(plane, texture, scenegraphTexture);
+        }
+    }
+
+    bind();
+}
 #endif // QT_CONFIG(opengl)
 
 QMutex *QWaylandQuickItemPrivate::mutex = nullptr;
@@ -1507,28 +1536,7 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
 
     if (d->newTexture) {
         d->newTexture = false;
-        for (int plane = 0; plane < bufferTypes[ref.bufferFormatEgl()].planeCount; plane++)
-            if (auto texture = ref.toOpenGLTexture(plane)) {
-                QQuickWindow::CreateTextureOptions opt;
-                QWaylandQuickSurface *waylandSurface = qobject_cast<QWaylandQuickSurface *>(surface());
-                if (waylandSurface != nullptr && waylandSurface->useTextureAlpha())
-                    opt |= QQuickWindow::TextureHasAlphaChannel;
-                QSGTexture *scenegraphTexture;
-                if (ref.bufferFormatEgl() == QWaylandBufferRef::BufferFormatEgl_EXTERNAL_OES) {
-                    scenegraphTexture = QNativeInterface::QSGOpenGLTexture::fromNativeExternalOES(texture->textureId(),
-                                                                                                     window(),
-                                                                                                     ref.size(),
-                                                                                                     opt);
-                } else {
-                    scenegraphTexture = QNativeInterface::QSGOpenGLTexture::fromNative(texture->textureId(),
-                                                                                                     window(),
-                                                                                                     ref.size(),
-                                                                                                     opt);
-                }
-                scenegraphTexture->setFiltering(smooth() ? QSGTexture::Linear : QSGTexture::Nearest);
-                material->setTextureForPlane(plane, texture, scenegraphTexture);
-            }
-        material->bind();
+        material->setBufferRef(this, ref);
     }
 
     const QSize surfaceSize = ref.size() / surface()->bufferScale();

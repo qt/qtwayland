@@ -58,9 +58,9 @@
 int main(int argc, char *argv[])
 {
     // AA_ShareOpenGLContexts is required for compositors with multiple outputs
-    // ![share context]
+    //! [share context]
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts, true);
-    // ![share context]
+    //! [share context]
     QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine appEngine(QUrl("qrc:///qml/main.qml"));

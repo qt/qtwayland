@@ -1,6 +1,6 @@
 # Generated from qml-client.pro.
 
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.16)
 project(custom-extension-qml-client) # special case
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)

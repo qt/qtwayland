@@ -64,7 +64,8 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 QWaylandDataDevice::QWaylandDataDevice(QWaylandDataDeviceManager *manager, QWaylandInputDevice *inputDevice)
-    : QtWayland::wl_data_device(manager->get_data_device(inputDevice->wl_seat()))
+    : QObject(inputDevice)
+    , QtWayland::wl_data_device(manager->get_data_device(inputDevice->wl_seat()))
     , m_display(manager->display())
     , m_inputDevice(inputDevice)
 {

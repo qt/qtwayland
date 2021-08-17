@@ -193,11 +193,11 @@ protected:
     QScopedPointer<QWaylandPrimarySelectionDeviceV1> mPrimarySelectionDevice;
 #endif
 
-    Keyboard *mKeyboard = nullptr;
-    Pointer *mPointer = nullptr;
-    QWaylandPointerGestureSwipe *mPointerGestureSwipe = nullptr;
-    QWaylandPointerGesturePinch *mPointerGesturePinch = nullptr;
-    Touch *mTouch = nullptr;
+    QScopedPointer<Keyboard> mKeyboard;
+    QScopedPointer<Pointer> mPointer;
+    QScopedPointer<QWaylandPointerGestureSwipe> mPointerGestureSwipe;
+    QScopedPointer<QWaylandPointerGesturePinch> mPointerGesturePinch;
+    QScopedPointer<Touch> mTouch;
 
     QScopedPointer<QWaylandTextInput> mTextInput;
     QScopedPointer<QWaylandTextInputMethod> mTextInputMethod;

@@ -429,66 +429,57 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, 
         mTabletSeat.reset(new QWaylandTabletSeatV2(tm, this));
 }
 
-QWaylandInputDevice::~QWaylandInputDevice()
-{
-    delete mPointer;
-    delete mKeyboard;
-    delete mTouch;
-}
+// Can't be in header because dtors for scoped pointers aren't known there.
+QWaylandInputDevice::~QWaylandInputDevice() = default;
 
 void QWaylandInputDevice::seat_capabilities(uint32_t caps)
 {
     mCaps = caps;
 
     if (caps & WL_SEAT_CAPABILITY_KEYBOARD && !mKeyboard) {
-        mKeyboard = createKeyboard(this);
+        mKeyboard.reset(createKeyboard(this));
         mKeyboard->init(get_keyboard());
     } else if (!(caps & WL_SEAT_CAPABILITY_KEYBOARD) && mKeyboard) {
-        delete mKeyboard;
-        mKeyboard = nullptr;
+        mKeyboard.reset();
     }
 
     if (caps & WL_SEAT_CAPABILITY_POINTER && !mPointer) {
-        mPointer = createPointer(this);
+        mPointer.reset(createPointer(this));
         mPointer->init(get_pointer());
 
         auto *pointerGestures = mQDisplay->pointerGestures();
         if (pointerGestures) {
             // NOTE: The name of the device and its system ID are not exposed on Wayland.
-            mTouchPadDevice = new QPointingDevice(QLatin1String("touchpad"), 0,
-                                                  QInputDevice::DeviceType::TouchPad,
-                                                  QPointingDevice::PointerType::Finger,
-                                                  QInputDevice::Capability::Position,
-                                                  MaxTouchPoints, 0);
+            mTouchPadDevice = new QPointingDevice(
+                        QLatin1String("touchpad"), 0, QInputDevice::DeviceType::TouchPad,
+                        QPointingDevice::PointerType::Finger, QInputDevice::Capability::Position,
+                        MaxTouchPoints, 0, QString(), QPointingDeviceUniqueId(), this);
             QWindowSystemInterface::registerInputDevice(mTouchPadDevice);
-            mPointerGesturePinch = pointerGestures->createPointerGesturePinch(this);
+            mPointerGesturePinch.reset(pointerGestures->createPointerGesturePinch(this));
             mPointerGesturePinch->init(pointerGestures->get_pinch_gesture(get_pointer()));
-            mPointerGestureSwipe = pointerGestures->createPointerGestureSwipe(this);
+            mPointerGestureSwipe.reset(pointerGestures->createPointerGestureSwipe(this));
             mPointerGestureSwipe->init(pointerGestures->get_swipe_gesture(get_pointer()));
         }
     } else if (!(caps & WL_SEAT_CAPABILITY_POINTER) && mPointer) {
-        delete mPointer;
-        mPointer = nullptr;
-        delete mPointerGesturePinch;
-        mPointerGesturePinch = nullptr;
-        delete mPointerGestureSwipe;
-        mPointerGestureSwipe = nullptr;
+        mPointer.reset();
+        mPointerGesturePinch.reset();
+        mPointerGestureSwipe.reset();
     }
 
     if (caps & WL_SEAT_CAPABILITY_TOUCH && !mTouch) {
-        mTouch = createTouch(this);
+        mTouch.reset(createTouch(this));
         mTouch->init(get_touch());
 
         if (!mTouchDevice) {
             // TODO number of touchpoints, actual name and ID
-            mTouchDevice = new QPointingDevice(QLatin1String("some touchscreen"), 0,
-                                               QInputDevice::DeviceType::TouchScreen, QPointingDevice::PointerType::Finger,
-                                               QInputDevice::Capability::Position, MaxTouchPoints, 0);
+            mTouchDevice = new QPointingDevice(
+                        QLatin1String("some touchscreen"), 0, QInputDevice::DeviceType::TouchScreen,
+                        QPointingDevice::PointerType::Finger, QInputDevice::Capability::Position,
+                        MaxTouchPoints, 0,QString(), QPointingDeviceUniqueId(), this);
             QWindowSystemInterface::registerInputDevice(mTouchDevice);
         }
     } else if (!(caps & WL_SEAT_CAPABILITY_TOUCH) && mTouch) {
-        delete mTouch;
-        mTouch = nullptr;
+        mTouch.reset();
     }
 }
 
@@ -509,27 +500,27 @@ QWaylandInputDevice::Touch *QWaylandInputDevice::createTouch(QWaylandInputDevice
 
 QWaylandInputDevice::Keyboard *QWaylandInputDevice::keyboard() const
 {
-    return mKeyboard;
+    return mKeyboard.data();
 }
 
 QWaylandInputDevice::Pointer *QWaylandInputDevice::pointer() const
 {
-    return mPointer;
+    return mPointer.data();
 }
 
 QWaylandPointerGestureSwipe *QWaylandInputDevice::pointerGestureSwipe() const
 {
-    return mPointerGestureSwipe;
+    return mPointerGestureSwipe.data();
 }
 
 QWaylandPointerGesturePinch *QWaylandInputDevice::pointerGesturePinch() const
 {
-    return mPointerGesturePinch;
+    return mPointerGesturePinch.data();
 }
 
 QWaylandInputDevice::Touch *QWaylandInputDevice::touch() const
 {
-    return mTouch;
+    return mTouch.data();
 }
 
 void QWaylandInputDevice::handleEndDrag()

@@ -220,6 +220,7 @@ public:
     void destroyFrameQueue(const FrameQueue &q);
     void dispatchQueueWhile(wl_event_queue *queue, std::function<bool()> condition, int timeout = -1);
 
+    bool isKeyboardAvailable() const;
 public slots:
     void blockingReadEvents();
     void flushRequests();

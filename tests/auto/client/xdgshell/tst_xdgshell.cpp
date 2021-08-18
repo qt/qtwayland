@@ -31,6 +31,7 @@
 #include <QtGui/QRasterWindow>
 #include <QtGui/qpa/qplatformnativeinterface.h>
 #include <QtWaylandClient/private/wayland-wayland-client-protocol.h>
+#include <QtWaylandClient/private/qwaylandwindow_p.h>
 
 using namespace MockCompositor;
 
@@ -155,9 +156,12 @@ void tst_xdgshell::configureStates()
     // Toplevel windows don't know their position on xdg-shell
 //    QCOMPARE(window.frameGeometry().topLeft(), QPoint()); // TODO: this doesn't currently work when window decorations are enabled
 
-//    QEXPECT_FAIL("", "configure has already been acked, we shouldn't have to wait for isActive", Continue);
-//    QVERIFY(window.isActive());
-    QTRY_VERIFY(window.isActive()); // Just make sure it eventually get's set correctly
+    // window.windowstate() is driven by keyboard focus, however for decorations we want to follow
+    // XDGShell this is internal to QtWayland so it is queried directly
+    auto waylandWindow = static_cast<QtWaylandClient::QWaylandWindow *>(window.handle());
+    Q_ASSERT(waylandWindow);
+    QTRY_VERIFY(waylandWindow->windowStates().testFlag(
+            Qt::WindowActive)); // Just make sure it eventually get's set correctly
 
     const QSize screenSize(640, 480);
     const uint maximizedSerial = exec([=] {

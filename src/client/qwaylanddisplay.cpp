@@ -578,14 +578,10 @@ void QWaylandDisplay::handleKeyboardFocusChanged(QWaylandInputDevice *inputDevic
     if (mLastKeyboardFocus == keyboardFocus)
         return;
 
-    if (mWaylandIntegration->mShellIntegration) {
-        mWaylandIntegration->mShellIntegration->handleKeyboardFocusChanged(keyboardFocus, mLastKeyboardFocus);
-    } else {
-        if (keyboardFocus)
-            handleWindowActivated(keyboardFocus);
-        if (mLastKeyboardFocus)
-            handleWindowDeactivated(mLastKeyboardFocus);
-    }
+    if (keyboardFocus)
+        handleWindowActivated(keyboardFocus);
+    if (mLastKeyboardFocus)
+        handleWindowDeactivated(mLastKeyboardFocus);
 
     mLastKeyboardFocus = keyboardFocus;
 }
@@ -628,6 +624,13 @@ void QWaylandDisplay::requestWaylandSync()
 QWaylandInputDevice *QWaylandDisplay::defaultInputDevice() const
 {
     return mInputDevices.isEmpty() ? 0 : mInputDevices.first();
+}
+
+bool QWaylandDisplay::isKeyboardAvailable() const
+{
+    return std::any_of(
+            mInputDevices.constBegin(), mInputDevices.constEnd(),
+            [this](const QWaylandInputDevice *device) { return device->keyboard() != nullptr; });
 }
 
 #if QT_CONFIG(cursor)

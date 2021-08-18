@@ -69,20 +69,6 @@ QWaylandShellSurface *QWaylandXdgShellIntegration::createShellSurface(QWaylandWi
     return m_xdgShell->getXdgSurface(window);
 }
 
-void QWaylandXdgShellIntegration::handleKeyboardFocusChanged(QWaylandWindow *newFocus, QWaylandWindow *oldFocus)
-{
-    if (newFocus) {
-        auto *xdgSurface = qobject_cast<QWaylandXdgSurface *>(newFocus->shellSurface());
-        if (xdgSurface && !xdgSurface->handlesActiveState())
-            m_display->handleWindowActivated(newFocus);
-    }
-    if (oldFocus && qobject_cast<QWaylandXdgSurface *>(oldFocus->shellSurface())) {
-        auto *xdgSurface = qobject_cast<QWaylandXdgSurface *>(oldFocus->shellSurface());
-        if (xdgSurface && !xdgSurface->handlesActiveState())
-            m_display->handleWindowDeactivated(oldFocus);
-    }
-}
-
 void *QWaylandXdgShellIntegration::nativeResourceForWindow(const QByteArray &resource, QWindow *window)
 {
     if (auto waylandWindow = static_cast<QWaylandWindow *>(window->handle())) {

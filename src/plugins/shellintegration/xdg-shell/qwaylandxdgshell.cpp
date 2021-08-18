@@ -67,11 +67,6 @@ QWaylandXdgSurface::Toplevel::Toplevel(QWaylandXdgSurface *xdgSurface)
 
 QWaylandXdgSurface::Toplevel::~Toplevel()
 {
-    if (m_applied.states & Qt::WindowActive) {
-        QWaylandWindow *window = m_xdgSurface->window();
-        window->display()->handleWindowDeactivated(window);
-    }
-
     // The protocol spec requires that the decoration object is deleted before xdg_toplevel.
     delete m_decoration;
     m_decoration = nullptr;
@@ -85,17 +80,16 @@ void QWaylandXdgSurface::Toplevel::applyConfigure()
     if (!(m_applied.states & (Qt::WindowMaximized|Qt::WindowFullScreen)))
         m_normalSize = m_xdgSurface->m_window->windowFrameGeometry().size();
 
-    if ((m_pending.states & Qt::WindowActive) && !(m_applied.states & Qt::WindowActive))
+    if ((m_pending.states & Qt::WindowActive) && !(m_applied.states & Qt::WindowActive)
+        && !m_xdgSurface->m_window->display()->isKeyboardAvailable())
         m_xdgSurface->m_window->display()->handleWindowActivated(m_xdgSurface->m_window);
 
-    if (!(m_pending.states & Qt::WindowActive) && (m_applied.states & Qt::WindowActive))
+    if (!(m_pending.states & Qt::WindowActive) && (m_applied.states & Qt::WindowActive)
+        && !m_xdgSurface->m_window->display()->isKeyboardAvailable())
         m_xdgSurface->m_window->display()->handleWindowDeactivated(m_xdgSurface->m_window);
 
-    // TODO: none of the other plugins send WindowActive either, but is it on purpose?
-    Qt::WindowStates statesWithoutActive = m_pending.states & ~Qt::WindowActive;
-
     m_xdgSurface->m_window->handleToplevelWindowTilingStatesChanged(m_toplevelStates);
-    m_xdgSurface->m_window->handleWindowStatesChanged(statesWithoutActive);
+    m_xdgSurface->m_window->handleWindowStatesChanged(m_pending.states);
 
     if (m_pending.size.isEmpty()) {
         // An empty size in the configure means it's up to the client to choose the size

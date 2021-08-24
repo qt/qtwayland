@@ -13,9 +13,6 @@ qhp.QtWaylandCompositor.namespace                           = org.qt-project.qtw
 qhp.QtWaylandCompositor.virtualFolder                       = qtwaylandcompositor
 qhp.QtWaylandCompositor.indexTitle                          = Qt Wayland Compositor
 qhp.QtWaylandCompositor.indexRoot                           =
-qhp.QtWaylandCompositor.filterAttributes                    = qtwaylandcompositor $QT_VERSION qtrefdoc
-qhp.QtWaylandCompositor.customFilters.Qt.name               = QtWaylandCompositor $QT_VERSION
-qhp.QtWaylandCompositor.customFilters.Qt.filterAttributes   = qtwaylandcompositor $QT_VERSION
 
 qhp.QtWaylandCompositor.subprojects                         = qmltypes classes examples
 qhp.QtWaylandCompositor.subprojects.qmltypes.title          = QML Types

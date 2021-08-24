@@ -60,7 +60,7 @@ QByteArray QWaylandMimeHelper::getByteArray(QMimeData *mimeData, const QString &
             buf.open(QIODevice::ReadWrite);
             QByteArray fmt = "BMP";
             if (mimeType.startsWith(QLatin1String("image/"))) {
-                QByteArray imgFmt = mimeType.mid(6).toUpper().toLatin1();
+                QByteArray imgFmt = mimeType.mid(6).toLower().toLatin1();
                 if (QImageWriter::supportedImageFormats().contains(imgFmt))
                     fmt = imgFmt;
             }

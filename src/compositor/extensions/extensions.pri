@@ -18,6 +18,7 @@ WAYLANDSERVERSOURCES += \
     ../3rdparty/protocol/ivi-application.xml \
     ../3rdparty/protocol/idle-inhibit-unstable-v1.xml \
     ../extensions/qt-texture-sharing-unstable-v1.xml \
+    ../3rdparty/protocol/presentation-time.xml \
 
 HEADERS += \
     extensions/qwlqttouch_p.h \
@@ -82,6 +83,8 @@ qtConfig(wayland-compositor-quick) {
         extensions/qwaylandwlshellintegration_p.h \
         extensions/qwaylandquickxdgoutputv1.h \
         extensions/qwaylandxdgshellintegration_p.h \
+        extensions/qwaylandpresentationtime_p.h \
+        extensions/qwaylandpresentationtime_p_p.h \
 
     SOURCES += \
         extensions/qwaylandquickshellintegration.cpp \
@@ -90,6 +93,7 @@ qtConfig(wayland-compositor-quick) {
         extensions/qwaylandwlshellintegration.cpp \
         extensions/qwaylandquickxdgoutputv1.cpp \
         extensions/qwaylandxdgshellintegration.cpp \
+        extensions/qwaylandpresentationtime.cpp \
 
     qtConfig(opengl) {
         HEADERS += \

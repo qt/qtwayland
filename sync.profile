@@ -76,6 +76,7 @@
         "^qwayland-server-xdg-decoration-unstable-v1.h",
         "^qwayland-server-xdg-output-unstable-v1.h",
         "^qwayland-server-xdg-shell.h",
+        "^qwayland-server-presentation-time.h",
         "^wayland-hardware-integration-server-protocol.h",
         "^wayland-idle-inhibit-unstable-v1-server-protocol.h",
         "^wayland-ivi-application-server-protocol.h",
@@ -95,6 +96,7 @@
         "^wayland-xdg-shell-server-protocol.h",
         "^qwayland-server-qt-shell-unstable-v1.h",
         "^wayland-qt-shell-unstable-v1-server-protocol.h",
+        "^wayland-presentation-time-server-protocol.h",
     ],
     "$basedir/src/plugins/hardwareintegration/compositor/linux-dmabuf-unstable-v1" => [
         "^qwayland-server-linux-dmabuf-unstable-v1.h",

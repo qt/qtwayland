@@ -93,6 +93,7 @@ qt6_generate_wayland_protocol_server_sources(WaylandCompositor
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/idle-inhibit-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/ivi-application.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/presentation-time.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/scaler.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input-unstable-v2.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input-unstable-v4-wip.xml
@@ -159,6 +160,7 @@ qt_internal_extend_target(WaylandCompositor CONDITION QT_FEATURE_wayland_composi
         extensions/qwaylandquickxdgoutputv1.cpp extensions/qwaylandquickxdgoutputv1.h
         extensions/qwaylandwlshellintegration.cpp extensions/qwaylandwlshellintegration_p.h
         extensions/qwaylandxdgshellintegration.cpp extensions/qwaylandxdgshellintegration_p.h
+        extensions/qwaylandpresentationtime.cpp extensions/qwaylandpresentationtime_p.h extensions/qwaylandpresentationtime_p_p.h
     LIBRARIES
         Qt::QmlPrivate
         Qt::QuickPrivate

@@ -188,27 +188,16 @@ qt_internal_add_docs(WaylandCompositor
     doc/qtwaylandcompositor.qdocconf
 )
 
-set(qmlfiles
-    qmlfiles/WaylandCursorItem.qml
-    qmlfiles/WaylandOutputWindow.qml
-)
-
-set_source_files_properties(qmlfiles/WaylandOutputWindow.qml PROPERTIES
-    QT_QML_SOURCE_VERSION "1.0"
-    QT_QML_SOURCE_TYPENAME WaylandOutputWindow
-)
-set_source_files_properties(qmlfiles/WaylandCursorItem.qml PROPERTIES
-    QT_QML_SOURCE_VERSION "1.0"
-    QT_QML_SOURCE_TYPENAME WaylandCursorItem
-)
-
 if (TARGET Qt::Qml)
     qt_internal_add_qml_module(WaylandCompositor
         URI QtWayland.Compositor
         VERSION ${PROJECT_VERSION}
         CLASS_NAME QWaylandCompositorPlugin
         PLUGIN_TARGET qwaylandcompositorplugin
-        QML_FILES ${qmlfiles}
+        PAST_MAJOR_VERSIONS 1
+        QML_FILES
+            qmlfiles/WaylandCursorItem.qml
+            qmlfiles/WaylandOutputWindow.qml
         DEPENDENCIES
             QtQuick
     )

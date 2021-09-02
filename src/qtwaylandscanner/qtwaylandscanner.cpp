@@ -1236,7 +1236,7 @@ bool Scanner::process()
                     printf("\n");
                 }
                 int actualArgumentCount = new_id ? int(e.arguments.size()) - 1 : int(e.arguments.size());
-                printf("        %s%s_%s(\n", new_id ? "return " : "", interfaceName, e.name.constData());
+                printf("        %s::%s_%s(\n", new_id ? "return " : "", interfaceName, e.name.constData());
                 printf("            m_%s%s", interfaceName, actualArgumentCount > 0 ? "," : "");
                 bool needsComma = false;
                 for (const WaylandArgument &a : e.arguments) {

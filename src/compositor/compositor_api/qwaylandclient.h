@@ -61,6 +61,19 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandClient : public QObject
 public:
     ~QWaylandClient() override;
 
+    enum TextInputProtocol {
+        NoProtocol = 0,
+        QtTextInputMethodV1 = 1,
+        TextInputV2 = 2,
+
+        QtTextInputMethod = QtTextInputMethodV1,
+        TextInput = TextInputV2
+    };
+    Q_DECLARE_FLAGS(TextInputProtocols, TextInputProtocol)
+
+    TextInputProtocols textInputProtocols() const;
+    void setTextInputProtocols(TextInputProtocols p);
+
     static QWaylandClient *fromWlClient(QWaylandCompositor *compositor, wl_client *wlClient);
 
     QWaylandCompositor *compositor() const;
@@ -79,6 +92,8 @@ public Q_SLOTS:
 
 private:
     explicit QWaylandClient(QWaylandCompositor *compositor, wl_client *client);
+
+    TextInputProtocols mTextInputProtocols;
 };
 
 QT_END_NAMESPACE

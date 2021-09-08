@@ -79,9 +79,10 @@ void QWaylandInputMethodControl::inputMethodEvent(QInputMethodEvent *event)
     Q_D(QWaylandInputMethodControl);
 
     QWaylandTextInput *textInput = d->textInput();
+    QWaylandQtTextInputMethod *textInputMethod = d->textInputMethod();
     if (textInput) {
         textInput->sendInputMethodEvent(event);
-    } else if (QWaylandQtTextInputMethod *textInputMethod = d->textInputMethod()) {
+    } else if (textInputMethod) {
         textInputMethod->sendInputMethodEvent(event);
     } else {
         event->ignore();
@@ -172,11 +173,15 @@ QWaylandInputMethodControlPrivate::QWaylandInputMethodControlPrivate(QWaylandSur
 
 QWaylandQtTextInputMethod *QWaylandInputMethodControlPrivate::textInputMethod() const
 {
+    if (!surface->client()->textInputProtocols().testFlag(QWaylandClient::TextInputProtocol::QtTextInputMethodV1))
+        return nullptr;
     return QWaylandQtTextInputMethod::findIn(seat);
 }
 
 QWaylandTextInput *QWaylandInputMethodControlPrivate::textInput() const
 {
+    if (!surface->client()->textInputProtocols().testFlag(QWaylandClient::TextInputProtocol::TextInputV2))
+        return nullptr;
     return QWaylandTextInput::findIn(seat);
 }
 

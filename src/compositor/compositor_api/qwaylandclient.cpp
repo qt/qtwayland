@@ -103,6 +103,7 @@ public:
  */
 QWaylandClient::QWaylandClient(QWaylandCompositor *compositor, wl_client *client)
     : QObject(*new QWaylandClientPrivate(compositor, client))
+    , mTextInputProtocols(TextInputProtocol::NoProtocol)
 {
     Q_D(QWaylandClient);
 
@@ -271,6 +272,17 @@ void QWaylandClient::close()
 {
     Q_D(QWaylandClient);
     d->compositor->destroyClient(this);
+}
+
+QWaylandClient::TextInputProtocols QWaylandClient::textInputProtocols() const
+{
+    return mTextInputProtocols;
+}
+
+void QWaylandClient::setTextInputProtocols(TextInputProtocols p)
+{
+    if (mTextInputProtocols != p)
+        mTextInputProtocols = p;
 }
 
 QT_END_NAMESPACE

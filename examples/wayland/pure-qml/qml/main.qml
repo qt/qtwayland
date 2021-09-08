@@ -79,6 +79,7 @@ WaylandCompositor {
 
     // Extension for Input Method (QT_IM_MODULE) support at compositor-side
     // ![text input]
+    TextInputManager {}
     QtTextInputMethodManager {}
     // ![text input]
 }

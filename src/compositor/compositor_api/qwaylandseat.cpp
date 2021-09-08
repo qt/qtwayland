@@ -469,16 +469,20 @@ void QWaylandSeat::sendFullKeyEvent(QKeyEvent *event)
 #if QT_CONFIG(im)
     if (keyboardFocus()->inputMethodControl()->enabled()
         && event->nativeScanCode() == 0) {
-        QWaylandTextInput *textInput = QWaylandTextInput::findIn(this);
-        if (textInput) {
-            textInput->sendKeyEvent(event);
-            return;
+        if (keyboardFocus()->client()->textInputProtocols().testFlag(QWaylandClient::TextInputProtocol::TextInputV2)) {
+            QWaylandTextInput *textInput = QWaylandTextInput::findIn(this);
+            if (textInput) {
+                textInput->sendKeyEvent(event);
+                return;
+            }
         }
 
-        QWaylandQtTextInputMethod *textInputMethod = QWaylandQtTextInputMethod::findIn(this);
-        if (textInputMethod) {
-            textInputMethod->sendKeyEvent(event);
-            return;
+        if (keyboardFocus()->client()->textInputProtocols().testFlag(QWaylandClient::TextInputProtocol::QtTextInputMethodV1)) {
+            QWaylandQtTextInputMethod *textInputMethod = QWaylandQtTextInputMethod::findIn(this);
+            if (textInputMethod) {
+                textInputMethod->sendKeyEvent(event);
+                return;
+            }
         }
     }
 #endif

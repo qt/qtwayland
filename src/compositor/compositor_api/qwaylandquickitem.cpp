@@ -1120,13 +1120,16 @@ void QWaylandQuickItem::takeFocus(QWaylandSeat *device)
     }
     target->setKeyboardFocus(surface());
 
-    {
+    qCDebug(qLcWaylandCompositorInputMethods) << Q_FUNC_INFO << " surface:" << surface()
+        << ", client:" << surface()->client()
+        << ", textinputprotocol:" << (int)(surface()->client()->textInputProtocols());
+    if (surface()->client()->textInputProtocols().testFlag(QWaylandClient::TextInputProtocol::TextInputV2)) {
         QWaylandTextInput *textInput = QWaylandTextInput::findIn(target);
         if (textInput)
             textInput->setFocus(surface());
     }
 
-    {
+    if (surface()->client()->textInputProtocols().testFlag(QWaylandClient::TextInputProtocol::QtTextInputMethodV1)) {
         QWaylandQtTextInputMethod *textInputMethod = QWaylandQtTextInputMethod::findIn(target);
         if (textInputMethod)
             textInputMethod->setFocus(surface());

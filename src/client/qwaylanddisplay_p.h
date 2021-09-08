@@ -221,6 +221,7 @@ public:
     void dispatchQueueWhile(wl_event_queue *queue, std::function<bool()> condition, int timeout = -1);
 
     bool isKeyboardAvailable() const;
+
 public slots:
     void blockingReadEvents();
     void flushRequests();
@@ -230,6 +231,9 @@ private:
 
     void handleWaylandSync();
     void requestWaylandSync();
+
+    void checkTextInputProtocol();
+    bool registerTextInputManager(const QStringList &protocols, int index);
 
     struct Listener {
         Listener() = default;

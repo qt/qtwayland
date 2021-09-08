@@ -50,6 +50,10 @@ void QWaylandQtTextInputMethodManagerPrivate::text_input_method_manager_v1_get_t
     if (textInput == nullptr)
         textInput = new QWaylandQtTextInputMethod(seat, compositor);
     textInput->add(resource->client(), id, wl_resource_get_version(resource->handle));
+    QWaylandClient *client = QWaylandClient::fromWlClient(compositor, resource->client());
+    QWaylandClient::TextInputProtocols p = client->textInputProtocols();
+    client->setTextInputProtocols(p.setFlag(QWaylandClient::TextInputProtocol::QtTextInputMethodV1));
+
     if (!textInput->isInitialized())
         textInput->initialize();
 }

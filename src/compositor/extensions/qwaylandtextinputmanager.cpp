@@ -47,10 +47,12 @@ void QWaylandTextInputManagerPrivate::zwp_text_input_manager_v2_get_text_input(R
     QWaylandCompositor *compositor = static_cast<QWaylandCompositor *>(q->extensionContainer());
     QWaylandSeat *seat = QWaylandSeat::fromSeatResource(seatResource);
     QWaylandTextInput *textInput = QWaylandTextInput::findIn(seat);
-    if (!textInput) {
+    if (!textInput)
         textInput = new QWaylandTextInput(seat, compositor);
-    }
     textInput->add(resource->client(), id, wl_resource_get_version(resource->handle));
+    QWaylandClient *client = QWaylandClient::fromWlClient(compositor, resource->client());
+    QWaylandClient::TextInputProtocols p = client->textInputProtocols();
+    client->setTextInputProtocols(p.setFlag(QWaylandClient::TextInputProtocol::TextInputV2));
     if (!textInput->isInitialized())
         textInput->initialize();
 }

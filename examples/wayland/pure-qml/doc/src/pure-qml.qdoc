@@ -105,7 +105,7 @@
     transitions between states.
 
     The first of these is the \e{activation} transition. This is only supported on the \l{XdgShell},
-    since this is the only shell extension which has an \l{XdgTopLevel::activated}{activated} state.
+    since this is the only shell extension which has an \l{XdgToplevel::}{activated} state.
 
     \snippet pure-qml/qml/Chrome.qml activation
 

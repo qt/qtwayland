@@ -66,9 +66,6 @@ private slots:
 void tst_datadevicev1::initTestCase()
 {
     QCOMPOSITOR_TRY_VERIFY(pointer());
-    QCOMPOSITOR_TRY_VERIFY(!pointer()->resourceMap().empty());
-    QCOMPOSITOR_TRY_COMPARE(pointer()->resourceMap().first()->version(), 5);
-
     QCOMPOSITOR_TRY_VERIFY(keyboard());
 
     QCOMPOSITOR_TRY_VERIFY(dataDevice());

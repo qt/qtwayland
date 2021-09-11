@@ -408,7 +408,7 @@ QWaylandInputDevice::Touch::~Touch()
 }
 
 QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, uint32_t id)
-    : QtWayland::wl_seat(display->wl_registry(), id, qMin(version, 5))
+    : QtWayland::wl_seat(display->wl_registry(), id, qMin(version, 7))
     , mQDisplay(display)
     , mDisplay(display->wl_display())
 {
@@ -955,6 +955,8 @@ void QWaylandInputDevice::Pointer::pointer_axis_source(uint32_t source)
     case axis_source_continuous:
         qCDebug(lcQpaWaylandInput) << "Axis source continuous";
         break;
+    case axis_source_wheel_tilt:
+        qCDebug(lcQpaWaylandInput) << "Axis source wheel tilt";
     }
     mFrameData.axisSource = axis_source(source);
 }

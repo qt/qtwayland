@@ -33,9 +33,9 @@
 
 using namespace MockCompositor;
 
-class SeatV5Compositor : public DefaultCompositor {
+class SeatCompositor : public DefaultCompositor {
 public:
-    explicit SeatV5Compositor()
+    explicit SeatCompositor()
     {
         exec([this] {
             m_config.autoConfigure = true;
@@ -43,13 +43,13 @@ public:
             removeAll<Seat>();
 
             uint capabilities = MockCompositor::Seat::capability_pointer | MockCompositor::Seat::capability_touch;
-            int version = 5;
+            int version = 7;
             add<Seat>(capabilities, version);
         });
     }
 };
 
-class tst_seatv5 : public QObject, private SeatV5Compositor
+class tst_seat : public QObject, private SeatCompositor
 {
     Q_OBJECT
 private slots:
@@ -65,6 +65,7 @@ private slots:
     void fingerScroll();
     void fingerScrollSlow();
     void continuousScroll();
+    void wheelDiscreteScroll_data();
     void wheelDiscreteScroll();
 
     // Touch tests
@@ -76,19 +77,19 @@ private slots:
     void tapAndMoveInSameFrame();
 };
 
-void tst_seatv5::bindsToSeat()
+void tst_seat::bindsToSeat()
 {
     QCOMPOSITOR_COMPARE(get<Seat>()->resourceMap().size(), 1);
-    QCOMPOSITOR_COMPARE(get<Seat>()->resourceMap().first()->version(), 5);
+    QCOMPOSITOR_COMPARE(get<Seat>()->resourceMap().first()->version(), 7);
 }
 
-void tst_seatv5::createsPointer()
+void tst_seat::createsPointer()
 {
     QCOMPOSITOR_TRY_COMPARE(pointer()->resourceMap().size(), 1);
-    QCOMPOSITOR_TRY_COMPARE(pointer()->resourceMap().first()->version(), 5);
+    QCOMPOSITOR_TRY_COMPARE(pointer()->resourceMap().first()->version(), 7);
 }
 
-void tst_seatv5::setsCursorOnEnter()
+void tst_seat::setsCursorOnEnter()
 {
     QRasterWindow window;
     window.resize(64, 64);
@@ -104,7 +105,7 @@ void tst_seatv5::setsCursorOnEnter()
     QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface());
 }
 
-void tst_seatv5::usesEnterSerial()
+void tst_seat::usesEnterSerial()
 {
     QSignalSpy setCursorSpy(exec([=] { return pointer(); }), &Pointer::setCursor);
     QRasterWindow window;
@@ -166,7 +167,7 @@ public:
     QList<Event> m_events;
 };
 
-void tst_seatv5::simpleAxis_data()
+void tst_seat::simpleAxis_data()
 {
     QTest::addColumn<uint>("axis");
     QTest::addColumn<qreal>("value");
@@ -180,7 +181,7 @@ void tst_seatv5::simpleAxis_data()
     QTest::newRow("up big") << uint(Pointer::axis_vertical_scroll) << -10.0 << QPoint{0, 120};
 }
 
-void tst_seatv5::simpleAxis()
+void tst_seat::simpleAxis()
 {
     QFETCH(uint, axis);
     QFETCH(qreal, value);
@@ -216,7 +217,7 @@ void tst_seatv5::simpleAxis()
     // Sending axis_stop is not mandatory when axis source != finger
 }
 
-void tst_seatv5::fingerScroll()
+void tst_seat::fingerScroll()
 {
     WheelWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
@@ -313,7 +314,7 @@ void tst_seatv5::fingerScroll()
 }
 
 
-void tst_seatv5::fingerScrollSlow()
+void tst_seat::fingerScrollSlow()
 {
     WheelWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
@@ -342,17 +343,27 @@ void tst_seatv5::fingerScrollSlow()
     }
     QCOMPARE(accumulated.y(), -1);
 }
-void tst_seatv5::wheelDiscreteScroll()
+
+void tst_seat::wheelDiscreteScroll_data()
+{
+    QTest::addColumn<uint>("source");
+    QTest::newRow("wheel") << uint(Pointer::axis_source_wheel);
+    QTest::newRow("wheel tilt") << uint(Pointer::axis_source_wheel_tilt);
+}
+
+void tst_seat::wheelDiscreteScroll()
 {
     WheelWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+
+    QFETCH(uint, source);
 
     exec([=] {
         auto *p = pointer();
         auto *c = client();
         p->sendEnter(xdgToplevel()->surface(), {32, 32});
         p->sendFrame(c);
-        p->sendAxisSource(c, Pointer::axis_source_wheel);
+        p->sendAxisSource(c, Pointer::axis_source(source));
         p->sendAxisDiscrete(c, Pointer::axis_vertical_scroll, 1); // 1 click downwards
         p->sendAxis(c, Pointer::axis_vertical_scroll, 1.0);
         p->sendFrame(c);
@@ -372,7 +383,7 @@ void tst_seatv5::wheelDiscreteScroll()
     }
 }
 
-void tst_seatv5::continuousScroll()
+void tst_seat::continuousScroll()
 {
     WheelWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
@@ -398,10 +409,10 @@ void tst_seatv5::continuousScroll()
     // Sending axis_stop is not mandatory when axis source != finger
 }
 
-void tst_seatv5::createsTouch()
+void tst_seat::createsTouch()
 {
     QCOMPOSITOR_TRY_COMPARE(touch()->resourceMap().size(), 1);
-    QCOMPOSITOR_TRY_COMPARE(touch()->resourceMap().first()->version(), 5);
+    QCOMPOSITOR_TRY_COMPARE(touch()->resourceMap().first()->version(), 7);
 }
 
 class TouchWindow : public QRasterWindow {
@@ -432,7 +443,7 @@ public:
     QList<Event> m_events;
 };
 
-void tst_seatv5::singleTap()
+void tst_seat::singleTap()
 {
     TouchWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
@@ -463,7 +474,7 @@ void tst_seatv5::singleTap()
     }
 }
 
-void tst_seatv5::singleTapFloat()
+void tst_seat::singleTapFloat()
 {
     TouchWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
@@ -494,7 +505,7 @@ void tst_seatv5::singleTapFloat()
     }
 }
 
-void tst_seatv5::multiTouch()
+void tst_seat::multiTouch()
 {
     TouchWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
@@ -566,7 +577,7 @@ void tst_seatv5::multiTouch()
     }
 }
 
-void tst_seatv5::multiTouchUpAndMotionFrame()
+void tst_seat::multiTouchUpAndMotionFrame()
 {
     TouchWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
@@ -615,7 +626,7 @@ void tst_seatv5::multiTouchUpAndMotionFrame()
     QVERIFY(window.m_events.empty());
 }
 
-void tst_seatv5::tapAndMoveInSameFrame()
+void tst_seat::tapAndMoveInSameFrame()
 {
     TouchWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
@@ -647,5 +658,5 @@ void tst_seatv5::tapAndMoveInSameFrame()
     QTRY_COMPARE(window.m_events.last().touchPoints.first().state(), QEventPoint::State::Released);
 }
 
-QCOMPOSITOR_TEST_MAIN(tst_seatv5)
-#include "tst_seatv5.moc"
+QCOMPOSITOR_TEST_MAIN(tst_seat)
+#include "tst_seat.moc"

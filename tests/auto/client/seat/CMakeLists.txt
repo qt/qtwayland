@@ -4,9 +4,9 @@
 ## tst_seatv5 Test:
 #####################################################################
 
-qt_internal_add_test(tst_seatv5
+qt_internal_add_test(tst_seat
     SOURCES
-        tst_seatv5.cpp
+        tst_seat.cpp
     PUBLIC_LIBRARIES
         SharedClientTest
 )

@@ -318,7 +318,7 @@ void QWaylandWindow::setWindowTitle(const QString &title)
         mShellSurface->setTitle(truncated.toString());
     }
 
-    if (mWindowDecoration && window()->isVisible())
+    if (mWindowDecorationEnabled && window()->isVisible())
         mWindowDecoration->update();
 }
 
@@ -326,7 +326,7 @@ void QWaylandWindow::setWindowIcon(const QIcon &icon)
 {
     mWindowIcon = icon;
 
-    if (mWindowDecoration && window()->isVisible())
+    if (mWindowDecorationEnabled && window()->isVisible())
         mWindowDecoration->update();
 }
 
@@ -360,7 +360,7 @@ void QWaylandWindow::setGeometry(const QRect &rect)
     setGeometry_helper(rect);
 
     if (window()->isVisible() && rect.isValid()) {
-        if (mWindowDecoration)
+        if (mWindowDecorationEnabled)
             mWindowDecoration->update();
 
         if (mResizeAfterSwap && windowType() == Egl && mSentInitialResize)
@@ -391,7 +391,7 @@ void QWaylandWindow::resizeFromApplyConfigure(const QSize &sizeWithMargins, cons
     // 2) Following resizeFromApplyConfigure() calls should have sizeWithMargins equal to
     //    windowContentGeometry() which excludes shadows, therefore in this case we have to
     //    exclude them too in order not to accidentally apply smaller size to the window.
-    if (mWindowDecoration && (sizeWithMargins != surfaceSize()))
+    if (mWindowDecorationEnabled && (sizeWithMargins != surfaceSize()))
         margins = mWindowDecoration->margins(QWaylandAbstractDecoration::ShadowsExcluded);
 
     int widthWithoutMargins = qMax(sizeWithMargins.width() - (margins.left() + margins.right()), 1);
@@ -709,7 +709,7 @@ bool QWaylandWindow::waitForFrameSync(int timeout)
 
 QMargins QWaylandWindow::frameMargins() const
 {
-    if (mWindowDecoration)
+    if (mWindowDecorationEnabled)
         return mWindowDecoration->margins();
     return QPlatformWindow::frameMargins();
 }
@@ -730,7 +730,7 @@ QRect QWaylandWindow::windowContentGeometry() const
 {
     QMargins shadowMargins;
 
-    if (mWindowDecoration)
+    if (mWindowDecorationEnabled)
         shadowMargins = mWindowDecoration->margins(QWaylandAbstractDecoration::ShadowsOnly);
 
     return QRect(QPoint(shadowMargins.left(), shadowMargins.top()), surfaceSize().shrunkBy(shadowMargins));
@@ -854,9 +854,14 @@ bool QWaylandWindow::createDecoration()
     if (!mShellSurface || !mShellSurface->wantsDecorations())
         decoration = false;
 
-    bool hadDecoration = mWindowDecoration;
+    bool hadDecoration = mWindowDecorationEnabled;
     if (decoration && !decorationPluginFailed) {
-        if (!mWindowDecoration) {
+        if (!mWindowDecorationEnabled) {
+            if (mWindowDecoration) {
+                delete mWindowDecoration;
+                mWindowDecoration = nullptr;
+            }
+
             QStringList decorations = QWaylandDecorationFactory::keys();
             if (decorations.empty()) {
                 qWarning() << "No decoration plugins available. Running with no decorations.";
@@ -885,13 +890,13 @@ bool QWaylandWindow::createDecoration()
                 return false;
             }
             mWindowDecoration->setWaylandWindow(this);
+            mWindowDecorationEnabled = true;
         }
     } else {
-        delete mWindowDecoration;
-        mWindowDecoration = nullptr;
+        mWindowDecorationEnabled = false;
     }
 
-    if (hadDecoration != (bool)mWindowDecoration) {
+    if (hadDecoration != mWindowDecorationEnabled) {
         for (QWaylandSubSurface *subsurf : qAsConst(mChildren)) {
             QPoint pos = subsurf->window()->geometry().topLeft();
             QMargins m = frameMargins();
@@ -912,7 +917,7 @@ bool QWaylandWindow::createDecoration()
 
 QWaylandAbstractDecoration *QWaylandWindow::decoration() const
 {
-    return mWindowDecoration;
+    return mWindowDecorationEnabled ? mWindowDecoration : nullptr;
 }
 
 static QWaylandWindow *closestShellSurfaceWindow(QWindow *window)
@@ -943,7 +948,7 @@ QWaylandWindow *QWaylandWindow::transientParent() const
 void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e)
 {
     if (e.type == QEvent::Leave) {
-        if (mWindowDecoration) {
+        if (mWindowDecorationEnabled) {
             if (mMouseEventsInContentArea)
                 QWindowSystemInterface::handleLeaveEvent(window());
         } else {
@@ -955,7 +960,7 @@ void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, const QWaylan
         return;
     }
 
-    if (mWindowDecoration) {
+    if (mWindowDecorationEnabled) {
         handleMouseEventWithDecoration(inputDevice, e);
     } else {
         switch (e.type) {
@@ -995,7 +1000,7 @@ void QWaylandWindow::handleSwipeGesture(QWaylandInputDevice *inputDevice,
             if (mGestureState != GestureNotActive)
                 qCWarning(lcQpaWaylandInput) << "Unexpected gesture state. Gestures will act weird.";
 
-            if (mWindowDecoration && !mMouseEventsInContentArea) {
+            if (mWindowDecorationEnabled && !mMouseEventsInContentArea) {
                 // whole gesture sequence will be ignored
                 mGestureState = GestureActiveInDecoration;
                 return;
@@ -1050,7 +1055,7 @@ void QWaylandWindow::handlePinchGesture(QWaylandInputDevice *inputDevice,
             if (mGestureState != GestureNotActive)
                 qCWarning(lcQpaWaylandInput) << "Unexpected gesture state. Gestures will act weird.";
 
-            if (mWindowDecoration && !mMouseEventsInContentArea) {
+            if (mWindowDecorationEnabled && !mMouseEventsInContentArea) {
                 // whole gesture sequence will be ignored
                 mGestureState = GestureActiveInDecoration;
                 return;
@@ -1115,7 +1120,7 @@ void QWaylandWindow::handlePinchGesture(QWaylandInputDevice *inputDevice,
 
 bool QWaylandWindow::touchDragDecoration(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global, QEventPoint::State state, Qt::KeyboardModifiers mods)
 {
-    if (!mWindowDecoration)
+    if (!mWindowDecorationEnabled)
         return false;
     return mWindowDecoration->handleTouch(inputDevice, local, global, state, mods);
 }

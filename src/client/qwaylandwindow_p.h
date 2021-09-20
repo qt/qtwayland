@@ -257,6 +257,7 @@ protected:
     QList<QWaylandSubSurface *> mChildren;
 
     QWaylandAbstractDecoration *mWindowDecoration = nullptr;
+    bool mWindowDecorationEnabled = false;
     bool mMouseEventsInContentArea = false;
     Qt::MouseButtons mMousePressedInContentArea = Qt::NoButton;
 

@@ -199,14 +199,16 @@ public:
         glViewport(0, 0, surfaceSize.width() * scale, surfaceSize.height() * scale);
 
         //Draw Decoration
-        m_blitProgram->setAttributeBuffer(0, GL_FLOAT, m_inverseSquareVerticesOffset, 2);
-        QImage decorationImage = window->decoration()->contentImage();
-        cache->bindTexture(m_context->context(), decorationImage);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_textureWrap);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_textureWrap);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        if (auto *decoration = window->decoration()) {
+            m_blitProgram->setAttributeBuffer(0, GL_FLOAT, m_inverseSquareVerticesOffset, 2);
+            QImage decorationImage = decoration->contentImage();
+            cache->bindTexture(m_context->context(), decorationImage);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_textureWrap);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_textureWrap);
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        }
 
         //Draw Content
         m_blitProgram->setAttributeBuffer(0, GL_FLOAT, m_squareVerticesOffset, 2);

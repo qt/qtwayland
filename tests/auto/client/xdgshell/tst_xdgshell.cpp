@@ -56,7 +56,6 @@ private slots:
 
 void tst_xdgshell::showMinimized()
 {
-    QSKIP("TODO: This currently fails, needs a fix");
     // On xdg-shell there's really no way for the compositor to tell the window if it's minimized
     // There are wl_surface.enter events and so on, but there's really no way to differentiate
     // between a window preview and an unminimized window.

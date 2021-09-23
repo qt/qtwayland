@@ -261,6 +261,7 @@ void QWaylandWindow::reset()
     mFrameCallbackElapsedTimer.invalidate();
     mWaitingForFrameCallback = false;
     mFrameCallbackTimedOut = false;
+    mWaitingToApplyConfigure = false;
 
     mMask = QRegion();
     mQueuedBuffer = nullptr;

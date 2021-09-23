@@ -342,15 +342,16 @@ bool QWaylandXdgSurface::handleExpose(const QRegion &region)
 
 void QWaylandXdgSurface::applyConfigure()
 {
-    Q_ASSERT(m_pendingConfigureSerial != 0);
+    // It is a redundant ack_configure, so skipped.
+    if (m_pendingConfigureSerial == m_appliedConfigureSerial)
+        return;
 
     if (m_toplevel)
         m_toplevel->applyConfigure();
+    m_appliedConfigureSerial = m_pendingConfigureSerial;
 
     m_configured = true;
-    ack_configure(m_pendingConfigureSerial);
-
-    m_pendingConfigureSerial = 0;
+    ack_configure(m_appliedConfigureSerial);
 }
 
 bool QWaylandXdgSurface::wantsDecorations() const

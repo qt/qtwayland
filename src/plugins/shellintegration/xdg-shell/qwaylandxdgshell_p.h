@@ -156,6 +156,7 @@ private:
     bool m_configured = false;
     QRegion m_exposeRegion;
     uint m_pendingConfigureSerial = 0;
+    uint m_appliedConfigureSerial = 0;
 
     friend class QWaylandXdgShell;
 };

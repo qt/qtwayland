@@ -11,6 +11,7 @@ qt_internal_add_tool(${target_name}
     SOURCES
         qtwaylandscanner.cpp
 )
+qt_internal_return_unless_building_tools()
 
 #### Keys ignored in scope 1:.:.:qtwaylandscanner.pro:<TRUE>:
 # _OPTION = "host_build"

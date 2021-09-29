@@ -48,11 +48,17 @@ public:
 class CoreCompositor
 {
 public:
-    explicit CoreCompositor();
+    enum CompositorType {
+        Default,
+        Legacy // wl-shell
+    };
+
+    CompositorType m_type = Default;
+    explicit CoreCompositor(CompositorType t = Default);
     ~CoreCompositor();
     bool isClean();
     QString dirtyMessage();
-    void dispatch();
+    void dispatch(int timeout = 0);
 
     template<typename function_type, typename... arg_types>
     auto exec(function_type func, arg_types&&... args) -> decltype(func())
@@ -164,6 +170,7 @@ public:
 public:
     // Only use this carefully from the test thread (i.e. lock first)
     wl_display *m_display = nullptr;
+
 protected:
     class Lock {
     public:

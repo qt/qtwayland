@@ -60,6 +60,11 @@ void DataDeviceManager::data_device_manager_get_data_device(Resource *resource, 
     device->add(resource->client(), id, resource->version());
 }
 
+void DataDeviceManager::data_device_manager_create_data_source(Resource *resource, uint32_t id)
+{
+    new QtWaylandServer::wl_data_source(resource->client(), id, 1);
+}
+
 DataDevice::~DataDevice()
 {
     // If the client(s) hasn't deleted the wayland object, just ignore subsequent events
@@ -71,6 +76,7 @@ DataOffer *DataDevice::sendDataOffer(wl_client *client, const QStringList &mimeT
 {
     Q_ASSERT(client);
     auto *offer = new DataOffer(this, client, m_manager->m_version);
+    m_offers << offer;
     for (auto *resource : resourceMap().values(client))
         wl_data_device::send_data_offer(resource->handle, offer->resource()->handle);
     for (const auto &mimeType : mimeTypes)
@@ -84,6 +90,33 @@ void DataDevice::sendSelection(DataOffer *offer)
     for (auto *resource : resourceMap().values(client))
         wl_data_device::send_selection(resource->handle, offer->resource()->handle);
     m_sentSelectionOffers << offer;
+}
+
+void DataDevice::sendEnter(Surface *surface, const QPoint &position)
+{
+    uint serial = m_manager->m_compositor->nextSerial();
+    Resource *resource = resourceMap().value(surface->resource()->client());
+    for (DataOffer *offer: m_offers)
+        wl_data_device::send_enter(resource->handle, serial, surface->resource()->handle, position.x(), position.y(), offer->resource()->handle);
+}
+
+void DataDevice::sendMotion(Surface *surface, const QPoint &position)
+{
+    uint32_t time = m_manager->m_compositor->nextSerial();
+    Resource *resource = resourceMap().value(surface->resource()->client());
+    wl_data_device::send_motion(resource->handle, time, position.x(), position.y());
+}
+
+void DataDevice::sendDrop(Surface *surface)
+{
+    Resource *resource = resourceMap().value(surface->resource()->client());
+    wl_data_device::send_drop(resource->handle);
+}
+
+void DataDevice::sendLeave(Surface *surface)
+{
+    Resource *resource = resourceMap().value(surface->resource()->client());
+    wl_data_device::send_leave(resource->handle);
 }
 
 void DataOffer::data_offer_destroy_resource(Resource *resource)
@@ -101,6 +134,8 @@ void DataOffer::data_offer_receive(Resource *resource, const QString &mime_type,
 void DataOffer::data_offer_destroy(QtWaylandServer::wl_data_offer::Resource *resource)
 {
     bool removed = m_dataDevice->m_sentSelectionOffers.removeOne(this);
+    if (!removed)
+        removed = m_dataDevice->m_offers.removeOne(this);
     QVERIFY(removed);
     wl_resource_destroy(resource->handle);
 }

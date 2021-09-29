@@ -55,11 +55,13 @@ namespace MockCompositor {
 class DefaultCompositor : public CoreCompositor
 {
 public:
-    explicit DefaultCompositor();
+    explicit DefaultCompositor(CompositorType t = CompositorType::Default);
     // Convenience functions
     Output *output(int i = 0) { return getAll<Output>().value(i, nullptr); }
     Surface *surface(int i = 0) { return get<WlCompositor>()->m_surfaces.value(i, nullptr); }
     Subsurface *subSurface(int i = 0) { return get<SubCompositor>()->m_subsurfaces.value(i, nullptr); }
+    WlShellSurface *wlShellSurface(int i = 0) { return get<WlShell>()->m_wlShellSurfaces.value(i, nullptr); }
+    Surface *wlSurface(int i = 0);
     XdgSurface *xdgSurface(int i = 0) { return get<XdgWmBase>()->m_xdgSurfaces.value(i, nullptr); }
     XdgToplevel *xdgToplevel(int i = 0) { return get<XdgWmBase>()->toplevel(i); }
     XdgPopup *xdgPopup(int i = 0) { return get<XdgWmBase>()->popup(i); }
@@ -78,6 +80,12 @@ public:
         bool autoConfigure = false;
     } m_config;
     void resetConfig() { exec([&] { m_config = Config{}; }); }
+};
+
+class WlShellCompositor : public DefaultCompositor
+{
+public:
+    explicit WlShellCompositor(CompositorType t = CompositorType::Legacy);
 };
 
 } // namespace MockCompositor

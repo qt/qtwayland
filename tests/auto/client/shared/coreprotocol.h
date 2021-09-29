@@ -36,6 +36,8 @@
 namespace MockCompositor {
 
 class WlCompositor;
+class WlShell;
+class WlShellSurface;
 class Output;
 class Pointer;
 class Touch;
@@ -96,17 +98,17 @@ class Surface : public QObject, public QtWaylandServer::wl_surface
 {
     Q_OBJECT
 public:
-    explicit Surface(WlCompositor *wlCompositor, wl_client *client, int id, int version)
-        : QtWaylandServer::wl_surface(client, id, version)
-        , m_wlCompositor(wlCompositor)
-    {
-    }
-    ~Surface() override { qDeleteAll(m_commits); } // TODO: maybe make sure buffers are released?
+    explicit Surface(WlCompositor *wlCompositor, wl_client *client, int id, int version);
+    ~Surface() override;
     void sendFrameCallbacks();
     void sendEnter(Output *output);
     void send_enter(::wl_resource *output) = delete;
     void sendLeave(Output *output);
     void send_leave(::wl_resource *output) = delete;
+
+    void map();
+    bool isMapped() const { return m_mapped; }
+    WlShellSurface *wlShellSurface() const { return m_wlShellSurface; }
 
     WlCompositor *m_wlCompositor;
     struct PerCommitData {
@@ -125,6 +127,14 @@ public:
     QList<Output *> m_outputs;
     SurfaceRole *m_role = nullptr;
 
+    WlShellSurface *m_wlShellSurface = nullptr;
+    bool m_mapped = false;
+    QList<wl_resource *> m_frameCallbackList;
+
+    wl_resource *m_buffer = nullptr;
+    QImage m_image; // checking backingStore
+    bool m_wlshell = false;
+
 signals:
     void attach(void *buffer, QPoint offset);
     void commit();
@@ -132,7 +142,7 @@ signals:
 
 protected:
     void surface_destroy_resource(Resource *resource) override;
-    void surface_destroy(Resource *resource) override { wl_resource_destroy(resource->handle); }
+    void surface_destroy(Resource *resource) override;
     void surface_attach(Resource *resource, wl_resource *buffer, int32_t x, int32_t y) override;
     void surface_set_buffer_scale(Resource *resource, int32_t scale) override;
     void surface_commit(Resource *resource) override;
@@ -182,6 +192,36 @@ protected:
     {
         new Region(resource->client(), id, resource->version());
     }
+};
+
+class WlShell : public Global, public QtWaylandServer::wl_shell
+{
+    Q_OBJECT
+public:
+    explicit WlShell(CoreCompositor *compositor, int version = 1);
+    QList<WlShellSurface *> m_wlShellSurfaces;
+    CoreCompositor *m_compositor = nullptr;
+
+signals:
+    void wlShellSurfaceCreated(WlShellSurface *wlShellSurface);
+
+protected:
+    void shell_get_shell_surface(Resource *resource, uint32_t id, ::wl_resource *surface) override;
+};
+
+class WlShellSurface : public QObject, public QtWaylandServer::wl_shell_surface
+{
+    Q_OBJECT
+public:
+    explicit WlShellSurface(WlShell *wlShell, wl_client *client, int id, Surface *surface);
+    ~WlShellSurface() override;
+    void sendConfigure(uint32_t edges, int32_t width, int32_t height);
+    void send_configure(uint32_t edges, int32_t width, int32_t height) = delete;
+
+    void shell_surface_destroy_resource(Resource *) override { delete this; }
+
+    WlShell *m_wlShell = nullptr;
+    Surface *m_surface = nullptr;
 };
 
 class Subsurface : public QObject, public QtWaylandServer::wl_subsurface

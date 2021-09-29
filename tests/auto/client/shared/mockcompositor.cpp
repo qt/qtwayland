@@ -31,7 +31,8 @@
 
 namespace MockCompositor {
 
-DefaultCompositor::DefaultCompositor()
+DefaultCompositor::DefaultCompositor(CompositorType t)
+    : CoreCompositor(t)
 {
     {
         Lock l(this);
@@ -43,8 +44,16 @@ DefaultCompositor::DefaultCompositor()
         auto *output = add<Output>();
         output->m_data.physicalSize = output->m_data.mode.physicalSizeForDpi(96);
         add<Seat>(Seat::capability_pointer | Seat::capability_keyboard | Seat::capability_touch);
+        add<WlShell>();
         add<XdgWmBase>();
-        add<Shm>();
+        switch (m_type) {
+        case CompositorType::Default:
+            add<Shm>();
+            break;
+        case CompositorType::Legacy:
+            wl_display_init_shm(m_display);
+            break;
+        }
         add<FullScreenShellV1>();
         add<IviApplication>();
 
@@ -87,6 +96,26 @@ void DefaultCompositor::xdgPingAndWaitForPong()
     uint serial = exec([=] { return sendXdgShellPing(); });
     QTRY_COMPARE(pongSpy.count(), 1);
     QTRY_COMPARE(pongSpy.first().at(0).toUInt(), serial);
+}
+
+WlShellCompositor::WlShellCompositor(CompositorType t)
+    : DefaultCompositor(t)
+{
+}
+
+Surface *DefaultCompositor::wlSurface(int i)
+{
+    QList<Surface *> surfaces, msurfaces;
+    msurfaces = get<WlCompositor>()->m_surfaces;
+    for (Surface *surface : msurfaces) {
+        if (surface->isMapped())
+            surfaces << surface;
+    }
+
+    if (i >=0 && i < surfaces.size())
+        return surfaces[i];
+
+    return nullptr;
 }
 
 } // namespace MockCompositor

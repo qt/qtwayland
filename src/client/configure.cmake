@@ -30,6 +30,13 @@ if(NOT TARGET XKB::XKB)
 endif()
 # special case end
 
+# Even if libdrm is already found by qtbase we still need to list it as dependency for some of our
+# plugins
+if(TARGET Libdrm::Libdrm)
+    qt_internal_disable_find_package_global_promotion(Libdrm::Libdrm)
+endif()
+qt_find_package(Libdrm PROVIDED_TARGETS Libdrm::Libdrm MODULE_NAME gui QMAKE_LIB drm MARK_OPTIONAL)
+
 #### Tests
 
 # drm-egl-server

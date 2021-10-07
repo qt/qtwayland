@@ -123,6 +123,12 @@ QWaylandSurface::Origin SharedMemoryBuffer::origin() const
     return QWaylandSurface::OriginTopLeft;
 }
 
+static void shmBufferCleanup(void *data)
+{
+    auto *pool = static_cast<struct wl_shm_pool *>(data);
+    wl_shm_pool_unref(pool);
+}
+
 QImage SharedMemoryBuffer::image() const
 {
     if (wl_shm_buffer *shmBuffer = wl_shm_buffer_get(m_buffer)) {
@@ -134,8 +140,9 @@ QImage SharedMemoryBuffer::image() const
         wl_shm_format shmFormat = wl_shm_format(wl_shm_buffer_get_format(shmBuffer));
         QImage::Format format = QWaylandSharedMemoryFormatHelper::fromWaylandShmFormat(shmFormat);
 
+        auto *pool = wl_shm_buffer_ref_pool(shmBuffer);
         uchar *data = static_cast<uchar *>(wl_shm_buffer_get_data(shmBuffer));
-        return QImage(data, width, height, bytesPerLine, format);
+        return QImage(data, width, height, bytesPerLine, format, &shmBufferCleanup, pool);
     }
 
     return QImage();

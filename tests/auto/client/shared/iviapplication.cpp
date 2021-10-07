@@ -47,8 +47,9 @@ IviSurface::IviSurface(IviApplication *iviApplication, Surface *surface, uint32_
     : QtWaylandServer::ivi_surface(client, id, version)
     , m_iviId(ivi_id)
     , m_iviApplication(iviApplication)
+    , m_surface(surface)
 {
-    Q_UNUSED(surface);
+    surface->map();
 }
 
 void IviSurface::ivi_surface_destroy_resource(Resource *resource)
@@ -56,7 +57,7 @@ void IviSurface::ivi_surface_destroy_resource(Resource *resource)
     Q_UNUSED(resource);
     bool removed = m_iviApplication->m_iviSurfaces.removeOne(this);
     Q_ASSERT(removed);
-        qDebug() << "destriy";
+    qDebug() << "destroy";
 
     delete this;
 }

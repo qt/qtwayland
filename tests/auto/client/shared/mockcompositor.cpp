@@ -79,6 +79,27 @@ DefaultCompositor::DefaultCompositor(CompositorType t)
     Q_ASSERT(isClean());
 }
 
+Surface *DefaultCompositor::surface(int i)
+{
+    Surface *result = nullptr;
+    switch (m_type) {
+    case CompositorType::Default:
+        result = get<WlCompositor>()->m_surfaces.value(i, nullptr);
+        break;
+    case CompositorType::Legacy: {
+            QList<Surface *> surfaces = get<WlCompositor>()->m_surfaces;
+            for (Surface *surface : surfaces) {
+                if (surface->isMapped()) {
+                    result = surface;
+                    break;
+                }
+            }
+        }
+        break;
+    }
+    return result;
+}
+
 uint DefaultCompositor::sendXdgShellPing()
 {
     warnIfNotLockedByThread(Q_FUNC_INFO);
@@ -96,6 +117,23 @@ void DefaultCompositor::xdgPingAndWaitForPong()
     uint serial = exec([=] { return sendXdgShellPing(); });
     QTRY_COMPARE(pongSpy.count(), 1);
     QTRY_COMPARE(pongSpy.first().at(0).toUInt(), serial);
+}
+
+void DefaultCompositor::sendShellSurfaceConfigure(Surface *surface)
+{
+    switch (m_type) {
+    case CompositorType::Default:
+        break;
+    case CompositorType::Legacy: {
+            if (auto wlShellSurface = surface->wlShellSurface()) {
+                wlShellSurface->sendConfigure(0, 0, 0);
+                return;
+            }
+            break;
+        }
+    }
+
+    qWarning() << "The mocking framework doesn't know how to send a configure event for this surface";
 }
 
 WlShellCompositor::WlShellCompositor(CompositorType t)

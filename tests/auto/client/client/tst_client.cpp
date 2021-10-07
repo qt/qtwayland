@@ -186,10 +186,10 @@ void tst_WaylandClient::createDestroyWindow()
     TestWindow window;
     window.show();
 
-    QCOMPOSITOR_TRY_VERIFY(wlSurface(0));
+    QCOMPOSITOR_TRY_VERIFY(surface());
 
     window.destroy();
-    QCOMPOSITOR_TRY_VERIFY(!wlSurface(0));
+    QCOMPOSITOR_TRY_VERIFY(!surface());
 }
 
 void tst_WaylandClient::activeWindowFollowsKeyboardFocus()
@@ -198,9 +198,10 @@ void tst_WaylandClient::activeWindowFollowsKeyboardFocus()
     window.show();
 
     Surface *s = nullptr;
-    QCOMPOSITOR_TRY_VERIFY(s = wlSurface(0));
-    WlShellSurface *ss = s->wlShellSurface();
-    ss->sendConfigure(0, 0, 0);
+    QCOMPOSITOR_TRY_VERIFY(s = surface());
+    exec([=] {
+        sendShellSurfaceConfigure(s);
+    });
 
     QCOMPOSITOR_TRY_VERIFY(window.isExposed());
 
@@ -225,9 +226,10 @@ void tst_WaylandClient::events()
     window.show();
 
     Surface *s = nullptr;
-    QCOMPOSITOR_TRY_VERIFY(s = wlSurface(0));
-    WlShellSurface *ss = s->wlShellSurface();
-    ss->sendConfigure(0, 0, 0);
+    QCOMPOSITOR_TRY_VERIFY(s = surface());
+    exec([=] {
+        sendShellSurfaceConfigure(s);
+    });
 
     QCOMPOSITOR_TRY_VERIFY(window.isExposed());
 
@@ -304,9 +306,10 @@ void tst_WaylandClient::backingStore()
     window.show();
 
     Surface *s = nullptr;
-    QCOMPOSITOR_TRY_VERIFY(s = wlSurface(0));
-    WlShellSurface *ss = s->wlShellSurface();
-    ss->sendConfigure(0, 0, 0);
+    QCOMPOSITOR_TRY_VERIFY(s = surface());
+    exec([=] {
+        sendShellSurfaceConfigure(s);
+    });
 
     QRect rect(QPoint(), window.size());
 
@@ -333,7 +336,7 @@ void tst_WaylandClient::backingStore()
     window.hide();
 
     // hiding the window should destroy the surface
-    QCOMPOSITOR_TRY_VERIFY(!wlSurface(0));
+    QCOMPOSITOR_TRY_VERIFY(!surface());
 }
 
 class DndWindow : public QWindow
@@ -414,9 +417,10 @@ void tst_WaylandClient::touchDrag()
     window.show();
 
     Surface *s = nullptr;
-    QCOMPOSITOR_TRY_VERIFY(s = wlSurface(0));
-    WlShellSurface *ss = s->wlShellSurface();
-    ss->sendConfigure(0, 0, 0);
+    QCOMPOSITOR_TRY_VERIFY(s = surface());
+    exec([=] {
+        sendShellSurfaceConfigure(s);
+    });
 
     DNDTest test;
     test.m_surface = s;
@@ -450,9 +454,10 @@ void tst_WaylandClient::mouseDrag()
     window.show();
 
     Surface *s = nullptr;
-    QCOMPOSITOR_TRY_VERIFY(s = wlSurface(0));
-    WlShellSurface *ss = s->wlShellSurface();
-    ss->sendConfigure(0, 0, 0);
+    QCOMPOSITOR_TRY_VERIFY(s = surface());
+    exec([=] {
+        sendShellSurfaceConfigure(s);
+    });
 
     DNDTest test;
     test.m_surface = s;
@@ -506,11 +511,11 @@ void tst_WaylandClient::dontCrashOnMultipleCommits()
         backingStore.flush(rect);
         backingStore.flush(rect);
 
-        QCOMPOSITOR_TRY_VERIFY(wlSurface(0));
+        QCOMPOSITOR_TRY_VERIFY(surface());
     }
 
     delete window;
-    QCOMPOSITOR_TRY_VERIFY(!wlSurface(0));
+    QCOMPOSITOR_TRY_VERIFY(!surface());
 }
 
 void tst_WaylandClient::hiddenTransientParent()
@@ -521,13 +526,13 @@ void tst_WaylandClient::hiddenTransientParent()
     transient.setTransientParent(&parent);
 
     parent.show();
-    QCOMPOSITOR_TRY_VERIFY(wlSurface(0));
+    QCOMPOSITOR_TRY_VERIFY(surface());
 
     parent.hide();
-    QCOMPOSITOR_TRY_VERIFY(!wlSurface(0));
+    QCOMPOSITOR_TRY_VERIFY(!surface());
 
     transient.show();
-    QCOMPOSITOR_TRY_VERIFY(wlSurface(0));
+    QCOMPOSITOR_TRY_VERIFY(surface());
 }
 void tst_WaylandClient::hiddenPopupParent()
 {
@@ -537,9 +542,10 @@ void tst_WaylandClient::hiddenPopupParent()
     // wl_shell relies on a mouse event in order to send a serial and seat
     // with the set_popup request.
     Surface *s = nullptr;
-    QCOMPOSITOR_TRY_VERIFY(s = wlSurface(0));
-    WlShellSurface *ss = s->wlShellSurface();
-    ss->sendConfigure(0, 0, 0);
+    QCOMPOSITOR_TRY_VERIFY(s = surface());
+    exec([=] {
+        sendShellSurfaceConfigure(s);
+    });
     QCOMPOSITOR_TRY_VERIFY(toplevel.isExposed());
 
     QPoint mousePressPos(16, 16);
@@ -559,10 +565,10 @@ void tst_WaylandClient::hiddenPopupParent()
     popup.setFlag(Qt::Popup, true);
 
     toplevel.hide();
-    QCOMPOSITOR_TRY_VERIFY(!wlSurface(0));
+    QCOMPOSITOR_TRY_VERIFY(!surface());
 
     popup.show();
-    QCOMPOSITOR_TRY_VERIFY(wlSurface(0));
+    QCOMPOSITOR_TRY_VERIFY(surface());
 }
 
 #if QT_CONFIG(opengl)
@@ -573,9 +579,10 @@ void tst_WaylandClient::glWindow()
     QScopedPointer<TestGlWindow> testWindow(new TestGlWindow);
     testWindow->show();
     Surface *s = nullptr;
-    QCOMPOSITOR_TRY_VERIFY(s = wlSurface(0));
-    WlShellSurface *ss = s->wlShellSurface();
-    ss->sendConfigure(0, 0, 0);
+    QCOMPOSITOR_TRY_VERIFY(s = surface());
+    exec([=] {
+        sendShellSurfaceConfigure(s);
+    });
 
     QTRY_COMPARE(testWindow->paintGLCalled, 1);
 
@@ -590,7 +597,7 @@ void tst_WaylandClient::glWindow()
     //confirm we don't crash when we delete an already hidden GL window
     //QTBUG-65553
     testWindow->setVisible(false);
-    QCOMPOSITOR_TRY_VERIFY(!wlSurface(0));
+    QCOMPOSITOR_TRY_VERIFY(!surface());
 }
 #endif // QT_CONFIG(opengl)
 
@@ -601,7 +608,7 @@ void tst_WaylandClient::longWindowTitle()
     QString absurdlyLongTitle(10000, QLatin1Char('z'));
     window.setTitle(absurdlyLongTitle);
     window.show();
-    QCOMPOSITOR_TRY_VERIFY(wlSurface(0));
+    QCOMPOSITOR_TRY_VERIFY(surface());
 }
 
 void tst_WaylandClient::longWindowTitleWithUtf16Characters()
@@ -611,7 +618,7 @@ void tst_WaylandClient::longWindowTitleWithUtf16Characters()
     Q_ASSERT(absurdlyLongTitle.length() == 10000); // just making sure the test isn't broken
     window.setTitle(absurdlyLongTitle);
     window.show();
-    QCOMPOSITOR_TRY_VERIFY(wlSurface(0));
+    QCOMPOSITOR_TRY_VERIFY(surface());
 }
 
 int main(int argc, char **argv)
@@ -619,7 +626,9 @@ int main(int argc, char **argv)
     QTemporaryDir tmpRuntimeDir;
     setenv("XDG_RUNTIME_DIR", tmpRuntimeDir.path().toLocal8Bit(), 1);
     setenv("QT_QPA_PLATFORM", "wayland", 1); // force QGuiApplication to use wayland plugin
-    setenv("QT_WAYLAND_SHELL_INTEGRATION", "wl-shell", 1);
+    QString shell = QString::fromLocal8Bit(qgetenv("QT_WAYLAND_SHELL_INTEGRATION"));
+    if (shell.isEmpty())
+        setenv("QT_WAYLAND_SHELL_INTEGRATION", "wl-shell", 1);
 
     tst_WaylandClient tc;
     QGuiApplication app(argc, argv);

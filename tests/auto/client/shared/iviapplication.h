@@ -58,13 +58,15 @@ class IviSurface : public QObject, public QtWaylandServer::ivi_surface
 public:
     IviSurface(IviApplication *iviApplication, Surface *surface, uint32_t ivi_id, wl_client *client, int id, int version);
 
+    Surface *surface() const { return m_surface; }
+
     void ivi_surface_destroy_resource(Resource *resource) override;
     void ivi_surface_destroy(Resource *resource) override;
 
     const uint m_iviId = 0;
 private:
     IviApplication *m_iviApplication;
-
+    Surface *m_surface = nullptr;
 };
 
 

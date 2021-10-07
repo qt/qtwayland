@@ -58,7 +58,7 @@ public:
     explicit DefaultCompositor(CompositorType t = CompositorType::Default);
     // Convenience functions
     Output *output(int i = 0) { return getAll<Output>().value(i, nullptr); }
-    Surface *surface(int i = 0) { return get<WlCompositor>()->m_surfaces.value(i, nullptr); }
+    Surface *surface(int i = 0);
     Subsurface *subSurface(int i = 0) { return get<SubCompositor>()->m_subsurfaces.value(i, nullptr); }
     WlShellSurface *wlShellSurface(int i = 0) { return get<WlShell>()->m_wlShellSurfaces.value(i, nullptr); }
     Surface *wlSurface(int i = 0);
@@ -71,8 +71,12 @@ public:
     Keyboard *keyboard() { auto *seat = get<Seat>(); Q_ASSERT(seat); return seat->m_keyboard; }
     FullScreenShellV1 *fullScreenShellV1() {return get<FullScreenShellV1>();};
     IviSurface *iviSurface(int i = 0) { return get<IviApplication>()->m_iviSurfaces.value(i, nullptr); }
+
     uint sendXdgShellPing();
     void xdgPingAndWaitForPong();
+
+    void sendShellSurfaceConfigure(Surface *surface);
+
     // Things that can be changed run-time without confusing the client (i.e. don't require separate tests)
     struct Config {
         bool autoEnter = true;

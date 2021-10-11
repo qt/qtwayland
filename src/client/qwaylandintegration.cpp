@@ -284,7 +284,7 @@ QWaylandDisplay *QWaylandIntegration::display() const
 
 Qt::KeyboardModifiers QWaylandIntegration::queryKeyboardModifiers() const
 {
-    if (auto *seat = mDisplay->currentInputDevice()) {
+    if (auto *seat = mDisplay->currentInputDevice(); seat && seat->keyboardFocus()) {
         return seat->modifiers();
     }
     return Qt::NoModifier;

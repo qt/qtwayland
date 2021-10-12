@@ -597,7 +597,6 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mXdgOutputManager.reset(new QWaylandXdgOutputManagerV1(this, id, version));
         for (auto *screen : std::as_const(mWaitingScreens))
             screen->initXdgOutput(xdgOutputManager());
-        forceRoundTrip();
     }
 
     mGlobals.append(RegistryGlobal(id, interface, version, registry));

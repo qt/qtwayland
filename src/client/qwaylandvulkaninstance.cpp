@@ -124,6 +124,16 @@ void QWaylandVulkanInstance::presentAboutToBeQueued(QWindow *window)
         qWarning() << "Attempted to call presentAboutToBeQueued() without a valid platform window";
         return;
     }
+
+    bool ok;
+    int frameCallbackTimeout = qEnvironmentVariableIntValue("QT_WAYLAND_FRAME_CALLBACK_TIMEOUT", &ok);
+
+    if (ok)
+        mFrameCallbackTimeout = frameCallbackTimeout;
+
+    if (w->format().swapInterval() > 0)
+        w->waitForFrameSync(mFrameCallbackTimeout);
+
     w->handleUpdate();
 }
 

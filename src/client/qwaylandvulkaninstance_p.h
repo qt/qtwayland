@@ -82,6 +82,7 @@ private:
     QVulkanInstance *m_instance = nullptr;
     PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR m_getPhysDevPresSupport = nullptr;
     PFN_vkCreateWaylandSurfaceKHR m_createSurface = nullptr;
+    int mFrameCallbackTimeout = 100;
 };
 
 } // namespace QtWaylandClient

@@ -53,14 +53,16 @@
 
 #include <QtCore/QSize>
 #include <QObject>
-
-#include <QtWaylandClient/private/qwayland-wayland.h>
+#include <QPoint>
 #include <QtWaylandClient/qtwaylandclientglobal.h>
+
+struct wl_surface;
 
 QT_BEGIN_NAMESPACE
 
 class QVariant;
 class QWindow;
+class QPlatformWindow;
 
 namespace QtWaylandClient {
 
@@ -90,15 +92,30 @@ public:
 
     virtual void sendProperty(const QString &name, const QVariant &value);
 
-    inline QWaylandWindow *window() { return m_window; }
-
     virtual void applyConfigure() {}
     virtual void requestWindowStates(Qt::WindowStates states) {Q_UNUSED(states);}
     virtual bool wantsDecorations() const { return false; }
+    virtual QMargins serverSideFrameMargins() const { return QMargins(); }
 
     virtual void propagateSizeHints() {}
 
     virtual void setWindowGeometry(const QRect &rect) { Q_UNUSED(rect); }
+    virtual void setWindowPosition(const QPoint &position) { Q_UNUSED(position); }
+
+    virtual bool requestActivate() { return false; }
+
+    inline QWaylandWindow *window() { return m_window; }
+    QPlatformWindow *platformWindow();
+    struct wl_surface *wlSurface();
+
+protected:
+    void resizeFromApplyConfigure(const QSize &sizeWithMargins, const QPoint &offset = {0, 0});
+    void repositionFromApplyConfigure(const QPoint &position);
+    void setGeometryFromApplyConfigure(const QPoint &globalPosition, const QSize &sizeWithMargins);
+    void applyConfigureWhenPossible();
+    void handleActivationChanged(bool activated);
+
+    static uint32_t getSerial(QWaylandInputDevice *inputDevice);
 
 private:
     QWaylandWindow *m_window = nullptr;

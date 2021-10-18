@@ -83,12 +83,14 @@
 
 #include "qwaylandserverbufferintegration_p.h"
 #include "qwaylandserverbufferintegrationfactory_p.h"
+#include "qwaylandshellsurface_p.h"
 
 #include "qwaylandshellintegration_p.h"
 #include "qwaylandshellintegrationfactory_p.h"
 
 #include "qwaylandinputdeviceintegration_p.h"
 #include "qwaylandinputdeviceintegrationfactory_p.h"
+#include "qwaylandwindow_p.h"
 
 #if QT_CONFIG(accessibility_atspi_bridge)
 #include <QtGui/private/qspiaccessiblebridge_p.h>
@@ -119,6 +121,19 @@ QWaylandIntegration::QWaylandIntegration()
         mFailed = true;
         return;
     }
+
+    // ### Not ideal...
+    // We don't want to use QPlatformWindow::requestActivate here, since that gives a warning
+    // for most shells. Also, we don't want to put this into the specific shells that can use
+    // it, since we want to support more than one shell in one client.
+    // In addition, this will send a new requestActivate when the focus object changes, even if
+    // the focus window stays the same.
+    QObject::connect(qApp, &QGuiApplication::focusObjectChanged, qApp, [](){
+        QWindow *fw = QGuiApplication::focusWindow();
+        auto *w = fw ? static_cast<QWaylandWindow*>(fw->handle()) : nullptr;
+        if (w && w->shellSurface())
+            w->shellSurface()->requestActivate();
+    });
 }
 
 QWaylandIntegration::~QWaylandIntegration()
@@ -435,6 +450,7 @@ void QWaylandIntegration::initializeShellIntegration()
     } else {
         preferredShells << QLatin1String("xdg-shell");
         preferredShells << QLatin1String("wl-shell") << QLatin1String("ivi-shell");
+        preferredShells << QLatin1String("qt-shell");
     }
 
     for (const QString &preferredShell : qAsConst(preferredShells)) {

@@ -17,9 +17,11 @@ qtHaveModule(quick) {
     SUBDIRS += overview-compositor
     SUBDIRS += ivi-compositor
     SUBDIRS += server-side-decoration
+    SUBDIRS += qtshell
     qtHaveModule(waylandclient) {
         SUBDIRS += \
-            custom-extension
+            custom-extension \
+            custom-shell
 
             qtConfig(opengl) {
                 SUBDIRS += \

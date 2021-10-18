@@ -57,6 +57,10 @@
           applications can run, often with pre-assigned screen real estate. For some more details
           on this protocol, see the
           \l{Qt Wayland Compositor Examples - IVI Compositor}{IVI Compositor example}.
+      \li \l QtShell is a specialized shell for Qt applications which supports the window management
+          features available in Qt. It may be suitable on a platform where both the compositor and
+          client applications are written with Qt, and where applications are trusted not to abuse
+          features such as manual window positioning and "bring-to-front".
       \li \l WlShell is mostly useful for compatibility with third-party applications. This is also
           a desktop-style shell, but it has been deprecated and replaced by \l XdgShell.
     \endlist

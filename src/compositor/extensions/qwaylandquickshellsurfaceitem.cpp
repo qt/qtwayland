@@ -313,4 +313,127 @@ void QWaylandQuickShellEventFilter::timerEvent(QTimerEvent *event)
     }
 }
 
+static QWaylandQuickShellSurfaceItem *findSurfaceItemFromMoveItem(QQuickItem *moveItem)
+{
+    if (Q_UNLIKELY(!moveItem))
+        return nullptr;
+    if (auto *surf = qobject_cast<QWaylandQuickShellSurfaceItem *>(moveItem))
+        return surf;
+    for (auto *item : moveItem->childItems()) {
+        if (auto *surf = findSurfaceItemFromMoveItem(item))
+            return surf;
+    }
+    return nullptr;
+}
+
+/*
+    To raise a surface, find the topmost suitable surface and place above that.
+    We start from the top and:
+    If we don't have staysOnTop, skip all surfaces with staysOnTop
+    If we have staysOnBottom, skip all surfaces that don't have staysOnBottom
+  */
+void QWaylandQuickShellSurfaceItemPrivate::raise()
+{
+    Q_Q(QWaylandQuickShellSurfaceItem);
+    auto *moveItem = q->moveItem();
+    QQuickItem *parent = moveItem->parentItem();
+    if (!parent)
+        return;
+    auto it = parent->childItems().crbegin();
+    auto skip = [this](QQuickItem *item) {
+        if (auto *surf = findSurfaceItemFromMoveItem(item))
+            return (!staysOnTop && surf->staysOnTop()) || (staysOnBottom && !surf->staysOnBottom());
+        return true; // ignore any other Quick items that may be there
+    };
+    while (skip(*it))
+        ++it;
+    QQuickItem *top = *it;
+    if (moveItem != top)
+        moveItem->stackAfter(top);
+}
+
+/*
+    To lower a surface, find the lowest suitable surface and place below that.
+    We start from the bottom and:
+    If we don't have staysOnBottom, skip all surfaces with staysOnBottom
+    If we have staysOnTop, skip all surfaces that don't have staysOnTop
+  */
+void QWaylandQuickShellSurfaceItemPrivate::lower()
+{
+    Q_Q(QWaylandQuickShellSurfaceItem);
+    auto *moveItem = q->moveItem();
+    QQuickItem *parent = moveItem->parentItem();
+    if (!parent)
+        return;
+    auto it = parent->childItems().cbegin();
+
+    auto skip = [this](QQuickItem *item) {
+        if (auto *surf = findSurfaceItemFromMoveItem(item))
+            return (!staysOnBottom && surf->staysOnBottom()) || (staysOnTop && !surf->staysOnTop());
+        return true; // ignore any other Quick items that may be there
+    };
+    while (skip(*it))
+        ++it;
+
+    QQuickItem *bottom = *it;
+    if (moveItem != bottom)
+        moveItem->stackBefore(bottom);
+}
+
+/*!
+ * \property QWaylandQuickShellSurfaceItem::staysOnTop
+ *
+ * Keep this item above other Wayland surfaces
+ */
+bool QWaylandQuickShellSurfaceItem::staysOnTop() const
+{
+    Q_D(const QWaylandQuickShellSurfaceItem);
+    return d->staysOnTop;
+}
+
+void QWaylandQuickShellSurfaceItem::setStaysOnTop(bool onTop)
+{
+    Q_D(QWaylandQuickShellSurfaceItem);
+    if (d->staysOnTop == onTop)
+        return;
+    d->staysOnTop = onTop;
+    if (d->staysOnBottom) {
+        d->staysOnBottom = false;
+        emit staysOnBottomChanged();
+    }
+    // We need to call raise() even if onTop is false, since we need to stack under any other
+    // staysOnTop surfaces in that case
+    raise();
+    emit staysOnTopChanged();
+    Q_ASSERT(!(d->staysOnTop && d->staysOnBottom));
+}
+
+/*!
+ * \property QWaylandQuickShellSurfaceItem::staysOnBottom
+ *
+ * Keep this item above other Wayland surfaces
+ */
+bool QWaylandQuickShellSurfaceItem::staysOnBottom() const
+{
+    Q_D(const QWaylandQuickShellSurfaceItem);
+    return d->staysOnBottom;
+}
+
+void QWaylandQuickShellSurfaceItem::setStaysOnBottom(bool onBottom)
+{
+    Q_D(QWaylandQuickShellSurfaceItem);
+    if (d->staysOnBottom == onBottom)
+        return;
+    d->staysOnBottom = onBottom;
+    if (d->staysOnTop) {
+        d->staysOnTop = false;
+        emit staysOnTopChanged();
+    }
+    // We need to call lower() even if onBottom is false, since we need to stack over any other
+    // staysOnBottom surfaces in that case
+    lower();
+    emit staysOnBottomChanged();
+    Q_ASSERT(!(d->staysOnTop && d->staysOnBottom));
+}
+
 QT_END_NAMESPACE

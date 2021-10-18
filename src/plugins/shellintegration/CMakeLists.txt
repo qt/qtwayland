@@ -12,3 +12,7 @@ endif()
 if(QT_FEATURE_wayland_client_xdg_shell)
     add_subdirectory(xdg-shell)
 endif()
+
+if(QT_FEATURE_wayland_client_qt_shell)
+    add_subdirectory(qt-shell)
+endif()

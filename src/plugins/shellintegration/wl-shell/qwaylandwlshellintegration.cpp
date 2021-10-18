@@ -47,15 +47,16 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-bool QWaylandWlShellIntegration::initialize(QWaylandDisplay *display)
+bool QWaylandWlShellIntegration::initialize()
 {
-    const auto globals = display->globals();
-    for (QWaylandDisplay::RegistryGlobal global : globals) {
-        if (global.interface == QLatin1String("wl_shell")) {
-            m_wlShell = new QtWayland::wl_shell(display->wl_registry(), global.id, 1);
-            break;
-        }
-    }
+    if (m_wlShell)
+        return true;
+    wl_registry *registry;
+    uint32_t id;
+    uint32_t version;
+    bool found = findGlobal(QLatin1String("wl_shell"), &registry, &id, &version);
+    if (found)
+        m_wlShell = new QtWayland::wl_shell(registry, id, 1);
 
     if (!m_wlShell) {
         qCDebug(lcQpaWayland) << "Couldn't find global wl_shell";
@@ -66,7 +67,7 @@ bool QWaylandWlShellIntegration::initialize(QWaylandDisplay *display)
                             << "\"xdg-shell\" if supported by the compositor"
                             << "by setting the environment variable QT_WAYLAND_SHELL_INTEGRATION";
 
-    return QWaylandShellIntegration::initialize(display);
+    return true;
 }
 
 QWaylandShellSurface *QWaylandWlShellIntegration::createShellSurface(QWaylandWindow *window)

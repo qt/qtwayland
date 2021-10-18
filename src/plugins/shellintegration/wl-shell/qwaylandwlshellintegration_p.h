@@ -63,7 +63,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandWlShellIntegration : public QWaylandShellI
 {
 public:
     QWaylandWlShellIntegration() {}
-    bool initialize(QWaylandDisplay *) override;
+    bool initialize() override;
     QWaylandShellSurface *createShellSurface(QWaylandWindow *window) override;
     void *nativeResourceForWindow(const QByteArray &resource, QWindow *window) override;
 

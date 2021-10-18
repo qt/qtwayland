@@ -40,6 +40,7 @@
 #include "qwaylandshellsurface_p.h"
 #include "qwaylandwindow_p.h"
 #include "qwaylandextendedsurface_p.h"
+#include "qwaylandinputdevice_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -59,6 +60,49 @@ void QWaylandShellSurface::sendProperty(const QString &name, const QVariant &val
 {
     Q_UNUSED(name);
     Q_UNUSED(value);
+}
+
+QPlatformWindow *QWaylandShellSurface::platformWindow()
+{
+    return m_window;
+}
+
+wl_surface *QWaylandShellSurface::wlSurface()
+{
+    return m_window ? m_window->wlSurface() : nullptr;
+}
+
+void QWaylandShellSurface::resizeFromApplyConfigure(const QSize &sizeWithMargins, const QPoint &offset)
+{
+    m_window->resizeFromApplyConfigure(sizeWithMargins, offset);
+}
+
+void QWaylandShellSurface::repositionFromApplyConfigure(const QPoint &position)
+{
+    m_window->repositionFromApplyConfigure(position);
+}
+
+void QWaylandShellSurface::setGeometryFromApplyConfigure(const QPoint &globalPosition, const QSize &sizeWithMargins)
+{
+    m_window->setGeometryFromApplyConfigure(globalPosition, sizeWithMargins);
+}
+
+void QWaylandShellSurface::applyConfigureWhenPossible()
+{
+    m_window->applyConfigureWhenPossible();
+}
+
+void QWaylandShellSurface::handleActivationChanged(bool activated)
+{
+    if (activated)
+        m_window->display()->handleWindowActivated(m_window);
+    else
+        m_window->display()->handleWindowDeactivated(m_window);
+}
+
+uint32_t QWaylandShellSurface::getSerial(QWaylandInputDevice *inputDevice)
+{
+    return inputDevice->serial();
 }
 
 }

@@ -217,6 +217,7 @@ public:
     bool isKeyboardAvailable() const;
 
     void initEventThread();
+
 public slots:
     void blockingReadEvents();
     void flushRequests();

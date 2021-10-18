@@ -123,6 +123,8 @@ public:
 
     void setGeometry(const QRect &rect) override;
     void resizeFromApplyConfigure(const QSize &sizeWithMargins, const QPoint &offset = {0, 0});
+    void repositionFromApplyConfigure(const QPoint &position);
+    void setGeometryFromApplyConfigure(const QPoint &globalPosition, const QSize &sizeWithMargins);
 
     void applyConfigureWhenPossible(); //rename to possible?
 
@@ -239,6 +241,7 @@ protected:
     virtual void doHandleFrameCallback();
     virtual QRect defaultGeometry() const;
     void sendExposeEvent(const QRect &rect);
+    QMargins clientSideMargins() const;
 
     QWaylandDisplay *mDisplay = nullptr;
     QScopedPointer<QWaylandSurface> mSurface;

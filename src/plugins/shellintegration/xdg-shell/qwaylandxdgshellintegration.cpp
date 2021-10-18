@@ -47,21 +47,21 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-bool QWaylandXdgShellIntegration::initialize(QWaylandDisplay *display)
+bool QWaylandXdgShellIntegration::initialize()
 {
-    for (QWaylandDisplay::RegistryGlobal global : display->globals()) {
-        if (global.interface == QLatin1String("xdg_wm_base")) {
-            m_xdgShell.reset(new QWaylandXdgShell(display, global.id, global.version));
-            break;
-        }
-    }
-
+    if (m_xdgShell)
+        return true;
+    wl_registry *registry;
+    uint32_t id;
+    uint32_t version;
+    bool found = findGlobal(QLatin1String("xdg_wm_base"), &registry, &id, &version);
+    if (found)
+        m_xdgShell.reset(new QWaylandXdgShell(m_display, id, version));
     if (!m_xdgShell) {
         qCDebug(lcQpaWayland) << "Couldn't find global xdg_wm_base for xdg-shell stable";
         return false;
     }
-
-    return QWaylandShellIntegration::initialize(display);
+    return true;
 }
 
 QWaylandShellSurface *QWaylandXdgShellIntegration::createShellSurface(QWaylandWindow *window)

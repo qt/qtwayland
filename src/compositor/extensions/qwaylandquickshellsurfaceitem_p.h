@@ -61,10 +61,15 @@ public:
     QWaylandQuickShellSurfaceItem *maybeCreateAutoPopup(QWaylandShellSurface* shellSurface);
     static QWaylandQuickShellSurfaceItemPrivate *get(QWaylandQuickShellSurfaceItem *item) { return item->d_func(); }
 
+    void raise() override;
+    void lower() override;
+
     QWaylandQuickShellIntegration *m_shellIntegration = nullptr;
     QWaylandShellSurface *m_shellSurface = nullptr;
     QQuickItem *m_moveItem = nullptr;
     bool m_autoCreatePopupItems = true;
+    bool staysOnTop = false;
+    bool staysOnBottom = false;
 };
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellEventFilter : public QObject

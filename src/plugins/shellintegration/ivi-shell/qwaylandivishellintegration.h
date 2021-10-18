@@ -45,6 +45,7 @@
 #include <QtWaylandClient/private/qwaylandshellintegration_p.h>
 #include "qwayland-ivi-application.h"
 #include "qwayland-ivi-controller.h"
+#include <QScopedPointer>
 
 QT_BEGIN_NAMESPACE
 
@@ -58,7 +59,7 @@ class Q_WAYLAND_CLIENT_EXPORT QWaylandIviShellIntegration : public QWaylandShell
 public:
     QWaylandIviShellIntegration();
 
-    bool initialize(QWaylandDisplay *display) override;
+    bool initialize() override;
     QWaylandShellSurface *createShellSurface(QWaylandWindow *window) override;
 
 private:

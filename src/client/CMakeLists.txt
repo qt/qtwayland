@@ -48,7 +48,8 @@ qt_internal_add_module(WaylandClient
         qwaylandtouch.cpp qwaylandtouch_p.h
         qwaylandwindow.cpp qwaylandwindow_p.h
         qwaylandwindowmanagerintegration.cpp qwaylandwindowmanagerintegration_p.h
-        shellintegration/qwaylandshellintegration_p.h
+        shellintegration/qwaylandclientshellapi_p.h
+        shellintegration/qwaylandshellintegration_p.h shellintegration/qwaylandshellintegration.cpp
         shellintegration/qwaylandshellintegrationfactory.cpp shellintegration/qwaylandshellintegrationfactory_p.h
         shellintegration/qwaylandshellintegrationplugin.cpp shellintegration/qwaylandshellintegrationplugin_p.h
     INCLUDE_DIRECTORIES

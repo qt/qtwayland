@@ -43,6 +43,7 @@
 #include <wayland-client.h>
 #include <QtWaylandClient/private/qwayland-wayland.h>
 #include <QtWaylandClient/private/qwaylandshellintegration_p.h>
+#include <QScopedPointer>
 
 #include "qwayland-fullscreen-shell-unstable-v1.h"
 
@@ -53,7 +54,7 @@ namespace QtWaylandClient {
 class Q_WAYLAND_CLIENT_EXPORT QWaylandFullScreenShellV1Integration : public QWaylandShellIntegration
 {
 public:
-    bool initialize(QWaylandDisplay *display) override;
+    bool initialize() override;
     QWaylandShellSurface *createShellSurface(QWaylandWindow *window) override;
 
 private:

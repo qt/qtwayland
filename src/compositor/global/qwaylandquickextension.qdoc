@@ -1,0 +1,81 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+ * \headerfile <QWaylandQuickExtension>
+ * \title Qt Wayland Compositor Qt Quick Extension Macro Declarations
+ * \inmodule QtWaylandCompositor
+ * \ingroup funclists
+ *
+ * \brief The <QWaylandQuickExtension> header file includes \l{macros} for creating Qt Quick types
+ * that correspond to subclasses of QWaylandCompositorExtension and QWaylandObject.
+ *
+ * If you are creating extensions to Qt Wayland Compositor, the macros in the QWaylandQuickExtension
+ * header may be a useful alternative to manually implementing the required parts for each class.
+ *
+ * \sa {Qt Wayland Compositor Examples - Custom Shell}
+ */
+
+/*!
+ * \macro Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(className)
+ * \relates <QWaylandQuickExtension>
+ *
+ * This macro can be used to define a Qt Quick class based on a Wayland extension. It defines
+ * a new class which inherits from \a className and which suffixes the name with "QuickExtension".
+ *
+ * The class should be a subclass of QWaylandCompositorExtension, and
+ * \l{QWaylandCompositorExtension::initialize()} will be called automatically. The type must be
+ * manually registered in Qt Quick using \l{qmlRegisterType()}.
+ *
+ * \sa Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_CLASS
+ */
+
+/*!
+ * \macro Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CONTAINER_CLASS(className)
+ * \relates <QWaylandQuickExtension>
+ *
+ * This macro can be used to define a Qt Quick class intended to contain Wayland extensions. It
+ *
+ * It defines a new class which inherits from \a className and which suffixes the name with
+ * "QuickExtensionContainer". The class given by \a className should inherit from QWaylandObject,
+ * and the new class will have an \c extensions property which manages the extensions by calling
+ * \l{QWaylandObject::addExtension()}{addExtension()} and
+ * \l{QWaylandObject::removeExtension()}{removeExtension()} in the base class.
+ *
+ * The type must be manually registered in Qt Quick using \l{qmlRegisterType()}.
+ */
+
+/*!
+ * \macro Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_CLASS(className, QmlType)
+ * \relates <QWaylandQuickExtension>
+ *
+ * This macro can be used to define a Qt Quick class based on a Wayland extension. It defines
+ * a new class which inherits from \a className and which suffixes the name with "QuickExtension".
+ *
+ * The macro works the same as \l{Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS}, but will also
+ * automatically register the new type as \a QmlType in Qt Quick.
+ */

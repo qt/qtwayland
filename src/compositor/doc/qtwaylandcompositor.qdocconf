@@ -31,8 +31,12 @@ qhp.QtWaylandCompositor.subprojects.examples.sortPages      = true
 depends += qtcore qtqml qtquick qtdoc qtquickcontrols qmake qtgui qtqmlmodels qtwidgets qtvirtualkeyboard
 
 exampledirs += ../../../examples/wayland
-headerdirs += ..
-sourcedirs += ..
+headerdirs += \
+    ../ \
+    ../../imports/
+sourcedirs += \
+    ../ \
+    ../../imports/
 imagedirs  += images
 
 examplesinstallpath = wayland

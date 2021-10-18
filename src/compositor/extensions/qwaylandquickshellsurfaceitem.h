@@ -45,6 +45,8 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellSurfaceItem : public QWaylan
     Q_PROPERTY(QWaylandShellSurface *shellSurface READ shellSurface WRITE setShellSurface NOTIFY shellSurfaceChanged)
     Q_PROPERTY(QQuickItem *moveItem READ moveItem WRITE setMoveItem NOTIFY moveItemChanged)
     Q_PROPERTY(bool autoCreatePopupItems READ autoCreatePopupItems WRITE setAutoCreatePopupItems NOTIFY autoCreatePopupItemsChanged)
+    Q_PROPERTY(bool staysOnTop READ staysOnTop WRITE setStaysOnTop NOTIFY staysOnTopChanged)
+    Q_PROPERTY(bool staysOnBottom READ staysOnBottom WRITE setStaysOnBottom NOTIFY staysOnBottomChanged)
     Q_MOC_INCLUDE("qwaylandshellsurface.h")
     QML_NAMED_ELEMENT(ShellSurfaceItem)
     QML_ADDED_IN_VERSION(1, 0)
@@ -61,10 +63,17 @@ public:
     bool autoCreatePopupItems();
     void setAutoCreatePopupItems(bool enabled);
 
+    bool staysOnTop() const;
+    void setStaysOnTop(bool on);
+    bool staysOnBottom() const;
+    void setStaysOnBottom(bool on);
+
 Q_SIGNALS:
     void shellSurfaceChanged();
     void moveItemChanged();
     void autoCreatePopupItemsChanged();
+    void staysOnTopChanged();
+    void staysOnBottomChanged();
 
 protected:
     QWaylandQuickShellSurfaceItem(QWaylandQuickShellSurfaceItemPrivate &dd, QQuickItem *parent);

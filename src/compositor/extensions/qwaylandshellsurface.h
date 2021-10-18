@@ -64,7 +64,7 @@ template <typename T>
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShellSurfaceTemplate : public QWaylandShellSurface
 {
 public:
-    QWaylandShellSurfaceTemplate(QWaylandObject *container)
+    QWaylandShellSurfaceTemplate(QWaylandObject *container = nullptr)
         : QWaylandShellSurface(container)
     { }
 

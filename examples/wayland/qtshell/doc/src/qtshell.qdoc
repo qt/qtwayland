@@ -1,0 +1,171 @@
+/****************************************************************************
+**
+** Copyright (C) 2021 The Qt Company Ltd.
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of the documentation of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:FDL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU Free Documentation License Usage
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of
+** this file. Please review the following information to ensure
+** the GNU Free Documentation License version 1.3 requirements
+** will be met: https://www.gnu.org/licenses/fdl-1.3.html.
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+/*!
+ * \title Qt Wayland Compositor Examples - QtShell Compositor
+ * \example qtshell
+ * \brief QtShell Compositor shows how to use the QtShell shell extension.
+ * \ingroup qtwaylandcompositor-examples
+ *
+ * QtShell Compositor is a desktop-style Wayland compositor example implementing a
+ * complete Qt Wayland Compositor which uses the specialized
+ * \l{Shell Extensions - Qt Wayland Compositor}{shell extension protocol} called \l{QtShell}.
+ *
+ * The compositor is implemented with Qt Quick and QML.
+ *
+ * \section1 Making the Connection
+ *
+ * The example lists QtShell as the only extension to the WaylandCompositor object. This means that
+ * any client connecting to the server must also support this extension, thus they should be Qt
+ * applications running against the same version of Qt as the compositor.
+ *
+ * \snippet qtshell/qml/main.qml shell
+ *
+ * When a client connects to the QtShell interface, it creates a \l{QtShellSurface}. The compositor
+ * is notified of this by the emission of the
+ * \l{QtWaylandCompositor::QtShell::qtShellSurfaceCreated()}{qtShellSurfaceCreated} signal. The
+ * example then adds the shell surface to a ListModel for easy access later.
+ *
+ * \snippet qtshell/qml/CompositorScreen.qml handleShellSurface
+ *
+ * The ListModel is used as the model for a \l{Repeater} which creates the Qt Quick items required
+ * to display the client contents on screen.
+ *
+ * \snippet qtshell/qml/CompositorScreen.qml repeater
+ *
+ * It uses the local \c Chrome type, which handles window states and decorations.
+ *
+ * \section1 Chrome
+ *
+ * The \c Chrome is the type that ensures the client contents are visible and also handles window
+ * state, position, size, and so on. It uses the built-in QtShellChrome as a basis, which
+ * automatically handles window state (maximized, minimized, fullscreen) and window activation
+ * (ensuring that only a single window is active at the time).
+ *
+ * Its behavior can be customized to some extent, but it is also possible to write the \c Chrome
+ * functionality from scratch, building from a basic \l{Item} type instead. QtShellChrome is a
+ * convenience class which provides typical compositor behavior, and saves us the time of
+ * implementing this logic in the example.
+ *
+ * However the \c Chrome is written, it should have a ShellSurfaceItem to hold the client contents.
+ *
+ * \snippet qtshell/qml/Chrome.qml shellsurfaceitem
+ *
+ * The ShellSurfaceItem is the visual representation of the client's contents in the Qt Quick scene.
+ * Its size should usually match the size of the client's buffer, otherwise it may look stretched or
+ * squeezed. QtShellChrome will automatically be sized to the \l{QtShellSurface}'s
+ * \l{QtShellSurface::windowGeometry}{windowGeometry}, which is size of the
+ * client's buffer plus the size of the frame margins. The frame margins are reserved areas on the
+ * sides of the \c Chrome which can be used to contain window decorations.
+ *
+ * The ShellSurfaceItem is therefore anchored to the window decorations to fill the area reserved
+ * for the client buffer.
+ *
+ * \section1 Window Decorations
+ *
+ * The window decoration is usually a frame around a client's contents which adds information
+ * (such as a window title) and the possibility of user interaction (such as resizing, closing,
+ * moving the window, and so on.)
+ *
+ * With \l{QtShell}, window decorations are always drawn by the compositor and not by the client.
+ * In order for sizes and positions to be communicated correctly, QtShell also needs to know how
+ * much of the window is reserved for these decorations. This can be handled automatically by
+ * QtShellChrome, or manually, by setting
+ * \l{QtShellChrome::frameMarginLeft}{frameMarginLeft},
+ * \l{QtShellChrome::frameMarginRight}{frameMarginRight},
+ * \l{QtShellChrome::frameMarginTop}{frameMarginTop} and
+ * \l{QtShellChrome::frameMarginBottom}{frameMarginBottom}.
+ *
+ * For typical cases where there are resize handles around the window and a title bar at the top,
+ * it is more convenient to rely on the default frame margins. The QtShell Compositor example
+ * does this.
+ *
+ * First, we create Qt Quick items to represent the different parts of the window's decorations.
+ * On the left side, for example, there should be a resize handle that the user can grab and drag in
+ * order to resize the window.
+ *
+ * \snippet qtshell/qml/Chrome.qml leftResizeHandle
+ *
+ * We simply make this a five-pixel wide rectangle in the example, anchored to the top, bottom and
+ * left side of the \c Chrome.
+ *
+ * Similarly, we add Qt Quick items that represent the right, top, bottom, top-left, top-right,
+ * bottom-left and bottom-right resize handles. We also add a title bar. When the decorations have
+ * been created and anchored correctly to the sides of the \c{Chrome}, we set corresponding
+ * properties in QtShellChrome.
+ *
+ * \snippet qtshell/qml/Chrome.qml decorations
+ *
+ * When the decoration properties are set, the default resizing and repositioning behavior will be
+ * added automatically. The user will be able to interact with the resize handles in order to resize
+ * the window, and drag the title bar to reposition it. The frame margins of the QtShellSurface will
+ * also be set automatically to account for the size of the decorations (as long as none of the
+ * frame margins properties have been set explicitly.)
+ *
+ * The visibility of the decorations will be handled automatically by the QtShellChrome based on
+ * the window flags of the QtShellSurface.
+ *
+ * \section1 Window Management
+ *
+ * As part of the decorations, it is common to have tool buttons which manage the window state
+ * and life span. In the example, these are added to the title bar.
+ *
+ * \snippet qtshell/qml/Chrome.qml buttons
+ *
+ * The visibility of each button is conditional on the window flag for that button, and when each
+ * of them is clicked, we simply call the corresponding method in QtShellChrome. The exception is
+ * the "close" button, which calls the
+ * \l{QtWaylandCompositor::QtShellSurface::sendClose()}{sendClose()} method in QtShellSurface.
+ * This instructs the client to close itself, and ensures a graceful shutdown of the application.
+ *
+ * \snippet qtshell/qml/CompositorScreen.qml taskbar
+ *
+ * As an additional window management tool, the example has a "task bar". This is just a row of
+ * tool buttons at the bottom with the window titles. The buttons can be clicked to de-minimize
+ * applications and bring them to the front if they are obscured by other windows. Similarly
+ * to the \c{Chrome}, we use a \l{Repeater} for creating the tool buttons and use the shell surface
+ * list as model for this. For simplicity, the example does not have any handling of overflow (when
+ * there are too many applications for the task bar), but in a proper compositor, this is also
+ * something that should be considered.
+ *
+ * Finally, to avoid maximized applications expanding to fill the area covered by the task bar, we
+ * create a special item to manage the parts of the WaylandOutput real estate that is available to
+ * client windows.
+ *
+ * \snippet qtshell/qml/CompositorScreen.qml usableArea
+ *
+ * It is simply anchored to the sides of the WaylandOutput, but its bottom anchor is at the top
+ * of the task bar.
+ *
+ * In the \c{Chrome}, we use this area to define the \l{QtShellChrome::maximizedRect}{maximizedRect}
+ * of the window.
+ *
+ * \snippet qtshell/qml/Chrome.qml maximizedRect
+ *
+ * By default, this property will match the full WaylandOutput. In our case, however, we do not want
+ * to include the task bar in the available area, so we override the default.
+ */

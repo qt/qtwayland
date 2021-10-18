@@ -105,7 +105,7 @@ void QWaylandEglWindow::setGeometry(const QRect &rect)
 
 void QWaylandEglWindow::updateSurface(bool create)
 {
-    QMargins margins = frameMargins();
+    QMargins margins = mWindowDecoration ? frameMargins() : QMargins{};
     QRect rect = geometry();
     QSize sizeWithMargins = (rect.size() + QSize(margins.left() + margins.right(), margins.top() + margins.bottom())) * scale();
 

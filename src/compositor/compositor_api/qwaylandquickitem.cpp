@@ -1606,20 +1606,34 @@ void QWaylandQuickItem::setInputEventsEnabled(bool enabled)
 
 void QWaylandQuickItem::lower()
 {
-    QQuickItem *parent = parentItem();
+    Q_D(QWaylandQuickItem);
+    d->lower();
+}
+
+void QWaylandQuickItemPrivate::lower()
+{
+    Q_Q(QWaylandQuickItem);
+    QQuickItem *parent = q->parentItem();
     Q_ASSERT(parent);
-    QQuickItem *bottom = parent->childItems().first();
-    if (this != bottom)
-        stackBefore(bottom);
+    QQuickItem *bottom = parent->childItems().constFirst();
+    if (q != bottom)
+        q->stackBefore(bottom);
 }
 
 void QWaylandQuickItem::raise()
 {
-    QQuickItem *parent = parentItem();
+    Q_D(QWaylandQuickItem);
+    d->raise();
+}
+
+void QWaylandQuickItemPrivate::raise()
+{
+    Q_Q(QWaylandQuickItem);
+    QQuickItem *parent = q->parentItem();
     Q_ASSERT(parent);
-    QQuickItem *top = parent->childItems().last();
-    if (this != top)
-        stackAfter(top);
+    QQuickItem *top = parent->childItems().constLast();
+    if (q != top)
+        q->stackAfter(top);
 }
 
 void QWaylandQuickItem::sendMouseMoveEvent(const QPointF &position, QWaylandSeat *seat)

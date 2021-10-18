@@ -362,6 +362,52 @@ QtWayland::ClientBuffer *QWaylandSurfacePrivate::getBuffer(struct ::wl_resource 
 }
 
 /*!
+ * \class QWaylandSurfaceRole
+ * \inmodule QtWaylandCompositor
+ * \since 5.8
+ * \brief The QWaylandSurfaceRole class represents the role of the surface in context of wl_surface.
+ *
+ * QWaylandSurfaceRole is used to represent the role of a QWaylandSurface. According to the protocol
+ * specification, the role of a surface is permanent once set, and if the same surface is later
+ * reused for a different role, this constitutes a protocol error. Setting the surface to the same
+ * role multiple times is not an error.
+ *
+ * As an example, the QWaylandXdgShell can assign either "popup" or "toplevel" roles to surfaces.
+ * If \c get_toplevel is requested on a surface which has previously received a \c get_popup
+ * request, then the compositor will issue a protocol error.
+ *
+ * Roles are compared by pointer value, so any two objects of QWaylandSurfaceRole will be considered
+ * different roles, regardless of what their \l{name()}{names} are. A typical way of assigning a
+ * role is to have a static QWaylandSurfaceRole object to represent it.
+ *
+ * \code
+ * class MyShellSurfaceSubType
+ * {
+ *     static QWaylandSurfaceRole s_role;
+ *     // ...
+ * };
+ *
+ * // ...
+ *
+ * surface->setRole(&MyShellSurfaceSubType::s_role, resource->handle, MY_ERROR_CODE);
+ * \endcode
+ */
+
+/*!
+ * \fn QWaylandSurfaceRole::QWaylandSurfaceRole(const QByteArray &name)
+ *
+ * Creates a QWaylandSurfaceRole and assigns it \a name. The name is used in error messages
+ * involving this QWaylandSurfaceRole.
+ */
+
+/*!
+ * \fn const QByteArray QWaylandSurfaceRole::name()
+ *
+ * Returns the name of the QWaylandSurfaceRole. The name is used in error messages involving this
+ * QWaylandSurfaceRole, for example if an attempt is made to change the role of a surface.
+ */
+
+/*!
  * \qmltype WaylandSurface
  * \instantiates QWaylandSurface
  * \inqmlmodule QtWayland.Compositor
@@ -912,10 +958,19 @@ struct wl_resource *QWaylandSurface::resource() const
 }
 
 /*!
- * Sets a \a role on the surface. A role defines how a surface will be mapped on screen; without a role
- * a surface is supposed to be hidden. Only one role can be set on a surface, at all times. Although
- * setting the same role many times is allowed, attempting to change the role of a surface will trigger
- * a protocol error to the \a errorResource and send an \a errorCode to the client.
+ * Sets a \a role on the surface. A role defines how a surface will be mapped on screen; without a
+ * role a surface is supposed to be hidden. Once a role is assigned to a surface, this becomes its
+ * permanent role. Any subsequent call to \c setRole() with a different role will trigger a
+ * protocol error to the \a errorResource and send an \a errorCode to the client. Enforcing this
+ * requirement is the main purpose of the surface role.
+ *
+ * The \a role is compared by pointer value. Any two objects of QWaylandSurfaceRole will be
+ * considered different roles, regardless of their names.
+ *
+ * The surface role is set internally by protocol implementations when a surface is adopted for a
+ * specific purpose, for example in a \l{Shell Extensions - Qt Wayland Compositor}{shell extension}.
+ * Unless you are developing extensions which use surfaces in this way, you should not call this
+ * function.
  *
  * Returns true if a role can be assigned; false otherwise.
  */

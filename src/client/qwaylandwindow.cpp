@@ -342,7 +342,7 @@ void QWaylandWindow::setGeometry_helper(const QRect &rect)
                 qBound(minimum.height(), rect.height(), maximum.height())));
 
     if (mSubSurfaceWindow) {
-        QMargins m = QPlatformWindow::parent()->frameMargins();
+        QMargins m = static_cast<QWaylandWindow *>(QPlatformWindow::parent())->clientSideMargins();
         mSubSurfaceWindow->set_position(rect.x() + m.left(), rect.y() + m.top());
 
         QWaylandWindow *parentWindow = mSubSurfaceWindow->parent();
@@ -372,16 +372,45 @@ void QWaylandWindow::setGeometry(const QRect &rect)
     if (isExposed() && !mInResizeFromApplyConfigure && exposeGeometry != mLastExposeGeometry)
         sendExposeEvent(exposeGeometry);
 
-    if (mShellSurface && isExposed())
+    if (mShellSurface && isExposed()) {
         mShellSurface->setWindowGeometry(windowContentGeometry());
+        if (!qt_window_private(window())->positionAutomatic)
+            mShellSurface->setWindowPosition(windowGeometry().topLeft());
+    }
 
     if (isOpaque() && mMask.isEmpty())
         setOpaqueArea(rect);
 }
 
+void QWaylandWindow::setGeometryFromApplyConfigure(const QPoint &globalPosition, const QSize &sizeWithMargins)
+{
+    QMargins margins = clientSideMargins();
+
+    QPoint positionWithoutMargins = globalPosition + QPoint(margins.left(), margins.top());
+    int widthWithoutMargins = qMax(sizeWithMargins.width() - (margins.left() + margins.right()), 1);
+    int heightWithoutMargins = qMax(sizeWithMargins.height() - (margins.top() + margins.bottom()), 1);
+
+    QRect geometry(positionWithoutMargins, QSize(widthWithoutMargins, heightWithoutMargins));
+
+    mInResizeFromApplyConfigure = true;
+    setGeometry(geometry);
+    mInResizeFromApplyConfigure = false;
+}
+
+void QWaylandWindow::repositionFromApplyConfigure(const QPoint &globalPosition)
+{
+    QMargins margins = clientSideMargins();
+    QPoint positionWithoutMargins = globalPosition + QPoint(margins.left(), margins.top());
+
+    QRect geometry(positionWithoutMargins, windowGeometry().size());
+    mInResizeFromApplyConfigure = true;
+    setGeometry(geometry);
+    mInResizeFromApplyConfigure = false;
+}
+
 void QWaylandWindow::resizeFromApplyConfigure(const QSize &sizeWithMargins, const QPoint &offset)
 {
-    QMargins margins = frameMargins();
+    QMargins margins = clientSideMargins();
 
     // Exclude shadows from margins once they are excluded from window geometry
     // 1) First resizeFromApplyConfigure() call will have sizeWithMargins equal to surfaceSize()
@@ -394,7 +423,8 @@ void QWaylandWindow::resizeFromApplyConfigure(const QSize &sizeWithMargins, cons
 
     int widthWithoutMargins = qMax(sizeWithMargins.width() - (margins.left() + margins.right()), 1);
     int heightWithoutMargins = qMax(sizeWithMargins.height() - (margins.top() + margins.bottom()), 1);
-    QRect geometry(windowGeometry().topLeft(), QSize(widthWithoutMargins, heightWithoutMargins));
+    QRect geometry(windowGeometry().topLeft() + QPoint(margins.left(), margins.top()),
+                   QSize(widthWithoutMargins, heightWithoutMargins));
 
     mOffset += offset;
     mInResizeFromApplyConfigure = true;
@@ -410,7 +440,6 @@ void QWaylandWindow::sendExposeEvent(const QRect &rect)
         qCDebug(lcQpaWayland) << "sendExposeEvent: intercepted by shell extension, not sending";
     mLastExposeGeometry = rect;
 }
-
 
 static QList<QPointer<QWaylandWindow>> activePopups;
 
@@ -719,7 +748,15 @@ QMargins QWaylandWindow::frameMargins() const
 {
     if (mWindowDecoration)
         return mWindowDecoration->margins();
-    return QPlatformWindow::frameMargins();
+    else if (mShellSurface)
+        return mShellSurface->serverSideFrameMargins();
+    else
+        return QPlatformWindow::frameMargins();
+}
+
+QMargins QWaylandWindow::clientSideMargins() const
+{
+    return mWindowDecoration ? mWindowDecoration->margins() : QMargins{};
 }
 
 /*!
@@ -727,7 +764,7 @@ QMargins QWaylandWindow::frameMargins() const
  */
 QSize QWaylandWindow::surfaceSize() const
 {
-    return geometry().marginsAdded(frameMargins()).size();
+    return geometry().marginsAdded(clientSideMargins()).size();
 }
 
 /*!
@@ -753,7 +790,7 @@ QRect QWaylandWindow::windowContentGeometry() const
  */
 QPointF QWaylandWindow::mapFromWlSurface(const QPointF &surfacePosition) const
 {
-    const QMargins margins = frameMargins();
+    const QMargins margins = clientSideMargins();
     return QPointF(surfacePosition.x() - margins.left(), surfacePosition.y() - margins.top());
 }
 
@@ -980,7 +1017,7 @@ void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, const QWaylan
 
 #if QT_CONFIG(cursor)
     if (e.type == QEvent::Enter) {
-        QRect contentGeometry = windowContentGeometry().marginsRemoved(frameMargins());
+        QRect contentGeometry = windowContentGeometry().marginsRemoved(clientSideMargins());
         if (contentGeometry.contains(e.local.toPoint()))
             restoreMouseCursor(inputDevice);
     }
@@ -1213,7 +1250,8 @@ void QWaylandWindow::restoreMouseCursor(QWaylandInputDevice *device)
 
 void QWaylandWindow::requestActivateWindow()
 {
-    qCWarning(lcQpaWayland) << "Wayland does not support QWindow::requestActivate()";
+    if (mShellSurface == nullptr || !mShellSurface->requestActivate())
+        qCWarning(lcQpaWayland) << "Wayland does not support QWindow::requestActivate()";
 }
 
 bool QWaylandWindow::isExposed() const
@@ -1448,7 +1486,7 @@ bool QWaylandWindow::isOpaque() const
 
 void QWaylandWindow::setOpaqueArea(const QRegion &opaqueArea)
 {
-    const QRegion translatedOpaqueArea = opaqueArea.translated(frameMargins().left(), frameMargins().top());
+    const QRegion translatedOpaqueArea = opaqueArea.translated(clientSideMargins().left(), clientSideMargins().top());
 
     if (translatedOpaqueArea == mOpaqueArea || !mSurface)
         return;

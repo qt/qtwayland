@@ -93,6 +93,8 @@
         "^wayland-xdg-decoration-unstable-v1-server-protocol.h",
         "^wayland-xdg-output-unstable-v1-server-protocol.h",
         "^wayland-xdg-shell-server-protocol.h",
+        "^qwayland-server-qt-shell-unstable-v1.h",
+        "^wayland-qt-shell-unstable-v1-server-protocol.h",
     ],
     "$basedir/src/plugins/hardwareintegration/compositor/linux-dmabuf-unstable-v1" => [
         "^qwayland-server-linux-dmabuf-unstable-v1.h",

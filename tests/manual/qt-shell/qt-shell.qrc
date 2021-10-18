@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/background.jpg</file>
+        <file>qml/main.qml</file>
+        <file>qml/CompositorScreen.qml</file>
+        <file>qml/Chrome.qml</file>
+        <file>qml/Keyboard.qml</file>
+        <file>qml/HandleHandler.qml</file>
+    </qresource>
+</RCC>

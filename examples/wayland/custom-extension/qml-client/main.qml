@@ -50,7 +50,7 @@
 
 import QtQuick
 import QtQuick.Window
-import com.theqtcompany.customextension
+import io.qt.examples.customextension
 
 Window {
     id: topLevelWindow

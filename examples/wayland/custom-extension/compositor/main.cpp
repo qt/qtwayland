@@ -60,7 +60,7 @@
 
 static void registerTypes()
 {
-    qmlRegisterType<CustomExtensionQuickExtension>("com.theqtcompany.customextension", 1, 0, "CustomExtension");
+    qmlRegisterType<CustomExtensionQuickExtension>("io.qt.examples.customextension", 1, 0, "CustomExtension");
 }
 
 int main(int argc, char *argv[])

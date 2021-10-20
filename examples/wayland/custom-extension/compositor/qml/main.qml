@@ -52,7 +52,7 @@ import QtQuick
 import QtWayland.Compositor
 import QtWayland.Compositor.WlShell
 
-import com.theqtcompany.customextension 1.0
+import io.qt.examples.customextension 1.0
 
 WaylandCompositor {
     id: comp

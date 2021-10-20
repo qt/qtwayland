@@ -53,7 +53,7 @@ import QtWayland.Compositor
 import QtWayland.Compositor.WlShell
 import QtQuick.Window
 
-import com.theqtcompany.sharebufferextension
+import io.qt.examples.sharebufferextension
 
 WaylandCompositor {
     WaylandOutput {

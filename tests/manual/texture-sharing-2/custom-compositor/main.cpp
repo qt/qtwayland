@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine appEngine;
 
-    qmlRegisterType<CustomSharingExtensionQuickExtension>("com.theqtcompany.customsharingextension", 1, 0, "CustomSharingExtension");
+    qmlRegisterType<CustomSharingExtensionQuickExtension>("io.qt.tests.customsharingextension", 1, 0, "CustomSharingExtension");
     appEngine.addImageProvider("wlshared", new QWaylandSharedTextureProvider);
 
     appEngine.load(QUrl("qrc:///qml/main.qml"));

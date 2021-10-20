@@ -60,7 +60,7 @@
 
 static void registerTypes()
 {
-    qmlRegisterType<ShareBufferExtensionQuickExtension>("com.theqtcompany.sharebufferextension", 1, 0, "ShareBufferExtension");
+    qmlRegisterType<ShareBufferExtensionQuickExtension>("io.qt.examples.sharebufferextension", 1, 0, "ShareBufferExtension");
 }
 
 int main(int argc, char *argv[])

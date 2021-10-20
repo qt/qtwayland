@@ -497,7 +497,7 @@ void QWaylandIntegration::reconfigureInputContext()
     if (requested.isNull()) {
         if (mDisplay->textInputMethodManager() != nullptr)
             mInputContext.reset(new QWaylandInputMethodContext(mDisplay.data()));
-        else
+        else if (mDisplay->textInputManager() != nullptr)
             mInputContext.reset(new QWaylandInputContext(mDisplay.data()));
     } else {
         mInputContext.reset(QPlatformInputContextFactory::create(requested));

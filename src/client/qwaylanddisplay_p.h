@@ -225,6 +225,7 @@ private:
 
     void checkTextInputProtocol();
     bool registerTextInputManager(const QStringList &protocols, int index);
+    void unregisterTextInputManager(const QStringList &protocols, int index);
 
     struct Listener {
         Listener() = default;
@@ -296,6 +297,7 @@ private:
     static const wl_callback_listener syncCallbackListener;
 
     bool mClientSideInputContextRequested = !QPlatformInputContextFactory::requested().isNull();
+    bool textInputProtocolChecked;
 
     void registry_global(uint32_t id, const QString &interface, uint32_t version) override;
     void registry_global_remove(uint32_t id) override;

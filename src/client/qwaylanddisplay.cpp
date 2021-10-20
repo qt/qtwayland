@@ -335,6 +335,7 @@ QWaylandWindowManagerIntegration *QWaylandDisplay::windowManagerIntegration() co
 
 QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
     : mWaylandIntegration(waylandIntegration)
+    , textInputProtocolChecked(true)
 {
     qRegisterMetaType<uint32_t>("uint32_t");
 
@@ -440,6 +441,11 @@ void QWaylandDisplay::blockingReadEvents()
 
 void QWaylandDisplay::checkTextInputProtocol()
 {
+    if (textInputProtocolChecked)
+        return;
+
+    textInputProtocolChecked = true;
+
     if (mClientSideInputContextRequested) {
         qCDebug(lcQpaWayland) << "mClientSideInputContextRequested is false, no need for text input.";
         return;
@@ -454,19 +460,29 @@ void QWaylandDisplay::checkTextInputProtocol()
     bool found = false;
     QString tiProtocols = QString::fromLocal8Bit(qgetenv("QT_WAYLAND_TEXT_INPUT_PROTOCOL"));
     qCDebug(lcQpaWayland) << "QT_WAYLAND_TEXT_INPUT_PROTOCOL=" << tiProtocols;
+    QStringList keys;
     if (!tiProtocols.isEmpty()) {
-        QStringList keys = tiProtocols.split(QLatin1Char(';'));
-        for (const QString &k : keys) {
-            int index = tips.indexOf(k);
-            if (index >= 0 && hasRegistryGlobal(timps[index]) && registerTextInputManager(timps, index))
-                found = true;
+        keys = tiProtocols.split(QLatin1Char(';'));
+        QList<QString>::iterator it = keys.begin();
+        while (it != keys.end()) {
+            if (!tips.contains(*it)) {
+                qCDebug(lcQpaWayland) << "text input: unknown protocol - " << *it;
+                it = keys.erase(it);
+            } else {
+                ++it;
+            }
         }
     }
+    if (keys.isEmpty())
+        keys = tips; // fallback
 
-    if (!found) {
-        for (int i = 0; i < timps.size(); i++) {
-            if (hasRegistryGlobal(timps[i]) && registerTextInputManager(timps, i))
+    for (int k = 0; k < tips.size(); ++k) {
+        if (keys.contains(tips[k])) {
+            if (hasRegistryGlobal(timps[k]) && registerTextInputManager(timps, k))
                 found = true;
+        } else {
+            if (hasRegistryGlobal(timps[k]))
+                unregisterTextInputManager(timps, k);
         }
     }
 
@@ -480,21 +496,18 @@ bool QWaylandDisplay::registerTextInputManager(const QStringList &protocols, int
         return false;
 
     QString p = protocols.at(index);
-    if (index == 0) {
-        for (const RegistryGlobal &global : mGlobals) {
-            if (global.interface == p) {
+    for (const RegistryGlobal &global : mGlobals) {
+        if (global.interface == p) {
+            if (index == 0) {
+                qCDebug(lcQpaWayland) << "text input: register qt_text_input_method_manager_v1";
                 mTextInputMethodManager.reset(new QtWayland::qt_text_input_method_manager_v1(global.registry, global.id, 1));
                 for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
                     inputDevice->setTextInputMethod(new QWaylandTextInputMethod(this, mTextInputMethodManager->get_text_input_method(inputDevice->wl_seat())));
                 mWaylandIntegration->reconfigureInputContext();
                 return true;
             }
-        }
-    }
-
-    if (index == 1) {
-        for (const RegistryGlobal &global : mGlobals) {
-            if (global.interface == p) {
+            if (index == 1) {
+                qCDebug(lcQpaWayland) << "text input: register zwp_text_input_manager_v2";
                 mTextInputManager.reset(new QtWayland::zwp_text_input_manager_v2(global.registry, global.id, 1));
                 for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
                     inputDevice->setTextInput(new QWaylandTextInput(this, mTextInputManager->get_text_input(inputDevice->wl_seat())));
@@ -505,6 +518,34 @@ bool QWaylandDisplay::registerTextInputManager(const QStringList &protocols, int
     }
 
     return false;
+}
+
+void QWaylandDisplay::unregisterTextInputManager(const QStringList &protocols, int index)
+{
+    if (protocols.size() > 2 || index < 0 || index >= 2)
+        return;
+
+    QString p = protocols.at(index);
+    for (const RegistryGlobal &global : mGlobals) {
+        if (global.interface == p) {
+            if (index == 0) {
+                qCDebug(lcQpaWayland) << "text input: unregister qt_text_input_method_manager_v1";
+                mTextInputMethodManager.reset();
+                for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
+                    inputDevice->setTextInputMethod(nullptr);
+                mWaylandIntegration->reconfigureInputContext();
+                return;
+            }
+            if (index == 1) {
+                qCDebug(lcQpaWayland) << "text input: unregister zwp_text_input_manager_v2";
+                mTextInputManager.reset();
+                for (QWaylandInputDevice *inputDevice : qAsConst(mInputDevices))
+                    inputDevice->setTextInput(nullptr);
+                mWaylandIntegration->reconfigureInputContext();
+                return;
+            }
+        }
+    }
 }
 
 QWaylandScreen *QWaylandDisplay::screenForOutput(struct wl_output *output) const
@@ -562,6 +603,10 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
     } else if (interface == QLatin1String(QWaylandPrimarySelectionDeviceManagerV1::interface()->name)) {
         mPrimarySelectionManager.reset(new QWaylandPrimarySelectionDeviceManagerV1(this, id, 1));
 #endif
+    } else if (interface == QLatin1String(QtWayland::qt_text_input_method_manager_v1::interface()->name) && !mClientSideInputContextRequested) {
+        textInputProtocolChecked = false;
+    } else if (interface == QLatin1String(QtWayland::zwp_text_input_manager_v2::interface()->name) && !mClientSideInputContextRequested) {
+        textInputProtocolChecked = false;
     } else if (interface == QLatin1String(QWaylandHardwareIntegration::interface()->name)) {
         bool disableHardwareIntegration = qEnvironmentVariableIntValue("QT_WAYLAND_DISABLE_HW_INTEGRATION");
         if (!disableHardwareIntegration) {

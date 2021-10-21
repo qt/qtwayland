@@ -495,12 +495,16 @@ void QWaylandIntegration::reconfigureInputContext()
                                    " use QT_IM_MODULE=qtvirtualkeyboard at compositor-side.";
 
     if (requested.isNull()) {
-        if (mDisplay->textInputMethodManager() != nullptr)
+        if (mDisplay->textInputMethodManager() != nullptr) {
             mInputContext.reset(new QWaylandInputMethodContext(mDisplay.data()));
-        else if (mDisplay->textInputManager() != nullptr)
+            qDebug() << "create QWaylandInputMethodContext" << inputContext();
+        } else if (mDisplay->textInputManager() != nullptr) {
             mInputContext.reset(new QWaylandInputContext(mDisplay.data()));
+            qDebug() << "create QWaylandInputContext" << inputContext();
+        }
     } else {
         mInputContext.reset(QPlatformInputContextFactory::create(requested));
+        qDebug() << "create QPlatformInputContextFactory::create" << inputContext();
     }
 
     const QString defaultInputContext(QStringLiteral("compose"));
@@ -514,6 +518,7 @@ void QWaylandIntegration::reconfigureInputContext()
     }
 #endif
 
+    qDebug() << "mInputContext " << inputContext();
     qCDebug(lcQpaWayland) << "using input method:" << inputContext()->metaObject()->className();
 }
 

@@ -28,6 +28,7 @@
 
 #include "mockcompositor.h"
 #include "textinput.h"
+#include "qttextinput.h"
 
 #include <QtCore/QString>
 #include <QtCore/QByteArray>
@@ -48,16 +49,41 @@ private slots:
     void initTestCase();
     void selectingInputContext_data();
     void selectingInputContext();
+    void selectingTextInputProtocol_data();
+    void selectingTextInputProtocol();
     void inputContextReconfigurationWhenTogglingTextInputExtension();
 
 private:
     QByteArray inputContextName() const;
-    void ensureTextInputPresentOnCompositor();
-    void ensureTextInputNotPresentOnCompositor();
+
+    template<typename arg_type>
+    void ensurePresentOnCompositor()
+    {
+        exec([&] {
+            QList<arg_type *> extensions = getAll<arg_type>();
+            if (extensions.length() > 1)
+                QFAIL("Requested type is a singleton, hence there should not be more then one object returned");
+            if (extensions.length() == 0)
+                add<arg_type>();
+        });
+    }
+
+    template<typename arg_type>
+    void ensureNotPresentOnCompositor()
+    {
+        exec([&] {
+            QList<arg_type *> extensions = getAll<arg_type>();
+            if (extensions.length() > 1)
+                QFAIL("Requested type is a singleton, hence there should not be more then one object returned");
+            if (extensions.length() == 1)
+                remove(extensions.first());
+        });
+    }
 
     QByteArray mComposeModule = QByteArray("QComposeInputContext"); // default input context
     QByteArray mIbusModule    = QByteArray("QIBusPlatformInputContext");
-    QByteArray mWaylandModule = QByteArray("QtWaylandClient::QWaylandInputContext");
+    QByteArray mTextInputModule = QByteArray("QtWaylandClient::QWaylandInputContext");
+    QByteArray mQtTextInputModule = QByteArray("QtWaylandClient::QWaylandInputMethodContext");
 };
 
 void tst_inputcontext::initTestCase()
@@ -82,28 +108,6 @@ QByteArray tst_inputcontext::inputContextName() const
     return QByteArray("");
 }
 
-void tst_inputcontext::ensureTextInputPresentOnCompositor()
-{
-    exec([&] {
-        QList<TextInputManager *> extensions = getAll<TextInputManager>();
-        if (extensions.length() > 1)
-            QFAIL("TextInputManager is a singleton, hence there should not be more then one object returned");
-        if (extensions.length() == 0)
-            add<TextInputManager>();
-    });
-}
-
-void tst_inputcontext::ensureTextInputNotPresentOnCompositor()
-{
-    exec([&] {
-        QList<TextInputManager *> extensions = getAll<TextInputManager>();
-        if (extensions.length() > 1)
-            QFAIL("TextInputManager is a singleton, hence there should not be more then one object returned");
-        if (extensions.length() == 1)
-            remove(extensions.first());
-    });
-}
-
 void tst_inputcontext::selectingInputContext_data()
 {
     QTest::addColumn<QByteArray>("requestedModule");
@@ -120,7 +124,7 @@ void tst_inputcontext::selectingInputContext_data()
     QTest::newRow("ibus:text-input")    << QByteArray("ibus")    << mIbusModule;
     QTest::newRow("compose:text-input") << QByteArray("compose") << mComposeModule;
     QTest::newRow("empty:text-input")   << QByteArray("")        << mComposeModule;
-    QTest::newRow("null:text-input")    << QByteArray()          << mWaylandModule;
+    QTest::newRow("null:text-input")    << QByteArray()          << mTextInputModule;
     QTest::newRow("fake:text-input")    << QByteArray("fake")    << mComposeModule;
 }
 
@@ -137,9 +141,76 @@ void tst_inputcontext::selectingInputContext()
     const bool withTextInputAtCompositorSide = QByteArray(QTest::currentDataTag()).endsWith(":text-input");
 
     if (withTextInputAtCompositorSide)
-        ensureTextInputPresentOnCompositor();
+        ensurePresentOnCompositor<TextInputManager>();
     else
-        ensureTextInputNotPresentOnCompositor();
+        ensureNotPresentOnCompositor<TextInputManager>();
+
+    int argc = 0;
+    QGuiApplication app(argc, nullptr); // loads the platform plugin
+
+    QCOMPARE(inputContextName(), expectedModule);
+}
+
+void tst_inputcontext::selectingTextInputProtocol_data()
+{
+    QTest::addColumn<bool>("requestQtTextInput");
+    QTest::addColumn<bool>("requestTextInput");
+    QTest::addColumn<QByteArray>("clientProtocol");
+    QTest::addColumn<QByteArray>("expectedModule");
+
+    QTest::newRow("1-1") << true << true << QByteArray() << mQtTextInputModule;
+    QTest::newRow("1-2") << true << false << QByteArray() << mQtTextInputModule;
+    QTest::newRow("1-3") << false << true << QByteArray() << mTextInputModule;
+    QTest::newRow("1-4") << false << false << QByteArray() << mComposeModule;
+
+    QTest::newRow("2-1") << true << true << QByteArray("zwp_text_input_v2") << mTextInputModule;
+    QTest::newRow("2-2") << true << false << QByteArray("zwp_text_input_v2") << mComposeModule;
+    QTest::newRow("2-3") << false << true << QByteArray("zwp_text_input_v2") << mTextInputModule;
+    QTest::newRow("2-4") << false << false << QByteArray("zwp_text_input_v2") << mComposeModule;
+
+    QTest::newRow("3-1") << true << true << QByteArray("qt_text_input_method_v1") << mQtTextInputModule;
+    QTest::newRow("3-2") << true << false << QByteArray("qt_text_input_method_v1") << mQtTextInputModule;
+    QTest::newRow("3-3") << false << true << QByteArray("qt_text_input_method_v1") << mComposeModule;
+    QTest::newRow("3-4") << false << false << QByteArray("qt_text_input_method_v1") << mComposeModule;
+
+    QTest::newRow("4-1") << true << true << QByteArray("qt_text_input_method_v1;zwp_text_input_v2") << mQtTextInputModule;
+    QTest::newRow("4-2") << true << false << QByteArray("qt_text_input_method_v1;zwp_text_input_v2") << mQtTextInputModule;
+    QTest::newRow("4-3") << false << true << QByteArray("qt_text_input_method_v1;zwp_text_input_v2") << mTextInputModule;
+    QTest::newRow("4-4") << false << false << QByteArray("qt_text_input_method_v1;zwp_text_input_v2") << mComposeModule;
+
+    QTest::newRow("5-1") << true << true << QByteArray("zwp_text_input_v2;qt_text_input_method_v1") << mTextInputModule;
+    QTest::newRow("5-2") << true << false << QByteArray("zwp_text_input_v2;qt_text_input_method_v1") << mQtTextInputModule;
+    QTest::newRow("5-3") << false << true << QByteArray("zwp_text_input_v2;qt_text_input_method_v1") << mTextInputModule;
+    QTest::newRow("5-4") << false << false << QByteArray("zwp_text_input_v2;qt_text_input_method_v1") << mComposeModule;
+}
+
+void tst_inputcontext::selectingTextInputProtocol()
+{
+    QFETCH(bool, requestQtTextInput);
+    QFETCH(bool, requestTextInput);
+    QFETCH(QByteArray, clientProtocol);
+    QFETCH(QByteArray, expectedModule);
+
+    exec([this] {
+        qputenv("QT_IM_MODULE", "qtvirtualkeyboard");
+    });
+
+    qunsetenv("QT_IM_MODULE");
+
+    if (clientProtocol.isNull())
+        qunsetenv("QT_WAYLAND_TEXT_INPUT_PROTOCOL");
+    else
+        qputenv("QT_WAYLAND_TEXT_INPUT_PROTOCOL", clientProtocol);
+
+    if (requestTextInput)
+        ensurePresentOnCompositor<TextInputManager>();
+    else
+        ensureNotPresentOnCompositor<TextInputManager>();
+
+    if (requestQtTextInput)
+        ensurePresentOnCompositor<QtTextInputManager>();
+    else
+        ensureNotPresentOnCompositor<QtTextInputManager>();
 
     int argc = 0;
     QGuiApplication app(argc, nullptr); // loads the platform plugin
@@ -151,22 +222,22 @@ void tst_inputcontext::inputContextReconfigurationWhenTogglingTextInputExtension
 {
     qunsetenv("QT_IM_MODULE");
 
-    ensureTextInputPresentOnCompositor();
+    ensurePresentOnCompositor<TextInputManager>();
     int argc = 0;
     QGuiApplication app(argc, nullptr); // loads the platform plugin
-    QCOMPARE(inputContextName(), mWaylandModule);
+    QCOMPARE(inputContextName(), mTextInputModule);
 
     // remove text input extension after the platform plugin has been loaded
-    ensureTextInputNotPresentOnCompositor();
+    ensureNotPresentOnCompositor<TextInputManager>();
     // QTRY_* because we need to spin the event loop for wayland QPA plugin
     // to handle registry_global_remove()
     QTRY_COMPARE(inputContextName(), mComposeModule);
 
     // add text input extension after the platform plugin has been loaded
-    ensureTextInputPresentOnCompositor();
+    ensurePresentOnCompositor<TextInputManager>();
     // QTRY_* because we need to spin the event loop for wayland QPA plugin
     // to handle registry_global()
-    QTRY_COMPARE(inputContextName(), mWaylandModule);
+    QTRY_COMPARE(inputContextName(), mTextInputModule);
 }
 
 int main(int argc, char *argv[])

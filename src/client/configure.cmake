@@ -242,8 +242,6 @@ qt_configure_add_summary_entry(ARGS "wayland-shm-emulation-server-buffer")
 qt_configure_end_summary_section() # end of "Qt Wayland Drivers" section
 qt_configure_add_summary_section(NAME "Qt Wayland Client Shell Integrations")
 qt_configure_add_summary_entry(ARGS "wayland-client-xdg-shell")
-qt_configure_add_summary_entry(ARGS "wayland-client-xdg-shell-v5")
-qt_configure_add_summary_entry(ARGS "wayland-client-xdg-shell-v6")
 qt_configure_add_summary_entry(ARGS "wayland-client-ivi-shell")
 qt_configure_add_summary_entry(ARGS "wayland-client-wl-shell")
 qt_configure_end_summary_section() # end of "Qt Wayland Client Shell Integrations" section

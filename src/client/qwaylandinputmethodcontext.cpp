@@ -43,6 +43,7 @@
 
 #include <QtGui/qguiapplication.h>
 #include <QtGui/qtextformat.h>
+#include <QtGui/private/qguiapplication_p.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -64,7 +65,10 @@ QWaylandTextInputMethod::~QWaylandTextInputMethod()
 
 void QWaylandTextInputMethod::text_input_method_v1_visible_changed(int32_t visible)
 {
-    m_isVisible = visible;
+    if (m_isVisible != visible) {
+        m_isVisible = visible;
+        QGuiApplicationPrivate::platformIntegration()->inputContext()->emitInputPanelVisibleChanged();
+    }
 }
 
 void QWaylandTextInputMethod::text_input_method_v1_locale_changed(const QString &localeName)
@@ -79,10 +83,14 @@ void QWaylandTextInputMethod::text_input_method_v1_input_direction_changed(int32
 
 void QWaylandTextInputMethod::text_input_method_v1_keyboard_rectangle_changed(wl_fixed_t x, wl_fixed_t y, wl_fixed_t width, wl_fixed_t height)
 {
-    m_keyboardRect = QRectF(wl_fixed_to_double(x),
-                            wl_fixed_to_double(y),
-                            wl_fixed_to_double(width),
-                            wl_fixed_to_double(height));
+    const QRectF keyboardRectangle(wl_fixed_to_double(x),
+                                   wl_fixed_to_double(y),
+                                   wl_fixed_to_double(width),
+                                   wl_fixed_to_double(height));
+    if (m_keyboardRect != keyboardRectangle) {
+        m_keyboardRect = keyboardRectangle;
+        QGuiApplicationPrivate::platformIntegration()->inputContext()->emitKeyboardRectChanged();
+    }
 }
 
 void QWaylandTextInputMethod::text_input_method_v1_start_input_method_event(uint32_t serial, int32_t surrounding_text_offset)

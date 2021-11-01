@@ -859,7 +859,7 @@ bool QWaylandWindow::createDecoration()
         decoration = false;
     if (mSubSurfaceWindow)
         decoration = false;
-    if (mShellSurface && !mShellSurface->wantsDecorations())
+    if (!mShellSurface || !mShellSurface->wantsDecorations())
         decoration = false;
 
     bool hadDecoration = mWindowDecoration;

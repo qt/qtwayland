@@ -53,8 +53,8 @@ class HardwareLayerIntegration;
 class Q_WAYLAND_COMPOSITOR_EXPORT HardwareLayerIntegrationFactory
 {
 public:
-    static QStringList keys(const QString &pluginPath = QString());
-    static HardwareLayerIntegration *create(const QString &name, const QStringList &args, const QString &pluginPath = QString());
+    static QStringList keys();
+    static HardwareLayerIntegration *create(const QString &name, const QStringList &args);
 };
 
 }

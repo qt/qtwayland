@@ -53,8 +53,8 @@ class ServerBufferIntegration;
 class Q_WAYLAND_COMPOSITOR_EXPORT ServerBufferIntegrationFactory
 {
 public:
-    static QStringList keys(const QString &pluginPath = QString());
-    static ServerBufferIntegration *create(const QString &name, const QStringList &args, const QString &pluginPath = QString());
+    static QStringList keys();
+    static ServerBufferIntegration *create(const QString &name, const QStringList &args);
 };
 
 }

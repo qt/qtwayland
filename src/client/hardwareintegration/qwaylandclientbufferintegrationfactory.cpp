@@ -48,49 +48,17 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-#if QT_CONFIG(library)
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QWaylandClientBufferIntegrationFactoryInterface_iid, QLatin1String("/wayland-graphics-integration-client"), Qt::CaseInsensitive))
-Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, directLoader,
-                          (QWaylandClientBufferIntegrationFactoryInterface_iid, QLatin1String(""), Qt::CaseInsensitive))
-#endif
 
-QStringList QWaylandClientBufferIntegrationFactory::keys(const QString &pluginPath)
+QStringList QWaylandClientBufferIntegrationFactory::keys()
 {
-#if QT_CONFIG(library)
-    QStringList list;
-    if (!pluginPath.isEmpty()) {
-        QCoreApplication::addLibraryPath(pluginPath);
-        list = directLoader()->keyMap().values();
-        if (!list.isEmpty()) {
-            const QString postFix = QStringLiteral(" (from ")
-                                    + QDir::toNativeSeparators(pluginPath)
-                                    + QLatin1Char(')');
-            const QStringList::iterator end = list.end();
-            for (QStringList::iterator it = list.begin(); it != end; ++it)
-                (*it).append(postFix);
-        }
-    }
-    list.append(loader()->keyMap().values());
-    return list;
-#else
-    return QStringList();
-#endif
+    return loader->keyMap().values();
 }
 
-QWaylandClientBufferIntegration *QWaylandClientBufferIntegrationFactory::create(const QString &name, const QStringList &args, const QString &pluginPath)
+QWaylandClientBufferIntegration *QWaylandClientBufferIntegrationFactory::create(const QString &name, const QStringList &args)
 {
-#if QT_CONFIG(library)
-    // Try loading the plugin from platformPluginPath first:
-    if (!pluginPath.isEmpty()) {
-        QCoreApplication::addLibraryPath(pluginPath);
-        if (QWaylandClientBufferIntegration *ret = qLoadPlugin<QWaylandClientBufferIntegration, QWaylandClientBufferIntegrationPlugin>(directLoader(), name, args))
-            return ret;
-    }
-    if (QWaylandClientBufferIntegration *ret = qLoadPlugin<QWaylandClientBufferIntegration, QWaylandClientBufferIntegrationPlugin>(loader(), name, args))
-        return ret;
-#endif
-    return nullptr;
+    return qLoadPlugin<QWaylandClientBufferIntegration, QWaylandClientBufferIntegrationPlugin>(loader(), name, args);
 }
 
 }

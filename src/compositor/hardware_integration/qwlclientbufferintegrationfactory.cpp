@@ -38,49 +38,17 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-#if QT_CONFIG(library)
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QtWaylandClientBufferIntegrationFactoryInterface_iid, QLatin1String("/wayland-graphics-integration-server"), Qt::CaseInsensitive))
-Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, directLoader,
-                          (QtWaylandClientBufferIntegrationFactoryInterface_iid, QLatin1String(""), Qt::CaseInsensitive))
-#endif
 
-QStringList ClientBufferIntegrationFactory::keys(const QString &pluginPath)
+QStringList ClientBufferIntegrationFactory::keys()
 {
-#if QT_CONFIG(library)
-    QStringList list;
-    if (!pluginPath.isEmpty()) {
-        QCoreApplication::addLibraryPath(pluginPath);
-        list = directLoader()->keyMap().values();
-        if (!list.isEmpty()) {
-            const QString postFix = QStringLiteral(" (from ")
-                                    + QDir::toNativeSeparators(pluginPath)
-                                    + QLatin1Char(')');
-            const QStringList::iterator end = list.end();
-            for (QStringList::iterator it = list.begin(); it != end; ++it)
-                (*it).append(postFix);
-        }
-    }
-    list.append(loader()->keyMap().values());
-    return list;
-#else
-    return QStringList();
-#endif
+    return loader->keyMap().values();
 }
 
-ClientBufferIntegration *ClientBufferIntegrationFactory::create(const QString &name, const QStringList &args, const QString &pluginPath)
+ClientBufferIntegration *ClientBufferIntegrationFactory::create(const QString &name, const QStringList &args)
 {
-#if QT_CONFIG(library)
-    // Try loading the plugin from platformPluginPath first:
-    if (!pluginPath.isEmpty()) {
-        QCoreApplication::addLibraryPath(pluginPath);
-        if (ClientBufferIntegration *ret = qLoadPlugin<ClientBufferIntegration, ClientBufferIntegrationPlugin>(directLoader(), name, args))
-            return ret;
-    }
-    if (ClientBufferIntegration *ret = qLoadPlugin<ClientBufferIntegration, ClientBufferIntegrationPlugin>(loader(), name, args))
-        return ret;
-#endif
-    return nullptr;
+    return qLoadPlugin<ClientBufferIntegration, ClientBufferIntegrationPlugin>(loader(), name, args);
 }
 
 }

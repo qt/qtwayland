@@ -57,7 +57,6 @@ namespace QtWaylandClient {
 QWaylandXCompositeEGLWindow::QWaylandXCompositeEGLWindow(QWindow *window, QWaylandXCompositeEGLClientBufferIntegration *glxIntegration)
     : QWaylandWindow(window, glxIntegration->waylandDisplay())
     , m_glxIntegration(glxIntegration)
-    , m_config(q_configFromGLFormat(glxIntegration->eglDisplay(), window->format(), true, EGL_WINDOW_BIT | EGL_PIXMAP_BIT))
 {
 }
 
@@ -98,7 +97,9 @@ void QWaylandXCompositeEGLWindow::createEglSurface()
         XDestroyWindow(m_glxIntegration->xDisplay(), m_xWindow);
     }
 
-    VisualID visualId = QXlibEglIntegration::getCompatibleVisualId(m_glxIntegration->xDisplay(), m_glxIntegration->eglDisplay(), m_config);
+    EGLConfig eglConfig = q_configFromGLFormat(m_glxIntegration->eglDisplay(), window()->format(), true, EGL_WINDOW_BIT | EGL_PIXMAP_BIT);
+
+    VisualID visualId = QXlibEglIntegration::getCompatibleVisualId(m_glxIntegration->xDisplay(), m_glxIntegration->eglDisplay(), eglConfig);
 
     XVisualInfo visualInfoTemplate;
     memset(&visualInfoTemplate, 0, sizeof(XVisualInfo));
@@ -118,7 +119,7 @@ void QWaylandXCompositeEGLWindow::createEglSurface()
     XCompositeRedirectWindow(m_glxIntegration->xDisplay(), m_xWindow, CompositeRedirectManual);
     XMapWindow(m_glxIntegration->xDisplay(), m_xWindow);
 
-    m_surface = eglCreateWindowSurface(m_glxIntegration->eglDisplay(), m_config, reinterpret_cast<EGLNativeWindowType>(m_xWindow), nullptr);
+    m_surface = eglCreateWindowSurface(m_glxIntegration->eglDisplay(), eglConfig, reinterpret_cast<EGLNativeWindowType>(m_xWindow), nullptr);
     if (m_surface == EGL_NO_SURFACE) {
         qFatal("Could not make eglsurface");
     }

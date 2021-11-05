@@ -57,17 +57,8 @@ namespace QtWaylandClient {
 QWaylandEglWindow::QWaylandEglWindow(QWindow *window, QWaylandDisplay *display)
     : QWaylandWindow(window, display)
     , m_clientBufferIntegration(static_cast<QWaylandEglClientBufferIntegration *>(mDisplay->clientBufferIntegration()))
+    , m_format(window->requestedFormat())
 {
-    QSurfaceFormat fmt = window->requestedFormat();
-    if (mDisplay->supportsWindowDecoration())
-        fmt.setAlphaBufferSize(8);
-    m_eglConfig = q_configFromGLFormat(m_clientBufferIntegration->eglDisplay(), fmt);
-    m_format = q_glFormatFromConfig(m_clientBufferIntegration->eglDisplay(), m_eglConfig, fmt);
-
-    // Do not create anything from here. This platform window may belong to a
-    // RasterGLSurface window which may have pure raster content.  In this case, where the
-    // window is never actually made current, creating a wl_egl_window and EGL surface
-    // should be avoided.
 }
 
 QWaylandEglWindow::~QWaylandEglWindow()
@@ -143,7 +134,13 @@ void QWaylandEglWindow::updateSurface(bool create)
 
         if (!m_eglSurface && m_waylandEglWindow && create) {
             EGLNativeWindowType eglw = (EGLNativeWindowType) m_waylandEglWindow;
-            m_eglSurface = eglCreateWindowSurface(m_clientBufferIntegration->eglDisplay(), m_eglConfig, eglw, 0);
+            QSurfaceFormat fmt = window()->requestedFormat();
+
+            if (mDisplay->supportsWindowDecoration())
+                fmt.setAlphaBufferSize(8);
+            EGLConfig eglConfig = q_configFromGLFormat(m_clientBufferIntegration->eglDisplay(), fmt);
+            m_format = q_glFormatFromConfig(m_clientBufferIntegration->eglDisplay(), eglConfig);
+            m_eglSurface = eglCreateWindowSurface(m_clientBufferIntegration->eglDisplay(), eglConfig, eglw, 0);
             if (Q_UNLIKELY(m_eglSurface == EGL_NO_SURFACE))
                 qCWarning(lcQpaWayland, "Could not create EGL surface (EGL error 0x%x)\n", eglGetError());
         }

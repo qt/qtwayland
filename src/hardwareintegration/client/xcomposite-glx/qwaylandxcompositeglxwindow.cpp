@@ -54,7 +54,6 @@ namespace QtWaylandClient {
 QWaylandXCompositeGLXWindow::QWaylandXCompositeGLXWindow(QWindow *window, QWaylandXCompositeGLXIntegration *glxIntegration)
     : QWaylandWindow(window, glxIntegration->waylandDisplay())
     , m_glxIntegration(glxIntegration)
-    , m_config(qglx_findConfig(glxIntegration->xDisplay(), glxIntegration->screen(), window->format(), GLX_WINDOW_BIT | GLX_PIXMAP_BIT))
 {
 }
 
@@ -95,7 +94,8 @@ void QWaylandXCompositeGLXWindow::createSurface()
         return;
     }
 
-    XVisualInfo *visualInfo = glXGetVisualFromFBConfig(m_glxIntegration->xDisplay(), m_config);
+    GLXFBConfig glxConfig = qglx_findConfig(m_glxIntegration->xDisplay(), m_glxIntegration->screen(), window()->format(), GLX_WINDOW_BIT | GLX_PIXMAP_BIT);
+    XVisualInfo *visualInfo = glXGetVisualFromFBConfig(m_glxIntegration->xDisplay(), glxConfig);
     Colormap cmap = XCreateColormap(m_glxIntegration->xDisplay(), m_glxIntegration->rootWindow(),
             visualInfo->visual, AllocNone);
 

@@ -19,3 +19,8 @@ qt_internal_add_module(WaylandEglCompositorHwIntegrationPrivate
         Qt::Gui
         Qt::WaylandCompositorPrivate
 )
+
+qt_internal_extend_target(WaylandEglCompositorHwIntegrationPrivate CONDITION NOT QT_FEATURE_egl_x11
+    DEFINES
+        QT_EGL_NO_X11
+)

@@ -48,49 +48,18 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-#if QT_CONFIG(library)
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QWaylandShellIntegrationFactoryInterface_iid, QLatin1String("/wayland-shell-integration"), Qt::CaseInsensitive))
-Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, directLoader,
-                          (QWaylandShellIntegrationFactoryInterface_iid, QLatin1String(""), Qt::CaseInsensitive))
-#endif
 
-QStringList QWaylandShellIntegrationFactory::keys(const QString &pluginPath)
+QStringList QWaylandShellIntegrationFactory::keys()
 {
-#if QT_CONFIG(library)
-    QStringList list;
-    if (!pluginPath.isEmpty()) {
-        QCoreApplication::addLibraryPath(pluginPath);
-        list = directLoader()->keyMap().values();
-        if (!list.isEmpty()) {
-            const QString postFix = QStringLiteral(" (from ")
-                                    + QDir::toNativeSeparators(pluginPath)
-                                    + QLatin1Char(')');
-            const QStringList::iterator end = list.end();
-            for (QStringList::iterator it = list.begin(); it != end; ++it)
-                (*it).append(postFix);
-        }
-    }
-    list.append(loader()->keyMap().values());
-    return list;
-#else
-    return QStringList();
-#endif
+    return loader->keyMap().values();
 }
 
-QWaylandShellIntegration *QWaylandShellIntegrationFactory::create(const QString &name, QWaylandDisplay *display, const QStringList &args, const QString &pluginPath)
+QWaylandShellIntegration *QWaylandShellIntegrationFactory::create(const QString &name, QWaylandDisplay *display, const QStringList &args)
 {
-#if QT_CONFIG(library)
     QScopedPointer<QWaylandShellIntegration> integration;
-
-    // Try loading the plugin from platformPluginPath first:
-    if (!pluginPath.isEmpty()) {
-        QCoreApplication::addLibraryPath(pluginPath);
-        integration.reset(qLoadPlugin<QWaylandShellIntegration, QWaylandShellIntegrationPlugin>(directLoader(), name, args));
-    }
-    if (!integration)
-        integration.reset(qLoadPlugin<QWaylandShellIntegration, QWaylandShellIntegrationPlugin>(loader(), name, args));
-#endif
+    integration.reset(qLoadPlugin<QWaylandShellIntegration, QWaylandShellIntegrationPlugin>(loader(), name, args));
 
     if (integration && !integration->initialize(display))
         return nullptr;

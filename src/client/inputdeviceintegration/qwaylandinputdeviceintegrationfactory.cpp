@@ -48,49 +48,17 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-#if QT_CONFIG(library)
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QWaylandInputDeviceIntegrationFactoryInterface_iid, QLatin1String("/wayland-inputdevice-integration"), Qt::CaseInsensitive))
-Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, directLoader,
-                          (QWaylandInputDeviceIntegrationFactoryInterface_iid, QLatin1String(""), Qt::CaseInsensitive))
-#endif
 
-QStringList QWaylandInputDeviceIntegrationFactory::keys(const QString &pluginPath)
+QStringList QWaylandInputDeviceIntegrationFactory::keys()
 {
-#if QT_CONFIG(library)
-    QStringList list;
-    if (!pluginPath.isEmpty()) {
-        QCoreApplication::addLibraryPath(pluginPath);
-        list = directLoader()->keyMap().values();
-        if (!list.isEmpty()) {
-            const QString postFix = QStringLiteral(" (from ")
-                                    + QDir::toNativeSeparators(pluginPath)
-                                    + QLatin1Char(')');
-            const QStringList::iterator end = list.end();
-            for (QStringList::iterator it = list.begin(); it != end; ++it)
-                (*it).append(postFix);
-        }
-    }
-    list.append(loader()->keyMap().values());
-    return list;
-#else
-    return QStringList();
-#endif
+    return loader->keyMap().values();
 }
 
-QWaylandInputDeviceIntegration *QWaylandInputDeviceIntegrationFactory::create(const QString &name, const QStringList &args, const QString &pluginPath)
+QWaylandInputDeviceIntegration *QWaylandInputDeviceIntegrationFactory::create(const QString &name, const QStringList &args)
 {
-#if QT_CONFIG(library)
-    // Try loading the plugin from platformPluginPath first:
-    if (!pluginPath.isEmpty()) {
-        QCoreApplication::addLibraryPath(pluginPath);
-        if (QWaylandInputDeviceIntegration *ret = qLoadPlugin<QWaylandInputDeviceIntegration, QWaylandInputDeviceIntegrationPlugin>(directLoader(), name, args))
-            return ret;
-    }
-    if (QWaylandInputDeviceIntegration *ret = qLoadPlugin<QWaylandInputDeviceIntegration, QWaylandInputDeviceIntegrationPlugin>(loader(), name, args))
-        return ret;
-#endif
-    return nullptr;
+    return qLoadPlugin<QWaylandInputDeviceIntegration, QWaylandInputDeviceIntegrationPlugin>(loader(), name, args);
 }
 
 }

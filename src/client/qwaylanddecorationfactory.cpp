@@ -48,50 +48,17 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-#if QT_CONFIG(library)
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QWaylandDecorationFactoryInterface_iid, QLatin1String("/wayland-decoration-client"), Qt::CaseInsensitive))
-Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, directLoader,
-                          (QWaylandDecorationFactoryInterface_iid, QLatin1String(""), Qt::CaseInsensitive))
-#endif
 
-QStringList QWaylandDecorationFactory::keys(const QString &pluginPath)
+QStringList QWaylandDecorationFactory::keys()
 {
-#if QT_CONFIG(library)
-    QStringList list;
-    if (!pluginPath.isEmpty()) {
-        QCoreApplication::addLibraryPath(pluginPath);
-        list = directLoader()->keyMap().values();
-        if (!list.isEmpty()) {
-            const QString postFix = QStringLiteral(" (from ")
-                                    + QDir::toNativeSeparators(pluginPath)
-                                    + QLatin1Char(')');
-            const QStringList::iterator end = list.end();
-            for (QStringList::iterator it = list.begin(); it != end; ++it)
-                (*it).append(postFix);
-        }
-    }
-    list.append(loader()->keyMap().values());
-    return list;
-#else
-    return QStringList();
-#endif
+    return loader->keyMap().values();
 }
 
-QWaylandAbstractDecoration *QWaylandDecorationFactory::create(const QString &name, const QStringList &args, const QString &pluginPath)
+QWaylandAbstractDecoration *QWaylandDecorationFactory::create(const QString &name, const QStringList &args)
 {
-#if QT_CONFIG(library)
-    // Try loading the plugin from platformPluginPath first:
-    if (!pluginPath.isEmpty()) {
-        QCoreApplication::addLibraryPath(pluginPath);
-        if (QWaylandAbstractDecoration *ret = qLoadPlugin<QWaylandAbstractDecoration, QWaylandDecorationPlugin>(directLoader(), name, args))
-            return ret;
-    }
-    if (QWaylandAbstractDecoration *ret = qLoadPlugin<QWaylandAbstractDecoration, QWaylandDecorationPlugin>(loader(), name, args))
-        return ret;
-#endif
-
-    return nullptr;
+    return qLoadPlugin<QWaylandAbstractDecoration, QWaylandDecorationPlugin>(loader(), name, args);
 }
 
 }

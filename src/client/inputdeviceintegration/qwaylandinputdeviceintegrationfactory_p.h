@@ -63,8 +63,8 @@ class QWaylandInputDeviceIntegration;
 class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDeviceIntegrationFactory
 {
 public:
-    static QStringList keys(const QString &pluginPath = QString());
-    static QWaylandInputDeviceIntegration *create(const QString &name, const QStringList &args, const QString &pluginPath = QString());
+    static QStringList keys();
+    static QWaylandInputDeviceIntegration *create(const QString &name, const QStringList &args);
 };
 
 }

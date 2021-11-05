@@ -66,8 +66,8 @@ class QWaylandShellIntegration;
 class Q_WAYLAND_CLIENT_EXPORT QWaylandShellIntegrationFactory
 {
 public:
-    static QStringList keys(const QString &pluginPath = QString());
-    static QWaylandShellIntegration *create(const QString &name, QWaylandDisplay *display, const QStringList &args = QStringList(), const QString &pluginPath = QString());
+    static QStringList keys();
+    static QWaylandShellIntegration *create(const QString &name, QWaylandDisplay *display, const QStringList &args = QStringList());
 };
 
 }

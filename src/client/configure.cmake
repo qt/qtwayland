@@ -203,11 +203,11 @@ qt_feature("wayland-brcm" PRIVATE
 )
 qt_feature("xcomposite-egl" PRIVATE
     LABEL "XComposite EGL"
-    CONDITION QT_FEATURE_wayland_client AND QT_FEATURE_opengl AND QT_FEATURE_egl AND QT_FEATURE_xlib AND XComposite_FOUND AND QT_FEATURE_egl_x11
+    CONDITION FALSE AND QT_FEATURE_wayland_client AND QT_FEATURE_opengl AND QT_FEATURE_egl AND QT_FEATURE_xlib AND XComposite_FOUND AND QT_FEATURE_egl_x11
 )
 qt_feature("xcomposite-glx" PRIVATE
     LABEL "XComposite GLX"
-    CONDITION QT_FEATURE_wayland_client AND QT_FEATURE_opengl AND NOT QT_FEATURE_opengles2 AND QT_FEATURE_xlib AND XComposite_FOUND
+    CONDITION FALSE AND QT_FEATURE_wayland_client AND QT_FEATURE_opengl AND NOT QT_FEATURE_opengles2 AND QT_FEATURE_xlib AND XComposite_FOUND
 )
 qt_feature("wayland-drm-egl-server-buffer" PRIVATE
     LABEL "DRM EGL"

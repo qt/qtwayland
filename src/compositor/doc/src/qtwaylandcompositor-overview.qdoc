@@ -100,22 +100,14 @@
   simplified debugging and efficient turn-around on trying out new features.
 
   Qt Wayland supports several backends for sharing graphics buffers between clients and the
-  server. The main ones are:
+  server. The main one is:
 
   \list
     \li \c{wayland-egl}: This is the default backend and should be preferred whenever possible.
-  However, it requires support in the OpenGL driver on the system for this to work.
-    \li \c{xcomposite-glx}: This uses the \c XComposite extension to the X11 display server for
-  sharing buffers. It requires that an X11 server is running on the system and that the xcb platform
-  plugin is used with the "GLX" backend. This is usually the default on X11 systems, but can be
-  forced by setting the \c QT_XCB_GL_INTEGRATION environment variable to "xcb_glx".
-    \li \c{xcomposite-egl}: This uses the \c XComposite extension to the X11 display server for
-  sharing buffers. It requires that an X11 server is running on the system and that the xcb platform
-  plugin is used with the "EGL" backend. This can be forced by setting \c QT_XCB_GL_INTEGRATION
-  environment variable to "xcb_egl".
+  It requires support in the OpenGL driver on the system for this to work.
   \endlist
 
-  Select the backend by setting the \c QT_WAYLAND_CLIENT_BUFFER_INTEGRATION environment variable.
+  Other backends may be selected by setting the \c QT_WAYLAND_CLIENT_BUFFER_INTEGRATION environment variable.
 
   \note If Qt Wayland Compositor is unable to initialize the client buffer backend, then it will
   fall back to using the "shared memory" backend (based on \c{wl_shm}) as a fail-safe. This backend

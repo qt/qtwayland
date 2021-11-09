@@ -18,7 +18,6 @@ config.tests/egl/egl
 config.tests/glx/glx
 config.tests/wayland_cursor/wayland_cursor
 config.tests/wayland_egl/wayland_egl
-config.tests/xcomposite/xcomposite
 config.tests/xkbcommon/xkbcommon
 config.tests/wayland/wayland
 config.tests/drm_egl_server/drm_egl_server

@@ -22,9 +22,6 @@ if(LINUX OR QT_FIND_ALL_PACKAGES_ALWAYS)
         PROVIDED_TARGETS Wayland::Egl
         MODULE_NAME waylandclient
         QMAKE_LIB wayland-egl)
-    qt_find_package(XComposite
-        PROVIDED_TARGETS PkgConfig::XComposite
-        MODULE_NAME waylandclient QMAKE_LIB xcomposite)
 
     # waylandcompositor libraries
     qt_find_package(Wayland
@@ -35,9 +32,6 @@ if(LINUX OR QT_FIND_ALL_PACKAGES_ALWAYS)
         PROVIDED_TARGETS Wayland::Egl
         MODULE_NAME waylandcompositor
         QMAKE_LIB wayland-egl)
-    qt_find_package(XComposite
-        PROVIDED_TARGETS PkgConfig::XComposite
-        MODULE_NAME waylandcompositor QMAKE_LIB xcomposite)
 
     # X11 is not a public dependency of QtGui anymore, so we need to find it manually in a shared build.
     # In a static build the dependency is still propagated, so check for the target existence to prevent
@@ -222,18 +216,6 @@ qt_feature("wayland-vulkan-server-buffer" PRIVATE
 qt_feature("wayland-datadevice" PRIVATE
     CONDITION QT_FEATURE_draganddrop OR QT_FEATURE_clipboard
 )
-qt_feature("xcomposite-egl" PRIVATE
-    LABEL "XComposite EGL"
-    CONDITION FALSE AND (QT_FEATURE_wayland_client OR QT_FEATURE_wayland_server)
-              AND QT_FEATURE_opengl AND QT_FEATURE_egl AND QT_FEATURE_xlib
-              AND XComposite_FOUND AND QT_FEATURE_egl_x11
-)
-qt_feature("xcomposite-glx" PRIVATE
-    LABEL "XComposite GLX"
-    CONDITION FALSE AND (QT_FEATURE_wayland_client OR QT_FEATURE_wayland_server)
-              AND QT_FEATURE_opengl AND NOT QT_FEATURE_opengles2
-              AND QT_FEATURE_xlib AND XComposite_FOUND
-)
 qt_feature("wayland-text-input-v4-wip" PRIVATE
     LABEL "Qt Wayland TextInput Protocol V4(WIP)"
     PURPOSE "Enables wayland_text_input_unstable_v4(wip)"
@@ -250,6 +232,4 @@ qt_configure_add_summary_entry(ARGS "wayland-libhybris-egl-server-buffer")
 qt_configure_add_summary_entry(ARGS "wayland-dmabuf-server-buffer")
 qt_configure_add_summary_entry(ARGS "wayland-shm-emulation-server-buffer")
 qt_configure_add_summary_entry(ARGS "wayland-vulkan-server-buffer")
-qt_configure_add_summary_entry(ARGS "xcomposite-egl")
-qt_configure_add_summary_entry(ARGS "xcomposite-glx")
 qt_configure_end_summary_section() # end of "Qt Wayland Drivers" section

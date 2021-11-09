@@ -2,7 +2,7 @@
 # have requests that create objects with interfaces defined in the core
 # wayland protocol.
 #
-# E.g. the xcomposite protocol has a request which creates a wl_buffer. With
+# E.g. if a protocol has a request which creates a wl_buffer. With
 # the regular wayland-scanner.prf compilation would fail because
 # wl_buffer_interface is not defined.
 #

@@ -223,13 +223,13 @@ qt_feature("wayland-datadevice" PRIVATE
 )
 qt_feature("xcomposite-egl" PRIVATE
     LABEL "XComposite EGL"
-    CONDITION (QT_FEATURE_wayland_client OR QT_FEATURE_wayland_server)
+    CONDITION FALSE AND (QT_FEATURE_wayland_client OR QT_FEATURE_wayland_server)
               AND QT_FEATURE_opengl AND QT_FEATURE_egl AND QT_FEATURE_xlib
               AND XComposite_FOUND AND QT_FEATURE_egl_x11
 )
 qt_feature("xcomposite-glx" PRIVATE
     LABEL "XComposite GLX"
-    CONDITION (QT_FEATURE_wayland_client OR QT_FEATURE_wayland_server)
+    CONDITION FALSE AND (QT_FEATURE_wayland_client OR QT_FEATURE_wayland_server)
               AND QT_FEATURE_opengl AND NOT QT_FEATURE_opengles2
               AND QT_FEATURE_xlib AND XComposite_FOUND
 )

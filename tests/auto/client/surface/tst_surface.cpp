@@ -127,6 +127,10 @@ void tst_surface::waitForFrameCallbackGl()
     // Make sure we follow frame callbacks for some frames
     for (int i = 0; i < 5; ++i) {
         xdgPingAndWaitForPong(); // Make sure things have happened on the client
+        if (!qEnvironmentVariableIntValue("QT_WAYLAND_DISABLE_WINDOWDECORATION") && i == 0) {
+            QCOMPARE(bufferSpy.count(), 1);
+            bufferSpy.removeFirst();
+        }
         exec([&] {
             QVERIFY(bufferSpy.empty()); // Make sure no extra buffers have arrived
             QVERIFY(!xdgToplevel()->surface()->m_waitingFrameCallbacks.empty());

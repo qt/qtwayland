@@ -953,6 +953,13 @@ bool QWaylandWindow::createDecoration()
             subsurf->set_position(pos.x() + m.left(), pos.y() + m.top());
         }
         sendExposeEvent(QRect(QPoint(), geometry().size()));
+
+        // This is a special case where the buffer is recreated, but since
+        // the content rect remains the same, the widgets remain the same
+        // size and are not redrawn, leaving the new buffer empty. As a simple
+        // work-around, we trigger a full extra update whenever the client-side
+        // window decorations are toggled while the window is showing.
+        window()->requestUpdate();
     }
 
     return mWindowDecoration;

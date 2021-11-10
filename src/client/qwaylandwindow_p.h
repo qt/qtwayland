@@ -233,6 +233,9 @@ public:
     void setXdgActivationToken(const QString &token);
     void requestXdgActivationToken(uint serial);
 
+    void beginFrame();
+    void endFrame();
+
 public slots:
     void applyConfigure();
 

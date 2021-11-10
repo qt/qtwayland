@@ -77,6 +77,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window, QWaylandDisplay *display)
     : QPlatformWindow(window)
     , mDisplay(display)
     , mResizeAfterSwap(qEnvironmentVariableIsSet("QT_WAYLAND_RESIZE_AFTER_SWAP"))
+    , mSurfaceLock(QReadWriteLock::Recursive)
 {
     {
         bool ok;
@@ -235,6 +236,16 @@ bool QWaylandWindow::shouldCreateSubSurface() const
     return QPlatformWindow::parent() != nullptr;
 }
 
+void QWaylandWindow::beginFrame()
+{
+    mSurfaceLock.lockForRead();
+}
+
+void QWaylandWindow::endFrame()
+{
+    mSurfaceLock.unlock();
+}
+
 void QWaylandWindow::reset()
 {
     delete mShellSurface;
@@ -242,10 +253,10 @@ void QWaylandWindow::reset()
     delete mSubSurfaceWindow;
     mSubSurfaceWindow = nullptr;
 
-    invalidateSurface();
     if (mSurface) {
         emit wlSurfaceDestroyed();
         QWriteLocker lock(&mSurfaceLock);
+        invalidateSurface();
         mSurface.reset();
     }
 

@@ -300,6 +300,18 @@ QWaylandGLContext::~QWaylandGLContext()
         eglDestroyContext(eglDisplay(), m_decorationsContext);
 }
 
+void QWaylandGLContext::beginFrame()
+{
+    Q_ASSERT(m_currentWindow != nullptr);
+    m_currentWindow->beginFrame();
+}
+
+void QWaylandGLContext::endFrame()
+{
+    Q_ASSERT(m_currentWindow != nullptr);
+    m_currentWindow->endFrame();
+}
+
 bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
 {
     // in QWaylandGLContext() we called eglBindAPI with the correct value. However,
@@ -311,10 +323,10 @@ bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
         eglBindAPI(m_api);
     }
 
-    QWaylandEglWindow *window = static_cast<QWaylandEglWindow *>(surface);
-    EGLSurface eglSurface = window->eglSurface();
+    m_currentWindow = static_cast<QWaylandEglWindow *>(surface);
+    EGLSurface eglSurface = m_currentWindow->eglSurface();
 
-    if (!window->needToUpdateContentFBO() && (eglSurface != EGL_NO_SURFACE)) {
+    if (!m_currentWindow->needToUpdateContentFBO() && (eglSurface != EGL_NO_SURFACE)) {
         if (!eglMakeCurrent(eglDisplay(), eglSurface, eglSurface, eglContext())) {
             qWarning("QWaylandGLContext::makeCurrent: eglError: %x, this: %p \n", eglGetError(), this);
             return false;
@@ -322,26 +334,26 @@ bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
         return true;
     }
 
-    if (window->isExposed())
-        window->setCanResize(false);
-    if (m_decorationsContext != EGL_NO_CONTEXT && !window->decoration())
-        window->createDecoration();
+    if (m_currentWindow->isExposed())
+        m_currentWindow->setCanResize(false);
+    if (m_decorationsContext != EGL_NO_CONTEXT && !m_currentWindow->decoration())
+        m_currentWindow->createDecoration();
 
     if (eglSurface == EGL_NO_SURFACE) {
-        window->updateSurface(true);
-        eglSurface = window->eglSurface();
+        m_currentWindow->updateSurface(true);
+        eglSurface = m_currentWindow->eglSurface();
     }
 
     if (!eglMakeCurrent(eglDisplay(), eglSurface, eglSurface, eglContext())) {
         qWarning("QWaylandGLContext::makeCurrent: eglError: %x, this: %p \n", eglGetError(), this);
-        window->setCanResize(true);
+        m_currentWindow->setCanResize(true);
         return false;
     }
 
     //### setCurrentContext will be called in QOpenGLContext::makeCurrent after this function
     // returns, but that's too late, as we need a current context in order to bind the content FBO.
     QOpenGLContextPrivate::setCurrentContext(context());
-    window->bindContentFBO();
+    m_currentWindow->bindContentFBO();
 
     return true;
 }

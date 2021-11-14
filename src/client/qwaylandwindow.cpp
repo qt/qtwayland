@@ -477,7 +477,6 @@ void QWaylandWindow::setVisible(bool visible)
         if (window()->type() == Qt::Popup || window()->type() == Qt::ToolTip)
             activePopups << this;
         initWindow();
-        mDisplay->flushRequests();
 
         setGeometry(windowGeometry());
         // Don't flush the events here, or else the newly visible window may start drawing, but since

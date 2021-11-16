@@ -287,8 +287,6 @@ void tst_seatv4::simpleAxis()
         }
         struct Event // Because I didn't find a convenient way to copy it entirely
         {
-            Event() = default;
-
             QPoint pixelDelta;
             QPoint angleDelta; // eights of a degree, positive is upwards, left
         };

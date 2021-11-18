@@ -80,6 +80,9 @@ void QWaylandDrag::cancel()
     QBasicDrag::cancel();
 
     m_display->currentInputDevice()->dataDevice()->cancelDrag();
+
+    if (drag())
+        drag()->deleteLater();
 }
 
 void QWaylandDrag::move(const QPoint &globalPos, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
@@ -130,6 +133,14 @@ void QWaylandDrag::finishDrag()
 {
     QKeyEvent event(QEvent::KeyPress, Qt::Key_Escape, Qt::NoModifier);
     eventFilter(shapedPixmapWindow(), &event);
+
+    if (drag())
+        drag()->deleteLater();
+}
+
+bool QWaylandDrag::ownsDragObject() const
+{
+    return true;
 }
 
 }

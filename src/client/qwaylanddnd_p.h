@@ -83,6 +83,7 @@ protected:
     void drop(const QPoint &globalPos, Qt::MouseButtons b, Qt::KeyboardModifiers mods) override;
     void endDrag() override;
 
+    bool ownsDragObject() const override;
 
 private:
     QWaylandDisplay *m_display = nullptr;

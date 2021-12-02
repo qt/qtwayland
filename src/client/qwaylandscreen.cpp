@@ -87,7 +87,8 @@ uint QWaylandScreen::requiredEvents() const
     uint ret = OutputDoneEvent;
 
     if (mWaylandDisplay->xdgOutputManager()) {
-        ret |= XdgOutputNameEvent;
+        if (mWaylandDisplay->xdgOutputManager()->version() >= 2)
+            ret |= XdgOutputNameEvent;
 
         if (mWaylandDisplay->xdgOutputManager()->version() < 3)
             ret |= XdgOutputDoneEvent;

@@ -56,31 +56,13 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 QWaylandQtShellIntegration::QWaylandQtShellIntegration()
+    : QWaylandShellIntegrationTemplate(1)
 {
-}
-
-bool QWaylandQtShellIntegration::initialize()
-{
-    if (m_qtShell)
-        return true;
-    wl_registry *registry;
-    uint32_t id;
-    uint32_t version;
-    bool found = findGlobal(QLatin1String("zqt_shell_v1"), &registry, &id, &version);
-    if (!found) {
-        qCDebug(lcQpaWayland) << "Couldn't find global zqt_shell_v1 for qt-shell";
-        return false;
-    }
-    m_qtShell.reset(new QtWayland::zqt_shell_v1(registry, id, version));
-    return true;
 }
 
 QWaylandShellSurface *QWaylandQtShellIntegration::createShellSurface(QWaylandWindow *window)
 {
-    if (!m_qtShell)
-        return nullptr;
-
-    auto *surface = m_qtShell->surface_create(wlSurfaceForWindow(window));
+    auto *surface = surface_create(wlSurfaceForWindow(window));
     return new QWaylandQtSurface(surface, window);
 }
 

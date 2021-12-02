@@ -60,29 +60,20 @@ QWaylandIviShellIntegration::QWaylandIviShellIntegration()
 {
 }
 
-bool QWaylandIviShellIntegration::initialize()
+bool QWaylandIviShellIntegration::initialize(QWaylandDisplay *display)
 {
-    if (!m_iviApplication) {
-        wl_registry *registry;
-        uint32_t id;
-        uint32_t version;
-        bool found = findGlobal(QLatin1String("ivi_application"), &registry, &id, &version);
-        if (found)
-            m_iviApplication.reset(new QtWayland::ivi_application(registry, id, version));
-    }
-    if (!m_iviController) {
-        wl_registry *registry;
-        uint32_t id;
-        uint32_t version;
-        bool found = findGlobal(QLatin1String("ivi_controller"), &registry, &id, &version);
-        if (found)
-            m_iviController.reset(new QtWayland::ivi_controller(registry, id, version));
+    for (QWaylandDisplay::RegistryGlobal global : display->globals()) {
+        if (global.interface == QLatin1String("ivi_application") && !m_iviApplication)
+            m_iviApplication.reset(new QtWayland::ivi_application(display->wl_registry(), global.id, global.version));
+        if (global.interface == QLatin1String("ivi_controller") && !m_iviController)
+            m_iviController.reset(new QtWayland::ivi_controller(display->wl_registry(), global.id, global.version));
     }
 
     if (!m_iviApplication) {
         qCDebug(lcQpaWayland) << "Couldn't find global ivi_application for ivi-shell";
         return false;
     }
+
     return true;
 }
 

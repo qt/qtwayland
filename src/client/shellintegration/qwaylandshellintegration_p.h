@@ -77,13 +77,7 @@ public:
     QWaylandShellIntegration() {}
     virtual ~QWaylandShellIntegration() {}
 
-    bool initialize(QWaylandDisplay *display) {
-        m_display = display;
-        return initialize();
-    }
-    virtual bool initialize() {
-        return false;
-    }
+    virtual bool initialize(QWaylandDisplay *display) = 0;
     virtual QWaylandShellSurface *createShellSurface(QWaylandWindow *window) = 0;
     virtual void *nativeResourceForWindow(const QByteArray &resource, QWindow *window) {
         Q_UNUSED(resource);
@@ -92,10 +86,7 @@ public:
     }
 
     static wl_surface *wlSurfaceForWindow(QWaylandWindow *window);
-    bool findGlobal(const QString &interface, wl_registry **registry, uint32_t *id, uint32_t *version);
 
-protected:
-    QWaylandDisplay *m_display = nullptr;
 };
 
 template <typename T>
@@ -107,7 +98,7 @@ public:
     {
     }
 
-    bool initialize() override
+    bool initialize(QWaylandDisplay *) override
     {
         QWaylandClientExtension::initialize();
         return isActive();

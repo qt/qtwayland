@@ -53,16 +53,15 @@ namespace QtWaylandClient {
 class QWaylandWindow;
 class QWaylandDisplay;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandQtShellIntegration : public QWaylandShellIntegration
+
+class Q_WAYLAND_CLIENT_EXPORT QWaylandQtShellIntegration
+        : public QWaylandShellIntegrationTemplate<QWaylandQtShellIntegration>
+        , public QtWayland::zqt_shell_v1
 {
 public:
     QWaylandQtShellIntegration();
 
-    bool initialize() override;
     QWaylandShellSurface *createShellSurface(QWaylandWindow *window) override;
-
-private:
-    QScopedPointer<QtWayland::zqt_shell_v1> m_qtShell;
 };
 
 }

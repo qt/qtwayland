@@ -39,19 +39,6 @@ wl_surface *QWaylandShellIntegration::wlSurfaceForWindow(QWaylandWindow *window)
     return window->wlSurface();
 }
 
-bool QWaylandShellIntegration::findGlobal(const QString &interface, wl_registry **registry, uint32_t *id, uint32_t *version)
-{
-    for (QWaylandDisplay::RegistryGlobal &global : m_display->globals()) {
-        if (global.interface == interface) {
-            *registry = m_display->wl_registry();
-            *id = global.id;
-            *version = global.version;
-            return true;
-        }
-    }
-    return false;
-}
-
 }
 
 QT_END_NAMESPACE

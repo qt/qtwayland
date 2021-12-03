@@ -85,6 +85,8 @@ struct QWaylandSurfaceViewMapper
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandOutputPrivate : public QObjectPrivate, public QtWaylandServer::wl_output
 {
 public:
+    Q_DECLARE_PUBLIC(QWaylandOutput)
+
     QWaylandOutputPrivate();
 
     ~QWaylandOutputPrivate() override;
@@ -128,7 +130,6 @@ private:
     bool initialized = false;
     QSize windowPixelSize;
 
-    Q_DECLARE_PUBLIC(QWaylandOutput)
     Q_DISABLE_COPY(QWaylandOutputPrivate)
 
     friend class QWaylandXdgOutputManagerV1Private;

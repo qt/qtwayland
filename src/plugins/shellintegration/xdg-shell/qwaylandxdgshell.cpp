@@ -258,7 +258,7 @@ QWaylandXdgSurface::QWaylandXdgSurface(QWaylandXdgShell *shell, ::xdg_surface *s
     } else {
         setToplevel();
         if (transientParent) {
-            auto parentXdgSurface = static_cast<QWaylandXdgSurface *>(transientParent->shellSurface());
+            auto parentXdgSurface = qobject_cast<QWaylandXdgSurface *>(transientParent->shellSurface());
             if (parentXdgSurface)
                 m_toplevel->set_parent(parentXdgSurface->m_toplevel->object());
         }

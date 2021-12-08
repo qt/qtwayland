@@ -211,7 +211,7 @@ QtWayland::xdg_toplevel::resize_edge QWaylandXdgSurface::Toplevel::convertToResi
 
 QWaylandXdgSurface::Popup::Popup(QWaylandXdgSurface *xdgSurface, QWaylandXdgSurface *parent,
                                  QtWayland::xdg_positioner *positioner)
-    : xdg_popup(xdgSurface->get_popup(parent->object(), positioner->object()))
+    : xdg_popup(xdgSurface->get_popup(parent ? parent->object() : nullptr, positioner->object()))
     , m_xdgSurface(xdgSurface)
     , m_parent(parent)
 {
@@ -225,7 +225,7 @@ QWaylandXdgSurface::Popup::~Popup()
     if (m_grabbing) {
         auto *shell = m_xdgSurface->m_shell;
         Q_ASSERT(shell->m_topmostGrabbingPopup == this);
-        shell->m_topmostGrabbingPopup = m_parent->m_popup;
+        shell->m_topmostGrabbingPopup = m_parent ? m_parent->m_popup : nullptr;
     }
 }
 
@@ -421,7 +421,7 @@ void QWaylandXdgSurface::setPopup(QWaylandWindow *parent)
 {
     Q_ASSERT(!m_toplevel && !m_popup);
 
-    auto parentXdgSurface = static_cast<QWaylandXdgSurface *>(parent->shellSurface());
+    auto parentXdgSurface = qobject_cast<QWaylandXdgSurface *>(parent->shellSurface());
 
     auto positioner = new QtWayland::xdg_positioner(m_shell->create_positioner());
     // set_popup expects a position relative to the parent
@@ -442,7 +442,7 @@ void QWaylandXdgSurface::setPopup(QWaylandWindow *parent)
 
 void QWaylandXdgSurface::setGrabPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial)
 {
-    auto parentXdgSurface = static_cast<QWaylandXdgSurface *>(parent->shellSurface());
+    auto parentXdgSurface = qobject_cast<QWaylandXdgSurface *>(parent->shellSurface());
     auto *top = m_shell->m_topmostGrabbingPopup;
 
     if (top && top->m_xdgSurface != parentXdgSurface) {

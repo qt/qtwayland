@@ -168,13 +168,10 @@ void QWaylandBradientDecoration::paint(QPaintDevice *device)
     // Window icon
     QIcon icon = waylandWindow()->windowIcon();
     if (!icon.isNull()) {
-        QPixmap pixmap = icon.pixmap(QSize(128, 128));
-        QPixmap scaled = pixmap.scaled(22, 22, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-
         QRectF iconRect(0, 0, 22, 22);
-        p.drawPixmap(iconRect.adjusted(margins().left() + BUTTON_SPACING, 4,
-                                       margins().left() + BUTTON_SPACING, 4),
-                     scaled, iconRect);
+        iconRect.adjust(margins().left() + BUTTON_SPACING, 4,
+                        margins().left() + BUTTON_SPACING, 4),
+        icon.paint(&p, iconRect.toRect());
     }
 
     // Window title

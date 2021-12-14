@@ -1,4 +1,4 @@
 # Generated from server-buffer.pro.
 
-add_subdirectory(cpp-client)
-add_subdirectory(compositor)
+qt_internal_add_example(cpp-client)
+qt_internal_add_example(compositor)

@@ -1,2 +1,2 @@
-add_subdirectory(client-plugin)
-add_subdirectory(compositor)
+qt_internal_add_example(client-plugin)
+qt_internal_add_example(compositor)

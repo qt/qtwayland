@@ -1,5 +1,5 @@
 # Generated from custom-extension.pro.
 
-add_subdirectory(qml-client)
-add_subdirectory(compositor)
-add_subdirectory(cpp-client)
+qt_internal_add_example(qml-client)
+qt_internal_add_example(compositor)
+qt_internal_add_example(cpp-client)

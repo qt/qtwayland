@@ -151,7 +151,7 @@ QInputMethodEvent QWaylandInputMethodEventBuilder::buildPreedit(const QString &t
 {
     QList<QInputMethodEvent::Attribute> attributes;
 
-    if (m_preeditCursor < 0) {
+    if (m_preeditCursor <= 0) {
         attributes.append(QInputMethodEvent::Attribute(QInputMethodEvent::Cursor, 0, 0, QVariant()));
     } else if (m_preeditCursor > 0) {
         attributes.append(QInputMethodEvent::Attribute(QInputMethodEvent::Cursor, indexFromWayland(text, m_preeditCursor), 1, QVariant()));

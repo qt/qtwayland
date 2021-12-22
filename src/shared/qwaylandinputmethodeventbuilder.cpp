@@ -39,7 +39,10 @@
 
 #include "qwaylandinputmethodeventbuilder_p.h"
 
+#include <QBrush>
+#include <QGuiApplication>
 #include <QInputMethod>
+#include <QPalette>
 #include <QTextCharFormat>
 
 #ifdef QT_BUILD_WAYLANDCOMPOSITOR_LIB
@@ -83,32 +86,38 @@ void QWaylandInputMethodEventBuilder::addPreeditStyling(uint32_t index, uint32_t
     QTextCharFormat format;
 
     switch (style) {
-    case 0:
-    case 1:
+    case ZWP_TEXT_INPUT_V2_PREEDIT_STYLE_NONE:
+        break;
+    case ZWP_TEXT_INPUT_V2_PREEDIT_STYLE_DEFAULT:
+    case ZWP_TEXT_INPUT_V2_PREEDIT_STYLE_UNDERLINE:
         format.setFontUnderline(true);
         format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
         m_preeditStyles.append(QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, index, length, format));
         break;
-    case 2:
-    case 3:
+    case ZWP_TEXT_INPUT_V2_PREEDIT_STYLE_ACTIVE:
+    case ZWP_TEXT_INPUT_V2_PREEDIT_STYLE_INACTIVE:
         format.setFontWeight(QFont::Bold);
         format.setFontUnderline(true);
         format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
         m_preeditStyles.append(QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, index, length, format));
         break;
-    case 4:
-        format.setFontUnderline(true);
-        format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
-        m_preeditStyles.append(QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, index, length, format));
+    case ZWP_TEXT_INPUT_V2_PREEDIT_STYLE_HIGHLIGHT:
+    case ZWP_TEXT_INPUT_V2_PREEDIT_STYLE_SELECTION:
+        {
+            format.setFontUnderline(true);
+            format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+            QPalette palette = qApp->palette();
+            format.setBackground(QBrush(palette.color(QPalette::Active, QPalette::Highlight)));
+            format.setForeground(QBrush(palette.color(QPalette::Active, QPalette::HighlightedText)));
+            m_preeditStyles.append(QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, index, length, format));
+        }
         break;
-    case 5:
+    case ZWP_TEXT_INPUT_V2_PREEDIT_STYLE_INCORRECT:
         format.setFontUnderline(true);
         format.setUnderlineStyle(QTextCharFormat::WaveUnderline);
         format.setUnderlineColor(QColor(Qt::red));
         m_preeditStyles.append(QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, index, length, format));
         break;
-//    case QtWayland::wl_text_input::preedit_style_selection:
-//    case QtWayland::wl_text_input::preedit_style_none:
     default:
         break;
     }

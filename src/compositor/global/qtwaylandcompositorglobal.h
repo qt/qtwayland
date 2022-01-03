@@ -30,17 +30,6 @@
 #ifndef QWAYLANDCOMPOSITORGLOBAL_H
 #define QWAYLANDCOMPOSITORGLOBAL_H
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists purely as an
-// implementation detail.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
-
 #include <QtGui/qtguiglobal.h>
 #include <QtWaylandCompositor/qtwaylandcompositor-config.h>
 
@@ -57,10 +46,6 @@ QT_BEGIN_NAMESPACE
 #endif
 
 QT_END_NAMESPACE
-
-#if QT_CONFIG(wayland_compositor_quick)
-void Q_WAYLAND_COMPOSITOR_EXPORT qml_register_types_QtWayland_Compositor();
-#endif
 
 #endif // QWAYLANDCOMPOSITORGLOBAL_H
 

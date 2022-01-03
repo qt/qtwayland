@@ -46,5 +46,13 @@
 #include <QtGui/private/qtguiglobal_p.h>
 #include <QtWaylandCompositor/private/qtwaylandcompositor-config_p.h>
 
+QT_BEGIN_NAMESPACE
+
+#if QT_CONFIG(wayland_compositor_quick)
+void Q_WAYLAND_COMPOSITOR_EXPORT qml_register_types_QtWayland_Compositor();
+#endif
+
+QT_END_NAMESPACE
+
 #endif // QWAYLANDCOMPOSITORGLOBAL_P_H
 

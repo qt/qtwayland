@@ -42,7 +42,7 @@ qt_internal_add_module(WaylandCompositor
         extensions/qwaylandxdgshell.cpp extensions/qwaylandxdgshell.h extensions/qwaylandxdgshell_p.h
         extensions/qwlqtkey.cpp extensions/qwlqtkey_p.h
         extensions/qwlqttouch.cpp extensions/qwlqttouch_p.h
-        global/qtwaylandcompositorglobal.h
+        global/qtwaylandcompositorglobal.h global/qtwaylandcompositorglobal_p.h
         global/qtwaylandqmlinclude.h
         global/qwaylandcompositorextension.cpp global/qwaylandcompositorextension.h global/qwaylandcompositorextension_p.h
         global/qwaylandquickextension.h

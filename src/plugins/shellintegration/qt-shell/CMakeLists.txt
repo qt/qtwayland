@@ -9,7 +9,7 @@ qt_internal_add_plugin(QWaylandQtShellIntegrationPlugin
         main.cpp
         qwaylandqtshellintegration.cpp qwaylandqtshellintegration.h
         qwaylandqtsurface.cpp qwaylandqtsurface_p.h
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Core
         Qt::Gui
         Qt::GuiPrivate
@@ -26,6 +26,6 @@ qt6_generate_wayland_protocol_client_sources(QWaylandQtShellIntegrationPlugin
 #####################################################################
 
 qt_internal_extend_target(QWaylandQtShellIntegrationPlugin CONDITION QT_FEATURE_xkbcommon
-    PUBLIC_LIBRARIES
+    LIBRARIES
         XKB::XKB
 )

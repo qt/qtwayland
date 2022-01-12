@@ -400,7 +400,6 @@ void QWaylandQtShellSurface::requestWindowGeometry(uint windowState, const QRect
 
 void QWaylandQtShellSurfacePrivate::configure(uint windowState, const QRect &newGeometry)
 {
-    Q_Q(QWaylandQtShellSurface);
     QWaylandCompositor *compositor = m_surface != nullptr ? m_surface->compositor() : nullptr;
     if (!compositor) {
         qWarning() << "Failed to find QWaylandCompositor when configuring QWaylandQtShell";

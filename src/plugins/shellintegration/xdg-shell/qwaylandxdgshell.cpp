@@ -505,7 +505,7 @@ void QWaylandXdgSurface::requestXdgActivationToken(quint32 serial)
 
 void QWaylandXdgSurface::setXdgActivationToken(const QString &token)
 {
-    if (auto *activation = m_shell->activation()) {
+    if (m_shell->activation()) {
         m_activationToken = token;
     } else {
         qCWarning(lcQpaWayland) << "zxdg_activation_v1 not available";

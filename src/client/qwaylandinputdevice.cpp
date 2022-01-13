@@ -1529,7 +1529,7 @@ void QWaylandInputDevice::Touch::touch_frame()
             return;
     }
 
-    QWindowSystemInterface::handleTouchEvent(window, mParent->mTouchDevice, mPendingTouchPoints);
+    QWindowSystemInterface::handleTouchEvent(window, mParent->mTouchDevice, mPendingTouchPoints, mParent->modifiers());
 
     // Prepare state for next frame
     const auto prevTouchPoints = mPendingTouchPoints;

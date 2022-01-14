@@ -33,6 +33,8 @@
 #include <QtWaylandCompositor/QWaylandCompositorExtension>
 #include <QtWaylandCompositor/QWaylandQuickItem>
 
+QT_REQUIRE_CONFIG(wayland_compositor_quick);
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandQuickShellSurfaceItemPrivate;

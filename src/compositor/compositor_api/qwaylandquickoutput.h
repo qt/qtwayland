@@ -35,6 +35,8 @@
 #include <QtWaylandCompositor/qwaylandoutput.h>
 #include <QtWaylandCompositor/qwaylandquickchildren.h>
 
+QT_REQUIRE_CONFIG(wayland_compositor_quick);
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandQuickCompositor;

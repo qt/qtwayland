@@ -34,6 +34,8 @@
 #include <QtQml/QQmlParserStatus>
 #include <QtWaylandCompositor/QWaylandXdgOutputV1>
 
+QT_REQUIRE_CONFIG(wayland_compositor_quick);
+
 QT_BEGIN_NAMESPACE
 
 class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickXdgOutputV1

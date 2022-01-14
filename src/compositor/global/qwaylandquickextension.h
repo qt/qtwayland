@@ -34,6 +34,8 @@
 #include <QtQml/QQmlParserStatus>
 #include <QtQml/QQmlListProperty>
 
+QT_REQUIRE_CONFIG(wayland_compositor_quick);
+
 QT_BEGIN_NAMESPACE
 
 #define Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(className) \

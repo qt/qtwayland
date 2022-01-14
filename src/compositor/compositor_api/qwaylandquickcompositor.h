@@ -33,6 +33,8 @@
 #include <QtWaylandCompositor/qwaylandcompositor.h>
 #include <QtQml/QQmlParserStatus>
 
+QT_REQUIRE_CONFIG(wayland_compositor_quick);
+
 QT_BEGIN_NAMESPACE
 
 class QQuickWindow;

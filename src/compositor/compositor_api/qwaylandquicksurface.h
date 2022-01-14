@@ -35,6 +35,8 @@
 
 struct wl_client;
 
+QT_REQUIRE_CONFIG(wayland_compositor_quick);
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandQuickSurfacePrivate;

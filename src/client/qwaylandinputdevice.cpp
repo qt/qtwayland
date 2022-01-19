@@ -59,6 +59,7 @@
 #include "qwaylandcursor_p.h"
 #include "qwaylanddisplay_p.h"
 #include "qwaylandshmbackingstore_p.h"
+#include "qwaylandtextinputv1_p.h"
 #include "qwaylandtextinputv2_p.h"
 #if QT_WAYLAND_TEXT_INPUT_V4_WIP
 #include "qwaylandtextinputv4_p.h"
@@ -425,6 +426,12 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, 
     if (auto *psm = mQDisplay->primarySelectionManager())
         setPrimarySelectionDevice(psm->createDevice(this));
 #endif
+
+    if (mQDisplay->textInputManagerv1()) {
+        auto textInput = new QWaylandTextInputv1(mQDisplay, mQDisplay->textInputManagerv1()->create_text_input());
+        textInput->setSeat(wl_seat());
+        mTextInput.reset(textInput);
+    }
 
     if (mQDisplay->textInputManagerv2())
         mTextInput.reset(new QWaylandTextInputv2(mQDisplay, mQDisplay->textInputManagerv2()->get_text_input(wl_seat())));

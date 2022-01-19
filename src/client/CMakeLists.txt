@@ -29,6 +29,7 @@ qt_internal_add_module(WaylandClient
         qwaylanddisplay.cpp qwaylanddisplay_p.h
         qwaylandextendedsurface.cpp qwaylandextendedsurface_p.h
         qwaylandinputcontext.cpp qwaylandinputcontext_p.h
+        qwaylandtextinputv1.cpp qwaylandtextinputv1_p.h
         qwaylandtextinputv2.cpp qwaylandtextinputv2_p.h
         qwaylandtextinputinterface.cpp qwaylandtextinputinterface_p.h
         qwaylandinputdevice.cpp qwaylandinputdevice_p.h
@@ -75,6 +76,7 @@ qt6_generate_wayland_protocol_client_sources(WaylandClient
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/pointer-gestures-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/tablet-unstable-v2.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input-unstable-v2.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input-unstable-v4-wip.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/wayland.xml

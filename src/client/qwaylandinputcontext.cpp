@@ -71,9 +71,9 @@ QWaylandInputContext::~QWaylandInputContext()
 bool QWaylandInputContext::isValid() const
 {
 #if QT_WAYLAND_TEXT_INPUT_V4_WIP
-    return mDisplay->textInputManagerv2() != nullptr || mDisplay->textInputManagerv4() != nullptr;
+    return mDisplay->textInputManagerv2() != nullptr || mDisplay->textInputManagerv1() != nullptr || mDisplay->textInputManagerv4() != nullptr;
 #else //  QT_WAYLAND_TEXT_INPUT_V4_WIP
-    return mDisplay->textInputManagerv2() != nullptr;
+    return mDisplay->textInputManagerv2() != nullptr || mDisplay->textInputManagerv1() != nullptr;
 #endif // QT_WAYLAND_TEXT_INPUT_V4_WIP
 }
 

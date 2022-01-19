@@ -514,9 +514,9 @@ void QWaylandIntegration::reconfigureInputContext()
         if (mDisplay->textInputMethodManager() != nullptr)
             mInputContext.reset(new QWaylandInputMethodContext(mDisplay.data()));
 #if QT_WAYLAND_TEXT_INPUT_V4_WIP
-        else if (mDisplay->textInputManagerv2() != nullptr || mDisplay->textInputManagerv4() != nullptr)
+        else if (mDisplay->textInputManagerv1() != nullptr || mDisplay->textInputManagerv2() != nullptr || mDisplay->textInputManagerv4() != nullptr)
 #else //  QT_WAYLAND_TEXT_INPUT_V4_WIP
-        else if (mDisplay->textInputManagerv2() != nullptr)
+        else if (mDisplay->textInputManagerv1() != nullptr || mDisplay->textInputManagerv2() != nullptr)
 #endif // QT_WAYLAND_TEXT_INPUT_V4_WIP
             mInputContext.reset(new QWaylandInputContext(mDisplay.data()));
     } else {

@@ -61,8 +61,12 @@ void QWaylandXdgSurface::Toplevel::applyConfigure()
     if (m_pending.size.isEmpty()) {
         // An empty size in the configure means it's up to the client to choose the size
         bool normalPending = !(m_pending.states & (Qt::WindowMaximized|Qt::WindowFullScreen));
-        if (normalPending && !m_normalSize.isEmpty())
-            m_xdgSurface->m_window->resizeFromApplyConfigure(m_normalSize);
+        if (normalPending && !m_normalSize.isEmpty()) {
+            QSize size = m_normalSize;
+            if (!m_pending.bounds.isEmpty())
+                size = size.boundedTo(m_pending.bounds);
+            m_xdgSurface->m_window->resizeFromApplyConfigure(size);
+        }
     } else {
         m_xdgSurface->m_window->resizeFromApplyConfigure(m_pending.size);
     }
@@ -78,6 +82,11 @@ bool QWaylandXdgSurface::Toplevel::wantsDecorations()
         return false;
 
     return !(m_pending.states & Qt::WindowFullScreen);
+}
+
+void QWaylandXdgSurface::Toplevel::xdg_toplevel_configure_bounds(int32_t width, int32_t height)
+{
+    m_pending.bounds = QSize(width, height);
 }
 
 void QWaylandXdgSurface::Toplevel::xdg_toplevel_configure(int32_t width, int32_t height, wl_array *states)
@@ -578,7 +587,7 @@ QString QWaylandXdgSurface::externWindowHandle()
 }
 
 QWaylandXdgShell::QWaylandXdgShell(QWaylandDisplay *display, uint32_t id, uint32_t availableVersion)
-    : QtWayland::xdg_wm_base(display->wl_registry(), id, qMin(availableVersion, 2u))
+    : QtWayland::xdg_wm_base(display->wl_registry(), id, qMin(availableVersion, 4u))
     , m_display(display)
 {
     display->addRegistryListener(&QWaylandXdgShell::handleRegistryGlobal, this);

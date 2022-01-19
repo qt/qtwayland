@@ -88,6 +88,7 @@ private:
 
         void xdg_toplevel_configure(int32_t width, int32_t height, wl_array *states) override;
         void xdg_toplevel_close() override;
+        void xdg_toplevel_configure_bounds(int32_t width, int32_t height) override;
 
         void requestWindowFlags(Qt::WindowFlags flags);
         void requestWindowStates(Qt::WindowStates states);
@@ -95,6 +96,7 @@ private:
         static resize_edge convertToResizeEdges(Qt::Edges edges);
 
         struct {
+            QSize bounds = {0, 0};
             QSize size = {0, 0};
             Qt::WindowStates states = Qt::WindowNoState;
         }  m_pending, m_applied;

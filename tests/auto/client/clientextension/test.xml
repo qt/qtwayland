@@ -1,0 +1,6 @@
+<protocol name="test">
+    <interface name="test_interface" version="1">
+          <request name="release" type="destructor" />
+    </interface>
+</protocol>
+

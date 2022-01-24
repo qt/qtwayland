@@ -3,6 +3,7 @@
 add_subdirectory(shared)
 
 add_subdirectory(client)
+add_subdirectory(clientextension)
 add_subdirectory(datadevicev1)
 add_subdirectory(fullscreenshellv1)
 add_subdirectory(iviapplication)

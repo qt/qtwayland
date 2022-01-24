@@ -228,6 +228,10 @@ public slots:
     void blockingReadEvents();
     void flushRequests();
 
+signals:
+    void globalAdded(const RegistryGlobal &global);
+    void globalRemoved(const RegistryGlobal &global);
+
 private:
     void handleWaylandSync();
     void requestWaylandSync();

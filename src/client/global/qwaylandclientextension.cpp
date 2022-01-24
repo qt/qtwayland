@@ -1,6 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2017 Erik Larsson.
+** Copyright (C) 2021 David Redondo <qt@david-redondo.de>
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -48,6 +49,8 @@
 
 QT_BEGIN_NAMESPACE
 
+using RegistryGlobal = QtWaylandClient::QWaylandDisplay::RegistryGlobal;
+
 QWaylandClientExtensionPrivate::QWaylandClientExtensionPrivate()
 {
     // Keep the possibility to use a custom waylandIntegration as a plugin,
@@ -60,23 +63,41 @@ QWaylandClientExtensionPrivate::QWaylandClientExtensionPrivate()
         qWarning() << "This application requires a Wayland platform plugin";
 }
 
-void QWaylandClientExtensionPrivate::handleRegistryGlobal(void *data, ::wl_registry *registry, uint32_t id,
-                                                          const QString &interface, uint32_t version)
+void QWaylandClientExtensionPrivate::globalAdded(const RegistryGlobal &global)
 {
-    QWaylandClientExtension *extension = static_cast<QWaylandClientExtension *>(data);
-    if (interface == QLatin1String(extension->extensionInterface()->name) && !extension->d_func()->active) {
-        extension->bind(registry, id, version);
-        extension->d_func()->active = true;
-        emit extension->activeChanged();
+    Q_Q(QWaylandClientExtension);
+    if (!active && global.interface == QLatin1String(q->extensionInterface()->name)) {
+        q->bind(global.registry, global.id, global.version);
+        active = true;
+        emit q->activeChanged();
+    }
+}
+
+void QWaylandClientExtensionPrivate::globalRemoved(const RegistryGlobal &global)
+{
+    Q_Q(QWaylandClientExtension);
+    if (active && global.interface == QLatin1String(q->extensionInterface()->name)) {
+        active = false;
+        emit q->activeChanged();
     }
 }
 
 void QWaylandClientExtension::initialize()
 {
     Q_D(QWaylandClientExtension);
-    if (!d->registered) {
-        d->waylandIntegration->display()->addRegistryListener(&QWaylandClientExtensionPrivate::handleRegistryGlobal, this);
-        d->registered = true;
+    if (d->active) {
+        return;
+    }
+    const QtWaylandClient::QWaylandDisplay *display = d->waylandIntegration->display();
+    const auto globals = display->globals();
+    auto global =
+            std::find_if(globals.cbegin(), globals.cend(), [this](const RegistryGlobal &global) {
+                return global.interface == QLatin1String(extensionInterface()->name);
+            });
+    if (global != globals.cend()) {
+        bind(global->registry, global->id, global->version);
+        d->active = true;
+        emit activeChanged();
     }
 }
 
@@ -85,17 +106,17 @@ QWaylandClientExtension::QWaylandClientExtension(const int ver)
 {
     Q_D(QWaylandClientExtension);
     d->version = ver;
-
-    // The registry listener uses virtual functions and we don't want it to be called from
-    // the constructor.
+    auto display = d->waylandIntegration->display();
+    QObjectPrivate::connect(display, &QtWaylandClient::QWaylandDisplay::globalAdded, d,
+                            &QWaylandClientExtensionPrivate::globalAdded);
+    QObjectPrivate::connect(display, &QtWaylandClient::QWaylandDisplay::globalRemoved, d,
+                            &QWaylandClientExtensionPrivate::globalRemoved);
+    // This function uses virtual functions and we don't want it to be called from the constructor.
     QMetaObject::invokeMethod(this, "initialize", Qt::QueuedConnection);
 }
 
 QWaylandClientExtension::~QWaylandClientExtension()
 {
-    Q_D(QWaylandClientExtension);
-    if (d->registered && !QCoreApplication::closingDown())
-        d->waylandIntegration->display()->removeListener(&QWaylandClientExtensionPrivate::handleRegistryGlobal, this);
 }
 
 QtWaylandClient::QWaylandIntegration *QWaylandClientExtension::integration() const

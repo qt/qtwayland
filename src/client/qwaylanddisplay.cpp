@@ -634,6 +634,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
     }
 
     mGlobals.append(RegistryGlobal(id, interface, version, registry));
+    emit globalAdded(mGlobals.back());
 
     const auto copy = mRegistryListeners; // be prepared for listeners unregistering on notification
     for (Listener l : copy)
@@ -690,7 +691,7 @@ void QWaylandDisplay::registry_global_remove(uint32_t id)
                     inputDevice->setTextInputMethod(nullptr);
                 mWaylandIntegration->reconfigureInputContext();
             }
-            mGlobals.removeAt(i);
+            emit globalRemoved(mGlobals.takeAt(i));
             break;
         }
     }

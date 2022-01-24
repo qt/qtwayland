@@ -53,22 +53,23 @@
 
 #include <QtCore/private/qobject_p.h>
 #include <QtWaylandClient/QWaylandClientExtension>
+#include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QtWaylandClient/private/qwaylandintegration_p.h>
 
 QT_BEGIN_NAMESPACE
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandClientExtensionPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QWaylandClientExtension)
 public:
+    Q_DECLARE_PUBLIC(QWaylandClientExtension)
     QWaylandClientExtensionPrivate();
-    static void handleRegistryGlobal(void *data, ::wl_registry *registry, uint32_t id,
-                                     const QString &interface, uint32_t version);
+
+    void globalAdded(const QtWaylandClient::QWaylandDisplay::RegistryGlobal &global);
+    void globalRemoved(const QtWaylandClient::QWaylandDisplay::RegistryGlobal &global);
 
     QtWaylandClient::QWaylandIntegration *waylandIntegration = nullptr;
     int version = -1;
     bool active = false;
-    bool registered = false;
 };
 
 class Q_WAYLAND_CLIENT_EXPORT QWaylandClientExtensionTemplatePrivate : public QWaylandClientExtensionPrivate

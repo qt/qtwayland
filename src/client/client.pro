@@ -53,7 +53,6 @@ SOURCES +=  qwaylandintegration.cpp \
             qwaylandextendedsurface.cpp \
             qwaylandsubsurface.cpp \
             qwaylandsurface.cpp \
-            qwaylandtabletv2.cpp \
             qwaylandtouch.cpp \
             qwaylandqtkey.cpp \
             ../shared/qwaylandmimehelper.cpp \
@@ -79,7 +78,6 @@ HEADERS +=  qwaylandintegration_p.h \
             qwaylandextendedsurface_p.h \
             qwaylandsubsurface_p.h \
             qwaylandsurface_p.h \
-            qwaylandtabletv2_p.h \
             qwaylandtouch_p.h \
             qwaylandqtkey_p.h \
             qwaylandabstractdecoration_p.h \
@@ -97,6 +95,11 @@ HEADERS +=  qwaylandintegration_p.h \
 qtConfig(clipboard) {
     HEADERS += qwaylandclipboard_p.h
     SOURCES += qwaylandclipboard.cpp
+}
+
+qtConfig(tabletevent) {
+    HEADERS += qwaylandtabletv2_p.h
+    SOURCES += qwaylandtabletv2.cpp
 }
 
 include(hardwareintegration/hardwareintegration.pri)

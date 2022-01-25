@@ -101,7 +101,9 @@ class QWaylandDataDeviceManager;
 #if QT_CONFIG(wayland_client_primary_selection)
 class QWaylandPrimarySelectionDeviceManagerV1;
 #endif
+#if QT_CONFIG(tabletevent)
 class QWaylandTabletManagerV2;
+#endif
 class QWaylandPointerGestures;
 class QWaylandTouchExtension;
 class QWaylandQtKeyExtension;
@@ -168,7 +170,9 @@ public:
     QWaylandPrimarySelectionDeviceManagerV1 *primarySelectionManager() const { return mPrimarySelectionManager.data(); }
 #endif
     QtWayland::qt_surface_extension *windowExtension() const { return mWindowExtension.data(); }
+#if QT_CONFIG(tabletevent)
     QWaylandTabletManagerV2 *tabletManager() const { return mTabletManager.data(); }
+#endif
     QWaylandPointerGestures *pointerGestures() const { return mPointerGestures.data(); }
     QWaylandTouchExtension *touchExtension() const { return mTouchExtension.data(); }
     QtWayland::qt_text_input_method_manager_v1 *textInputMethodManager() const { return mTextInputMethodManager.data(); }
@@ -277,7 +281,9 @@ private:
     QScopedPointer<QWaylandTouchExtension> mTouchExtension;
     QScopedPointer<QWaylandQtKeyExtension> mQtKeyExtension;
     QScopedPointer<QWaylandWindowManagerIntegration> mWindowManagerIntegration;
+#if QT_CONFIG(tabletevent)
     QScopedPointer<QWaylandTabletManagerV2> mTabletManager;
+#endif
     QScopedPointer<QWaylandPointerGestures> mPointerGestures;
 #if QT_CONFIG(wayland_client_primary_selection)
     QScopedPointer<QWaylandPrimarySelectionDeviceManagerV1> mPrimarySelectionManager;

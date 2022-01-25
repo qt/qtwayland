@@ -90,7 +90,9 @@ class QWaylandDisplay;
 #if QT_CONFIG(wayland_client_primary_selection)
 class QWaylandPrimarySelectionDeviceV1;
 #endif
+#if QT_CONFIG(tabletevent)
 class QWaylandTabletSeatV2;
+#endif
 class QWaylandPointerGestures;
 class QWaylandPointerGestureSwipe;
 class QWaylandPointerGesturePinch;
@@ -135,8 +137,10 @@ public:
     QWaylandPrimarySelectionDeviceV1 *primarySelectionDevice() const;
 #endif
 
+#if QT_CONFIG(tabletevent)
     void setTabletSeat(QWaylandTabletSeatV2 *tabletSeat);
     QWaylandTabletSeatV2* tabletSeat() const;
+#endif
 
     void setTextInput(QWaylandTextInputInterface *textInput);
     QWaylandTextInputInterface *textInput() const;
@@ -201,7 +205,9 @@ protected:
 
     QScopedPointer<QWaylandTextInputInterface> mTextInput;
     QScopedPointer<QWaylandTextInputMethod> mTextInputMethod;
+#if QT_CONFIG(tabletevent)
     QScopedPointer<QWaylandTabletSeatV2> mTabletSeat;
+#endif
 
     uint32_t mTime = 0;
     uint32_t mSerial = 0;

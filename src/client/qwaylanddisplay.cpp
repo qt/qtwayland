@@ -75,7 +75,9 @@
 #include "qwaylandpointergestures_p.h"
 #include "qwaylandsubsurface_p.h"
 #include "qwaylandtouch_p.h"
+#if QT_CONFIG(tabletevent)
 #include "qwaylandtabletv2_p.h"
+#endif
 #include "qwaylandqtkey_p.h"
 
 #include <QtWaylandClient/private/qwayland-text-input-unstable-v2.h>
@@ -524,8 +526,10 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mTouchExtension.reset(new QWaylandTouchExtension(this, id));
     } else if (interface == QLatin1String(QWaylandQtKeyExtension::interface()->name)) {
         mQtKeyExtension.reset(new QWaylandQtKeyExtension(this, id));
+#if QT_CONFIG(tabletevent)
     } else if (interface == QLatin1String(QWaylandTabletManagerV2::interface()->name)) {
         mTabletManager.reset(new QWaylandTabletManagerV2(this, id, qMin(1, int(version))));
+#endif
     } else if (interface == QLatin1String(QWaylandPointerGestures::interface()->name)) {
         mPointerGestures.reset(new QWaylandPointerGestures(this, id, 1));
 #if QT_CONFIG(wayland_client_primary_selection)

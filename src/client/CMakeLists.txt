@@ -44,7 +44,6 @@ qt_internal_add_module(WaylandClient
         qwaylandshmwindow.cpp qwaylandshmwindow_p.h
         qwaylandsubsurface.cpp qwaylandsubsurface_p.h
         qwaylandsurface.cpp qwaylandsurface_p.h
-        qwaylandtabletv2.cpp qwaylandtabletv2_p.h
         qwaylandtouch.cpp qwaylandtouch_p.h
         qwaylandwindow.cpp qwaylandwindow_p.h
         qwaylandwindowmanagerintegration.cpp qwaylandwindowmanagerintegration_p.h
@@ -106,6 +105,11 @@ qt6_generate_wayland_protocol_client_sources(WaylandClient
 #         XKB::XKB
 # )
 # special case end
+
+qt_internal_extend_target(WaylandClient CONDITION QT_FEATURE_tabletevent
+    SOURCES
+        qwaylandtabletv2.cpp qwaylandtabletv2_p.h
+)
 
 qt_internal_extend_target(WaylandClient CONDITION QT_FEATURE_wayland_text_input_v4_wip
     SOURCES

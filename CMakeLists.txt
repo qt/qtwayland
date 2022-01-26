@@ -10,10 +10,6 @@ project(QtWayland # special case
     LANGUAGES CXX C
 )
 
-# special case begin
-# TODO: Fix warnings and remove this
-set(QT_REPO_NOT_WARNINGS_CLEAN TRUE)
-
 find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS
     BuildInternals
 )
@@ -32,7 +28,6 @@ find_package(Qt6 ${PROJECT_VERSION} QUIET CONFIG OPTIONAL_COMPONENTS
     OpenGL
     Quick
 )
-# special case end
 
 # special case begin
 # Moved above.

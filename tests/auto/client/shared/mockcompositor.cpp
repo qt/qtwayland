@@ -6,8 +6,8 @@
 
 namespace MockCompositor {
 
-DefaultCompositor::DefaultCompositor(CompositorType t)
-    : CoreCompositor(t)
+DefaultCompositor::DefaultCompositor(CompositorType t, int socketFd)
+    : CoreCompositor(t, socketFd)
 {
     {
         Lock l(this);

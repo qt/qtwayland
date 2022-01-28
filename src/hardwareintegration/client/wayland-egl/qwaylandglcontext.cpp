@@ -195,6 +195,10 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *dis
                                      const QSurfaceFormat &fmt, QPlatformOpenGLContext *share)
     : QEGLPlatformContext(fmt, share, eglDisplay), m_display(display)
 {
+    m_reconnectionWatcher = QObject::connect(m_display, &QWaylandDisplay::reconnected, [this]() {
+        invalidateContext();
+    });
+
     switch (format().renderableType()) {
     case QSurfaceFormat::OpenVG:
         m_api = EGL_OPENVG_API;
@@ -260,6 +264,7 @@ void QWaylandGLContext::destroyTemporaryOffscreenSurface(EGLSurface eglSurface)
 
 QWaylandGLContext::~QWaylandGLContext()
 {
+    QObject::disconnect(m_reconnectionWatcher);
     delete m_blitter;
     m_blitter = nullptr;
     if (m_decorationsContext != EGL_NO_CONTEXT)
@@ -280,6 +285,10 @@ void QWaylandGLContext::endFrame()
 
 bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
 {
+    if (!isValid()) {
+        return false;
+    }
+
     // in QWaylandGLContext() we called eglBindAPI with the correct value. However,
     // eglBindAPI's documentation says:
     // "eglBindAPI defines the current rendering API for EGL in the thread it is called from"

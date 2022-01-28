@@ -29,7 +29,8 @@ public:
     };
 
     CompositorType m_type = Default;
-    explicit CoreCompositor(CompositorType t = Default);
+    explicit CoreCompositor(CompositorType t = Default, int socketFd = -1);
+
     ~CoreCompositor();
     bool isClean();
     QString dirtyMessage();
@@ -178,7 +179,6 @@ protected:
         CoreCompositor *m_compositor = nullptr;
         std::thread::id m_threadId;
     };
-    QByteArray m_socketName;
     wl_event_loop *m_eventLoop = nullptr;
     bool m_running = true;
     QList<Global *> m_globals;

@@ -140,6 +140,12 @@ void QWaylandEglWindow::invalidateSurface()
     m_contentFBO = nullptr;
 }
 
+void QWaylandEglWindow::reinit()
+{
+    QWaylandWindow::reinit();
+    m_clientBufferIntegration = static_cast<QWaylandEglClientBufferIntegration *>(mDisplay->clientBufferIntegration());
+}
+
 EGLSurface QWaylandEglWindow::eglSurface() const
 {
     return m_eglSurface;

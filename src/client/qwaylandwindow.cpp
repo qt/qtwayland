@@ -291,11 +291,21 @@ void QWaylandWindow::reset()
         mFrameCallbackElapsedTimer.invalidate();
         mWaitingForFrameCallback = false;
     }
+    if (mFrameCallbackCheckIntervalTimerId != -1) {
+        killTimer(mFrameCallbackCheckIntervalTimerId);
+        mFrameCallbackCheckIntervalTimerId = -1;
+    }
+
     mFrameCallbackTimedOut = false;
     mWaitingToApplyConfigure = false;
+    mCanResize = true;
+    mResizeDirty = false;
 
+    mOpaqueArea = QRegion();
     mMask = QRegion();
+
     mQueuedBuffer = nullptr;
+    mQueuedBufferDamage = QRegion();
 
     mDisplay->handleWindowDestroyed(this);
 }
@@ -1623,6 +1633,16 @@ void QWaylandWindow::closeChildPopups() {
         popup->reset();
     }
 }
+
+void QWaylandWindow::reinit()
+{
+    if (window()->isVisible()) {
+        initWindow();
+        if (hasPendingUpdateRequest())
+            deliverUpdateRequest();
+    }
+}
+
 }
 
 QT_END_NAMESPACE

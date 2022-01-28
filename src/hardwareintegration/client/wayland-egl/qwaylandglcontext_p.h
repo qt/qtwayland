@@ -62,6 +62,7 @@ private:
     wl_surface *m_wlSurface = nullptr;
     wl_egl_window *m_eglWindow = nullptr;
     QWaylandEglWindow *m_currentWindow = nullptr;
+    QMetaObject::Connection m_reconnectionWatcher;
 };
 
 }

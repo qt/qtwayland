@@ -6,10 +6,9 @@
 
 namespace MockCompositor {
 
-CoreCompositor::CoreCompositor(CompositorType t)
+CoreCompositor::CoreCompositor(CompositorType t, int socketFd)
     : m_type(t)
     , m_display(wl_display_create())
-    , m_socketName(wl_display_add_socket_auto(m_display))
     , m_eventLoop(wl_display_get_event_loop(m_display))
 
     // Start dispatching
@@ -20,7 +19,12 @@ CoreCompositor::CoreCompositor(CompositorType t)
         }
     })
 {
-    qputenv("WAYLAND_DISPLAY", m_socketName);
+    if (socketFd == -1) {
+        QByteArray socketName = wl_display_add_socket_auto(m_display);
+        qputenv("WAYLAND_DISPLAY", socketName);
+    } else {
+        wl_display_add_socket_fd(m_display, socketFd);
+    }
     m_timer.start();
     Q_ASSERT(isClean());
 }
@@ -29,7 +33,9 @@ CoreCompositor::~CoreCompositor()
 {
     m_running = false;
     m_dispatchThread.join();
+    wl_display_destroy_clients(m_display);
     wl_display_destroy(m_display);
+    qDebug() << "cleanup";
 }
 
 bool CoreCompositor::isClean()

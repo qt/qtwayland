@@ -503,6 +503,17 @@ QWaylandShellIntegration *QWaylandIntegration::createShellIntegration(const QStr
     }
 }
 
+void QWaylandIntegration::reset()
+{
+    mServerBufferIntegration.reset();
+    mServerBufferIntegrationInitialized = false;
+
+    mInputDeviceIntegration.reset();
+
+    mClientBufferIntegration.reset();
+    mClientBufferIntegrationInitialized = false;
+}
+
 }
 
 QT_END_NAMESPACE

@@ -200,10 +200,14 @@ public slots:
     void flushRequests();
 
 signals:
+    void reconnected();
     void globalAdded(const RegistryGlobal &global);
     void globalRemoved(const RegistryGlobal &global);
 
 private:
+    void checkWaylandError();
+    void reconnect();
+    void setupConnection();
     void handleWaylandSync();
     void requestWaylandSync();
 
@@ -283,6 +287,7 @@ private:
     QList<QWaylandWindow *> mActiveWindows;
     struct wl_callback *mSyncCallback = nullptr;
     static const wl_callback_listener syncCallbackListener;
+    bool mWaylandTryReconnect = false;
 
     bool mClientSideInputContextRequested = [] () {
         const QString& requested = QPlatformInputContextFactory::requested();

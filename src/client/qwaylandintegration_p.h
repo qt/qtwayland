@@ -103,6 +103,7 @@ protected:
     QScopedPointer<QWaylandDisplay> mDisplay;
 
 protected:
+    void reset();
     virtual QPlatformNativeInterface *createPlatformNativeInterface();
 
     QScopedPointer<QWaylandClientBufferIntegration> mClientBufferIntegration;

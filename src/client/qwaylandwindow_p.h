@@ -229,6 +229,9 @@ public:
     void removeChildPopup(QWaylandWindow* child);
     void closeChildPopups();
 
+    virtual void reinit();
+    void reset();
+
 public slots:
     void applyConfigure();
 
@@ -325,8 +328,6 @@ private:
     void initializeWlSurface();
     bool shouldCreateShellSurface() const;
     bool shouldCreateSubSurface() const;
-    void reset();
-    static void closePopups(QWaylandWindow *parent);
     QPlatformScreen *calculateScreenFromSurfaceEvents() const;
     void setOpaqueArea(const QRegion &opaqueArea);
     bool isOpaque() const;

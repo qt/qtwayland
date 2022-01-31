@@ -49,7 +49,8 @@ bool TestSeat::isOwner(QInputEvent *event) const
 QList<QMouseEvent *> TestSeat::createMouseEvents(int count)
 {
     for (int i = 0; i < count; i++) {
-        m_events.append(new QMouseEvent(QEvent::MouseMove, QPointF(10 + i, 10 + i), Qt::NoButton, Qt::NoButton, Qt::NoModifier));
+        m_events.append(new QMouseEvent(QEvent::MouseMove, QPointF(10 + i, 10 + i),
+                                        QPointF(10 + i, 10 + i), Qt::NoButton, Qt::NoButton, Qt::NoModifier));
     }
     return m_events;
 }

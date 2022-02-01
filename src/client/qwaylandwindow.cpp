@@ -715,12 +715,9 @@ void QWaylandWindow::handleFrameCallback()
     mFrameCallbackElapsedTimer.invalidate();
 
     // The rest can wait until we can run it on the correct thread
-    if (!mWaitingForUpdateDelivery) {
-        // Queued connection, to make sure we don't call handleUpdate() from inside waitForFrameSync()
-        // in the single-threaded case.
-        mWaitingForUpdateDelivery = true;
-        QMetaObject::invokeMethod(this, &QWaylandWindow::doHandleFrameCallback, Qt::QueuedConnection);
-    }
+    // Queued connection, to make sure we don't call handleUpdate() from inside waitForFrameSync()
+    // in the single-threaded case.
+    QMetaObject::invokeMethod(this, &QWaylandWindow::doHandleFrameCallback, Qt::QueuedConnection);
 
     mFrameSyncWait.notify_all();
 }
@@ -733,8 +730,6 @@ void QWaylandWindow::doHandleFrameCallback()
         sendExposeEvent(QRect(QPoint(), geometry().size()));
     if (wasExposed && hasPendingUpdateRequest())
         deliverUpdateRequest();
-
-    mWaitingForUpdateDelivery = false;
 }
 
 bool QWaylandWindow::waitForFrameSync(int timeout)

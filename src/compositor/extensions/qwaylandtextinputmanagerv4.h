@@ -54,7 +54,8 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandTextInputManagerV4 : public QWaylandCo
     Q_DECLARE_PRIVATE(QWaylandTextInputManagerV4)
 public:
     QWaylandTextInputManagerV4();
-    QWaylandTextInputManagerV4(QWaylandCompositor *compositor);
+    explicit QWaylandTextInputManagerV4(QWaylandCompositor *compositor);
+    ~QWaylandTextInputManagerV4() override;
 
     void initialize() override;
 

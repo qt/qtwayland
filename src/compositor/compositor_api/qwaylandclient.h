@@ -93,8 +93,6 @@ public Q_SLOTS:
 
 private:
     explicit QWaylandClient(QWaylandCompositor *compositor, wl_client *client);
-
-    TextInputProtocols mTextInputProtocols;
 };
 
 QT_END_NAMESPACE

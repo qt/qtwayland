@@ -115,6 +115,10 @@ QWaylandTextInputManagerV4::QWaylandTextInputManagerV4(QWaylandCompositor *compo
 {
 }
 
+QWaylandTextInputManagerV4::~QWaylandTextInputManagerV4()
+{
+}
+
 void QWaylandTextInputManagerV4::initialize()
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;

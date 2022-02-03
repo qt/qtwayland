@@ -253,7 +253,11 @@ protected:
     QMargins clientSideMargins() const;
 
     QWaylandDisplay *mDisplay = nullptr;
+
+    // mSurface can be written by the main thread. Other threads should claim a read lock for access
+    mutable QReadWriteLock mSurfaceLock;
     QScopedPointer<QWaylandSurface> mSurface;
+
     QWaylandShellSurface *mShellSurface = nullptr;
     QWaylandSubSurface *mSubSurfaceWindow = nullptr;
     QList<QWaylandSubSurface *> mChildren;
@@ -342,8 +346,6 @@ private:
     void handleFrameCallback();
 
     static QWaylandWindow *mMouseGrab;
-
-    mutable QReadWriteLock mSurfaceLock;
 
     friend class QWaylandSubSurface;
 };

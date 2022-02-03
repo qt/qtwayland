@@ -372,11 +372,12 @@ void QWaylandWindow::setGeometry(const QRect &rect)
         if (mWindowDecorationEnabled)
             mWindowDecoration->update();
 
-        if (mResizeAfterSwap && windowType() == Egl && mSentInitialResize)
+        if (mResizeAfterSwap && windowType() == Egl && mSentInitialResize) {
+            QMutexLocker lock(&mResizeLock);
             mResizeDirty = true;
-        else
+        } else {
             QWindowSystemInterface::handleGeometryChange(window(), geometry());
-
+        }
         mSentInitialResize = true;
     }
     QRect exposeGeometry(QPoint(), geometry().size());

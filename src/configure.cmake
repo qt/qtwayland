@@ -43,6 +43,18 @@ if(LINUX OR QT_FIND_ALL_PACKAGES_ALWAYS)
     if(NOT TARGET XKB::XKB)
         qt_find_package(XKB 0.5.0 PROVIDED_TARGETS XKB::XKB MODULE_NAME gui QMAKE_LIB xkbcommon MARK_OPTIONAL)
     endif()
+    # EGL
+    if(NOT TARGET EGL::EGL)
+        qt_find_package(EGL PROVIDED_TARGETS EGL::EGL MODULE_NAME gui QMAKE_LIB egl MARK_OPTIONAL)
+    endif()
+    # and Libdrm
+    if(NOT TARGET Libdrm::Libdrm)
+        qt_find_package(Libdrm
+            PROVIDED_TARGETS Libdrm::Libdrm
+            MODULE_NAME gui
+            QMAKE_LIB drm
+            MARK_OPTIONAL)
+    endif()
 endif()
 
 
@@ -129,6 +141,8 @@ return 1;
 # vulkan-server-buffer
 qt_config_compile_test(vulkan_server_buffer
     LABEL "Vulkan Buffer Sharing"
+    LIBRARIES
+    Wayland::Client
     CODE
     "#define VK_USE_PLATFORM_WAYLAND_KHR 1
 #include <vulkan/vulkan.h>
@@ -151,6 +165,7 @@ qt_config_compile_test(egl_1_5_wayland
     LABEL "EGL 1.5 with Wayland Platform"
     LIBRARIES
     EGL::EGL
+    Wayland::Client
     CODE
     "
 #include <EGL/egl.h>

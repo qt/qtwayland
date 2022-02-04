@@ -952,7 +952,7 @@ bool QWaylandWindow::createDecoration()
             QMargins m = frameMargins();
             subsurf->set_position(pos.x() + m.left(), pos.y() + m.top());
         }
-        sendExposeEvent(QRect(QPoint(), geometry().size()));
+        setGeometry(geometry());
 
         // This is a special case where the buffer is recreated, but since
         // the content rect remains the same, the widgets remain the same

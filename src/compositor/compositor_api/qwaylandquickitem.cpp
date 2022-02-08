@@ -145,8 +145,8 @@ static const struct {
 };
 
 QWaylandBufferMaterialShader::QWaylandBufferMaterialShader(QWaylandBufferRef::BufferFormatEgl format)
-    : m_format(format)
 {
+    Q_UNUSED(format);
     setShaderFileName(VertexStage, QString::fromLatin1(bufferTypes[format].vertexShaderSourceFile));
     auto fragmentShaderSourceFile = QString::fromLatin1(bufferTypes[format].fragmentShaderSourceFile);
 

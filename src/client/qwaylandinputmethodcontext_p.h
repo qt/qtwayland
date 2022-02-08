@@ -103,8 +103,6 @@ public:
     void sendInputState(QInputMethodQueryEvent *state, Qt::InputMethodQueries queries = Qt::ImQueryInput);
 
 private:
-    QWaylandDisplay *m_display;
-
     QHash<int, QList<QInputMethodEvent::Attribute> > m_pendingInputMethodEvents;
     QHash<int,int> m_offsetFromCompositor;
 

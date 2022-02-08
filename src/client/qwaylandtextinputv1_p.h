@@ -121,7 +121,6 @@ protected:
 private:
     Qt::KeyboardModifiers modifiersToQtModifiers(uint32_t modifiers);
 
-    QWaylandDisplay *m_display = nullptr;
     QWaylandInputMethodEventBuilder m_builder;
 
     QList<Qt::KeyboardModifier> m_modifiersMap;

@@ -900,7 +900,7 @@ bool QWaylandDisplay::isKeyboardAvailable() const
 {
     return std::any_of(
             mInputDevices.constBegin(), mInputDevices.constEnd(),
-            [this](const QWaylandInputDevice *device) { return device->keyboard() != nullptr; });
+            [](const QWaylandInputDevice *device) { return device->keyboard() != nullptr; });
 }
 
 #if QT_CONFIG(cursor)

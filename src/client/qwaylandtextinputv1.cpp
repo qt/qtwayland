@@ -73,8 +73,8 @@ const Qt::InputMethodQueries supportedQueries = Qt::ImEnabled |
 
 QWaylandTextInputv1::QWaylandTextInputv1(QWaylandDisplay *display, struct ::zwp_text_input_v1 *text_input)
     : QtWayland::zwp_text_input_v1(text_input)
-    , m_display(display)
 {
+    Q_UNUSED(display);
 }
 
 QWaylandTextInputv1::~QWaylandTextInputv1()

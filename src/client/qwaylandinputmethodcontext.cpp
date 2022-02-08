@@ -55,8 +55,8 @@ static constexpr int maxStringSize = 1000; // actual max is 4096/3
 
 QWaylandTextInputMethod::QWaylandTextInputMethod(QWaylandDisplay *display, struct ::qt_text_input_method_v1 *textInputMethod)
     : QtWayland::qt_text_input_method_v1(textInputMethod)
-    , m_display(display)
 {
+    Q_UNUSED(display);
 }
 
 QWaylandTextInputMethod::~QWaylandTextInputMethod()

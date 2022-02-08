@@ -65,9 +65,6 @@ public:
     void updateSampledImage(RenderState &state, int binding, QSGTexture **texture,
                             QSGMaterial *newMaterial, QSGMaterial *oldMaterial) override;
     void setupExternalOESShader(const QString &shaderFilename);
-
-private:
-    const QWaylandBufferRef::BufferFormatEgl m_format;
 };
 
 class QWaylandBufferMaterial : public QSGMaterial

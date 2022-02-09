@@ -216,6 +216,9 @@ protected:
         // Make the main thread call wl_prepare_read(), dispatch the pending messages and flush the
         // outbound ones. Wait until it's done before proceeding, unless we're told to quit.
         while (waitForReading()) {
+            if (!m_reading.loadRelaxed())
+                break;
+
             pollfd fds[2] = { { m_fd, POLLIN, 0 }, { m_pipefd[0], POLLIN, 0 } };
             poll(fds, 2, -1);
 

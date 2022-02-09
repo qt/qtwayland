@@ -728,50 +728,9 @@ uint32_t QWaylandDisplay::currentTimeMillisec()
     return 0;
 }
 
-static void
-sync_callback(void *data, struct wl_callback *callback, uint32_t serial)
-{
-    Q_UNUSED(serial);
-    bool *done = static_cast<bool *>(data);
-
-    *done = true;
-
-    // If the wl_callback done event is received after the condition check in the while loop in
-    // forceRoundTrip(), but before the call to processEvents, the call to processEvents may block
-    // forever if no more events are posted (eventhough the callback is handled in response to the
-    // aboutToBlock signal). Hence, we wake up the event dispatcher so forceRoundTrip may return.
-    // (QTBUG-64696)
-    if (auto *dispatcher = QThread::currentThread()->eventDispatcher())
-        dispatcher->wakeUp();
-
-    wl_callback_destroy(callback);
-}
-
-static const struct wl_callback_listener sync_listener = {
-    sync_callback
-};
-
 void QWaylandDisplay::forceRoundTrip()
 {
-    // wl_display_roundtrip() works on the main queue only,
-    // but we use a separate one, so basically reimplement it here
-    int ret = 0;
-    bool done = false;
-    wl_callback *callback = wl_display_sync(mDisplay);
-    wl_callback_add_listener(callback, &sync_listener, &done);
-    flushRequests();
-    if (QThread::currentThread()->eventDispatcher()) {
-        while (!done && ret >= 0) {
-            QThread::currentThread()->eventDispatcher()->processEvents(QEventLoop::WaitForMoreEvents);
-            ret = wl_display_dispatch_pending(mDisplay);
-        }
-    } else {
-        while (!done && ret >= 0)
-            ret = wl_display_dispatch(mDisplay);
-    }
-
-    if (ret == -1 && !done)
-        wl_callback_destroy(callback);
+     wl_display_roundtrip(mDisplay);
 }
 
 bool QWaylandDisplay::supportsWindowDecoration() const

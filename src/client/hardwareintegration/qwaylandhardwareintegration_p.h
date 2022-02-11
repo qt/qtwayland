@@ -53,6 +53,7 @@
 
 #include <QtWaylandClient/private/qwayland-hardware-integration.h>
 #include <QtWaylandClient/qtwaylandclientglobal.h>
+#include <QtCore/private/qglobal_p.h>
 
 QT_BEGIN_NAMESPACE
 

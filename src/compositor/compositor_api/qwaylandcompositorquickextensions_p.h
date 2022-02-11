@@ -49,6 +49,7 @@
 #include <QtWaylandCompositor/qwaylandquickcompositor.h>
 #include <QtWaylandCompositor/qwaylandqtwindowmanager.h>
 #include <QtWaylandCompositor/qwaylandtextinputmanager.h>
+#include <QtCore/private/qglobal_p.h>
 #if QT_WAYLAND_TEXT_INPUT_V4_WIP
 #include <QtWaylandCompositor/qwaylandtextinputmanagerv4.h>
 #endif // QT_WAYLAND_TEXT_INPUT_V4_WIP

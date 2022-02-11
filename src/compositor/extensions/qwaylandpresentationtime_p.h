@@ -32,6 +32,7 @@
 
 #include <QObject>
 #include <QtWaylandCompositor/qwaylandcompositorextension.h>
+#include <QtCore/private/qglobal_p.h>
 
 QT_BEGIN_NAMESPACE
 

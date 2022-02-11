@@ -31,6 +31,7 @@
 #define QWAYLANDOUTPUTMODE_P_H
 
 #include <QtWaylandCompositor/QWaylandOutput>
+#include <QtCore/private/qglobal_p.h>
 
 //
 //  W A R N I N G

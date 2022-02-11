@@ -53,6 +53,7 @@
 
 #include <QtCore/qlocale.h>
 #include <QtCore/qrect.h>
+#include <QtCore/private/qglobal_p.h>
 
 struct wl_surface;
 

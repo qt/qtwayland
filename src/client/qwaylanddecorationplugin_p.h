@@ -56,6 +56,7 @@
 #include <QtCore/qplugin.h>
 #include <QtCore/qfactoryinterface.h>
 #include <QtCore/QObject>
+#include <QtCore/private/qglobal_p.h>
 
 QT_BEGIN_NAMESPACE
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -44,6 +44,7 @@
 #include <QtWaylandCompositor/private/qwayland-server-touch-extension.h>
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandCompositorExtensionTemplate>
+#include <QtCore/private/qglobal_p.h>
 
 #include <wayland-util.h>
 

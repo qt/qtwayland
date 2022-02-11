@@ -57,6 +57,7 @@
 
 
 #include <QDebug>
+#include <private/qglobal_p.h>
 
 struct wl_surface;
 struct wl_registry;

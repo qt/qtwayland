@@ -54,6 +54,7 @@
 #include <QtGui/QScreen>
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
+#include <QtCore/private/qglobal_p.h>
 
 QT_BEGIN_NAMESPACE
 

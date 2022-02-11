@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 The Qt Company Ltd.
+** Copyright (C) 2021 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -55,6 +55,7 @@
 #include <QtWaylandClient/private/qwayland-wayland.h>
 #include <QtWaylandClient/qwaylandclientextension.h>
 #include "qwayland-qt-texture-sharing-unstable-v1.h"
+#include "private/qglobal_p.h"
 
 QT_BEGIN_NAMESPACE
 

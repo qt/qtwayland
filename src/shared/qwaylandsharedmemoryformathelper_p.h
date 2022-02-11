@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the plugins of the Qt Toolkit.
@@ -41,6 +41,7 @@
 #define QWAYLANDSHAREDMEMORYFORMATHELPER_H
 
 #include <QtGui/QImage>
+#include <QtCore/private/qglobal_p.h>
 
 //the correct protocol header for the wayland server or wayland client has to be
 //included before this file is included

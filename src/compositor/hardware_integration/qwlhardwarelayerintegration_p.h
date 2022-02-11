@@ -44,6 +44,7 @@
 #include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 
 #include <QObject>
+#include <private/qglobal_p.h>
 
 QT_BEGIN_NAMESPACE
 

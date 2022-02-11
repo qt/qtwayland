@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
+** Copyright (C) 2020 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the QtWaylandCompositor module of the Qt Toolkit.
@@ -45,6 +45,7 @@
 #include <QtWaylandCompositor/qwaylandsurface.h>
 #include <QtWaylandCompositor/qwaylandbufferref.h>
 #include <QtCore/QSize>
+#include <QtCore/private/qglobal_p.h>
 #include <wayland-server-core.h>
 
 QT_BEGIN_NAMESPACE

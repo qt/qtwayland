@@ -172,6 +172,7 @@ public: //member variables
     bool destroyed = false;
     bool hasContent = false;
     bool isInitialized = false;
+    bool isOpaque = false;
     Qt::ScreenOrientation contentOrientation = Qt::PrimaryOrientation;
     QWindow::Visibility visibility;
 #if QT_CONFIG(im)

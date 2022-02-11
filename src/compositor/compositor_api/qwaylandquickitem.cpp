@@ -372,7 +372,7 @@ void QWaylandBufferMaterial::setBufferRef(QWaylandQuickItem *surfaceItem, const 
         if (auto texture = ref.toOpenGLTexture(plane)) {
             QQuickWindow::CreateTextureOptions opt;
             QWaylandQuickSurface *waylandSurface = qobject_cast<QWaylandQuickSurface *>(surfaceItem->surface());
-            if (waylandSurface != nullptr && waylandSurface->useTextureAlpha())
+            if (waylandSurface != nullptr && waylandSurface->useTextureAlpha() && !waylandSurface->isOpaque())
                 opt |= QQuickWindow::TextureHasAlphaChannel;
             QSGTexture *scenegraphTexture;
             if (ref.bufferFormatEgl() == QWaylandBufferRef::BufferFormatEgl_EXTERNAL_OES) {
@@ -422,7 +422,7 @@ public:
 #if QT_CONFIG(opengl)
                 QQuickWindow::CreateTextureOptions opt;
                 QWaylandQuickSurface *surface = qobject_cast<QWaylandQuickSurface *>(surfaceItem->surface());
-                if (surface && surface->useTextureAlpha()) {
+                if (surface && surface->useTextureAlpha()  && !surface->isOpaque()) {
                     opt |= QQuickWindow::TextureHasAlphaChannel;
                 }
 

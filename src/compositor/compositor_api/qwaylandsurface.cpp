@@ -257,6 +257,7 @@ void QWaylandSurfacePrivate::surface_commit(Resource *)
     QSize surfaceSize = bufferSize / bufferScale;
     sourceGeometry = !pending.sourceGeometry.isValid() ? QRect(QPoint(), surfaceSize) : pending.sourceGeometry;
     destinationSize = pending.destinationSize.isEmpty() ? sourceGeometry.size().toSize() : pending.destinationSize;
+    QRect destinationRect(QPoint(), destinationSize);
     if (!pending.damageInBufferCoordinates || pending.bufferScale == 1) {
         // pending.damage is already in surface coordinates
         damage = pending.damage.intersected(QRect(QPoint(), destinationSize));
@@ -272,13 +273,19 @@ void QWaylandSurfacePrivate::surface_commit(Resource *)
         };
         damage = {};
         for (const QRect &r : pending.damage) {
-            damage |= xform(r, bufferScale).intersected(QRect{{}, destinationSize});
+            damage |= xform(r, bufferScale).intersected(destinationRect);
         }
     }
     hasContent = bufferRef.hasContent();
     frameCallbacks << pendingFrameCallbacks;
-    inputRegion = pending.inputRegion.intersected(QRect(QPoint(), destinationSize));
-    opaqueRegion = pending.opaqueRegion.intersected(QRect(QPoint(), destinationSize));
+    inputRegion = pending.inputRegion.intersected(destinationRect);
+    opaqueRegion = pending.opaqueRegion.intersected(destinationRect);
+    bool becameOpaque = opaqueRegion.boundingRect().contains(destinationRect);
+    if (becameOpaque != isOpaque) {
+        isOpaque = becameOpaque;
+        emit q->isOpaqueChanged();
+    }
+
     QPoint offsetForNextFrame = pending.offset;
 
     if (viewport)
@@ -855,6 +862,27 @@ bool QWaylandSurface::inhibitsIdle() const
 {
     Q_D(const QWaylandSurface);
     return !d->idleInhibitors.isEmpty();
+}
+
+/*!
+ *  \qmlproperty bool QtWaylandCompositor::WaylandSurface::isOpaque
+ *  \since 6.4
+ *
+ *  This property holds whether the surface is fully opaque, as reported by the
+ *  client through the set_opaque_region request.
+ */
+
+/*!
+ *  \property bool QWaylandSurface::isOpaque
+ *  \since 6.4
+ *
+ *  This property holds whether the surface is fully opaque, as reported by the
+ *  client through the set_opaque_region request.
+ */
+bool QWaylandSurface::isOpaque() const
+{
+    Q_D(const QWaylandSurface);
+    return d->isOpaque;
 }
 
 #if QT_CONFIG(im)

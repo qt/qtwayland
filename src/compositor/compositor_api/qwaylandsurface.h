@@ -78,6 +78,7 @@ class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandSurface : public QWaylandObject
     Q_PROPERTY(bool hasContent READ hasContent NOTIFY hasContentChanged)
     Q_PROPERTY(bool cursorSurface READ isCursorSurface WRITE markAsCursorSurface NOTIFY cursorSurfaceChanged)
     Q_PROPERTY(bool inhibitsIdle READ inhibitsIdle NOTIFY inhibitsIdleChanged REVISION(1, 14))
+    Q_PROPERTY(bool isOpaque READ isOpaque NOTIFY isOpaqueChanged REVISION(6, 4))
     Q_MOC_INCLUDE("qwaylanddrag.h")
     Q_MOC_INCLUDE("qwaylandcompositor.h")
 
@@ -138,6 +139,7 @@ public:
     bool isCursorSurface() const;
 
     bool inhibitsIdle() const;
+    bool isOpaque() const;
 
 #if QT_CONFIG(im)
     QWaylandInputMethodControl *inputMethodControl() const;
@@ -170,6 +172,7 @@ Q_SIGNALS:
     void dragStarted(QWaylandDrag *drag);
     void cursorSurfaceChanged();
     Q_REVISION(14) void inhibitsIdleChanged();
+    Q_REVISION(6, 4) void isOpaqueChanged();
 
     void configure(bool hasBuffer);
     void redraw();

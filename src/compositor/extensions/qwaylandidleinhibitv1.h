@@ -36,7 +36,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandIdleInhibitManagerV1Private;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandIdleInhibitManagerV1 : public QWaylandCompositorExtensionTemplate<QWaylandIdleInhibitManagerV1>
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandIdleInhibitManagerV1 : public QWaylandCompositorExtensionTemplate<QWaylandIdleInhibitManagerV1>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandIdleInhibitManagerV1)

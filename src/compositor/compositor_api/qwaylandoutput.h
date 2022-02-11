@@ -51,7 +51,7 @@ class QWaylandSurface;
 class QWaylandView;
 class QWaylandClient;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandOutput : public QWaylandObject
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandOutput : public QWaylandObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandOutput)

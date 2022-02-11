@@ -44,7 +44,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandClientPrivate;
 class QWaylandCompositor;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandClient : public QObject
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandClient : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandClient)

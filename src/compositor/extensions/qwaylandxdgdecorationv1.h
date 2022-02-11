@@ -37,7 +37,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandXdgDecorationManagerV1Private;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgDecorationManagerV1 : public QWaylandCompositorExtensionTemplate<QWaylandXdgDecorationManagerV1>
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandXdgDecorationManagerV1 : public QWaylandCompositorExtensionTemplate<QWaylandXdgDecorationManagerV1>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandXdgDecorationManagerV1)

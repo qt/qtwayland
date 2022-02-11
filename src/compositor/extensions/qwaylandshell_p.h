@@ -46,7 +46,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShellPrivate : public QWaylandCompositorExtensionPrivate
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandShellPrivate : public QWaylandCompositorExtensionPrivate
 {
     Q_DECLARE_PUBLIC(QWaylandShell)
 public:

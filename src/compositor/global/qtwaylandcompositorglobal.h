@@ -43,23 +43,10 @@
 
 #include <QtGui/qtguiglobal.h>
 #include <QtWaylandCompositor/qtwaylandcompositor-config.h>
-
-QT_BEGIN_NAMESPACE
-
-#if !defined(Q_WAYLAND_COMPOSITOR_EXPORT)
-#  if defined(QT_SHARED) && defined(QT_BUILD_COMPOSITOR_LIB)
-#    define Q_WAYLAND_COMPOSITOR_EXPORT Q_DECL_EXPORT
-#  elif defined(QT_SHARED)
-#    define Q_WAYLAND_COMPOSITOR_EXPORT Q_DECL_IMPORT
-#  else
-#    define Q_WAYLAND_COMPOSITOR_EXPORT
-#  endif
-#endif
-
-QT_END_NAMESPACE
+#include <QtWaylandCompositor/qtwaylandcompositorexports.h>
 
 #if QT_CONFIG(wayland_compositor_quick)
-void Q_WAYLAND_COMPOSITOR_EXPORT qml_register_types_QtWayland_Compositor();
+void Q_WAYLANDCOMPOSITOR_EXPORT qml_register_types_QtWayland_Compositor();
 #endif
 
 #endif // QWAYLANDCOMPOSITORGLOBAL_H

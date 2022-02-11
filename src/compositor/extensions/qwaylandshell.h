@@ -37,7 +37,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandShellPrivate;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShell : public QWaylandCompositorExtension
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandShell : public QWaylandCompositorExtension
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandShell)
@@ -68,7 +68,7 @@ protected:
 };
 
 template <typename T>
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShellTemplate : public QWaylandShell
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandShellTemplate : public QWaylandShell
 {
 public:
     QWaylandShellTemplate()

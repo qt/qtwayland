@@ -47,7 +47,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandQuickHardwareLayerPrivate;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickHardwareLayer : public QObject, public QQmlParserStatus
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQuickHardwareLayer : public QObject, public QQmlParserStatus
 {
     Q_OBJECT
     Q_INTERFACES(QQmlParserStatus)

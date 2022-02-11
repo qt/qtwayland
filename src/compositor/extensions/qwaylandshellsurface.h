@@ -38,7 +38,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandQuickShellIntegration;
 class QWaylandQuickShellSurfaceItem;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShellSurface : public QWaylandCompositorExtension
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandShellSurface : public QWaylandCompositorExtension
 {
     Q_OBJECT
     Q_PROPERTY(Qt::WindowType windowType READ windowType NOTIFY windowTypeChanged)
@@ -61,7 +61,7 @@ Q_SIGNALS:
 };
 
 template <typename T>
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandShellSurfaceTemplate : public QWaylandShellSurface
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandShellSurfaceTemplate : public QWaylandShellSurface
 {
 public:
     QWaylandShellSurfaceTemplate(QWaylandObject *container = nullptr)

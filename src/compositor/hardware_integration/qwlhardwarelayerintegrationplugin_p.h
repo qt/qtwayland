@@ -54,7 +54,7 @@ class HardwareLayerIntegration;
 
 #define QtWaylandHardwareLayerIntegrationFactoryInterface_iid "org.qt-project.Qt.Compositor.QtWaylandHardwareLayerIntegrationFactoryInterface.5.11"
 
-class Q_WAYLAND_COMPOSITOR_EXPORT HardwareLayerIntegrationPlugin : public QObject
+class Q_WAYLANDCOMPOSITOR_EXPORT HardwareLayerIntegrationPlugin : public QObject
 {
     Q_OBJECT
 public:

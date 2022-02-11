@@ -55,7 +55,7 @@ class QOpenGLTexture;
 namespace QtWayland {
 class Display;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT ClientBufferIntegration
+class Q_WAYLANDCOMPOSITOR_EXPORT ClientBufferIntegration
 {
 public:
     ClientBufferIntegration();

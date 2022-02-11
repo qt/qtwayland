@@ -69,7 +69,7 @@ namespace QtWayland {
 class QWindowSystemEventHandler;
 class QWaylandSurface;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositorPrivate : public QObjectPrivate, public QtWaylandServer::wl_compositor, public QtWaylandServer::wl_subcompositor
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandCompositorPrivate : public QObjectPrivate, public QtWaylandServer::wl_compositor, public QtWaylandServer::wl_subcompositor
 {
 public:
     static QWaylandCompositorPrivate *get(QWaylandCompositor *compositor) { return compositor->d_func(); }

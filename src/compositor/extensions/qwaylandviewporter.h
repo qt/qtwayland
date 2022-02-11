@@ -36,7 +36,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandViewporterPrivate;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandViewporter
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandViewporter
         : public QWaylandCompositorExtensionTemplate<QWaylandViewporter>
 {
     Q_OBJECT

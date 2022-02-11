@@ -39,7 +39,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandKeymapPrivate;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandKeymap : public QObject
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandKeymap : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandKeymap)

@@ -60,7 +60,7 @@ class QImage;
 namespace QtWayland {
 class Display;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT ServerBuffer
+class Q_WAYLANDCOMPOSITOR_EXPORT ServerBuffer
 {
 public:
     enum Format {
@@ -87,7 +87,7 @@ protected:
     Format m_format;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT ServerBufferIntegration
+class Q_WAYLANDCOMPOSITOR_EXPORT ServerBufferIntegration
 {
 public:
     ServerBufferIntegration();

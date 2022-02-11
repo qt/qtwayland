@@ -57,7 +57,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellPrivate
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandWlShellPrivate
                                         : public QWaylandShellPrivate
                                         , public QtWaylandServer::wl_shell
 {
@@ -75,7 +75,7 @@ protected:
     QList<QWaylandWlShellSurface *> m_shellSurfaces;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellSurfacePrivate
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandWlShellSurfacePrivate
                                         : public QWaylandCompositorExtensionPrivate
                                         , public QtWaylandServer::wl_shell_surface
 {

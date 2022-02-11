@@ -45,7 +45,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandOutputModePrivate
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandOutputModePrivate
 {
 public:
     QWaylandOutputModePrivate() {}

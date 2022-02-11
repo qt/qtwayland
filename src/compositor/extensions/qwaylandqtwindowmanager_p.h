@@ -50,7 +50,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQtWindowManagerPrivate
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQtWindowManagerPrivate
         : public QWaylandCompositorExtensionPrivate
         , public QtWaylandServer::qt_windowmanager
 {

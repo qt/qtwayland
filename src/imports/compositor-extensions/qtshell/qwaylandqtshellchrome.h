@@ -36,7 +36,7 @@
 QT_BEGIN_NAMESPACE
 
 class QWaylandQtShellChromePrivate;
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQtShellChrome : public QQuickItem
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQtShellChrome : public QQuickItem
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandQtShellChrome)

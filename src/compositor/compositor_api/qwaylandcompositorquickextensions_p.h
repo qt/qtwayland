@@ -57,7 +57,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickCompositorQuickExtensionContainer : public QWaylandQuickCompositor
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQuickCompositorQuickExtensionContainer : public QWaylandQuickCompositor
 {
     Q_OBJECT
     Q_PROPERTY(QQmlListProperty<QWaylandCompositorExtension> extensions READ extensions)

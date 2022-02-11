@@ -74,7 +74,7 @@ class InputMethod;
 
 }
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSeatPrivate : public QObjectPrivate, public QtWaylandServer::wl_seat
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandSeatPrivate : public QObjectPrivate, public QtWaylandServer::wl_seat
 {
 public:
     Q_DECLARE_PUBLIC(QWaylandSeat)

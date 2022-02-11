@@ -38,7 +38,7 @@ QT_BEGIN_NAMESPACE
 class QQuickWindow;
 class QWaylandPresentationTimePrivate;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandPresentationTime : public QWaylandCompositorExtensionTemplate<QWaylandPresentationTime>
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandPresentationTime : public QWaylandCompositorExtensionTemplate<QWaylandPresentationTime>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandPresentationTime)

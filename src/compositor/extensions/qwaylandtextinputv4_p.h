@@ -83,7 +83,7 @@ public:
     Qt::InputMethodQueries changedState;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandTextInputV4Private : public QWaylandCompositorExtensionPrivate, public QtWaylandServer::zwp_text_input_v4
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandTextInputV4Private : public QWaylandCompositorExtensionPrivate, public QtWaylandServer::zwp_text_input_v4
 {
     Q_DECLARE_PUBLIC(QWaylandTextInputV4)
 public:

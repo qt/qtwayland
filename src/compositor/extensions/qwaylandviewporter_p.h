@@ -50,7 +50,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandSurface;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandViewporterPrivate
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandViewporterPrivate
         : public QWaylandCompositorExtensionPrivate
         , public QtWaylandServer::wp_viewporter
 {
@@ -58,7 +58,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandViewporterPrivate
 public:
     explicit QWaylandViewporterPrivate() = default;
 
-    class Q_WAYLAND_COMPOSITOR_EXPORT Viewport
+    class Q_WAYLANDCOMPOSITOR_EXPORT Viewport
             : public QtWaylandServer::wp_viewport
     {
     public:

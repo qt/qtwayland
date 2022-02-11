@@ -40,7 +40,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandIviApplicationPrivate;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandIviApplication : public QWaylandCompositorExtensionTemplate<QWaylandIviApplication>
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandIviApplication : public QWaylandCompositorExtensionTemplate<QWaylandIviApplication>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandIviApplication)

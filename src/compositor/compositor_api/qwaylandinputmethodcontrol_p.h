@@ -57,7 +57,7 @@ class QWaylandTextInputV4;
 #endif // QT_WAYLAND_TEXT_INPUT_V4_WIP
 class QWaylandQtTextInputMethod;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandInputMethodControlPrivate : public QObjectPrivate
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandInputMethodControlPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QWaylandInputMethodControl)
 

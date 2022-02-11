@@ -42,7 +42,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandQuickCompositor;
 class QQuickWindow;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickOutput : public QWaylandOutput, public QQmlParserStatus
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQuickOutput : public QWaylandOutput, public QQmlParserStatus
 {
     Q_INTERFACES(QQmlParserStatus)
     Q_OBJECT

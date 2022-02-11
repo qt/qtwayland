@@ -38,7 +38,7 @@ struct wl_resource;
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandResource
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandResource
 {
     Q_GADGET
     QML_NAMED_ELEMENT(waylandresource)

@@ -67,7 +67,7 @@ namespace QtWayland
 class QWaylandTextureSharingExtension;
 class SharedTextureImageResponse;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSharedTextureProvider : public QQuickAsyncImageProvider
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandSharedTextureProvider : public QQuickAsyncImageProvider
 {
 public:
     QWaylandSharedTextureProvider();
@@ -80,7 +80,7 @@ private:
     QList<SharedTextureImageResponse*> m_pendingResponses;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandTextureSharingExtension
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandTextureSharingExtension
     : public QWaylandCompositorExtensionTemplate<QWaylandTextureSharingExtension>
     , public QtWaylandServer::zqt_texture_sharing_v1
 {

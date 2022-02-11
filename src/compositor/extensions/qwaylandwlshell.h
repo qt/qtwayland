@@ -49,7 +49,7 @@ class QWaylandOutput;
 class QWaylandSurfaceRole;
 class QWaylandWlShellSurface;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShell : public QWaylandShellTemplate<QWaylandWlShell>
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandWlShell : public QWaylandShellTemplate<QWaylandWlShell>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandWlShell)
@@ -74,7 +74,7 @@ Q_SIGNALS:
     void wlShellSurfaceCreated(QWaylandWlShellSurface *shellSurface);
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandWlShellSurface : public QWaylandShellSurfaceTemplate<QWaylandWlShellSurface>
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandWlShellSurface : public QWaylandShellSurfaceTemplate<QWaylandWlShellSurface>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandWlShellSurface)

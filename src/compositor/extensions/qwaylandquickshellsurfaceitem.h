@@ -40,7 +40,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandQuickShellSurfaceItemPrivate;
 class QWaylandShellSurface;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellSurfaceItem : public QWaylandQuickItem
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQuickShellSurfaceItem : public QWaylandQuickItem
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandQuickShellSurfaceItem)

@@ -54,7 +54,7 @@ class ClientBufferIntegration;
 
 #define QtWaylandClientBufferIntegrationFactoryInterface_iid "org.qt-project.Qt.WaylandCompositor.QtWaylandClientBufferIntegrationFactoryInterface.5.3"
 
-class Q_WAYLAND_COMPOSITOR_EXPORT ClientBufferIntegrationPlugin : public QObject
+class Q_WAYLANDCOMPOSITOR_EXPORT ClientBufferIntegrationPlugin : public QObject
 {
     Q_OBJECT
 public:

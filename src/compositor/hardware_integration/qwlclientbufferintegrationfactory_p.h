@@ -50,7 +50,7 @@ namespace QtWayland {
 
 class ClientBufferIntegration;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT ClientBufferIntegrationFactory
+class Q_WAYLANDCOMPOSITOR_EXPORT ClientBufferIntegrationFactory
 {
 public:
     static QStringList keys();

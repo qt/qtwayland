@@ -53,7 +53,7 @@
 
 QT_BEGIN_NAMESPACE
 
-struct Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPositionerData {
+struct Q_WAYLANDCOMPOSITOR_EXPORT QWaylandXdgPositionerData {
     QSize size;
     QRect anchorRect;
     Qt::Edges anchorEdges = {};
@@ -66,7 +66,7 @@ struct Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPositionerData {
     QPoint unconstrainedPosition() const;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgShellPrivate
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandXdgShellPrivate
         : public QWaylandShellPrivate
         , public QtWaylandServer::xdg_wm_base
 {
@@ -91,7 +91,7 @@ protected:
     void xdg_wm_base_pong(Resource *resource, uint32_t serial) override;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgSurfacePrivate
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandXdgSurfacePrivate
         : public QWaylandCompositorExtensionPrivate
         , public QtWaylandServer::xdg_surface
 {
@@ -125,7 +125,7 @@ private:
     void xdg_surface_set_window_geometry(Resource *resource, int32_t x, int32_t y, int32_t width, int32_t height) override;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgToplevelPrivate : public QObjectPrivate, public QtWaylandServer::xdg_toplevel
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandXdgToplevelPrivate : public QObjectPrivate, public QtWaylandServer::xdg_toplevel
 {
     Q_DECLARE_PUBLIC(QWaylandXdgToplevel)
 public:
@@ -183,7 +183,7 @@ public:
     static QWaylandSurfaceRole s_role;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPopupPrivate : public QObjectPrivate, public QtWaylandServer::xdg_popup
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandXdgPopupPrivate : public QObjectPrivate, public QtWaylandServer::xdg_popup
 {
     Q_DECLARE_PUBLIC(QWaylandXdgPopup)
 public:
@@ -216,7 +216,7 @@ private:
     QList<ConfigureEvent> m_pendingConfigures;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPositioner : public QtWaylandServer::xdg_positioner
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandXdgPositioner : public QtWaylandServer::xdg_positioner
 {
 public:
     QWaylandXdgPositioner(const QWaylandResource& resource);

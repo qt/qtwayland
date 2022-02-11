@@ -43,7 +43,7 @@ class QWaylandKeyboardPrivate;
 class QWaylandSeat;
 class QWaylandKeymap;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandKeyboard : public QWaylandObject
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandKeyboard : public QWaylandObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandKeyboard)

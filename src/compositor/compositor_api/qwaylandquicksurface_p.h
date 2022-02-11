@@ -45,7 +45,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickSurfacePrivate : public QWaylandSurfacePrivate
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQuickSurfacePrivate : public QWaylandSurfacePrivate
 {
     Q_DECLARE_PUBLIC(QWaylandQuickSurface)
 public:

@@ -41,7 +41,7 @@ class QWaylandOutput;
 class QWaylandXdgOutputManagerV1Private;
 class QWaylandXdgOutputV1Private;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgOutputManagerV1
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandXdgOutputManagerV1
         : public QWaylandCompositorExtensionTemplate<QWaylandXdgOutputManagerV1>
 {
     Q_OBJECT
@@ -55,7 +55,7 @@ public:
     static const wl_interface *interface();
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgOutputV1 : public QObject
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandXdgOutputV1 : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandXdgOutputV1)

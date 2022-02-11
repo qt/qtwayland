@@ -46,7 +46,7 @@ class QWaylandView;
 class QWaylandClient;
 class QWaylandSurface;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandTouch : public QWaylandObject
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandTouch : public QWaylandObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandTouch)

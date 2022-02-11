@@ -48,7 +48,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgOutputManagerV1Private
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandXdgOutputManagerV1Private
         : public QWaylandCompositorExtensionPrivate
         , public QtWaylandServer::zxdg_output_manager_v1
 {
@@ -69,7 +69,7 @@ private:
     QHash<QWaylandOutput *, QWaylandXdgOutputV1 *> xdgOutputs;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgOutputV1Private
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandXdgOutputV1Private
         : public QObjectPrivate
         , public QtWaylandServer::zxdg_output_v1
 {

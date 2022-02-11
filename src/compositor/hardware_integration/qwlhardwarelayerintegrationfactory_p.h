@@ -50,7 +50,7 @@ namespace QtWayland {
 
 class HardwareLayerIntegration;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT HardwareLayerIntegrationFactory
+class Q_WAYLANDCOMPOSITOR_EXPORT HardwareLayerIntegrationFactory
 {
 public:
     static QStringList keys();

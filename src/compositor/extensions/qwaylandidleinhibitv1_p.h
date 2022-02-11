@@ -48,7 +48,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandIdleInhibitManagerV1Private
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandIdleInhibitManagerV1Private
         : public QWaylandCompositorExtensionPrivate
         , public QtWaylandServer::zwp_idle_inhibit_manager_v1
 {
@@ -56,7 +56,7 @@ class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandIdleInhibitManagerV1Private
 public:
     explicit QWaylandIdleInhibitManagerV1Private() = default;
 
-    class Q_WAYLAND_COMPOSITOR_EXPORT Inhibitor
+    class Q_WAYLANDCOMPOSITOR_EXPORT Inhibitor
             : public QtWaylandServer::zwp_idle_inhibitor_v1
     {
     public:

@@ -56,7 +56,7 @@ class QWaylandXdgPopup;
 class QWaylandXdgPopupPrivate;
 class QWaylandXdgPositioner;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgShell : public QWaylandShellTemplate<QWaylandXdgShell>
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandXdgShell : public QWaylandShellTemplate<QWaylandXdgShell>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandXdgShell)
@@ -83,7 +83,7 @@ private Q_SLOTS:
     void handleFocusChanged(QWaylandSurface *newSurface, QWaylandSurface *oldSurface);
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgSurface : public QWaylandShellSurfaceTemplate<QWaylandXdgSurface>
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandXdgSurface : public QWaylandShellSurfaceTemplate<QWaylandXdgSurface>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandXdgSurface)
@@ -132,7 +132,7 @@ private Q_SLOTS:
     void handleBufferScaleChanged();
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgToplevel : public QObject
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandXdgToplevel : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandXdgToplevel)
@@ -224,7 +224,7 @@ private:
     QList<int> statesAsInts() const;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgPopup : public QObject
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandXdgPopup : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandXdgPopup)

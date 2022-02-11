@@ -50,7 +50,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandIviApplicationPrivate
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandIviApplicationPrivate
         : public QWaylandCompositorExtensionPrivate
         , public QtWaylandServer::ivi_application
 {

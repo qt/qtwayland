@@ -51,7 +51,7 @@ namespace QtWayland
     class ClientBuffer;
 }
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandBufferRef
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandBufferRef
 {
 public:
     QWaylandBufferRef();

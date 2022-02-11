@@ -51,7 +51,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQtShellPrivate
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQtShellPrivate
     : public QWaylandCompositorExtensionPrivate
     , public QtWaylandServer::zqt_shell_v1
 {
@@ -68,7 +68,7 @@ protected:
     void zqt_shell_v1_surface_create(Resource *resource, wl_resource *surface, uint32_t id) override;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQtShellSurfacePrivate
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQtShellSurfacePrivate
     : public QWaylandCompositorExtensionPrivate
     , public QtWaylandServer::zqt_shell_surface_v1
 {

@@ -66,7 +66,7 @@ struct surface_buffer_destroy_listener
     class ClientBuffer *surfaceBuffer = nullptr;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT ClientBuffer
+class Q_WAYLANDCOMPOSITOR_EXPORT ClientBuffer
 {
 public:
     ClientBuffer(struct ::wl_resource *bufferResource);
@@ -119,7 +119,7 @@ private:
     friend class BufferManager;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT SharedMemoryBuffer : public ClientBuffer
+class Q_WAYLANDCOMPOSITOR_EXPORT SharedMemoryBuffer : public ClientBuffer
 {
 public:
     SharedMemoryBuffer(struct ::wl_resource *bufferResource);

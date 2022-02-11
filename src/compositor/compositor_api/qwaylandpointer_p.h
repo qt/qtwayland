@@ -62,7 +62,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandView;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandPointerPrivate : public QObjectPrivate
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandPointerPrivate : public QObjectPrivate
                                                  , public QtWaylandServer::wl_pointer
 {
     Q_DECLARE_PUBLIC(QWaylandPointer)

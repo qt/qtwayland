@@ -49,7 +49,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandSeat;
 class QWaylandQuickItemPrivate;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQuickItem : public QQuickItem
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandQuickItem)

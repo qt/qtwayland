@@ -64,7 +64,7 @@ private:
     QByteArray m_name;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSurface : public QWaylandObject
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandSurface : public QWaylandObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandSurface)

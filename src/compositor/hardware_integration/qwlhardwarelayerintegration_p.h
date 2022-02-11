@@ -53,7 +53,7 @@ class QWaylandQuickHardwareLayer;
 
 namespace QtWayland {
 
-class Q_WAYLAND_COMPOSITOR_EXPORT HardwareLayerIntegration : public QObject
+class Q_WAYLANDCOMPOSITOR_EXPORT HardwareLayerIntegration : public QObject
 {
     Q_OBJECT
 public:

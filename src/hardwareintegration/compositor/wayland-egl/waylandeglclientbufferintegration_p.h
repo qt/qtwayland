@@ -49,7 +49,7 @@ QT_BEGIN_NAMESPACE
 
 class WaylandEglClientBufferIntegrationPrivate;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT WaylandEglClientBufferIntegration : public QtWayland::ClientBufferIntegration
+class Q_WAYLANDCOMPOSITOR_EXPORT WaylandEglClientBufferIntegration : public QtWayland::ClientBufferIntegration
 {
     Q_DECLARE_PRIVATE(WaylandEglClientBufferIntegration)
 public:
@@ -67,7 +67,7 @@ private:
 
 struct BufferState;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT WaylandEglClientBuffer : public QtWayland::ClientBuffer
+class Q_WAYLANDCOMPOSITOR_EXPORT WaylandEglClientBuffer : public QtWayland::ClientBuffer
 {
 public:
     WaylandEglClientBuffer(WaylandEglClientBufferIntegration* integration, wl_resource *bufferResource);

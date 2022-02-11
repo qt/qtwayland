@@ -41,7 +41,7 @@ class QQuickWindow;
 class QWaylandQuickCompositorPrivate;
 class QWaylandView;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickCompositor : public QWaylandCompositor, public QQmlParserStatus
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQuickCompositor : public QWaylandCompositor, public QQmlParserStatus
 {
     Q_INTERFACES(QQmlParserStatus)
     Q_OBJECT

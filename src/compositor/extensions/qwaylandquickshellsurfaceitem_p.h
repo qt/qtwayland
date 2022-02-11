@@ -53,7 +53,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandShellSurface;
 class QWaylandQuickShellSurfaceItem;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellSurfaceItemPrivate : public QWaylandQuickItemPrivate
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQuickShellSurfaceItemPrivate : public QWaylandQuickItemPrivate
 {
     Q_DECLARE_PUBLIC(QWaylandQuickShellSurfaceItem)
 public:
@@ -72,7 +72,7 @@ public:
     bool staysOnBottom = false;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellEventFilter : public QObject
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQuickShellEventFilter : public QObject
 {
     Q_OBJECT
 public:

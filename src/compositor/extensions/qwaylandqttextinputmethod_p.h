@@ -55,7 +55,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandCompositor;
 class QWaylandSurface;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQtTextInputMethodPrivate : public QWaylandCompositorExtensionPrivate, public QtWaylandServer::qt_text_input_method_v1
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQtTextInputMethodPrivate : public QWaylandCompositorExtensionPrivate, public QtWaylandServer::qt_text_input_method_v1
 {
     Q_DECLARE_PUBLIC(QWaylandQtTextInputMethod)
 public:

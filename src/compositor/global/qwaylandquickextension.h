@@ -39,7 +39,7 @@ QT_REQUIRE_CONFIG(wayland_compositor_quick);
 QT_BEGIN_NAMESPACE
 
 #define Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(className) \
-    class Q_WAYLAND_COMPOSITOR_EXPORT className##QuickExtension : public className, public QQmlParserStatus \
+    class Q_WAYLANDCOMPOSITOR_EXPORT className##QuickExtension : public className, public QQmlParserStatus \
     { \
 /* qmake ignore Q_OBJECT */ \
         Q_OBJECT \
@@ -58,7 +58,7 @@ QT_BEGIN_NAMESPACE
     };
 
 #define Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CONTAINER_CLASS(className) \
-    class Q_WAYLAND_COMPOSITOR_EXPORT className##QuickExtensionContainer : public className \
+    class Q_WAYLANDCOMPOSITOR_EXPORT className##QuickExtensionContainer : public className \
     { \
 /* qmake ignore Q_OBJECT */ \
         Q_OBJECT \
@@ -100,7 +100,7 @@ QT_BEGIN_NAMESPACE
     };
 
 #define Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_CLASS(className, QmlType) \
-    class Q_WAYLAND_COMPOSITOR_EXPORT className##QuickExtension : public className, public QQmlParserStatus \
+    class Q_WAYLANDCOMPOSITOR_EXPORT className##QuickExtension : public className, public QQmlParserStatus \
     { \
 /* qmake ignore Q_OBJECT */ \
         Q_OBJECT \

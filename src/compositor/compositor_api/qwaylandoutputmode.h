@@ -35,7 +35,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandOutputMode
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandOutputMode
 {
 public:
     explicit QWaylandOutputMode();

@@ -37,7 +37,7 @@ QT_REQUIRE_CONFIG(wayland_compositor_quick);
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickShellIntegration : public QObject
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQuickShellIntegration : public QObject
 {
     Q_OBJECT
 public:

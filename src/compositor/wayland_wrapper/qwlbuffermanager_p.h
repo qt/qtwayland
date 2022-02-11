@@ -51,7 +51,7 @@ namespace QtWayland {
 
 class ClientBuffer;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT BufferManager : public QObject
+class Q_WAYLANDCOMPOSITOR_EXPORT BufferManager : public QObject
 {
 public:
     BufferManager(QWaylandCompositor *compositor);

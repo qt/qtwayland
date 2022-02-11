@@ -52,7 +52,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandXdgToplevel;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgDecorationManagerV1Private
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandXdgDecorationManagerV1Private
         : public QWaylandCompositorExtensionPrivate
         , public QtWaylandServer::zxdg_decoration_manager_v1
 {
@@ -68,7 +68,7 @@ private:
     DecorationMode m_preferredMode = DecorationMode::ClientSideDecoration;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandXdgToplevelDecorationV1
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandXdgToplevelDecorationV1
         : public QtWaylandServer::zxdg_toplevel_decoration_v1
 {
 public:

@@ -47,7 +47,7 @@ class QWaylandQtShellPrivate;
 class QWaylandQtShellSurface;
 class QWaylandQtShellChrome;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQtShell : public QWaylandCompositorExtensionTemplate<QWaylandQtShell>
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQtShell : public QWaylandCompositorExtensionTemplate<QWaylandQtShell>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandQtShell)
@@ -81,7 +81,7 @@ class QWaylandQtShellSurfacePrivate;
 class QWaylandSurfaceRole;
 class QWaylandResource;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQtShellSurface : public QWaylandShellSurfaceTemplate<QWaylandQtShellSurface>
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQtShellSurface : public QWaylandShellSurfaceTemplate<QWaylandQtShellSurface>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandQtShellSurface)

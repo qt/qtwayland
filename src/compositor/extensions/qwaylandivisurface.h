@@ -43,7 +43,7 @@ class QWaylandIviApplication;
 class QWaylandSurfaceRole;
 class QWaylandResource;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandIviSurface : public QWaylandShellSurfaceTemplate<QWaylandIviSurface>
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandIviSurface : public QWaylandShellSurfaceTemplate<QWaylandIviSurface>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandIviSurface)

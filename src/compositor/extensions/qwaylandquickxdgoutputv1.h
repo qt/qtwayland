@@ -38,7 +38,7 @@ QT_REQUIRE_CONFIG(wayland_compositor_quick);
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQuickXdgOutputV1
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQuickXdgOutputV1
         : public QWaylandXdgOutputV1
         , public QQmlParserStatus
 {

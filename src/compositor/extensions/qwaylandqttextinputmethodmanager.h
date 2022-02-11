@@ -38,7 +38,7 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandQtTextInputMethodManagerPrivate;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandQtTextInputMethodManager : public QWaylandCompositorExtensionTemplate<QWaylandQtTextInputMethodManager>
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQtTextInputMethodManager : public QWaylandCompositorExtensionTemplate<QWaylandQtTextInputMethodManager>
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandQtTextInputMethodManager)

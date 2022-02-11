@@ -38,7 +38,7 @@ QT_BEGIN_NAMESPACE
 class QWaylandSurface;
 class QWaylandSurfaceGrabberPrivate;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandSurfaceGrabber : public QObject
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandSurfaceGrabber : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandSurfaceGrabber)

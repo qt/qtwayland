@@ -43,7 +43,7 @@ class QWaylandCompositor;
 class QWaylandCompositorExtension;
 class QWaylandCompositorExtensionPrivate;
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandObject : public QObject
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandObject : public QObject
 {
     Q_OBJECT
 public:
@@ -61,7 +61,7 @@ protected:
     QList<QWaylandCompositorExtension *> extension_vector;
 };
 
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositorExtension : public QWaylandObject
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandCompositorExtension : public QWaylandObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandCompositorExtension)
@@ -89,7 +89,7 @@ protected:
 };
 
 template <typename T>
-class Q_WAYLAND_COMPOSITOR_EXPORT QWaylandCompositorExtensionTemplate : public QWaylandCompositorExtension
+class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandCompositorExtensionTemplate : public QWaylandCompositorExtension
 {
 public:
     QWaylandCompositorExtensionTemplate()

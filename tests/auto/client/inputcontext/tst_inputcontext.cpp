@@ -191,7 +191,7 @@ void tst_inputcontext::selectingTextInputProtocol()
     QFETCH(QByteArray, clientProtocol);
     QFETCH(QByteArray, expectedModule);
 
-    exec([this] {
+    exec([] {
         qputenv("QT_IM_MODULE", "qtvirtualkeyboard");
     });
 

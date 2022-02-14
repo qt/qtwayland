@@ -1,24 +1,15 @@
-# Generated from cpp-client.pro.
-
 cmake_minimum_required(VERSION 3.16)
-project(server-buffer-cpp-client) # special case
-
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+project(server-buffer-cpp-client)
 
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
 
 if(NOT DEFINED INSTALL_EXAMPLESDIR)
-  set(INSTALL_EXAMPLESDIR "examples")
+    set(INSTALL_EXAMPLESDIR "examples")
 endif()
 
 set(INSTALL_EXAMPLEDIR "${INSTALL_EXAMPLESDIR}/wayland/server-buffer/cpp-client")
 
-find_package(Qt6 COMPONENTS Core)
-find_package(Qt6 COMPONENTS Gui)
-find_package(Qt6 COMPONENTS WaylandClient)
-find_package(Qt6 COMPONENTS OpenGL)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui OpenGL WaylandClient)
 
 qt_add_executable(server-buffer-cpp-client
     main.cpp
@@ -29,10 +20,12 @@ qt6_generate_wayland_protocol_client_sources(server-buffer-cpp-client
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../share-buffer.xml
 )
+
 set_target_properties(server-buffer-cpp-client PROPERTIES
     WIN32_EXECUTABLE TRUE
     MACOSX_BUNDLE TRUE
 )
+
 target_link_libraries(server-buffer-cpp-client PUBLIC
     Qt::Core
     Qt::Gui

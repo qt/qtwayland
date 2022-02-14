@@ -1,6 +1,4 @@
-# Generated from wayland.pro.
-
-if(QT_FEATURE_wayland_server) # special case
+if(QT_FEATURE_wayland_server)
 if(QT_FEATURE_opengl)
     qt_internal_add_example(minimal-cpp)
 endif()
@@ -23,4 +21,4 @@ endif()
 if(QT_FEATURE_opengl AND TARGET Qt::Quick AND TARGET Qt::WaylandClient)
     add_subdirectory(server-buffer)
 endif()
-endif() # special case
+endif()

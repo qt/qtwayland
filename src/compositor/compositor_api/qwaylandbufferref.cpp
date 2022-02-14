@@ -33,7 +33,33 @@
 #include "qwaylandbufferref.h"
 #include "wayland_wrapper/qwlclientbuffer_p.h"
 
+#include <type_traits>
+
 QT_BEGIN_NAMESPACE
+
+#define CHECK1(l, r, op) \
+    static_assert(std::is_same_v< \
+        bool, \
+        decltype(std::declval<QWaylandBufferRef l >() op \
+                 std::declval<QWaylandBufferRef r >()) \
+    >)
+#define CHECK2(l, r) \
+    CHECK1(l, r, ==); \
+    CHECK1(l, r, !=)
+#define CHECK(l, r) \
+    CHECK2(l, r); \
+    CHECK2(l &, r); \
+    CHECK2(l &, r &); \
+    CHECK2(l, r &)
+
+CHECK(, );
+CHECK(const, );
+CHECK(const, const);
+CHECK(, const);
+
+#undef CHECK
+#undef CHECK2
+#undef CHECK1
 
 class QWaylandBufferRefPrivate
 {
@@ -114,22 +140,23 @@ QWaylandBufferRef &QWaylandBufferRef::operator=(const QWaylandBufferRef &ref)
 }
 
 /*!
- * Returns true if this QWaylandBufferRef references the same buffer as \a ref.
- * Otherwise returns false.
+    \related QWaylandBufferRef
+
+    Returns \c true if \a lhs references the same buffer as \a rhs.
+    Otherwise returns \c{false}.
  */
-bool QWaylandBufferRef::operator==(const QWaylandBufferRef &ref)
+bool operator==(const QWaylandBufferRef &lhs, const QWaylandBufferRef &rhs) noexcept
 {
-    return d->buffer == ref.d->buffer;
+    return lhs.d->buffer == rhs.d->buffer;
 }
 
 /*!
- * Returns false if this QWaylandBufferRef references the same buffer as \a ref.
- * Otherwise returns true.
+    \fn bool QWaylandBufferRef::operator==(const QWaylandBufferRef &lhs, const QWaylandBufferRef &rhs)
+    \related QWaylandBufferRef
+
+    Returns \c false if \a lhs references the same buffer as \a rhs.
+    Otherwise returns \c {true}.
  */
-bool QWaylandBufferRef::operator!=(const QWaylandBufferRef &ref)
-{
-    return d->buffer != ref.d->buffer;
-}
 
 /*!
  * Returns true if this QWaylandBufferRef does not reference a buffer.

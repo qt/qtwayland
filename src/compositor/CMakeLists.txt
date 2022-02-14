@@ -7,6 +7,7 @@
 qt_internal_add_module(WaylandCompositor
     PLUGIN_TYPES wayland-graphics-integration-server wayland-hardware-layer-integration
     SOURCES
+        compat/removed_api.cpp
         ../shared/qwaylandinputmethodeventbuilder.cpp ../shared/qwaylandinputmethodeventbuilder_p.h
         ../shared/qwaylandmimehelper.cpp ../shared/qwaylandmimehelper_p.h
         ../shared/qwaylandsharedmemoryformathelper_p.h
@@ -71,6 +72,14 @@ qt_internal_add_module(WaylandCompositor
         Qt::GuiPrivate
         Qt::WaylandGlobalPrivate
 )
+
+set(compositor_no_pch_sources
+    compat/removed_api.cpp
+)
+
+foreach(src ${compositor_no_pch_sources})
+    qt_update_ignore_pch_source(WaylandCompositor ${src})
+endforeach()
 
 # Resources:
 set(compositor_resource_files

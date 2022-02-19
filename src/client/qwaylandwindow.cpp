@@ -390,7 +390,7 @@ void QWaylandWindow::setGeometry(const QRect &rect)
     }
 
     if (isOpaque() && mMask.isEmpty())
-        setOpaqueArea(rect);
+        setOpaqueArea(QRect(QPoint(0, 0), rect.size()));
 }
 
 void QWaylandWindow::setGeometryFromApplyConfigure(const QPoint &globalPosition, const QSize &sizeWithMargins)

@@ -71,6 +71,8 @@ public:
     virtual void setXdgActivationToken(const QString &token);
     virtual void requestXdgActivationToken(quint32 serial);
 
+    virtual QString externWindowHandle() { return QString(); }
+
     inline QWaylandWindow *window() { return m_window; }
     QPlatformWindow *platformWindow();
     struct wl_surface *wlSurface();

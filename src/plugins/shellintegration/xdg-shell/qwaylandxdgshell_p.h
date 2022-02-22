@@ -37,6 +37,8 @@ namespace QtWaylandClient {
 class QWaylandDisplay;
 class QWaylandInputDevice;
 class QWaylandXdgShell;
+class QWaylandXdgExportedV2;
+class QWaylandXdgExporterV2;
 
 class Q_WAYLANDCLIENT_EXPORT QWaylandXdgSurface : public QWaylandShellSurface, public QtWayland::xdg_surface
 {
@@ -62,6 +64,7 @@ public:
     bool requestActivate() override;
     void setXdgActivationToken(const QString &token) override;
     void requestXdgActivationToken(quint32 serial) override;
+    QString externWindowHandle() override;
 
     void setSizeHints();
 
@@ -98,6 +101,7 @@ private:
 
         QWaylandXdgSurface *m_xdgSurface = nullptr;
         QWaylandXdgToplevelDecorationV1 *m_decoration = nullptr;
+        QScopedPointer<QWaylandXdgExportedV2> m_exported;
     };
 
     class Popup : public QtWayland::xdg_popup {
@@ -138,8 +142,11 @@ public:
     QWaylandXdgShell(QWaylandDisplay *display, uint32_t id, uint32_t availableVersion);
     ~QWaylandXdgShell() override;
 
+    QWaylandDisplay *display() const { return m_display; }
+
     QWaylandXdgDecorationManagerV1 *decorationManager() { return m_xdgDecorationManager.data(); }
     QWaylandXdgActivationV1 *activation() const { return m_xdgActivation.data(); }
+    QWaylandXdgExporterV2 *exporter() const { return m_xdgExporter.data(); }
     QWaylandXdgSurface *getXdgSurface(QWaylandWindow *window);
 
 protected:
@@ -152,6 +159,7 @@ private:
     QWaylandDisplay *m_display = nullptr;
     QScopedPointer<QWaylandXdgDecorationManagerV1> m_xdgDecorationManager;
     QScopedPointer<QWaylandXdgActivationV1> m_xdgActivation;
+    QScopedPointer<QWaylandXdgExporterV2> m_xdgExporter;
     QWaylandXdgSurface::Popup *m_topmostGrabbingPopup = nullptr;
 
     friend class QWaylandXdgSurface;

@@ -42,6 +42,7 @@ public:
 
     bool openUrl(const QUrl &url) override;
     bool openDocument(const QUrl &url) override;
+    QString portalWindowIdentifier(QWindow *window) override;
 
     bool showIsFullScreen() const;
 

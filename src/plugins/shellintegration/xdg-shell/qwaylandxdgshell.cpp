@@ -4,6 +4,8 @@
 
 #include "qwaylandxdgshell_p.h"
 
+#include "qwaylandxdgexporterv2_p.h"
+
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QtWaylandClient/private/qwaylandwindow_p.h>
 #include <QtWaylandClient/private/qwaylandinputdevice_p.h>
@@ -537,6 +539,19 @@ void QWaylandXdgSurface::setXdgActivationToken(const QString &token)
     }
 }
 
+QString QWaylandXdgSurface::externWindowHandle()
+{
+    if (!m_toplevel || !m_shell->exporter()) {
+        return QString();
+    }
+    if (!m_toplevel->m_exported) {
+        m_toplevel->m_exported.reset(m_shell->exporter()->exportToplevel(m_window->wlSurface()));
+        // handle events is sent immediately
+        m_shell->display()->forceRoundTrip();
+    }
+    return m_toplevel->m_exported->handle();
+}
+
 QWaylandXdgShell::QWaylandXdgShell(QWaylandDisplay *display, uint32_t id, uint32_t availableVersion)
     : QtWayland::xdg_wm_base(display->wl_registry(), id, qMin(availableVersion, 2u))
     , m_display(display)
@@ -569,6 +584,10 @@ void QWaylandXdgShell::handleRegistryGlobal(void *data, wl_registry *registry, u
 
     if (interface == QLatin1String(QWaylandXdgActivationV1::interface()->name)) {
         xdgShell->m_xdgActivation.reset(new QWaylandXdgActivationV1(registry, id, version));
+    }
+
+    if (interface == QLatin1String(QWaylandXdgExporterV2::interface()->name)) {
+        xdgShell->m_xdgExporter.reset(new QWaylandXdgExporterV2(registry, id, version));
     }
 }
 

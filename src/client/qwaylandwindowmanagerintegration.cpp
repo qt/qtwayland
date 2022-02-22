@@ -5,6 +5,7 @@
 #include "qwaylandscreen_p.h"
 #include "qwaylandwindow_p.h"
 #include "qwaylanddisplay_p.h"
+#include "qwaylandshellsurface_p.h"
 
 #include <stdint.h>
 #include <QtCore/QEvent>
@@ -106,6 +107,17 @@ bool QWaylandWindowManagerIntegration::openDocument(const QUrl &url)
     return QGenericUnixServices::openDocument(url);
 }
 
+QString QWaylandWindowManagerIntegration::portalWindowIdentifier(QWindow *window)
+{
+    if (window && window->handle()) {
+        auto shellSurface = static_cast<QWaylandWindow *>(window->handle())->shellSurface();
+        if (shellSurface) {
+            const QString handle = shellSurface->externWindowHandle();
+            return QLatin1String("wayland:") + handle;
+        }
+    }
+    return QString();
+}
 }
 
 QT_END_NAMESPACE

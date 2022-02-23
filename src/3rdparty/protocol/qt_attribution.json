@@ -220,8 +220,25 @@
     },
 
     {
-        "Id": "wayland-text-input-unstable",
-        "Name": "Wayland Text Input Protocol",
+        "Id": "wayland-text-input-unstable-v1",
+        "Name": "Wayland Text Input Protocol v1",
+        "QDocModule": "qtwaylandcompositor",
+        "QtUsage": "Used in the Qt Wayland platform plugin",
+        "File": "text-input-unstable-v1.xml",
+
+        "Description": "Adds support for text input and input methods to applications running on Wayland servers that only support text-input-unstable-v1.",
+        "Homepage": "https://wayland.freedesktop.org",
+        "Version": "unstable v1",
+        "DownloadLocation": "https://gitlab.freedesktop.org/wayland/wayland-protocols/-/blob/main/unstable/text-input/text-input-unstable-v1.xml",
+        "LicenseId": "MIT",
+        "License": "MIT LIcense",
+        "License file": "MIT_LICENSE.txt",
+        "Copyright": "Copyright © 2012, 2013 Intel Corporation"
+    },
+
+    {
+        "Id": "wayland-text-input-unstable-v2",
+        "Name": "Wayland Text Input Protocol v2",
         "QDocModule": "qtwaylandcompositor",
         "QtUsage": "Used in the Qt Wayland Compositor, and the Qt Wayland platform plugin.",
         "Files": "text-input-unstable-v2.xml",

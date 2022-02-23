@@ -25,8 +25,8 @@
 
         "Description": "Wayland is a protocol for a compositor to talk to its clients.",
         "Homepage": "https://wayland.freedesktop.org",
-        "Version": "1.16.0",
-        "DownloadLocation": "https://gitlab.freedesktop.org/wayland/wayland/raw/1.16.0/protocol/wayland.xml",
+        "Version": "1.19.0",
+        "DownloadLocation": "https://gitlab.freedesktop.org/wayland/wayland/raw/1.19.0/protocol/wayland.xml",
         "LicenseId": "MIT",
         "License": "MIT License",
         "LicenseFile": "MIT_LICENSE.txt",
@@ -148,6 +148,24 @@
         "License": "MIT License",
         "LicenseFile": "MIT_LICENSE.txt",
         "Copyright": "Copyright © 2013-2016 Collabora, Ltd."
+    },
+
+    {
+        "Id": "wayland-xdg-activation",
+        "Name": "Wayland xdg-activation Protocol",
+        "QDocModule": "qtwaylandcompositor",
+        "QtUsage": "Used in the Qt Wayland platform plugin",
+        "File": "xdg-activation-v1.xml",
+
+        "Description": "The xdg-activation protocol provides a way for one client to pass focus to another.",
+        "Homepage": "https://wayland.freedesktop.org",
+        "Version": "unstable v1, version 1",
+        "DownloadLocation": "https://gitlab.freedesktop.org/wayland/wayland-protocols/-/blob/main/staging/xdg-activation/xdg-activation-v1.xml",
+        "LicenseId": "MIT",
+        "License": "MIT LIcense",
+        "License file": "MIT_LICENSE.txt",
+        "Copyright": "Copyright © 2020 Aleix Pol Gonzalez &lt;aleixpol@kde.org&gt;\nCopyright © 2020 Carlos Garnacho &lt;carlosg@gnome.org&gt;"
+
     },
 
     {

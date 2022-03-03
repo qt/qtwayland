@@ -488,10 +488,12 @@ void QWaylandSeat::sendFullKeyEvent(QKeyEvent *event)
             return;
         }
 
-        if (event->type() == QEvent::KeyPress)
+        if (event->type() == QEvent::KeyPress) {
+            d->keyboard->checkAndRepairModifierState(event);
             d->keyboard->sendKeyPressEvent(scanCode);
-        else if (event->type() == QEvent::KeyRelease)
+        } else if (event->type() == QEvent::KeyRelease) {
             d->keyboard->sendKeyReleaseEvent(scanCode);
+        }
     }
 }
 

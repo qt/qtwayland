@@ -67,6 +67,8 @@ public:
     virtual void sendKeyPressEvent(uint code);
     virtual void sendKeyReleaseEvent(uint code);
 
+    void checkAndRepairModifierState(QKeyEvent *ke);
+
     QWaylandSurface *focus() const;
     QWaylandClient *focusClient() const;
 

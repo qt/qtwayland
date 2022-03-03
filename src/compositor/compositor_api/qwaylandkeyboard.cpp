@@ -39,11 +39,13 @@
 #include <QtCore/QFile>
 #include <QtCore/QStandardPaths>
 
+#include <QKeyEvent>
 #include <fcntl.h>
 #include <unistd.h>
 #if QT_CONFIG(xkbcommon)
 #include <sys/mman.h>
 #include <sys/types.h>
+#include <xkbcommon/xkbcommon-names.h>
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -192,6 +194,10 @@ void QWaylandKeyboardPrivate::maybeUpdateXkbScanCodeTable()
                     scanCodesByQtKey->insert({layout, qtKey}, keycode);
             }
         }, &scanCodesByQtKey);
+
+        shiftIndex = xkb_keymap_mod_get_index(keymap, XKB_MOD_NAME_SHIFT);
+        controlIndex = xkb_keymap_mod_get_index(keymap, XKB_MOD_NAME_CTRL);
+        altIndex = xkb_keymap_mod_get_index(keymap, XKB_MOD_NAME_ALT);
     }
 }
 #endif
@@ -223,6 +229,15 @@ void QWaylandKeyboardPrivate::updateModifierState(uint code, uint32_t state)
     if (focusResource) {
         send_modifiers(focusResource->handle, compositor()->nextSerial(), modsDepressed,
                        modsLatched, modsLocked, group);
+
+        Qt::KeyboardModifiers currentState = Qt::NoModifier;
+        if (xkb_state_mod_index_is_active(xkbState(), shiftIndex, XKB_STATE_MODS_EFFECTIVE) == 1)
+            currentState |= Qt::ShiftModifier;
+        if (xkb_state_mod_index_is_active(xkbState(), controlIndex, XKB_STATE_MODS_EFFECTIVE) == 1)
+            currentState |= Qt::ControlModifier;
+        if (xkb_state_mod_index_is_active(xkbState(), altIndex, XKB_STATE_MODS_EFFECTIVE) == 1)
+            currentState |= Qt::AltModifier;
+        currentModifierState = currentState;
     }
 #else
     Q_UNUSED(code);
@@ -496,6 +511,39 @@ void QWaylandKeyboard::sendKeyReleaseEvent(uint code)
 {
     Q_D(QWaylandKeyboard);
     d->sendKeyEvent(code, WL_KEYBOARD_KEY_STATE_RELEASED);
+}
+
+void QWaylandKeyboard::checkAndRepairModifierState(QKeyEvent *ke)
+{
+#if QT_CONFIG(xkbcommon)
+    Q_D(QWaylandKeyboard);
+    if (ke->modifiers() != d->currentModifierState) {
+        if (d->focusResource && ke->key() != Qt::Key_Shift
+                && ke->key() != Qt::Key_Control && ke->key() != Qt::Key_Alt) {
+            // Only repair the state for non-modifier keys
+            // ### slightly awkward because the standard modifier handling
+            // is done by QtWayland::WindowSystemEventHandler after the
+            // key event is delivered
+            uint32_t mods = 0;
+
+            if (d->shiftIndex == 0 && d->controlIndex == 0)
+                d->maybeUpdateXkbScanCodeTable();
+
+            if (ke->modifiers() & Qt::ShiftModifier)
+                mods |= 1 << d->shiftIndex;
+            if (ke->modifiers() & Qt::ControlModifier)
+                mods |= 1 << d->controlIndex;
+            if (ke->modifiers() & Qt::AltModifier)
+                mods |= 1 << d->altIndex;
+            qCDebug(qLcWaylandCompositor) << "Keyboard modifier state mismatch detected for event" << ke << "state:" << d->currentModifierState << "repaired:" << Qt::hex << mods;
+            d->send_modifiers(d->focusResource->handle, compositor()->nextSerial(), mods,
+                    0, 0, d->group);
+            d->currentModifierState = ke->modifiers();
+        }
+    }
+#else
+    Q_UNUSED(ke);
+#endif
 }
 
 /*!

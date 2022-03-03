@@ -119,6 +119,12 @@ private:
     uint32_t modsLocked = 0;
     uint32_t group = 0;
 
+    uint32_t shiftIndex = 0;
+    uint32_t controlIndex = 0;
+    uint32_t altIndex = 0;
+
+    Qt::KeyboardModifiers currentModifierState;
+
     bool pendingKeymap = false;
 #if QT_CONFIG(xkbcommon)
     size_t keymap_size;

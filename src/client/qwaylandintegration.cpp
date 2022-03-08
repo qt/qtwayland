@@ -162,6 +162,8 @@ bool QWaylandIntegration::hasCapability(QPlatformIntegration::Capability cap) co
         return true;
     case WindowActivation:
         return false;
+    case ScreenWindowGrabbing: // whether QScreen::grabWindow() is supported
+        return false;
     default: return QPlatformIntegration::hasCapability(cap);
     }
 }

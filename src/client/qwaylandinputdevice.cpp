@@ -736,6 +736,11 @@ public:
 
 void QWaylandInputDevice::Pointer::pointer_leave(uint32_t time, struct wl_surface *surface)
 {
+    invalidateFocus();
+    mButtons = Qt::NoButton;
+
+    mParent->mTime = time;
+
     // The event may arrive after destroying the window, indicated by
     // a null surface.
     if (!surface)
@@ -747,11 +752,6 @@ void QWaylandInputDevice::Pointer::pointer_leave(uint32_t time, struct wl_surfac
 
     if (!QWaylandWindow::mouseGrab())
         setFrameEvent(new LeaveEvent(window, mSurfacePos, mGlobalPos));
-
-    invalidateFocus();
-    mButtons = Qt::NoButton;
-
-    mParent->mTime = time;
 }
 
 class MotionEvent : public QWaylandPointerEvent

@@ -81,23 +81,25 @@ DefaultCompositor::DefaultCompositor(CompositorType t)
 
 Surface *DefaultCompositor::surface(int i)
 {
-    Surface *result = nullptr;
+    QList<Surface *> surfaces;
     switch (m_type) {
     case CompositorType::Default:
-        result = get<WlCompositor>()->m_surfaces.value(i, nullptr);
-        break;
+        return get<WlCompositor>()->m_surfaces.value(i, nullptr);
     case CompositorType::Legacy: {
-            QList<Surface *> surfaces = get<WlCompositor>()->m_surfaces;
-            for (Surface *surface : surfaces) {
+            QList<Surface *> msurfaces = get<WlCompositor>()->m_surfaces;
+            for (Surface *surface : msurfaces) {
                 if (surface->isMapped()) {
-                    result = surface;
-                    break;
+                    surfaces << surface;
                 }
             }
         }
         break;
     }
-    return result;
+
+    if (i >= 0 && i < surfaces.size())
+        return surfaces[i];
+
+    return nullptr;
 }
 
 uint DefaultCompositor::sendXdgShellPing()

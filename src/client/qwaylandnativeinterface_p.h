@@ -56,6 +56,7 @@
 
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <QtCore/private/qglobal_p.h>
+#include <QtCore/qhash.h>
 
 QT_BEGIN_NAMESPACE
 

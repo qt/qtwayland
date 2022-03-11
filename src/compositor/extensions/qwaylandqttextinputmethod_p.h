@@ -38,6 +38,7 @@
 #include <QtWaylandCompositor/qwaylanddestroylistener.h>
 
 #include <QtCore/qrect.h>
+#include <QtCore/qhash.h>
 
 //
 //  W A R N I N G

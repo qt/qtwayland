@@ -60,6 +60,8 @@
 #include <QtCore/QVariant>
 #include <QtCore/QLoggingCategory>
 #include <QtCore/QElapsedTimer>
+#include <QtCore/QList>
+#include <QtCore/QMap> // for QVariantMap
 
 #include <qpa/qplatformwindow.h>
 

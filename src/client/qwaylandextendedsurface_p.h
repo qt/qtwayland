@@ -53,6 +53,7 @@
 
 #include <QtCore/QString>
 #include <QtCore/QVariant>
+#include <QtCore/QMap> // for QVariantMap
 
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 

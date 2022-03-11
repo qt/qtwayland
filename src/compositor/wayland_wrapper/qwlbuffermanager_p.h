@@ -42,6 +42,7 @@
 //
 
 #include <QtCore/QObject>
+#include <QtCore/QHash>
 #include "qwlclientbuffer_p.h"
 QT_BEGIN_NAMESPACE
 

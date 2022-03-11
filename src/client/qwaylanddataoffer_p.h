@@ -51,6 +51,9 @@
 // We mean it.
 //
 
+#include <QtCore/qhash.h>
+#include <QtCore/qstring.h>
+
 #include <QtGui/private/qinternalmimedata_p.h>
 
 #include <QtWaylandClient/private/qtwaylandclientglobal_p.h>

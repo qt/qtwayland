@@ -30,6 +30,8 @@
 #ifndef QWAYLANDXDGOUTPUTV1_P_H
 #define QWAYLANDXDGOUTPUTV1_P_H
 
+#include <QtCore/QHash>
+
 #include <QWaylandOutput>
 #include <QWaylandXdgOutputV1>
 #include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>

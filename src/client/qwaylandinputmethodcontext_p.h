@@ -55,6 +55,8 @@
 #include <QtGui/qevent.h>
 #include <QtCore/qlocale.h>
 #include <QtCore/qpointer.h>
+#include <QtCore/qlist.h>
+#include <QtCore/qhash.h>
 
 #include <QtWaylandClient/private/qwayland-qt-text-input-method-unstable-v1.h>
 #include <QtCore/private/qglobal_p.h>

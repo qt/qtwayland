@@ -44,6 +44,7 @@
 #include <QtGui/QGuiApplication>
 #include <QtGui/QTextCharFormat>
 #include <QtGui/QWindow>
+#include <QtCore/QVarLengthArray>
 
 #include "qwaylanddisplay_p.h"
 #include "qwaylandinputdevice_p.h"

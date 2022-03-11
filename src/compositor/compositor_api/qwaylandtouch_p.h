@@ -50,6 +50,7 @@
 #include <QtWaylandCompositor/QWaylandCompositor>
 
 #include <QtCore/QPoint>
+#include <QtCore/qvarlengtharray.h>
 #include <QtCore/private/qobject_p.h>
 
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>

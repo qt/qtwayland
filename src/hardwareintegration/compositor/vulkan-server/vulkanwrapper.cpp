@@ -34,6 +34,7 @@
 #include "vulkanwrapper.h"
 
 #include <QImage>
+#include <QVarLengthArray>
 #include <QOpenGLContext>
 #include <QtGui/qopengl.h>
 #include <QtOpenGL/private/qvkconvenience_p.h>

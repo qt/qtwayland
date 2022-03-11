@@ -42,6 +42,7 @@
 
 #include <QMutex>
 #include <QMutexLocker>
+#include <QVarLengthArray>
 #include <QtCore/private/qcore_unix_p.h>
 #include <QtGui/private/qeglstreamconvenience_p.h>
 

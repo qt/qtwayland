@@ -34,6 +34,7 @@
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 #include <qpa/qplatformnativeinterface.h>
 #include <QtOpenGL/QOpenGLTexture>
+#include <QtCore/QVarLengthArray>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QOpenGLContext>
 

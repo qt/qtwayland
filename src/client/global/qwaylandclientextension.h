@@ -45,14 +45,31 @@ protected Q_SLOTS:
     void initialize();
 };
 
-template <typename T>
+
+template<typename T, auto destruct = nullptr>
 class Q_WAYLANDCLIENT_EXPORT QWaylandClientExtensionTemplate : public QWaylandClientExtension
 {
     Q_DECLARE_PRIVATE(QWaylandClientExtensionTemplate)
+
 public:
-    QWaylandClientExtensionTemplate(const int ver) :
-        QWaylandClientExtension(ver)
+    QWaylandClientExtensionTemplate(const int ver) : QWaylandClientExtension(ver)
     {
+        if constexpr (destruct != nullptr) {
+            connect(this, &QWaylandClientExtensionTemplate::activeChanged, this, [this] {
+                if (!isActive()) {
+                    std::invoke(destruct, static_cast<T *>(this));
+                }
+            });
+        }
+    }
+
+    ~QWaylandClientExtensionTemplate()
+    {
+        if constexpr (destruct != nullptr) {
+            if (isActive()) {
+                std::invoke(destruct, static_cast<T *>(this));
+            }
+        }
     }
 
     const struct wl_interface *extensionInterface() const override

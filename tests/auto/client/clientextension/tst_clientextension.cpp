@@ -14,17 +14,12 @@
 
 using namespace MockCompositor;
 
-class TestExtension : public QWaylandClientExtensionTemplate<TestExtension>,
-                      public QtWayland::test_interface
+class TestExtension
+    : public QWaylandClientExtensionTemplate<TestExtension, &QtWayland::test_interface::release>,
+      public QtWayland::test_interface
 {
 public:
-    TestExtension() : QWaylandClientExtensionTemplate<TestExtension>(1) { }
-    ~TestExtension()
-    {
-        if (object()) {
-            release();
-        }
-    }
+    TestExtension() : QWaylandClientExtensionTemplate(1){};
     void initialize() { QWaylandClientExtension::initialize(); }
 };
 

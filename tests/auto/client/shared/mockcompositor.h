@@ -11,6 +11,8 @@
 #include "fullscreenshellv1.h"
 #include "iviapplication.h"
 #include "xdgshell.h"
+#include "viewport.h"
+#include "fractionalscalev1.h"
 
 #include <QtGui/QGuiApplication>
 
@@ -46,6 +48,8 @@ public:
     Keyboard *keyboard() { auto *seat = get<Seat>(); Q_ASSERT(seat); return seat->m_keyboard; }
     FullScreenShellV1 *fullScreenShellV1() {return get<FullScreenShellV1>();};
     IviSurface *iviSurface(int i = 0) { return get<IviApplication>()->m_iviSurfaces.value(i, nullptr); }
+    FractionalScale *fractionalScale(int i = 0) {return get<FractionalScaleManager>()->m_fractionalScales.value(i, nullptr); }
+    Viewport *viewport(int i = 0) {return get<Viewporter>()->m_viewports.value(i, nullptr); }
 
     uint sendXdgShellPing();
     void xdgPingAndWaitForPong();

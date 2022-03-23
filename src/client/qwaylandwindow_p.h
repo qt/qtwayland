@@ -53,6 +53,8 @@ class QWaylandPointerEvent;
 class QWaylandPointerGestureSwipeEvent;
 class QWaylandPointerGesturePinchEvent;
 class QWaylandSurface;
+class QWaylandFractionalScale;
+class QWaylandViewport;
 
 class Q_WAYLANDCLIENT_EXPORT QWaylandWindow : public QObject, public QPlatformWindow
 {
@@ -233,6 +235,8 @@ protected:
     // mSurface can be written by the main thread. Other threads should claim a read lock for access
     mutable QReadWriteLock mSurfaceLock;
     QScopedPointer<QWaylandSurface> mSurface;
+    QScopedPointer<QWaylandFractionalScale> mFractionalScale;
+    QScopedPointer<QWaylandViewport> mViewport;
 
     QWaylandShellSurface *mShellSurface = nullptr;
     QWaylandSubSurface *mSubSurfaceWindow = nullptr;
@@ -284,7 +288,7 @@ protected:
 
     bool mSentInitialResize = false;
     QPoint mOffset;
-    int mScale = 1;
+    qreal mScale = 1;
     QPlatformScreen *mLastReportedScreen = nullptr;
 
     QIcon mWindowIcon;
@@ -314,6 +318,7 @@ private:
     QPlatformScreen *calculateScreenFromSurfaceEvents() const;
     void setOpaqueArea(const QRegion &opaqueArea);
     bool isOpaque() const;
+    void updateViewport();
 
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
     void handleScreensChanged();

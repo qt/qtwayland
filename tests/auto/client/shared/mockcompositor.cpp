@@ -21,6 +21,9 @@ DefaultCompositor::DefaultCompositor(CompositorType t)
         add<Seat>(Seat::capability_pointer | Seat::capability_keyboard | Seat::capability_touch);
         add<WlShell>();
         add<XdgWmBase>();
+        add<FractionalScaleManager>();
+        add<Viewporter>();
+
         switch (m_type) {
         case CompositorType::Default:
             add<Shm>();

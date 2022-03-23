@@ -11,9 +11,11 @@ qt_manual_moc(moc_files
     corecompositor.h
     datadevice.h
     fullscreenshellv1.h
+    fractionalscalev1.h
     iviapplication.h
     textinput.h
     qttextinput.h
+    viewport.h
     xdgoutputv1.h
     xdgshell.h
 )
@@ -24,12 +26,14 @@ add_library(SharedClientTest
         coreprotocol.cpp coreprotocol.h
         datadevice.cpp datadevice.h
         fullscreenshellv1.cpp fullscreenshellv1.h
+        fractionalscalev1.cpp fractionalscalev1.h
         iviapplication.cpp iviapplication.h
         mockcompositor.cpp mockcompositor.h
         textinput.cpp textinput.h
         qttextinput.cpp qttextinput.h
         xdgoutputv1.cpp xdgoutputv1.h
         xdgshell.cpp xdgshell.h
+        viewport.cpp viewport.h
         ${moc_files}
 )
 
@@ -41,6 +45,8 @@ qt6_generate_wayland_protocol_server_sources(SharedClientTest
         ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/tablet-unstable-v2.xml
         ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/text-input-unstable-v2.xml
         ${PROJECT_SOURCE_DIR}/src/extensions/qt-text-input-method-unstable-v1.xml
+        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/fractional-scale-v1.xml
+        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/viewporter.xml
         ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/wayland.xml
         ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/xdg-decoration-unstable-v1.xml
         ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/xdg-output-unstable-v1.xml

@@ -266,6 +266,7 @@ void PresentationFeedback::connectToWindow(QQuickWindow *window)
     m_connectedWindow = window;
 
     connect(window, &QQuickWindow::beforeSynchronizing, this, &PresentationFeedback::onSync);
+    connect(window, &QQuickWindow::afterFrameEnd, this, &PresentationFeedback::onSwapped);
 }
 
 void PresentationFeedback::onSync()
@@ -275,7 +276,7 @@ void PresentationFeedback::onSync()
     if (m_committed) {
         disconnect(m_surface, &QWaylandSurface::damaged, this, &PresentationFeedback::onSurfaceCommit);
         disconnect(window, &QQuickWindow::beforeSynchronizing, this, &PresentationFeedback::onSync);
-        connect(window, &QQuickWindow::afterFrameEnd, this, &PresentationFeedback::onSwapped);
+        m_sync = true;
     }
 }
 
@@ -283,8 +284,10 @@ void PresentationFeedback::onSwapped()
 {
     QQuickWindow *window = qobject_cast<QQuickWindow *>(sender());
 
-    disconnect(window, &QQuickWindow::afterFrameEnd, this, &PresentationFeedback::onSwapped);
-    connect(m_presentationTime, &QWaylandPresentationTime::presented, this, &PresentationFeedback::sendPresented);
+    if (m_sync) {
+        disconnect(window, &QQuickWindow::afterFrameEnd, this, &PresentationFeedback::onSwapped);
+        connect(m_presentationTime, &QWaylandPresentationTime::presented, this, &PresentationFeedback::sendPresented);
+    }
 }
 
 void PresentationFeedback::discard()

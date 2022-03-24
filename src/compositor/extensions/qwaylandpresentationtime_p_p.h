@@ -89,6 +89,7 @@ public:
     QQuickWindow *m_connectedWindow = nullptr;
 
     bool m_committed = false;
+    bool m_sync = false;
 };
 
 class QWaylandPresentationTimePrivate : public QWaylandCompositorExtensionPrivate, public QtWaylandServer::wp_presentation

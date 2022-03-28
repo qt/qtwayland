@@ -513,12 +513,11 @@ void QWaylandKeyboard::sendKeyReleaseEvent(uint code)
     d->sendKeyEvent(code, WL_KEYBOARD_KEY_STATE_RELEASED);
 }
 
-void QWaylandKeyboard::checkAndRepairModifierState(QKeyEvent *ke)
+void QWaylandKeyboardPrivate::checkAndRepairModifierState(QKeyEvent *ke)
 {
 #if QT_CONFIG(xkbcommon)
-    Q_D(QWaylandKeyboard);
-    if (ke->modifiers() != d->currentModifierState) {
-        if (d->focusResource && ke->key() != Qt::Key_Shift
+    if (ke->modifiers() != currentModifierState) {
+        if (focusResource && ke->key() != Qt::Key_Shift
                 && ke->key() != Qt::Key_Control && ke->key() != Qt::Key_Alt) {
             // Only repair the state for non-modifier keys
             // ### slightly awkward because the standard modifier handling
@@ -526,19 +525,19 @@ void QWaylandKeyboard::checkAndRepairModifierState(QKeyEvent *ke)
             // key event is delivered
             uint32_t mods = 0;
 
-            if (d->shiftIndex == 0 && d->controlIndex == 0)
-                d->maybeUpdateXkbScanCodeTable();
+            if (shiftIndex == 0 && controlIndex == 0)
+                maybeUpdateXkbScanCodeTable();
 
             if (ke->modifiers() & Qt::ShiftModifier)
-                mods |= 1 << d->shiftIndex;
+                mods |= 1 << shiftIndex;
             if (ke->modifiers() & Qt::ControlModifier)
-                mods |= 1 << d->controlIndex;
+                mods |= 1 << controlIndex;
             if (ke->modifiers() & Qt::AltModifier)
-                mods |= 1 << d->altIndex;
-            qCDebug(qLcWaylandCompositor) << "Keyboard modifier state mismatch detected for event" << ke << "state:" << d->currentModifierState << "repaired:" << Qt::hex << mods;
-            d->send_modifiers(d->focusResource->handle, compositor()->nextSerial(), mods,
-                    0, 0, d->group);
-            d->currentModifierState = ke->modifiers();
+                mods |= 1 << altIndex;
+            qCDebug(qLcWaylandCompositor) << "Keyboard modifier state mismatch detected for event" << ke << "state:" << currentModifierState << "repaired:" << Qt::hex << mods;
+            send_modifiers(focusResource->handle, compositor()->nextSerial(), mods,
+                    0, 0, group);
+            currentModifierState = ke->modifiers();
         }
     }
 #else

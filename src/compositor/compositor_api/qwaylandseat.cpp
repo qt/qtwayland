@@ -41,6 +41,7 @@
 #include <QtWaylandCompositor/QWaylandKeymap>
 #include <QtWaylandCompositor/private/qwaylandseat_p.h>
 #include <QtWaylandCompositor/private/qwaylandcompositor_p.h>
+#include <QtWaylandCompositor/private/qwaylandkeyboard_p.h>
 #if QT_CONFIG(wayland_datadevice)
 #include <QtWaylandCompositor/private/qwldatadevice_p.h>
 #endif
@@ -489,7 +490,7 @@ void QWaylandSeat::sendFullKeyEvent(QKeyEvent *event)
         }
 
         if (event->type() == QEvent::KeyPress) {
-            d->keyboard->checkAndRepairModifierState(event);
+            QWaylandKeyboardPrivate::get(d->keyboard.data())->checkAndRepairModifierState(event);
             d->keyboard->sendKeyPressEvent(scanCode);
         } else if (event->type() == QEvent::KeyRelease) {
             d->keyboard->sendKeyReleaseEvent(scanCode);

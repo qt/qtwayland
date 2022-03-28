@@ -88,6 +88,7 @@ public:
     void keyEvent(uint code, uint32_t state);
     void sendKeyEvent(uint code, uint32_t state);
     void updateModifierState(uint code, uint32_t state);
+    void checkAndRepairModifierState(QKeyEvent *ke);
     void maybeUpdateKeymap();
 
     void checkFocusResource(Resource *resource);

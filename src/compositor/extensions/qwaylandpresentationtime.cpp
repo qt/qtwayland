@@ -132,13 +132,17 @@ QWaylandCompositor *QWaylandPresentationTime::compositor() const
 /*!
  * \qmlmethod void QWaylandCompositor::PresentationTime::sendFeedback(Window window, int sequence, int sec, int nsec)
  *
- * Interface to notify that a frame is presented on screen.
- * If your platform support drm event, page_flip_handler is proper timing to send it.
+ * Interface to notify that a frame is presented on screen using \a window.
+ * If your platform supports DRM events, \c page_flip_handler is the proper timing to send it.
+ * The \a sequence is the refresh counter. \a sec and \a nsec hold the
+ * seconds and nanoseconds parts of the presentation timestamp, respectively.
  */
 
 /*!
- * Interface to notify that a frame is presented on screen.
- * If your platform support drm event, page_flip_handler is proper timing to send it.
+ * Interface to notify that a frame is presented on screen using \a window.
+ * If your platform supports DRM events, \c page_flip_handler is the proper timing to send it.
+ * The \a sequence is the refresh counter. \a tv_sec and \a tv_nsec hold the
+ * seconds and nanoseconds parts of the presentation timestamp, respectively.
  */
 void QWaylandPresentationTime::sendFeedback(QQuickWindow *window, quint64 sequence, quint64 tv_sec, quint32 tv_nsec)
 {

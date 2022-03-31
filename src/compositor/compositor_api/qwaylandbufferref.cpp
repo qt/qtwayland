@@ -140,7 +140,7 @@ QWaylandBufferRef &QWaylandBufferRef::operator=(const QWaylandBufferRef &ref)
 }
 
 /*!
-    \related QWaylandBufferRef
+    \fn bool QWaylandBufferRef::operator==(const QWaylandBufferRef &lhs, const QWaylandBufferRef &rhs)
 
     Returns \c true if \a lhs references the same buffer as \a rhs.
     Otherwise returns \c{false}.
@@ -151,8 +151,7 @@ bool operator==(const QWaylandBufferRef &lhs, const QWaylandBufferRef &rhs) noex
 }
 
 /*!
-    \fn bool QWaylandBufferRef::operator==(const QWaylandBufferRef &lhs, const QWaylandBufferRef &rhs)
-    \related QWaylandBufferRef
+    \fn bool QWaylandBufferRef::operator!=(const QWaylandBufferRef &lhs, const QWaylandBufferRef &rhs)
 
     Returns \c false if \a lhs references the same buffer as \a rhs.
     Otherwise returns \c {true}.

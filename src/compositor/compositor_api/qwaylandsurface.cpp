@@ -873,7 +873,7 @@ bool QWaylandSurface::inhibitsIdle() const
  */
 
 /*!
- *  \property bool QWaylandSurface::isOpaque
+ *  \property QWaylandSurface::isOpaque
  *  \since 6.4
  *
  *  This property holds whether the surface is fully opaque, as reported by the

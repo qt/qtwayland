@@ -83,6 +83,7 @@ public:
     }
     uint32_t xkbModsMask() const { return modsDepressed | modsLatched | modsLocked; }
     void maybeUpdateXkbScanCodeTable();
+    void resetKeyboardState();
 #endif
 
     void keyEvent(uint code, uint32_t state);
@@ -105,6 +106,7 @@ private:
     void createXKBState(xkb_keymap *keymap);
 #endif
     static uint toWaylandKey(const uint nativeScanCode);
+    static uint fromWaylandKey(const uint key);
 
     void sendRepeatInfo();
 

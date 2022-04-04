@@ -202,6 +202,18 @@ void QWaylandKeyboardPrivate::maybeUpdateXkbScanCodeTable()
 }
 #endif
 
+void QWaylandKeyboardPrivate::resetKeyboardState()
+{
+    if (!xkbContext())
+        return;
+
+    while (!keys.isEmpty()) {
+        uint32_t code = fromWaylandKey(keys.first());
+        keyEvent(code, WL_KEYBOARD_KEY_STATE_RELEASED);
+        updateModifierState(code, WL_KEYBOARD_KEY_STATE_RELEASED);
+    }
+}
+
 void QWaylandKeyboardPrivate::updateModifierState(uint code, uint32_t state)
 {
 #if QT_CONFIG(xkbcommon)
@@ -277,17 +289,29 @@ void QWaylandKeyboardPrivate::maybeUpdateKeymap()
 #endif
 }
 
+// In all current XKB keymaps there's a constant offset of 8 (for historical
+// reasons) from hardware/evdev scancodes to XKB keycodes. On X11, we pass
+// XKB keycodes (as sent by X server) via QKeyEvent::nativeScanCode. eglfs+evdev
+// adds 8 for consistency, see qtbase/05c07c7636012ebb4131ca099ca4ea093af76410.
+// eglfs+libinput also adds 8, for the same reason. Wayland protocol uses
+// hardware/evdev scancodes, thus we need to subtract 8 before sending the event
+// out and add it when mapping back.
+#define QTWAYLANDKEYBOARD_XKB_HISTORICAL_OFFSET 8
+
+uint QWaylandKeyboardPrivate::fromWaylandKey(const uint key)
+{
+#if QT_CONFIG(xkbcommon)
+    const uint offset = QTWAYLANDKEYBOARD_XKB_HISTORICAL_OFFSET;
+    return key + offset;
+#else
+    return key;
+#endif
+}
+
 uint QWaylandKeyboardPrivate::toWaylandKey(const uint nativeScanCode)
 {
 #if QT_CONFIG(xkbcommon)
-    // In all current XKB keymaps there's a constant offset of 8 (for historical
-    // reasons) from hardware/evdev scancodes to XKB keycodes. On X11, we pass
-    // XKB keycodes (as sent by X server) via QKeyEvent::nativeScanCode. eglfs+evdev
-    // adds 8 for consistency, see qtbase/05c07c7636012ebb4131ca099ca4ea093af76410.
-    // eglfs+libinput also adds 8, for the same reason. Wayland protocol uses
-    // hardware/evdev scancodes, thus we need to minus 8 before sending the event
-    // out.
-    const uint offset = 8;
+    const uint offset = QTWAYLANDKEYBOARD_XKB_HISTORICAL_OFFSET;
     Q_ASSERT(nativeScanCode >= offset);
     return nativeScanCode - offset;
 #else

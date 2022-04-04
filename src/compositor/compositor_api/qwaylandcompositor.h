@@ -148,6 +148,9 @@ public:
 public Q_SLOTS:
     void processWaylandEvents();
 
+private Q_SLOTS:
+    void applicationStateChanged(Qt::ApplicationState state);
+
 Q_SIGNALS:
     void createdChanged();
     void socketNameChanged(const QByteArray &socketName);

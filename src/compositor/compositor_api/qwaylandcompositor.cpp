@@ -229,6 +229,11 @@ void QWaylandCompositorPrivate::init()
     QAbstractEventDispatcher *dispatcher = QGuiApplicationPrivate::eventDispatcher;
     QObject::connect(dispatcher, SIGNAL(aboutToBlock()), q, SLOT(processWaylandEvents()));
 
+    QObject::connect(static_cast<QGuiApplication *>(QGuiApplication::instance()),
+                     &QGuiApplication::applicationStateChanged,
+                     q,
+                     &QWaylandCompositor::applicationStateChanged);
+
     initializeHardwareIntegration();
     initializeSeats();
 
@@ -1099,6 +1104,17 @@ QVector<QWaylandCompositor::ShmFormat> QWaylandCompositor::additionalShmFormats(
 {
     Q_D(const QWaylandCompositor);
     return d->shmFormats;
+}
+
+void QWaylandCompositor::applicationStateChanged(Qt::ApplicationState state)
+{
+    if (state == Qt::ApplicationInactive) {
+        auto *seat = defaultSeat();
+        if (seat != nullptr) {
+            QWaylandKeyboardPrivate *keyb = QWaylandKeyboardPrivate::get(seat->keyboard());
+            keyb->resetKeyboardState();
+        }
+    }
 }
 
 QT_END_NAMESPACE

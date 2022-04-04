@@ -188,17 +188,18 @@ QVariant QWaylandMimeData::retrieveData_sys(const QString &mimeType, QMetaType t
 
 int QWaylandMimeData::readData(int fd, QByteArray &data) const
 {
-    fd_set readset;
-    FD_ZERO(&readset);
-    FD_SET(fd, &readset);
-    struct timeval timeout;
+    struct pollfd readset;
+    readset.fd = fd;
+    readset.events = POLLIN;
+    struct timespec timeout;
     timeout.tv_sec = 1;
-    timeout.tv_usec = 0;
+    timeout.tv_nsec = 0;
+
 
     Q_FOREVER {
-        int ready = select(FD_SETSIZE, &readset, nullptr, nullptr, &timeout);
+        int ready = qt_safe_poll(&readset, 1, &timeout);
         if (ready < 0) {
-            qWarning() << "QWaylandDataOffer: select() failed";
+            qWarning() << "QWaylandDataOffer: qt_safe_poll() failed";
             return -1;
         } else if (ready == 0) {
             qWarning("QWaylandDataOffer: timeout reading from pipe");

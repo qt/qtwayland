@@ -342,7 +342,12 @@ void QWaylandWindow::setGeometry_helper(const QRect &rect)
     if (mSubSurfaceWindow) {
         QMargins m = QPlatformWindow::parent()->frameMargins();
         mSubSurfaceWindow->set_position(rect.x() + m.left(), rect.y() + m.top());
-        mSubSurfaceWindow->parent()->window()->requestUpdate();
+
+        QWaylandWindow *parentWindow = mSubSurfaceWindow->parent();
+        if (parentWindow && parentWindow->isExposed()) {
+            QRect parentExposeGeometry(QPoint(), parentWindow->geometry().size());
+            parentWindow->sendExposeEvent(parentExposeGeometry);
+        }
     }
 }
 
@@ -1234,12 +1239,14 @@ bool QWaylandWindow::isOpaque() const
 
 void QWaylandWindow::setOpaqueArea(const QRegion &opaqueArea)
 {
-    if (opaqueArea == mOpaqueArea || !mSurface)
+    const QRegion translatedOpaqueArea = opaqueArea.translated(frameMargins().left(), frameMargins().top());
+
+    if (translatedOpaqueArea == mOpaqueArea || !mSurface)
         return;
 
-    mOpaqueArea = opaqueArea;
+    mOpaqueArea = translatedOpaqueArea;
 
-    struct ::wl_region *region = mDisplay->createRegion(opaqueArea);
+    struct ::wl_region *region = mDisplay->createRegion(translatedOpaqueArea);
     mSurface->set_opaque_region(region);
     wl_region_destroy(region);
 }

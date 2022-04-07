@@ -406,6 +406,8 @@ bool QWaylandInputContext::isValid() const
 void QWaylandInputContext::reset()
 {
     qCDebug(qLcQpaInputMethods) << Q_FUNC_INFO;
+    if (m_composeState)
+        xkb_compose_state_reset(m_composeState);
 
     QPlatformInputContext::reset();
 
@@ -526,9 +528,14 @@ Qt::LayoutDirection QWaylandInputContext::inputDirection() const
     return textInput()->inputDirection();
 }
 
-void QWaylandInputContext::setFocusObject(QObject *)
+void QWaylandInputContext::setFocusObject(QObject *object)
 {
     qCDebug(qLcQpaInputMethods) << Q_FUNC_INFO;
+#if QT_CONFIG(xkbcommon)
+    m_focusObject = object;
+#else
+    Q_UNUSED(object);
+#endif
 
     if (!textInput())
         return;
@@ -560,6 +567,92 @@ QWaylandTextInput *QWaylandInputContext::textInput() const
 {
     return mDisplay->defaultInputDevice()->textInput();
 }
+
+#if QT_CONFIG(xkbcommon)
+
+void QWaylandInputContext::ensureInitialized()
+{
+    if (m_initialized)
+        return;
+
+    if (!m_XkbContext) {
+        qCWarning(qLcQpaInputMethods) << "error: xkb context has not been set on" << metaObject()->className();
+        return;
+    }
+
+    m_initialized = true;
+    const char *locale = setlocale(LC_CTYPE, "");
+    if (!locale)
+        locale = setlocale(LC_CTYPE, nullptr);
+    qCDebug(qLcQpaInputMethods) << "detected locale (LC_CTYPE):" << locale;
+
+    m_composeTable = xkb_compose_table_new_from_locale(m_XkbContext, locale, XKB_COMPOSE_COMPILE_NO_FLAGS);
+    if (m_composeTable)
+        m_composeState = xkb_compose_state_new(m_composeTable, XKB_COMPOSE_STATE_NO_FLAGS);
+
+    if (!m_composeTable) {
+        qCWarning(qLcQpaInputMethods, "failed to create compose table");
+        return;
+    }
+    if (!m_composeState) {
+        qCWarning(qLcQpaInputMethods, "failed to create compose state");
+        return;
+    }
+}
+
+bool QWaylandInputContext::filterEvent(const QEvent *event)
+{
+    auto keyEvent = static_cast<const QKeyEvent *>(event);
+    if (keyEvent->type() != QEvent::KeyPress)
+        return false;
+
+    if (!inputMethodAccepted())
+        return false;
+
+    // lazy initialization - we don't want to do this on an app startup
+    ensureInitialized();
+
+    if (!m_composeTable || !m_composeState)
+        return false;
+
+    xkb_compose_state_feed(m_composeState, keyEvent->nativeVirtualKey());
+
+    switch (xkb_compose_state_get_status(m_composeState)) {
+    case XKB_COMPOSE_COMPOSING:
+        return true;
+    case XKB_COMPOSE_CANCELLED:
+        reset();
+        return false;
+    case XKB_COMPOSE_COMPOSED:
+    {
+        const int size = xkb_compose_state_get_utf8(m_composeState, nullptr, 0);
+        QVarLengthArray<char, 32> buffer(size + 1);
+        xkb_compose_state_get_utf8(m_composeState, buffer.data(), buffer.size());
+        QString composedText = QString::fromUtf8(buffer.constData());
+
+        QInputMethodEvent event;
+        event.setCommitString(composedText);
+
+        if (!m_focusObject && qApp)
+            m_focusObject = qApp->focusObject();
+
+        if (m_focusObject)
+            QCoreApplication::sendEvent(m_focusObject, &event);
+        else
+            qCWarning(qLcQpaInputMethods, "no focus object");
+
+        reset();
+        return true;
+    }
+    case XKB_COMPOSE_NOTHING:
+        return false;
+    default:
+        Q_UNREACHABLE();
+        return false;
+    }
+}
+
+#endif
 
 }
 

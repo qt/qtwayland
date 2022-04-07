@@ -27,6 +27,7 @@
 ****************************************************************************/
 
 #include "corecompositor.h"
+#include <thread>
 
 namespace MockCompositor {
 

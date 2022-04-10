@@ -98,6 +98,8 @@ void *QWaylandNativeInterface::nativeResourceForIntegration(const QByteArray &re
             return touch->wl_touch();
         return nullptr;
     }
+    if (lowerCaseResource == "serial")
+        return reinterpret_cast<void *>(quintptr(m_integration->display()->defaultInputDevice()->serial()));
 
     return nullptr;
 }

@@ -71,8 +71,8 @@ class View : public QWaylandView
 public:
     explicit View() = default;
     QOpenGLTexture *getTexture();
-    QSize size() const { return surface() ? surface()->size() : QSize(); }
-    QRect globalGeometry() const { return {globalPosition(), surface()->size()}; }
+    QSize bufferSize() const { return surface() ? surface()->bufferSize() : QSize(); }
+    QRect globalGeometry() const { return {globalPosition(), surface()->bufferSize()}; }
     QPoint globalPosition() const { return m_globalPosition; }
     void setGlobalPosition(const QPoint &position);
     QPoint mapToLocal(const QPoint &globalPosition) const;

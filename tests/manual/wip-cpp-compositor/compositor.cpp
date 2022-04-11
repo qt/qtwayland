@@ -80,7 +80,7 @@ QPoint View::mapToLocal(const QPoint &globalPosition) const
 void View::updateAnchoredPosition()
 {
     QPoint offset;
-    QSize size = surface()->size();
+    QSize size = surface()->bufferSize();
     QSize delta = size - m_lastSize;
     if (m_anchorEdges & Qt::RightEdge)
         offset.setX(-delta.width());

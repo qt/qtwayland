@@ -109,6 +109,7 @@ public:
     bool waitForFrameSync(int timeout);
 
     QMargins frameMargins() const override;
+    void setCustomMargins(const QMargins &margins);
     QSize surfaceSize() const;
     QRect windowContentGeometry() const;
     QPointF mapFromWlSurface(const QPointF &surfacePosition) const;
@@ -285,6 +286,8 @@ protected:
     QWaylandShmBackingStore *mBackingStore = nullptr;
     QWaylandBuffer *mQueuedBuffer = nullptr;
     QRegion mQueuedBufferDamage;
+
+    QMargins mCustomMargins;
 
 private:
     void setGeometry_helper(const QRect &rect);

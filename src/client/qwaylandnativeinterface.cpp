@@ -129,6 +129,17 @@ void *QWaylandNativeInterface::nativeResourceForContext(const QByteArray &resour
 }
 #endif  // opengl
 
+QPlatformNativeInterface::NativeResourceForWindowFunction QWaylandNativeInterface::nativeResourceFunctionForWindow(const QByteArray &resource)
+{
+    QByteArray lowerCaseResource = resource.toLower();
+
+    if (lowerCaseResource == "setmargins") {
+        return NativeResourceForWindowFunction(reinterpret_cast<void *>(setWindowMargins));
+    }
+
+    return nullptr;
+}
+
 QVariantMap QWaylandNativeInterface::windowProperties(QPlatformWindow *window) const
 {
     QWaylandWindow *waylandWindow = static_cast<QWaylandWindow *>(window);
@@ -156,6 +167,12 @@ void QWaylandNativeInterface::setWindowProperty(QPlatformWindow *window, const Q
 void QWaylandNativeInterface::emitWindowPropertyChanged(QPlatformWindow *window, const QString &name)
 {
     emit windowPropertyChanged(window,name);
+}
+
+void QWaylandNativeInterface::setWindowMargins(QWindow *window, const QMargins &margins)
+{
+    QWaylandWindow *wlWindow = static_cast<QWaylandWindow*>(window->handle());
+    wlWindow->setCustomMargins(margins);
 }
 
 }

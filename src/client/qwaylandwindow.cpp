@@ -984,7 +984,7 @@ void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, const QWaylan
 
 #if QT_CONFIG(cursor)
     if (e.type == QEvent::Enter) {
-        QRect contentGeometry = windowContentGeometry().marginsRemoved(frameMargins());
+        QRect contentGeometry = QRect(QPoint(), surfaceSize()).marginsRemoved(frameMargins());
         if (contentGeometry.contains(e.local.toPoint()))
             restoreMouseCursor(inputDevice);
     }

@@ -402,8 +402,12 @@ void QWaylandWindow::resizeFromApplyConfigure(const QSize &sizeWithMargins, cons
     // 2) Following resizeFromApplyConfigure() calls should have sizeWithMargins equal to
     //    windowContentGeometry() which excludes shadows, therefore in this case we have to
     //    exclude them too in order not to accidentally apply smaller size to the window.
-    if (mWindowDecorationEnabled && (sizeWithMargins != surfaceSize()))
-        margins = mWindowDecoration->margins(QWaylandAbstractDecoration::ShadowsExcluded);
+    if (sizeWithMargins != surfaceSize()) {
+        if (mWindowDecorationEnabled)
+            margins = mWindowDecoration->margins(QWaylandAbstractDecoration::ShadowsExcluded);
+        if (!mCustomMargins.isNull())
+            margins -= mCustomMargins;
+    }
 
     int widthWithoutMargins = qMax(sizeWithMargins.width() - (margins.left() + margins.right()), 1);
     int heightWithoutMargins = qMax(sizeWithMargins.height() - (margins.top() + margins.bottom()), 1);
@@ -740,6 +744,12 @@ QMargins QWaylandWindow::clientSideMargins() const
     return mWindowDecorationEnabled ? mWindowDecoration->margins() : QMargins{};
 }
 
+void QWaylandWindow::setCustomMargins(const QMargins &margins) {
+    const QMargins oldMargins = mCustomMargins;
+    mCustomMargins = margins;
+    setGeometry(geometry().marginsRemoved(oldMargins).marginsAdded(margins));
+}
+
 /*!
  * Size, with decorations (including including eventual shadows) in wl_surface coordinates
  */
@@ -758,6 +768,9 @@ QRect QWaylandWindow::windowContentGeometry() const
 
     if (mWindowDecorationEnabled)
         shadowMargins = mWindowDecoration->margins(QWaylandAbstractDecoration::ShadowsOnly);
+
+    if (!mCustomMargins.isNull())
+        shadowMargins += mCustomMargins;
 
     return QRect(QPoint(shadowMargins.left(), shadowMargins.top()), surfaceSize().shrunkBy(shadowMargins));
 }

@@ -24,6 +24,8 @@
 
 QT_BEGIN_NAMESPACE
 
+class QMargins;
+
 namespace QtWaylandClient {
 
 class QWaylandIntegration;
@@ -41,6 +43,7 @@ public:
 #if QT_CONFIG(opengl)
     void *nativeResourceForContext(const QByteArray &resource, QOpenGLContext *context) override;
 #endif
+    NativeResourceForWindowFunction nativeResourceFunctionForWindow(const QByteArray &resource) override;
     QVariantMap windowProperties(QPlatformWindow *window) const override;
     QVariant windowProperty(QPlatformWindow *window, const QString &name) const override;
     QVariant windowProperty(QPlatformWindow *window, const QString &name, const QVariant &defaultValue) const override;
@@ -49,6 +52,8 @@ public:
     void emitWindowPropertyChanged(QPlatformWindow *window, const QString &name);
 
 private:
+    static void setWindowMargins(QWindow *window, const QMargins &margins);
+
     QWaylandIntegration *m_integration = nullptr;
     QHash<QPlatformWindow*, QVariantMap> m_windowProperties;
 };

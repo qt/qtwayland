@@ -717,7 +717,7 @@ void QWaylandInputDevice::Pointer::pointer_enter(uint32_t serial, struct wl_surf
     connect(mFocus.data(), &QObject::destroyed, this, &Pointer::handleFocusDestroyed);
 
     mSurfacePos = QPointF(wl_fixed_to_double(sx), wl_fixed_to_double(sy));
-    mGlobalPos = window->window()->mapToGlobal(mSurfacePos.toPoint());
+    mGlobalPos = window->mapToGlobal(mSurfacePos.toPoint());
 
     mParent->mSerial = serial;
     mEnterSerial = serial;
@@ -783,7 +783,7 @@ void QWaylandInputDevice::Pointer::pointer_motion(uint32_t time, wl_fixed_t surf
 
     QPointF pos(wl_fixed_to_double(surface_x), wl_fixed_to_double(surface_y));
     QPointF delta = pos - pos.toPoint();
-    QPointF global = window->window()->mapToGlobal(pos.toPoint());
+    QPointF global = window->mapToGlobal(pos.toPoint());
     global += delta;
 
     mSurfacePos = pos;
@@ -795,7 +795,7 @@ void QWaylandInputDevice::Pointer::pointer_motion(uint32_t time, wl_fixed_t surf
         // We can't know the true position since we're getting events for another surface,
         // so we just set it outside of the window boundaries.
         pos = QPointF(-1, -1);
-        global = grab->window()->mapToGlobal(pos.toPoint());
+        global = grab->mapToGlobal(pos.toPoint());
         window = grab;
     }
     setFrameEvent(new MotionEvent(window, time, pos, global, mButtons, mParent->modifiers()));
@@ -875,7 +875,7 @@ void QWaylandInputDevice::Pointer::pointer_button(uint32_t serial, uint32_t time
     QPointF global = mGlobalPos;
     if (grab && grab != focusWindow()) {
         pos = QPointF(-1, -1);
-        global = grab->window()->mapToGlobal(pos.toPoint());
+        global = grab->mapToGlobal(pos.toPoint());
 
         window = grab;
     }
@@ -1487,7 +1487,7 @@ void QWaylandInputDevice::handleTouchPoint(int id, QEventPoint::State state, con
         // TODO: This doesn't account for high dpi scaling for the delta, but at least it matches
         // what we have for mouse input.
         QPointF delta = localPosition - localPosition.toPoint();
-        QPointF globalPosition = win->window()->mapToGlobal(localPosition.toPoint()) + delta;
+        QPointF globalPosition = win->mapToGlobal(localPosition.toPoint()) + delta;
         tp.area.moveCenter(globalPosition);
     }
 

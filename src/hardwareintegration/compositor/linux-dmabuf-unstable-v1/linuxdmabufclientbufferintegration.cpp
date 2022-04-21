@@ -267,6 +267,12 @@ LinuxDmabufClientBufferIntegration::LinuxDmabufClientBufferIntegration()
 LinuxDmabufClientBufferIntegration::~LinuxDmabufClientBufferIntegration()
 {
     m_importedBuffers.clear();
+
+    if (egl_unbind_wayland_display != nullptr && m_displayBound) {
+        Q_ASSERT(m_wlDisplay != nullptr);
+        if (!egl_unbind_wayland_display(m_eglDisplay, m_wlDisplay))
+            qCWarning(qLcWaylandCompositorHardwareIntegration) << "eglUnbindWaylandDisplayWL failed";
+    }
 }
 
 void LinuxDmabufClientBufferIntegration::initializeHardware(struct ::wl_display *display)
@@ -320,14 +326,9 @@ void LinuxDmabufClientBufferIntegration::initializeHardware(struct ::wl_display 
 
     if (egl_bind_wayland_display && egl_unbind_wayland_display) {
         m_displayBound = egl_bind_wayland_display(m_eglDisplay, display);
-        if (!m_displayBound) {
-            if (ignoreBindDisplay) {
-                qCWarning(qLcWaylandCompositorHardwareIntegration) << "Could not bind Wayland display. Ignoring.";
-            } else {
-                qCWarning(qLcWaylandCompositorHardwareIntegration) << "Failed to initialize EGL display. Could not bind Wayland display.";
-                return;
-            }
-        }
+        if (!m_displayBound)
+            qCDebug(qLcWaylandCompositorHardwareIntegration) << "Wayland display already bound by other client buffer integration.";
+        m_wlDisplay = display;
     }
 
     // request and sent formats/modifiers only after egl_display is bound

@@ -458,15 +458,8 @@ void WaylandEglClientBufferIntegration::initializeHardware(struct wl_display *di
 
     if (d->egl_bind_wayland_display && d->egl_unbind_wayland_display) {
         d->display_bound = d->egl_bind_wayland_display(d->egl_display, display);
-        if (!d->display_bound) {
-            if (!ignoreBindDisplay) {
-                qCWarning(qLcWaylandCompositorHardwareIntegration)
-                        << "Failed to initialize EGL display. Could not bind Wayland display.";
-                return;
-            } else {
-                qCWarning(qLcWaylandCompositorHardwareIntegration) << "Could not bind Wayland display. Ignoring.";
-            }
-        }
+        if (!d->display_bound)
+            qCDebug(qLcWaylandCompositorHardwareIntegration) << "Wayland display already bound by other client buffer integration.";
         d->wlDisplay = display;
     }
 

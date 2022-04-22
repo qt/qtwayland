@@ -61,7 +61,7 @@ namespace QtWaylandClient {
 
 class QWaylandAbstractDecoration;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandDecorationFactory
+class Q_WAYLANDCLIENT_EXPORT QWaylandDecorationFactory
 {
 public:
     static QStringList keys();

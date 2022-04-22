@@ -59,7 +59,7 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandWlShellIntegration : public QWaylandShellIntegration
+class Q_WAYLANDCLIENT_EXPORT QWaylandWlShellIntegration : public QWaylandShellIntegration
 {
 public:
     QWaylandWlShellIntegration() {}

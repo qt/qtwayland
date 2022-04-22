@@ -63,7 +63,7 @@ namespace QtWaylandClient {
 
 class QWaylandDisplay;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandQtKeyExtension : public QtWayland::zqt_key_v1
+class Q_WAYLANDCLIENT_EXPORT QWaylandQtKeyExtension : public QtWayland::zqt_key_v1
 {
 public:
     QWaylandQtKeyExtension(QWaylandDisplay *display, uint32_t id);

@@ -65,7 +65,7 @@ namespace QtWaylandClient {
 class QWaylandWindow;
 class QWaylandDisplay;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandClientBufferIntegration
+class Q_WAYLANDCLIENT_EXPORT QWaylandClientBufferIntegration
 {
 public:
     QWaylandClientBufferIntegration();

@@ -105,7 +105,7 @@ class CursorSurface;
 
 Q_DECLARE_LOGGING_CATEGORY(lcQpaWaylandInput);
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice
+class Q_WAYLANDCLIENT_EXPORT QWaylandInputDevice
                             : public QObject
                             , public QtWayland::wl_seat
 {
@@ -231,7 +231,7 @@ inline uint32_t QWaylandInputDevice::serial() const
 }
 
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Keyboard : public QObject, public QtWayland::wl_keyboard
+class Q_WAYLANDCLIENT_EXPORT QWaylandInputDevice::Keyboard : public QObject, public QtWayland::wl_keyboard
 {
     Q_OBJECT
 
@@ -308,7 +308,7 @@ private:
     friend class QWaylandInputDevice;
 };
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Pointer : public QObject, public QtWayland::wl_pointer
+class Q_WAYLANDCLIENT_EXPORT QWaylandInputDevice::Pointer : public QObject, public QtWayland::wl_pointer
 {
     Q_OBJECT
 public:
@@ -400,7 +400,7 @@ private: //TODO: should other methods be private as well?
     bool isDefinitelyTerminated(axis_source source) const;
 };
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDevice::Touch : public QtWayland::wl_touch
+class Q_WAYLANDCLIENT_EXPORT QWaylandInputDevice::Touch : public QtWayland::wl_touch
 {
 public:
     Touch(QWaylandInputDevice *p);

@@ -65,12 +65,12 @@ namespace QtWaylandClient {
 class QWaylandDisplay;
 class QWaylandCursor;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgOutputManagerV1 : public QtWayland::zxdg_output_manager_v1 {
+class Q_WAYLANDCLIENT_EXPORT QWaylandXdgOutputManagerV1 : public QtWayland::zxdg_output_manager_v1 {
 public:
     QWaylandXdgOutputManagerV1(QWaylandDisplay *display, uint id, uint version);
 };
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandScreen : public QPlatformScreen, QtWayland::wl_output, QtWayland::zxdg_output_v1
+class Q_WAYLANDCLIENT_EXPORT QWaylandScreen : public QPlatformScreen, QtWayland::wl_output, QtWayland::zxdg_output_v1
 {
 public:
     QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uint32_t id);

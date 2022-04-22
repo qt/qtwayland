@@ -66,7 +66,7 @@ namespace QtWaylandClient {
 
 class QWaylandDisplay;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandClipboard : public QPlatformClipboard
+class Q_WAYLANDCLIENT_EXPORT QWaylandClipboard : public QPlatformClipboard
 {
 public:
     QWaylandClipboard(QWaylandDisplay *display);

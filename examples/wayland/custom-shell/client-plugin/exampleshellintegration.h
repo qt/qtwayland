@@ -56,7 +56,7 @@
 using namespace QtWaylandClient;
 
 //! [shell-integration]
-class Q_WAYLAND_CLIENT_EXPORT ExampleShellIntegration
+class Q_WAYLANDCLIENT_EXPORT ExampleShellIntegration
         : public QWaylandShellIntegrationTemplate<ExampleShellIntegration>
         , public QtWayland::qt_example_shell
 {

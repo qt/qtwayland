@@ -67,7 +67,7 @@ namespace QtWaylandClient {
 class QWaylandDisplay;
 class QWaylandWindow;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandExtendedSurface : public QtWayland::qt_extended_surface
+class Q_WAYLANDCLIENT_EXPORT QWaylandExtendedSurface : public QtWayland::qt_extended_surface
 {
 public:
     QWaylandExtendedSurface(QWaylandWindow *window);

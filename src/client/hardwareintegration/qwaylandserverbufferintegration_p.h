@@ -66,7 +66,7 @@ namespace QtWaylandClient {
 
 class QWaylandDisplay;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandServerBuffer
+class Q_WAYLANDCLIENT_EXPORT QWaylandServerBuffer
 {
 public:
     enum Format {
@@ -94,7 +94,7 @@ private:
     void *m_user_data = nullptr;
 };
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandServerBufferIntegration
+class Q_WAYLANDCLIENT_EXPORT QWaylandServerBufferIntegration
 {
 public:
     QWaylandServerBufferIntegration();

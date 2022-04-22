@@ -79,7 +79,7 @@ class QWaylandWindow;
 class QWaylandInputDevice;
 class QWaylandAbstractDecorationPrivate;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandAbstractDecoration : public QObject
+class Q_WAYLANDCLIENT_EXPORT QWaylandAbstractDecoration : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandAbstractDecoration)

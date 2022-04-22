@@ -72,7 +72,7 @@ class QWaylandWindow;
 class QWaylandDisplay;
 class QWaylandShellSurface;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandShellIntegration
+class Q_WAYLANDCLIENT_EXPORT QWaylandShellIntegration
 {
 public:
     QWaylandShellIntegration() {}
@@ -91,7 +91,7 @@ public:
 };
 
 template <typename T>
-class Q_WAYLAND_CLIENT_EXPORT QWaylandShellIntegrationTemplate : public QWaylandShellIntegration, public QWaylandClientExtension
+class Q_WAYLANDCLIENT_EXPORT QWaylandShellIntegrationTemplate : public QWaylandShellIntegration, public QWaylandClientExtension
 {
 public:
     QWaylandShellIntegrationTemplate(const int ver) :

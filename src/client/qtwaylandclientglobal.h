@@ -42,16 +42,9 @@
 
 #include <QtGui/qtguiglobal.h>
 #include <QtWaylandClient/qtwaylandclient-config.h>
+#include <QtWaylandClient/qtwaylandclientexports.h>
 
 QT_BEGIN_NAMESPACE
-
-#if !defined(Q_WAYLAND_CLIENT_EXPORT)
-#  if defined(QT_SHARED)
-#    define Q_WAYLAND_CLIENT_EXPORT Q_DECL_EXPORT
-#  else
-#    define Q_WAYLAND_CLIENT_EXPORT
-#  endif
-#endif
 
 QT_END_NAMESPACE
 

@@ -65,7 +65,7 @@ namespace QtWaylandClient {
 class QWaylandIntegration;
 class QWaylandScreen;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandNativeInterface : public QPlatformNativeInterface
+class Q_WAYLANDCLIENT_EXPORT QWaylandNativeInterface : public QPlatformNativeInterface
 {
 public:
     QWaylandNativeInterface(QWaylandIntegration *integration);

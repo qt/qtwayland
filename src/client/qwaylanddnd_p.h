@@ -65,7 +65,7 @@ namespace QtWaylandClient {
 
 class QWaylandDisplay;
 #if QT_CONFIG(draganddrop)
-class Q_WAYLAND_CLIENT_EXPORT QWaylandDrag : public QBasicDrag
+class Q_WAYLANDCLIENT_EXPORT QWaylandDrag : public QBasicDrag
 {
 public:
     QWaylandDrag(QWaylandDisplay *display);

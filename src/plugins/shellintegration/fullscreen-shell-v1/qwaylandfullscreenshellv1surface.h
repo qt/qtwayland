@@ -50,7 +50,7 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandFullScreenShellV1Surface : public QWaylandShellSurface
+class Q_WAYLANDCLIENT_EXPORT QWaylandFullScreenShellV1Surface : public QWaylandShellSurface
 {
 public:
     QWaylandFullScreenShellV1Surface(QtWayland::zwp_fullscreen_shell_v1 *shell, QWaylandWindow *window);

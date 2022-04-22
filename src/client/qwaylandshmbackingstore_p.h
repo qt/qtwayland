@@ -68,7 +68,7 @@ class QWaylandDisplay;
 class QWaylandAbstractDecoration;
 class QWaylandWindow;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandShmBuffer : public QWaylandBuffer {
+class Q_WAYLANDCLIENT_EXPORT QWaylandShmBuffer : public QWaylandBuffer {
 public:
     QWaylandShmBuffer(QWaylandDisplay *display,
            const QSize &size, QImage::Format format, qreal scale = 1);
@@ -85,7 +85,7 @@ private:
     QImage *mMarginsImage = nullptr;
 };
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandShmBackingStore : public QPlatformBackingStore
+class Q_WAYLANDCLIENT_EXPORT QWaylandShmBackingStore : public QPlatformBackingStore
 {
 public:
     QWaylandShmBackingStore(QWindow *window, QWaylandDisplay *display);

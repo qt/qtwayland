@@ -90,7 +90,7 @@ class QWaylandPointerGestureSwipeEvent;
 class QWaylandPointerGesturePinchEvent;
 class QWaylandSurface;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandWindow : public QObject, public QPlatformWindow
+class Q_WAYLANDCLIENT_EXPORT QWaylandWindow : public QObject, public QPlatformWindow
 {
     Q_OBJECT
 public:

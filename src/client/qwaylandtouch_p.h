@@ -64,7 +64,7 @@ namespace QtWaylandClient {
 class QWaylandDisplay;
 class QWaylandInputDevice;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandTouchExtension : public QtWayland::qt_touch_extension
+class Q_WAYLANDCLIENT_EXPORT QWaylandTouchExtension : public QtWayland::qt_touch_extension
 {
 public:
     QWaylandTouchExtension(QWaylandDisplay *display, uint32_t id);

@@ -77,7 +77,7 @@ public:
     virtual ~QWaylandAbstractDataOffer() = default;
 };
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandDataOffer
+class Q_WAYLANDCLIENT_EXPORT QWaylandDataOffer
         : public QtWayland::wl_data_offer // needs to be the first because we do static casts from the user pointer to the wrapper
         , public QWaylandAbstractDataOffer
 {

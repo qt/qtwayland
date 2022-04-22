@@ -61,7 +61,7 @@ namespace QtWaylandClient {
 
 class QWaylandInputDeviceIntegration;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDeviceIntegrationFactory
+class Q_WAYLANDCLIENT_EXPORT QWaylandInputDeviceIntegrationFactory
 {
 public:
     static QStringList keys();

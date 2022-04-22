@@ -58,7 +58,7 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandShmWindow : public QWaylandWindow
+class Q_WAYLANDCLIENT_EXPORT QWaylandShmWindow : public QWaylandWindow
 {
 public:
     QWaylandShmWindow(QWindow *window, QWaylandDisplay *display);

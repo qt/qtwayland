@@ -66,7 +66,7 @@ class QWaylandAbstractDecoration;
 
 #define QWaylandDecorationFactoryInterface_iid "org.qt-project.Qt.WaylandClient.QWaylandDecorationFactoryInterface.5.4"
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandDecorationPlugin : public QObject
+class Q_WAYLANDCLIENT_EXPORT QWaylandDecorationPlugin : public QObject
 {
     Q_OBJECT
 public:

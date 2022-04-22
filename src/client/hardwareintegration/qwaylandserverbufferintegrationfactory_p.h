@@ -61,7 +61,7 @@ namespace QtWaylandClient {
 
 class QWaylandServerBufferIntegration;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandServerBufferIntegrationFactory
+class Q_WAYLANDCLIENT_EXPORT QWaylandServerBufferIntegrationFactory
 {
 public:
     static QStringList keys();

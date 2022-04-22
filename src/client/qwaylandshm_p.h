@@ -64,7 +64,7 @@ namespace QtWaylandClient {
 
 class QWaylandDisplay;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandShm : public QtWayland::wl_shm
+class Q_WAYLANDCLIENT_EXPORT QWaylandShm : public QtWayland::wl_shm
 {
 
 public:

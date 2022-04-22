@@ -70,7 +70,7 @@ namespace QtWaylandClient {
 class QWaylandWindow;
 class QWaylandInputDevice;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandShellSurface : public QObject
+class Q_WAYLANDCLIENT_EXPORT QWaylandShellSurface : public QObject
 {
     Q_OBJECT
 public:

@@ -90,7 +90,7 @@ namespace QtWayland {
 
 namespace QtWaylandClient {
 
-Q_WAYLAND_CLIENT_EXPORT Q_DECLARE_LOGGING_CATEGORY(lcQpaWayland);
+Q_WAYLANDCLIENT_EXPORT Q_DECLARE_LOGGING_CATEGORY(lcQpaWayland);
 
 class QWaylandInputDevice;
 class QWaylandBuffer;
@@ -123,7 +123,7 @@ typedef void (*RegistryListener)(void *data,
                                  const QString &interface,
                                  uint32_t version);
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandDisplay : public QObject, public QtWayland::wl_registry {
+class Q_WAYLANDCLIENT_EXPORT QWaylandDisplay : public QObject, public QtWayland::wl_registry {
     Q_OBJECT
 
 public:

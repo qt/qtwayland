@@ -50,7 +50,7 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandFullScreenShellV1Integration : public QWaylandShellIntegration
+class Q_WAYLANDCLIENT_EXPORT QWaylandFullScreenShellV1Integration : public QWaylandShellIntegration
 {
 public:
     bool initialize(QWaylandDisplay *display) override;

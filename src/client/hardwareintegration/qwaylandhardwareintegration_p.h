@@ -61,7 +61,7 @@ namespace QtWaylandClient {
 
 class QWaylandDisplay;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandHardwareIntegration : public QtWayland::qt_hardware_integration
+class Q_WAYLANDCLIENT_EXPORT QWaylandHardwareIntegration : public QtWayland::qt_hardware_integration
 {
 public:
     QWaylandHardwareIntegration(struct ::wl_registry *registry, int id);

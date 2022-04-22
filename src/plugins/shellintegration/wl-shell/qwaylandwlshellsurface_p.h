@@ -67,7 +67,7 @@ class QWaylandWindow;
 class QWaylandInputDevice;
 class QWaylandExtendedSurface;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandWlShellSurface : public QWaylandShellSurface
+class Q_WAYLANDCLIENT_EXPORT QWaylandWlShellSurface : public QWaylandShellSurface
     , public QtWayland::wl_shell_surface
 {
     Q_OBJECT

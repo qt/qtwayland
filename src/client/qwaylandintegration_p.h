@@ -71,7 +71,7 @@ class QWaylandInputDevice;
 class QWaylandScreen;
 class QWaylandCursor;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandIntegration : public QPlatformIntegration
+class Q_WAYLANDCLIENT_EXPORT QWaylandIntegration : public QPlatformIntegration
 {
 public:
     QWaylandIntegration();

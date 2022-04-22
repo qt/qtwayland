@@ -53,7 +53,7 @@ namespace QtWaylandClient {
 class QWaylandWindow;
 class QWaylandDisplay;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandIviShellIntegration : public QWaylandShellIntegration
+class Q_WAYLANDCLIENT_EXPORT QWaylandIviShellIntegration : public QWaylandShellIntegration
 {
 public:
     QWaylandIviShellIntegration();

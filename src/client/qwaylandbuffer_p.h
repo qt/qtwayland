@@ -63,7 +63,7 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandBuffer {
+class Q_WAYLANDCLIENT_EXPORT QWaylandBuffer {
 public:
     QWaylandBuffer();
     virtual ~QWaylandBuffer();

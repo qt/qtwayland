@@ -74,14 +74,14 @@ class QWaylandTabletV2;
 class QWaylandTabletToolV2;
 class QWaylandTabletPadV2;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandTabletManagerV2 : public QtWayland::zwp_tablet_manager_v2
+class Q_WAYLANDCLIENT_EXPORT QWaylandTabletManagerV2 : public QtWayland::zwp_tablet_manager_v2
 {
 public:
     explicit QWaylandTabletManagerV2(QWaylandDisplay *display, uint id, uint version);
     QWaylandTabletSeatV2 *createTabletSeat(QWaylandInputDevice *seat);
 };
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandTabletSeatV2 : public QObject, public QtWayland::zwp_tablet_seat_v2
+class Q_WAYLANDCLIENT_EXPORT QWaylandTabletSeatV2 : public QObject, public QtWayland::zwp_tablet_seat_v2
 {
     Q_OBJECT
 public:
@@ -99,7 +99,7 @@ private:
     QList<QWaylandTabletPadV2 *> m_pads;
 };
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandTabletV2 : public QObject, public QtWayland::zwp_tablet_v2
+class Q_WAYLANDCLIENT_EXPORT QWaylandTabletV2 : public QObject, public QtWayland::zwp_tablet_v2
 {
     Q_OBJECT
 public:
@@ -113,7 +113,7 @@ protected:
     void zwp_tablet_v2_removed() override;
 };
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandTabletToolV2 : public QObject, public QtWayland::zwp_tablet_tool_v2
+class Q_WAYLANDCLIENT_EXPORT QWaylandTabletToolV2 : public QObject, public QtWayland::zwp_tablet_tool_v2
 {
     Q_OBJECT
 public:
@@ -168,7 +168,7 @@ private:
 };
 
 // We don't actually use this, but need to handle the "removed" event to comply with the protocol
-class Q_WAYLAND_CLIENT_EXPORT QWaylandTabletPadV2 : public QObject, public QtWayland::zwp_tablet_pad_v2
+class Q_WAYLANDCLIENT_EXPORT QWaylandTabletPadV2 : public QObject, public QtWayland::zwp_tablet_pad_v2
 {
     Q_OBJECT
 public:

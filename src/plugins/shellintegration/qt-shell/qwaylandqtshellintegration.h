@@ -54,7 +54,7 @@ class QWaylandWindow;
 class QWaylandDisplay;
 
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandQtShellIntegration
+class Q_WAYLANDCLIENT_EXPORT QWaylandQtShellIntegration
         : public QWaylandShellIntegrationTemplate<QWaylandQtShellIntegration>
         , public QtWayland::zqt_shell_v1
 {

@@ -52,7 +52,7 @@ class QWaylandWindow;
 class QWaylandInputDevice;
 class QWindow;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandQtSurface : public QWaylandShellSurface
+class Q_WAYLANDCLIENT_EXPORT QWaylandQtSurface : public QWaylandShellSurface
         , public QtWayland::zqt_shell_surface_v1
 {
 public:

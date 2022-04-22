@@ -68,7 +68,7 @@ class QWaylandInputDevice;
 class QWaylandPointerGestureSwipe;
 class QWaylandPointerGesturePinch;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandPointerGestures : public QtWayland::zwp_pointer_gestures_v1
+class Q_WAYLANDCLIENT_EXPORT QWaylandPointerGestures : public QtWayland::zwp_pointer_gestures_v1
 {
 public:
     explicit QWaylandPointerGestures(QWaylandDisplay *display, uint id, uint version);
@@ -77,7 +77,7 @@ public:
     QWaylandPointerGesturePinch *createPointerGesturePinch(QWaylandInputDevice *device);
 };
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandPointerGestureSwipe :
+class Q_WAYLANDCLIENT_EXPORT QWaylandPointerGestureSwipe :
         public QtWayland::zwp_pointer_gesture_swipe_v1
 {
 public:
@@ -107,7 +107,7 @@ public:
     uint mFingers = 0;
 };
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandPointerGesturePinch :
+class Q_WAYLANDCLIENT_EXPORT QWaylandPointerGesturePinch :
         public QtWayland::zwp_pointer_gesture_pinch_v1
 {
 public:

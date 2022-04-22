@@ -65,7 +65,7 @@ class QWaylandInputDeviceIntegration;
 
 #define QWaylandInputDeviceIntegrationFactoryInterface_iid "org.qt-project.Qt.WaylandClient.QWaylandInputDeviceIntegrationFactoryInterface.5.3"
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDeviceIntegrationPlugin : public QObject
+class Q_WAYLANDCLIENT_EXPORT QWaylandInputDeviceIntegrationPlugin : public QObject
 {
     Q_OBJECT
 public:

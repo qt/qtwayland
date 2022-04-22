@@ -57,7 +57,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandClientExtensionPrivate : public QObjectPrivate
+class Q_WAYLANDCLIENT_EXPORT QWaylandClientExtensionPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QWaylandClientExtension)
 public:
@@ -71,7 +71,7 @@ public:
     bool registered = false;
 };
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandClientExtensionTemplatePrivate : public QWaylandClientExtensionPrivate
+class Q_WAYLANDCLIENT_EXPORT QWaylandClientExtensionTemplatePrivate : public QWaylandClientExtensionPrivate
 {
 public:
     QWaylandClientExtensionTemplatePrivate()

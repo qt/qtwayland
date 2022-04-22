@@ -68,7 +68,7 @@ enum Button
     Minimize
 };
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandBradientDecoration : public QWaylandAbstractDecoration
+class Q_WAYLANDCLIENT_EXPORT QWaylandBradientDecoration : public QWaylandAbstractDecoration
 {
 public:
     QWaylandBradientDecoration();

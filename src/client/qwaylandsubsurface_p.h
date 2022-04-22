@@ -64,7 +64,7 @@ namespace QtWaylandClient {
 class QWaylandDisplay;
 class QWaylandWindow;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandSubSurface : public QtWayland::wl_subsurface
+class Q_WAYLANDCLIENT_EXPORT QWaylandSubSurface : public QtWayland::wl_subsurface
 {
 public:
     QWaylandSubSurface(QWaylandWindow *window, QWaylandWindow *parent, ::wl_subsurface *subsurface);

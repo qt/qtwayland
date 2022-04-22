@@ -96,7 +96,7 @@ private:
     QScopedPointer<QWaylandMimeData> m_mimeData;
 };
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandPrimarySelectionSourceV1 : public QObject, public QtWayland::zwp_primary_selection_source_v1
+class Q_WAYLANDCLIENT_EXPORT QWaylandPrimarySelectionSourceV1 : public QObject, public QtWayland::zwp_primary_selection_source_v1
 {
     Q_OBJECT
 public:

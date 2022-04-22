@@ -65,7 +65,7 @@ class QWaylandShellIntegration;
 
 #define QWaylandShellIntegrationFactoryInterface_iid "org.qt-project.Qt.WaylandClient.QWaylandShellIntegrationFactoryInterface.5.3"
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandShellIntegrationPlugin : public QObject
+class Q_WAYLANDCLIENT_EXPORT QWaylandShellIntegrationPlugin : public QObject
 {
     Q_OBJECT
 public:

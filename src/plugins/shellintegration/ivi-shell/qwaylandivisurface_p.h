@@ -53,7 +53,7 @@ class QWaylandInputDevice;
 class QWindow;
 class QWaylandExtendedSurface;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandIviSurface : public QtWayland::ivi_surface
+class Q_WAYLANDCLIENT_EXPORT QWaylandIviSurface : public QtWayland::ivi_surface
         , public QWaylandShellSurface, public QtWayland::ivi_controller_surface
 {
 public:

@@ -63,7 +63,7 @@ namespace QtWaylandClient {
 
 class QWaylandShellIntegration;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandShellIntegrationFactory
+class Q_WAYLANDCLIENT_EXPORT QWaylandShellIntegrationFactory
 {
 public:
     static QStringList keys();

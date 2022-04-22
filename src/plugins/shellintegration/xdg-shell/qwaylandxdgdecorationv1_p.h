@@ -64,7 +64,7 @@ namespace QtWaylandClient {
 class QWaylandXdgToplevel;
 class QWaylandXdgToplevelDecorationV1;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgDecorationManagerV1 : public QtWayland::zxdg_decoration_manager_v1
+class Q_WAYLANDCLIENT_EXPORT QWaylandXdgDecorationManagerV1 : public QtWayland::zxdg_decoration_manager_v1
 {
 public:
     QWaylandXdgDecorationManagerV1(struct ::wl_registry *registry, uint32_t id, uint32_t availableVersion);
@@ -72,7 +72,7 @@ public:
     QWaylandXdgToplevelDecorationV1 *createToplevelDecoration(::xdg_toplevel *toplevel);
 };
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandXdgToplevelDecorationV1 : public QtWayland::zxdg_toplevel_decoration_v1
+class Q_WAYLANDCLIENT_EXPORT QWaylandXdgToplevelDecorationV1 : public QtWayland::zxdg_toplevel_decoration_v1
 {
 public:
     QWaylandXdgToplevelDecorationV1(::zxdg_toplevel_decoration_v1 *decoration);

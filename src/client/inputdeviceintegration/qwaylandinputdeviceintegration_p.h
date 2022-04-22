@@ -63,7 +63,7 @@ namespace QtWaylandClient {
 class QWaylandDisplay;
 class QWaylandInputDevice;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandInputDeviceIntegration
+class Q_WAYLANDCLIENT_EXPORT QWaylandInputDeviceIntegration
 {
 public:
     QWaylandInputDeviceIntegration() {}

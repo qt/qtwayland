@@ -72,7 +72,7 @@ class QWaylandDisplay;
 class QWaylandScreen;
 class QWaylandShm;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandCursorTheme
+class Q_WAYLANDCLIENT_EXPORT QWaylandCursorTheme
 {
 public:
     static std::unique_ptr<QWaylandCursorTheme> create(QWaylandShm *shm, int size, const QString &themeName);
@@ -122,7 +122,7 @@ protected:
     wl_cursor *m_cursors[NumWaylandCursors] = {};
 };
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandCursor : public QPlatformCursor
+class Q_WAYLANDCLIENT_EXPORT QWaylandCursor : public QPlatformCursor
 {
 public:
     explicit QWaylandCursor(QWaylandDisplay *display);

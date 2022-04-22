@@ -55,7 +55,7 @@ class QWaylandIntegration;
 class QWaylandClientExtensionPrivate;
 class QWaylandClientExtensionTemplatePrivate;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandClientExtension : public QObject
+class Q_WAYLANDCLIENT_EXPORT QWaylandClientExtension : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandClientExtension)
@@ -82,7 +82,7 @@ protected Q_SLOTS:
 };
 
 template <typename T>
-class Q_WAYLAND_CLIENT_EXPORT QWaylandClientExtensionTemplate : public QWaylandClientExtension
+class Q_WAYLANDCLIENT_EXPORT QWaylandClientExtensionTemplate : public QWaylandClientExtension
 {
     Q_DECLARE_PRIVATE(QWaylandClientExtensionTemplate)
 public:

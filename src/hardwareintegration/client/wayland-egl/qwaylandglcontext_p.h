@@ -67,7 +67,7 @@ namespace QtWaylandClient {
 class QWaylandEglWindow;
 class DecorationsBlitter;
 
-class Q_WAYLAND_CLIENT_EXPORT QWaylandGLContext : public QEGLPlatformContext
+class Q_WAYLANDCLIENT_EXPORT QWaylandGLContext : public QEGLPlatformContext
 {
 public:
     QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *display, const QSurfaceFormat &format, QPlatformOpenGLContext *share);

@@ -14,6 +14,11 @@ function(qt6_generate_wayland_protocol_server_sources target)
         message(FATAL_ERROR "qtwaylandscanner executable not found. Most likely there is an issue with your Qt installation.")
     endif()
 
+    string(TOUPPER "${target}" module_define_infix)
+    string(REPLACE "-" "_" module_define_infix "${module_define_infix}")
+    string(REPLACE "." "_" module_define_infix "${module_define_infix}")
+    set(build_macro "QT_BUILD_${module_define_infix}_LIB")
+
     foreach(protocol_file IN LISTS arg_FILES)
         get_filename_component(protocol_name "${protocol_file}" NAME_WLE)
 
@@ -47,12 +52,20 @@ function(qt6_generate_wayland_protocol_server_sources target)
 
         add_custom_command(
             OUTPUT "${qtwaylandscanner_header_output}"
-            COMMAND Qt6::qtwaylandscanner server-header "${protocol_file}" "${wayland_include_dir}" > "${qtwaylandscanner_header_output}"
+            COMMAND Qt6::qtwaylandscanner server-header
+                "${protocol_file}"
+                --build-macro=${build_macro}
+                --header-path='${wayland_include_dir}'
+                > "${qtwaylandscanner_header_output}"
         )
 
         add_custom_command(
             OUTPUT "${qtwaylandscanner_code_output}"
-            COMMAND Qt6::qtwaylandscanner server-code "${protocol_file}" "${wayland_include_dir}" > "${qtwaylandscanner_code_output}"
+            COMMAND Qt6::qtwaylandscanner server-code
+                "${protocol_file}"
+                --build-macro=${build_macro}
+                --header-path='${wayland_include_dir}'
+                > "${qtwaylandscanner_code_output}"
         )
 
         target_sources(${target} PRIVATE

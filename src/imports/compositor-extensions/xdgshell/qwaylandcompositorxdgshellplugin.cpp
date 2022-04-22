@@ -41,6 +41,25 @@ Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandXdgShell)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandXdgDecorationManagerV1)
 Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandXdgOutputManagerV1)
 
+/*!
+    \qmlmodule QtWayland.Compositor.XdgShell
+    \title Qt Wayland XdgShell Extension
+    \ingroup qmlmodules
+    \brief Provides a Qt API for the XdgShell shell extension.
+
+    \section2 Summary
+    XdgShell is a shell extension providing window system features typical to
+    desktop systems.
+
+    XdgShell corresponds to the Wayland interface, \c xdg_shell.
+
+    \section2 Usage
+    To use this module, import it like this:
+    \qml
+    import QtWayland.Compositor.XdgShell
+    \endqml
+*/
+
 class QWaylandCompositorXdgShellPlugin : public QQmlExtensionPlugin
 {
     Q_OBJECT

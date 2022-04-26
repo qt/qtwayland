@@ -306,7 +306,7 @@ void QWaylandQtTextInputMethod::sendInputMethodEvent(QInputMethodEvent *event)
                                                  attribute.type,
                                                  attribute.start,
                                                  attribute.length,
-                                                 attribute.value.typeId() == QVariant::Color ? attribute.value.value<QColor>().name() : QString());
+                                                 attribute.value.typeId() == QMetaType::QColor ? attribute.value.value<QColor>().name() : QString());
             break;
         case QInputMethodEvent::Language: // ### What is the type of value? Is it string?
             Q_FALLTHROUGH();

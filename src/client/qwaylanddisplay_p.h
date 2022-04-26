@@ -168,7 +168,7 @@ public:
     QWaylandInputDevice *defaultInputDevice() const;
     QWaylandInputDevice *currentInputDevice() const { return defaultInputDevice(); }
 #if QT_CONFIG(wayland_datadevice)
-    QWaylandDataDeviceManager *dndSelectionHandler() const { return mDndSelectionHandler.data(); }
+    QWaylandDataDeviceManager *dndSelectionHandler() const { return mDndSelectionHandler.get(); }
 #endif
 #if QT_CONFIG(wayland_client_primary_selection)
     QWaylandPrimarySelectionDeviceManagerV1 *primarySelectionManager() const { return mPrimarySelectionManager.data(); }

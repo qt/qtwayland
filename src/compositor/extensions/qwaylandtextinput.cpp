@@ -407,9 +407,9 @@ void QWaylandTextInputPrivate::zwp_text_input_v2_update_state(Resource *resource
 
     Qt::InputMethodQueries queries;
     if (flags == update_state_change) {
-        queries = currentState->mergeChanged(*pendingState.data());
+        queries = currentState->mergeChanged(*pendingState);
     } else {
-        queries = pendingState->updatedQueries(*currentState.data());
+        queries = pendingState->updatedQueries(*currentState);
         currentState.swap(pendingState);
     }
 

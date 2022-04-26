@@ -58,13 +58,13 @@ QStringList QWaylandShellIntegrationFactory::keys()
 
 QWaylandShellIntegration *QWaylandShellIntegrationFactory::create(const QString &name, QWaylandDisplay *display, const QStringList &args)
 {
-    QScopedPointer<QWaylandShellIntegration> integration;
+    std::unique_ptr<QWaylandShellIntegration> integration;
     integration.reset(qLoadPlugin<QWaylandShellIntegration, QWaylandShellIntegrationPlugin>(loader(), name, args));
 
     if (integration && !integration->initialize(display))
         return nullptr;
 
-    return integration.take();
+    return integration.release();
 }
 
 }

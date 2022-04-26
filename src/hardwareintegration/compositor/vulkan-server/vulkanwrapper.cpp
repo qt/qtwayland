@@ -225,7 +225,7 @@ VulkanImageWrapper *VulkanWrapperPrivate::createImage(VkFormat format, VkImageTi
         return nullptr;
     }
 
-    QScopedPointer<VulkanImageWrapper> imageWrapper(new VulkanImageWrapper);
+    std::unique_ptr imageWrapper = std::make_unique<VulkanImageWrapper>();
     imageWrapper->textureImage = image;
     imageWrapper->imgMemSize = memSize;
     imageWrapper->imgSize = size;
@@ -263,7 +263,7 @@ VulkanImageWrapper *VulkanWrapperPrivate::createImage(VkFormat format, VkImageTi
     res = vkGetMemoryFdKHR(m_device, &memoryFdInfo, &imageWrapper->imgFd);
     if (extraDebug) qDebug() << "vkGetMemoryFdKHR res" << res << "fd" << imageWrapper->imgFd;
 
-    return imageWrapper.take();
+    return imageWrapper.release();
 }
 
 
@@ -528,8 +528,8 @@ VulkanImageWrapper *VulkanWrapperPrivate::createTextureImageFromData(const uchar
 
     if (extraDebug) qDebug() << "creating image...";
 
-    QScopedPointer<VulkanImageWrapper> imageWrapper(createImage(vkFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, size, bufferSize));
-    if (imageWrapper.isNull())
+    std::unique_ptr<VulkanImageWrapper> imageWrapper(createImage(vkFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, size, bufferSize));
+    if (!imageWrapper)
         return nullptr;
 
     if (extraDebug) qDebug() << "transition...";
@@ -548,7 +548,7 @@ VulkanImageWrapper *VulkanWrapperPrivate::createTextureImageFromData(const uchar
     vkDestroyBuffer(m_device, stagingBuffer, nullptr);
     vkFreeMemory(m_device, stagingBufferMemory, nullptr);
 
-    return imageWrapper.take();
+    return imageWrapper.release();
 }
 
 void VulkanWrapperPrivate::freeTextureImage(VulkanImageWrapper *imageWrapper)

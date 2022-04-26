@@ -99,8 +99,8 @@ public:
 
     bool inputPanelVisible = false;
 
-    QScopedPointer<QWaylandTextInputClientState> currentState;
-    QScopedPointer<QWaylandTextInputClientState> pendingState;
+    std::unique_ptr<QWaylandTextInputClientState> currentState;
+    std::unique_ptr<QWaylandTextInputClientState> pendingState;
 
     uint32_t serial = 0;
 

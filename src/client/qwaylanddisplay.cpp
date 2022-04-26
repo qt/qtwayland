@@ -389,7 +389,7 @@ QWaylandDisplay::~QWaylandDisplay(void)
     qDeleteAll(mWaitingScreens);
 
 #if QT_CONFIG(wayland_datadevice)
-    delete mDndSelectionHandler.take();
+    mDndSelectionHandler.reset();
 #endif
 #if QT_CONFIG(cursor)
     mCursorThemes.clear();

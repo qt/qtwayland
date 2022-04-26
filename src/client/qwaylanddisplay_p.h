@@ -165,7 +165,7 @@ public:
     QWaylandInputDevice *defaultInputDevice() const;
     QWaylandInputDevice *currentInputDevice() const { return defaultInputDevice(); }
 #if QT_CONFIG(wayland_datadevice)
-    QWaylandDataDeviceManager *dndSelectionHandler() const { return mDndSelectionHandler.data(); }
+    QWaylandDataDeviceManager *dndSelectionHandler() const { return mDndSelectionHandler.get(); }
 #endif
 #if QT_CONFIG(wayland_client_primary_selection)
     QWaylandPrimarySelectionDeviceManagerV1 *primarySelectionManager() const { return mPrimarySelectionManager.data(); }
@@ -249,7 +249,7 @@ private:
     };
 
     struct wl_display *mDisplay = nullptr;
-    QScopedPointer<EventThread> m_eventThread;
+    std::unique_ptr<EventThread> m_eventThread;
     wl_event_queue *m_frameEventQueue = nullptr;
     QScopedPointer<EventThread> m_frameEventQueueThread;
     QtWayland::wl_compositor mCompositor;

@@ -1107,7 +1107,7 @@ void QWaylandQuickItem::takeFocus(QWaylandSeat *device)
 {
     forceActiveFocus();
 
-    if (!surface())
+    if (!surface() || !surface()->client())
         return;
 
     QWaylandSeat *target = device;

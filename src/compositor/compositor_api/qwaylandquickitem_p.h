@@ -137,6 +137,7 @@ public:
                                    Qt::ExtraButton5 | Qt::ExtraButton6 | Qt::ExtraButton7 | Qt::ExtraButton8 |
                                    Qt::ExtraButton9 | Qt::ExtraButton10 | Qt::ExtraButton11 |
                                    Qt::ExtraButton12 | Qt::ExtraButton13) : Qt::NoButton);
+        q->setAcceptTouchEvents(enable);
         q->setAcceptHoverEvents(enable);
         inputEventsEnabled = enable;
     }

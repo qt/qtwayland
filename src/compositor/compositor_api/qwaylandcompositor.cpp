@@ -1108,6 +1108,7 @@ QVector<QWaylandCompositor::ShmFormat> QWaylandCompositor::additionalShmFormats(
 
 void QWaylandCompositor::applicationStateChanged(Qt::ApplicationState state)
 {
+#if QT_CONFIG(xkbcommon)
     if (state == Qt::ApplicationInactive) {
         auto *seat = defaultSeat();
         if (seat != nullptr) {
@@ -1115,6 +1116,9 @@ void QWaylandCompositor::applicationStateChanged(Qt::ApplicationState state)
             keyb->resetKeyboardState();
         }
     }
+#else
+    Q_UNUSED(state);
+#endif
 }
 
 QT_END_NAMESPACE

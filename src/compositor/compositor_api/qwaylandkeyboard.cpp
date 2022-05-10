@@ -200,7 +200,6 @@ void QWaylandKeyboardPrivate::maybeUpdateXkbScanCodeTable()
         altIndex = xkb_keymap_mod_get_index(keymap, XKB_MOD_NAME_ALT);
     }
 }
-#endif
 
 void QWaylandKeyboardPrivate::resetKeyboardState()
 {
@@ -213,6 +212,7 @@ void QWaylandKeyboardPrivate::resetKeyboardState()
         updateModifierState(code, WL_KEYBOARD_KEY_STATE_RELEASED);
     }
 }
+#endif
 
 void QWaylandKeyboardPrivate::updateModifierState(uint code, uint32_t state)
 {

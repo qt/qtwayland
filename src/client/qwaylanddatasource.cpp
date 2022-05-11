@@ -93,7 +93,8 @@ void QWaylandDataSource::data_source_send(const QString &mime_type, int32_t fd)
         action.sa_flags = 0;
 
         sigaction(SIGPIPE, &action, &oldAction);
-        write(fd, content.constData(), content.size());
+        ssize_t unused = write(fd, content.constData(), content.size());
+        Q_UNUSED(unused);
         sigaction(SIGPIPE, &oldAction, nullptr);
     }
     close(fd);

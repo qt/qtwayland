@@ -160,7 +160,8 @@ void QWaylandPrimarySelectionSourceV1::zwp_primary_selection_source_v1_send(cons
         action.sa_flags = 0;
 
         sigaction(SIGPIPE, &action, &oldAction);
-        write(fd, content.constData(), size_t(content.size()));
+        ssize_t unused = write(fd, content.constData(), size_t(content.size()));
+        Q_UNUSED(unused);
         sigaction(SIGPIPE, &oldAction, nullptr);
     }
     close(fd);

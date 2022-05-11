@@ -38,7 +38,7 @@ QByteArray QWaylandMimeHelper::getByteArray(QMimeData *mimeData, const QString &
         QList<QUrl> urls = mimeData->urls();
         for (int i = 0; i < urls.count(); ++i) {
             content.append(urls.at(i).toEncoded());
-            content.append('\n');
+            content.append("\r\n");
         }
     } else {
         content = mimeData->data(mimeType);

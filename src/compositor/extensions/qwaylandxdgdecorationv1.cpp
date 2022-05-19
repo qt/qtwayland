@@ -40,6 +40,7 @@ QT_BEGIN_NAMESPACE
 /*!
     \qmltype XdgDecorationManagerV1
     \inqmlmodule QtWayland.Compositor
+    \instantiates QWaylandXdgDecorationManagerV1
     \since 5.12
     \brief Provides an extension for negotiation of server-side and client-side window decorations.
 

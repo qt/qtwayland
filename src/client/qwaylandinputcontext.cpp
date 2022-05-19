@@ -51,6 +51,10 @@
 #include "qwaylandinputmethodeventbuilder_p.h"
 #include "qwaylandwindow_p.h"
 
+#if QT_CONFIG(xkbcommon)
+#include <locale.h>
+#endif
+
 QT_BEGIN_NAMESPACE
 
 Q_LOGGING_CATEGORY(qLcQpaInputMethods, "qt.qpa.input.methods")
@@ -406,8 +410,10 @@ bool QWaylandInputContext::isValid() const
 void QWaylandInputContext::reset()
 {
     qCDebug(qLcQpaInputMethods) << Q_FUNC_INFO;
+#if QT_CONFIG(xkbcommon)
     if (m_composeState)
         xkb_compose_state_reset(m_composeState);
+#endif
 
     QPlatformInputContext::reset();
 

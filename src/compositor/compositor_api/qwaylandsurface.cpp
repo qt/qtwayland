@@ -335,6 +335,7 @@ QtWayland::ClientBuffer *QWaylandSurfacePrivate::getBuffer(struct ::wl_resource 
 
 /*!
  * \qmltype WaylandSurface
+ * \instantiates QWaylandSurface
  * \inqmlmodule QtWayland.Compositor
  * \since 5.8
  * \brief Represents a rectangular area on an output device.

@@ -451,6 +451,7 @@ void QWaylandCompositorPrivate::loadServerBufferIntegration()
 
 /*!
   \qmltype WaylandCompositor
+  \instantiates QWaylandCompositor
   \inqmlmodule QtWayland.Compositor
   \since 5.8
   \brief Manages the Wayland display server.

@@ -288,3 +288,5 @@ void QWaylandWlShellSurface::shell_surface_popup_done()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandwlshellsurface_p.cpp"

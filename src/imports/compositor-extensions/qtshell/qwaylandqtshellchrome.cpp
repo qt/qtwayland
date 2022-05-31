@@ -1522,3 +1522,5 @@ int QWaylandQtShellChrome::frameMarginBottom() const
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandqtshellchrome.cpp"

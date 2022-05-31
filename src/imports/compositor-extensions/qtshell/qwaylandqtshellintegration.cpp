@@ -61,3 +61,5 @@ void QtShellIntegration::handleQtShellSurfaceDestroyed()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandqtshellintegration_p.cpp"

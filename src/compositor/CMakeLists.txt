@@ -46,7 +46,7 @@ qt_internal_add_module(WaylandCompositor
         global/qtwaylandcompositorglobal.h global/qtwaylandcompositorglobal_p.h
         global/qtwaylandqmlinclude.h
         global/qwaylandcompositorextension.cpp global/qwaylandcompositorextension.h global/qwaylandcompositorextension_p.h
-        global/qwaylandquickextension.h
+        global/qwaylandquickextension.cpp global/qwaylandquickextension.h
         global/qwaylandutils_p.h
         hardware_integration/qwlclientbufferintegration.cpp hardware_integration/qwlclientbufferintegration_p.h
         wayland_wrapper/qwlbuffermanager.cpp wayland_wrapper/qwlbuffermanager_p.h

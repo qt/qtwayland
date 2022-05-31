@@ -136,7 +136,7 @@ qt_internal_extend_target(WaylandCompositor CONDITION TARGET Qt::Quick
 
 qt_internal_extend_target(WaylandCompositor CONDITION QT_FEATURE_wayland_compositor_quick
     SOURCES
-        compositor_api/qwaylandcompositorquickextensions_p.h
+        compositor_api/qwaylandcompositorquickextensions.cpp compositor_api/qwaylandcompositorquickextensions_p.h
         compositor_api/qwaylandmousetracker.cpp compositor_api/qwaylandmousetracker_p.h
         compositor_api/qwaylandquickchildren.h
         compositor_api/qwaylandquickcompositor.cpp compositor_api/qwaylandquickcompositor.h

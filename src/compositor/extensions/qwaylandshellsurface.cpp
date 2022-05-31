@@ -117,3 +117,7 @@
  *
  * This property holds the window type of the QWaylandShellSurface.
  */
+
+QT_BEGIN_NAMESPACE
+
+QT_END_NAMESPACE

@@ -210,3 +210,5 @@ void QWaylandEglWindow::bindContentFBO()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandeglwindow_p.cpp"

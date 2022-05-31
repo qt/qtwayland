@@ -33,6 +33,8 @@
 #include "qwaylandquickxdgoutputv1.h"
 #include "qwaylandxdgoutputv1_p.h"
 
+QT_BEGIN_NAMESPACE
+
 QWaylandQuickXdgOutputV1::QWaylandQuickXdgOutputV1()
     : QWaylandXdgOutputV1()
 {
@@ -64,3 +66,5 @@ void QWaylandQuickXdgOutputV1::componentComplete()
         }
     }
 }
+
+QT_END_NAMESPACE

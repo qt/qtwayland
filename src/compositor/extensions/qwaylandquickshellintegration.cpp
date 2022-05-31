@@ -80,6 +80,8 @@
  * \sa QObject::eventFilter()
  */
 
+QT_BEGIN_NAMESPACE
+
 QWaylandQuickShellIntegration::QWaylandQuickShellIntegration(QObject *parent)
     : QObject(parent)
 {
@@ -88,3 +90,5 @@ QWaylandQuickShellIntegration::QWaylandQuickShellIntegration(QObject *parent)
 QWaylandQuickShellIntegration::~QWaylandQuickShellIntegration()
 {
 }
+
+QT_END_NAMESPACE

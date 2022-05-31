@@ -84,3 +84,5 @@ void TextureSharingExtension::abandonImage(const QString &key)
 }
 
 QT_END_NAMESPACE
+
+#include "moc_texturesharingextension_p.cpp"

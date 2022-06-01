@@ -429,3 +429,5 @@ QWaylandTextInputMethod *QWaylandInputMethodContext::textInputMethod() const
 } // QtWaylandClient
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandinputmethodcontext_p.cpp"

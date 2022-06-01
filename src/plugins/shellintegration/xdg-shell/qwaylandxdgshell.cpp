@@ -581,3 +581,5 @@ void QWaylandXdgShell::handleRegistryGlobal(void *data, wl_registry *registry, u
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandxdgshell_p.cpp"

@@ -116,3 +116,5 @@ bool QWaylandClientExtension::isActive() const
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandclientextension.cpp"

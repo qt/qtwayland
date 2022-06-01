@@ -330,3 +330,5 @@ void QWaylandTabletPadV2::zwp_tablet_pad_v2_removed()
 } // namespace QtWaylandClient
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandtabletv2_p.cpp"

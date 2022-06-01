@@ -216,3 +216,5 @@ QWaylandWindow *QWaylandAbstractDecoration::waylandWindow() const
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandabstractdecoration_p.cpp"

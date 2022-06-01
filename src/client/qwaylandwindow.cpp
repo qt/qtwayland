@@ -1277,3 +1277,5 @@ void QWaylandWindow::setOpaqueArea(const QRegion &opaqueArea)
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandwindow_p.cpp"

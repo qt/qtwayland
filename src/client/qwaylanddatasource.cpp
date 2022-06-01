@@ -107,3 +107,5 @@ void QWaylandDataSource::data_source_target(const QString &mime_type)
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylanddatasource_p.cpp"

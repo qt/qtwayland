@@ -55,3 +55,5 @@ QWaylandInputDeviceIntegrationPlugin::~QWaylandInputDeviceIntegrationPlugin()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandinputdeviceintegrationplugin_p.cpp"

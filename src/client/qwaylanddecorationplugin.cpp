@@ -54,3 +54,5 @@ QWaylandDecorationPlugin::~QWaylandDecorationPlugin()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylanddecorationplugin_p.cpp"

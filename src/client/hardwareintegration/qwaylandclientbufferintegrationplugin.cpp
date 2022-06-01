@@ -55,3 +55,5 @@ QWaylandClientBufferIntegrationPlugin::~QWaylandClientBufferIntegrationPlugin()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandclientbufferintegrationplugin_p.cpp"

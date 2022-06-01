@@ -170,3 +170,5 @@ void QWaylandPrimarySelectionSourceV1::zwp_primary_selection_source_v1_send(cons
 } // namespace QtWaylandClient
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandprimaryselectionv1_p.cpp"

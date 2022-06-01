@@ -124,3 +124,5 @@ void QWaylandSurface::surface_leave(wl_output *output)
 } // namespace QtWaylandClient
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandsurface_p.cpp"

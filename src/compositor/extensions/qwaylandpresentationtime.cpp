@@ -360,3 +360,7 @@ void QWaylandPresentationTimePrivate::wp_presentation_feedback(Resource *resourc
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandpresentationtime_p_p.cpp"
+
+#include "moc_qwaylandpresentationtime_p.cpp"

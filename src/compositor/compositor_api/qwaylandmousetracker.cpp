@@ -165,3 +165,5 @@ void QWaylandMouseTracker::hoverLeaveEvent(QHoverEvent *event)
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandmousetracker_p.cpp"

@@ -204,3 +204,5 @@ void QWaylandIviApplicationPrivate::ivi_application_surface_create(QtWaylandServ
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandiviapplication.cpp"

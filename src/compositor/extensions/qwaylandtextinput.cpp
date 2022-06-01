@@ -602,3 +602,5 @@ QByteArray QWaylandTextInput::interfaceName()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandtextinput.cpp"

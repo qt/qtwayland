@@ -234,3 +234,5 @@ void QWaylandTouch::addClient(QWaylandClient *client, uint32_t id, uint32_t vers
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandtouch.cpp"

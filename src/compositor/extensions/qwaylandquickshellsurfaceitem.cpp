@@ -314,3 +314,7 @@ void QWaylandQuickShellEventFilter::timerEvent(QTimerEvent *event)
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandquickshellsurfaceitem_p.cpp"
+
+#include "moc_qwaylandquickshellsurfaceitem.cpp"

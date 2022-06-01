@@ -764,3 +764,5 @@ void QWaylandSeat::handleMouseFocusDestroyed()
  */
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandseat.cpp"

@@ -153,3 +153,5 @@ void TouchExtensionGlobal::touch_extension_destroy_resource(Resource *resource)
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwlqttouch_p.cpp"

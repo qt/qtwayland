@@ -484,4 +484,6 @@ void QWaylandTextureSharingExtension::dumpBufferInfo()
 
 QT_END_NAMESPACE
 
+#include "moc_qwltexturesharingextension_p.cpp"
+
 #include "qwltexturesharingextension.moc"

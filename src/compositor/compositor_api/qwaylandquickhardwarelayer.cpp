@@ -166,3 +166,5 @@ void QWaylandQuickHardwareLayer::disableSceneGraphPainting()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandquickhardwarelayer_p.cpp"

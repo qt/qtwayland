@@ -701,3 +701,5 @@ QWaylandWlShellSurface *QWaylandWlShellSurface::fromResource(wl_resource *resour
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandwlshell.cpp"

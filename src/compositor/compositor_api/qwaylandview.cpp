@@ -389,3 +389,5 @@ struct wl_resource *QWaylandView::surfaceResource() const
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandview.cpp"

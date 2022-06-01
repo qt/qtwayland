@@ -36,3 +36,5 @@ namespace QtWayland {
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwlhardwarelayerintegration_p.cpp"

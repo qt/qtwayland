@@ -69,3 +69,5 @@ bool QtKeyExtensionGlobal::postQtKeyEvent(QKeyEvent *event, QWaylandSurface *sur
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwlqtkey_p.cpp"

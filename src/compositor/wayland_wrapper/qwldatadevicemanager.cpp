@@ -271,3 +271,5 @@ const struct wl_data_offer_interface DataDeviceManager::compositor_offer_interfa
 } //namespace
 
 QT_END_NAMESPACE
+
+#include "moc_qwldatadevicemanager_p.cpp"

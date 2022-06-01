@@ -308,3 +308,5 @@ void QWaylandObject::removeExtension(QWaylandCompositorExtension *extension)
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandcompositorextension.cpp"

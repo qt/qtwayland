@@ -236,3 +236,5 @@ void QWaylandViewporterPrivate::Viewport::wp_viewport_set_destination(QtWaylandS
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandviewporter.cpp"

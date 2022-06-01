@@ -45,3 +45,5 @@ ClientBufferIntegrationPlugin::~ClientBufferIntegrationPlugin()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwlclientbufferintegrationplugin_p.cpp"

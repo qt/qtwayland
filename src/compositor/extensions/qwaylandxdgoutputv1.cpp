@@ -587,3 +587,5 @@ void QWaylandXdgOutputV1Private::zxdg_output_v1_destroy(Resource *resource)
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandxdgoutputv1.cpp"

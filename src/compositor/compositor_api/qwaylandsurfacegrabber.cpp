@@ -109,3 +109,5 @@ void QWaylandSurfaceGrabber::grab()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandsurfacegrabber.cpp"

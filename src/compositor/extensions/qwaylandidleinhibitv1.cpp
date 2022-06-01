@@ -182,3 +182,5 @@ void QWaylandIdleInhibitManagerV1Private::Inhibitor::zwp_idle_inhibitor_v1_destr
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandidleinhibitv1.cpp"

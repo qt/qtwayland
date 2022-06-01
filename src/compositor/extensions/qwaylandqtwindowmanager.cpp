@@ -139,3 +139,5 @@ QByteArray QWaylandQtWindowManager::interfaceName()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandqtwindowmanager.cpp"

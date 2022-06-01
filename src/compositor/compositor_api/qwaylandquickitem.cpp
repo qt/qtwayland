@@ -1764,3 +1764,5 @@ void QWaylandQuickItemPrivate::placeBelowParent()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandquickitem.cpp"

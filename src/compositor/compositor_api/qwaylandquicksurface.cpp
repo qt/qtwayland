@@ -84,3 +84,5 @@ void QWaylandQuickSurface::setUseTextureAlpha(bool useTextureAlpha)
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandquicksurface.cpp"

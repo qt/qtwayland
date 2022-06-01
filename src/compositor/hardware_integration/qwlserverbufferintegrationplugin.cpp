@@ -46,3 +46,5 @@ ServerBufferIntegrationPlugin::~ServerBufferIntegrationPlugin()
 
 QT_END_NAMESPACE
 
+#include "moc_qwlserverbufferintegrationplugin_p.cpp"
+

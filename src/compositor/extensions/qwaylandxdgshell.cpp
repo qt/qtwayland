@@ -2130,3 +2130,5 @@ Qt::Edges QWaylandXdgPositioner::convertToEdges(QWaylandXdgPositioner::gravity g
 
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandxdgshell.cpp"

@@ -68,3 +68,5 @@ void QWaylandQuickXdgOutputV1::componentComplete()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandquickxdgoutputv1.cpp"

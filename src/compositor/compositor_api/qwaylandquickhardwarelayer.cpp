@@ -173,3 +173,5 @@ void QWaylandQuickHardwareLayer::initialize()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandquickhardwarelayer_p.cpp"

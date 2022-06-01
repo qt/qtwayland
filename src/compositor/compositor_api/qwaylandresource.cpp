@@ -66,3 +66,5 @@ QWaylandResource::QWaylandResource(wl_resource *resource)
  */
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandresource.cpp"

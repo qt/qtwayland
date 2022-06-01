@@ -1552,3 +1552,5 @@ void QWaylandInputDevice::Touch::touch_frame()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandinputdevice_p.cpp"

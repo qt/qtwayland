@@ -64,3 +64,5 @@ void QWaylandShellSurface::sendProperty(const QString &name, const QVariant &val
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandshellsurface_p.cpp"

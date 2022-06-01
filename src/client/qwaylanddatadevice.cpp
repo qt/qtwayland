@@ -303,3 +303,5 @@ QPoint QWaylandDataDevice::calculateDragPosition(int x, int y, QWindow *wnd) con
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylanddatadevice_p.cpp"

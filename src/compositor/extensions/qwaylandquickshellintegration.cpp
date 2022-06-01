@@ -92,3 +92,5 @@ QWaylandQuickShellIntegration::~QWaylandQuickShellIntegration()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandquickshellintegration.cpp"

@@ -1076,3 +1076,5 @@ void QWaylandSurfacePrivate::Subsurface::subsurface_set_desync(wl_subsurface::Re
  */
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandsurface.cpp"

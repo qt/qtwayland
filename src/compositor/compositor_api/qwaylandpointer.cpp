@@ -416,3 +416,5 @@ void QWaylandPointer::pointerFocusChanged(QWaylandView *newFocus, QWaylandView *
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandpointer.cpp"

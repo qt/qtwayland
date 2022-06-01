@@ -45,3 +45,5 @@ HardwareLayerIntegrationPlugin::~HardwareLayerIntegrationPlugin()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwlhardwarelayerintegrationplugin_p.cpp"

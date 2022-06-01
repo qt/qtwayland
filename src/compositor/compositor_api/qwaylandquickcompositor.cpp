@@ -168,3 +168,5 @@ void QWaylandQuickCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandquickcompositor.cpp"

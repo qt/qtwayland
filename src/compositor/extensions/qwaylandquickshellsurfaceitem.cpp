@@ -437,3 +437,7 @@ void QWaylandQuickShellSurfaceItem::setStaysOnBottom(bool onBottom)
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandquickshellsurfaceitem_p.cpp"
+
+#include "moc_qwaylandquickshellsurfaceitem.cpp"

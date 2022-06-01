@@ -93,3 +93,5 @@ QWaylandShell::QWaylandShell(QWaylandObject *container, QWaylandShellPrivate &dd
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandshell.cpp"

@@ -60,3 +60,5 @@ void IviSurfaceIntegration::handleIviSurfaceDestroyed()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandivisurfaceintegration_p.cpp"

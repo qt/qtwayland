@@ -333,3 +333,5 @@ bool QWaylandInputContext::filterEvent(const QEvent *event)
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandinputcontext_p.cpp"

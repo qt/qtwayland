@@ -55,3 +55,5 @@ QWaylandShellIntegrationPlugin::~QWaylandShellIntegrationPlugin()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandshellintegrationplugin_p.cpp"

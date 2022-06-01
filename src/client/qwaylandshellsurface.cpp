@@ -119,3 +119,5 @@ void QWaylandShellSurface::requestXdgActivationToken(quint32 serial)
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandshellsurface_p.cpp"

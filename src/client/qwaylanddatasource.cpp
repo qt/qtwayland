@@ -133,3 +133,5 @@ void QWaylandDataSource::data_source_dnd_drop_performed()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylanddatasource_p.cpp"

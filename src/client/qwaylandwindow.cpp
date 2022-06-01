@@ -1527,3 +1527,5 @@ void QWaylandWindow::setXdgActivationToken(const QString &token)
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandwindow_p.cpp"

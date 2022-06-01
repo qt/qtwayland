@@ -344,3 +344,5 @@ int QWaylandDataDevice::dropActionsToWl(Qt::DropActions actions)
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylanddatadevice_p.cpp"

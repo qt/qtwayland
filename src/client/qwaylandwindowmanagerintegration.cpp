@@ -145,3 +145,5 @@ bool QWaylandWindowManagerIntegration::openDocument(const QUrl &url)
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandwindowmanagerintegration_p.cpp"

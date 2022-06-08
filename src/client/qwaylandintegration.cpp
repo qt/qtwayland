@@ -86,6 +86,9 @@ QWaylandIntegration::QWaylandIntegration()
         return;
     }
 
+    QWaylandWindow::fixedToplevelPositions =
+            !qEnvironmentVariableIsSet("QT_WAYLAND_DISABLE_FIXED_POSITIONS");
+
     // ### Not ideal...
     // We don't want to use QPlatformWindow::requestActivate here, since that gives a warning
     // for most shells. Also, we don't want to put this into the specific shells that can use

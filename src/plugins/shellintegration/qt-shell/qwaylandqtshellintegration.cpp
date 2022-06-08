@@ -22,6 +22,7 @@ namespace QtWaylandClient {
 QWaylandQtShellIntegration::QWaylandQtShellIntegration()
     : QWaylandShellIntegrationTemplate(1)
 {
+    QWaylandWindow::fixedToplevelPositions = false;
 }
 
 QWaylandShellSurface *QWaylandQtShellIntegration::createShellSurface(QWaylandWindow *window)

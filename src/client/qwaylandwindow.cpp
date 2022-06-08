@@ -328,8 +328,13 @@ void QWaylandWindow::setGeometry_helper(const QRect &rect)
     }
 }
 
-void QWaylandWindow::setGeometry(const QRect &rect)
+void QWaylandWindow::setGeometry(const QRect &r)
 {
+    auto rect = r;
+    if (fixedToplevelPositions && !QPlatformWindow::parent() && window()->type() != Qt::Popup
+        && window()->type() != Qt::ToolTip) {
+        rect.moveTo(screen()->geometry().topLeft());
+    }
     setGeometry_helper(rect);
 
     if (window()->isVisible() && rect.isValid()) {
@@ -1210,6 +1215,13 @@ void QWaylandWindow::handleScreensChanged()
 
     QWindowSystemInterface::handleWindowScreenChanged(window(), newScreen->QPlatformScreen::screen());
     mLastReportedScreen = newScreen;
+    if (fixedToplevelPositions && !QPlatformWindow::parent() && window()->type() != Qt::Popup
+        && window()->type() != Qt::ToolTip
+        && geometry().topLeft() != newScreen->geometry().topLeft()) {
+        auto geometry = this->geometry();
+        geometry.moveTo(newScreen->geometry().topLeft());
+        setGeometry(geometry);
+    }
 
     int scale = newScreen->isPlaceholder() ? 1 : static_cast<QWaylandScreen *>(newScreen)->scale();
     if (scale != mScale) {

@@ -76,6 +76,9 @@ public:
     QWaylandWindow(QWindow *window, QWaylandDisplay *display);
     ~QWaylandWindow() override;
 
+    // Keep Toplevels position on the top left corner of their screen
+    static inline bool fixedToplevelPositions = true;
+
     virtual WindowType windowType() const = 0;
     virtual void ensureSize();
     WId winId() const override;

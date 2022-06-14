@@ -196,14 +196,14 @@ QWaylandInputMethodControlPrivate::QWaylandInputMethodControlPrivate(QWaylandSur
 
 QWaylandQtTextInputMethod *QWaylandInputMethodControlPrivate::textInputMethod() const
 {
-    if (!surface->client()->textInputProtocols().testFlag(QWaylandClient::TextInputProtocol::QtTextInputMethodV1))
+    if (!surface->client() || !surface->client()->textInputProtocols().testFlag(QWaylandClient::TextInputProtocol::QtTextInputMethodV1))
         return nullptr;
     return QWaylandQtTextInputMethod::findIn(seat);
 }
 
 QWaylandTextInput *QWaylandInputMethodControlPrivate::textInput() const
 {
-    if (!surface->client()->textInputProtocols().testFlag(QWaylandClient::TextInputProtocol::TextInputV2))
+    if (!surface->client() || !surface->client()->textInputProtocols().testFlag(QWaylandClient::TextInputProtocol::TextInputV2))
         return nullptr;
     return QWaylandTextInput::findIn(seat);
 }

@@ -46,7 +46,6 @@ qt_internal_add_module(WaylandCompositor
         global/qtwaylandcompositorglobal.h global/qtwaylandcompositorglobal_p.h
         global/qtwaylandqmlinclude.h
         global/qwaylandcompositorextension.cpp global/qwaylandcompositorextension.h global/qwaylandcompositorextension_p.h
-        global/qwaylandquickextension.cpp global/qwaylandquickextension.h
         global/qwaylandutils_p.h
         hardware_integration/qwlclientbufferintegration.cpp hardware_integration/qwlclientbufferintegration_p.h
         wayland_wrapper/qwlbuffermanager.cpp wayland_wrapper/qwlbuffermanager_p.h
@@ -171,6 +170,7 @@ qt_internal_extend_target(WaylandCompositor CONDITION QT_FEATURE_wayland_composi
         extensions/qwaylandwlshellintegration.cpp extensions/qwaylandwlshellintegration_p.h
         extensions/qwaylandxdgshellintegration.cpp extensions/qwaylandxdgshellintegration_p.h
         extensions/qwaylandpresentationtime.cpp extensions/qwaylandpresentationtime_p.h extensions/qwaylandpresentationtime_p_p.h
+        global/qwaylandquickextension.cpp global/qwaylandquickextension.h
     LIBRARIES
         Qt::QmlPrivate
         Qt::QuickPrivate

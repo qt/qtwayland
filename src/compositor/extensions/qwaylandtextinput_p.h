@@ -120,6 +120,12 @@ protected:
     void zwp_text_input_v2_set_cursor_rectangle(Resource *resource, int32_t x, int32_t y, int32_t width, int32_t height) override;
     void zwp_text_input_v2_set_preferred_language(Resource *resource, const QString &language) override;
     void zwp_text_input_v2_update_state(Resource *resource, uint32_t serial, uint32_t flags) override;
+
+private:
+    quint32 shiftModifierMask = 1;
+    quint32 controlModifierMask = 2;
+    quint32 altModifierMask = 4;
+    quint32 metaModifierMask = 8;
 };
 
 QT_END_NAMESPACE

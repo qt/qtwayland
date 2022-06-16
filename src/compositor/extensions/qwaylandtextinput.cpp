@@ -169,13 +169,22 @@ void QWaylandTextInputPrivate::sendKeyEvent(QKeyEvent *event)
     if (!focusResource || !focusResource->handle)
         return;
 
-    // TODO add support for modifiers
+    uint mods = 0;
+    const auto &qtMods = event->modifiers();
+    if (qtMods & Qt::ShiftModifier)
+        mods |= shiftModifierMask;
+    if (qtMods & Qt::ControlModifier)
+        mods |= controlModifierMask;
+    if (qtMods & Qt::AltModifier)
+        mods |= altModifierMask;
+    if (qtMods & Qt::MetaModifier)
+        mods |= metaModifierMask;
 
 #if QT_CONFIG(xkbcommon)
     for (xkb_keysym_t keysym : QXkbCommon::toKeysym(event)) {
         send_keysym(focusResource->handle, event->timestamp(), keysym,
                     event->type() == QEvent::KeyPress ? WL_KEYBOARD_KEY_STATE_PRESSED : WL_KEYBOARD_KEY_STATE_RELEASED,
-                    0);
+                    mods);
     }
 #else
     Q_UNUSED(event);
@@ -288,9 +297,19 @@ void QWaylandTextInputPrivate::setFocus(QWaylandSurface *surface)
     focus = surface;
 }
 
+#if !QT_CONFIG(xkbcommon)
+#define XKB_MOD_NAME_SHIFT   "Shift"
+#define XKB_MOD_NAME_CTRL    "Control"
+#define XKB_MOD_NAME_ALT     "Mod1"
+#define XKB_MOD_NAME_LOGO    "Mod4"
+#endif
 void QWaylandTextInputPrivate::zwp_text_input_v2_bind_resource(Resource *resource)
 {
-    send_modifiers_map(resource->handle, QByteArray(""));
+    QByteArray modifiers = XKB_MOD_NAME_SHIFT + QByteArray(1, '\0');
+    modifiers += XKB_MOD_NAME_CTRL + QByteArray(1, '\0');
+    modifiers += XKB_MOD_NAME_ALT + QByteArray(1, '\0');
+    modifiers += XKB_MOD_NAME_LOGO + QByteArray(1, '\0');
+    send_modifiers_map(resource->handle, modifiers);
 }
 
 void QWaylandTextInputPrivate::zwp_text_input_v2_destroy_resource(Resource *resource)

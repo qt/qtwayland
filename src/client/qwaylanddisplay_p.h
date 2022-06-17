@@ -185,6 +185,7 @@ public:
     wl_event_queue *frameEventQueue() { return m_frameEventQueue; };
 
     bool isKeyboardAvailable() const;
+    bool isClientSideInputContextRequested() const;
 
     void initEventThread();
 
@@ -275,7 +276,10 @@ private:
     struct wl_callback *mSyncCallback = nullptr;
     static const wl_callback_listener syncCallbackListener;
 
-    bool mClientSideInputContextRequested = !QPlatformInputContextFactory::requested().isNull();
+    bool mClientSideInputContextRequested = [] () {
+        const QString& requested = QPlatformInputContextFactory::requested();
+        return !requested.isEmpty() && requested != QLatin1String("wayland");
+    }();
     QStringList mTextInputManagerList;
     int mTextInputManagerIndex = INT_MAX;
 

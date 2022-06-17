@@ -98,8 +98,9 @@ void tst_inputcontext::selectingInputContext_data()
     // Test compositor with Text Input extension
     QTest::newRow("ibus:text-input")    << QByteArray("ibus")    << mIbusModule;
     QTest::newRow("compose:text-input") << QByteArray("compose") << mComposeModule;
-    QTest::newRow("empty:text-input")   << QByteArray("")        << mComposeModule;
+    QTest::newRow("empty:text-input")   << QByteArray("")        << mTextInputModule;
     QTest::newRow("null:text-input")    << QByteArray()          << mTextInputModule;
+    QTest::newRow("wayland:text-input") << QByteArray("wayland") << mTextInputModule;
     QTest::newRow("fake:text-input")    << QByteArray("fake")    << mComposeModule;
 }
 

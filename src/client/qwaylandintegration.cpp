@@ -479,7 +479,7 @@ void QWaylandIntegration::reconfigureInputContext()
         qCWarning(lcQpaWayland) << "qtvirtualkeyboard currently is not supported at client-side,"
                                    " use QT_IM_MODULE=qtvirtualkeyboard at compositor-side.";
 
-    if (requested.isNull()) {
+    if (!mDisplay->isClientSideInputContextRequested()) {
         if (mDisplay->textInputMethodManager() != nullptr)
             mInputContext.reset(new QWaylandInputMethodContext(mDisplay.data()));
 #if QT_WAYLAND_TEXT_INPUT_V4_WIP

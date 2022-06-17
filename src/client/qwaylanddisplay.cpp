@@ -869,6 +869,10 @@ bool QWaylandDisplay::isKeyboardAvailable() const
             [](const QWaylandInputDevice *device) { return device->keyboard() != nullptr; });
 }
 
+bool QWaylandDisplay::isClientSideInputContextRequested() const {
+    return mClientSideInputContextRequested;
+}
+
 #if QT_CONFIG(cursor)
 
 QWaylandCursor *QWaylandDisplay::waylandCursor()

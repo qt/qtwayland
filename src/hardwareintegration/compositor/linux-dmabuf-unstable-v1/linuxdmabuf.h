@@ -41,6 +41,8 @@
 #include <QtCore/QTextStream>
 #include <QtGui/QOpenGLTexture>
 
+#include <array>
+
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 

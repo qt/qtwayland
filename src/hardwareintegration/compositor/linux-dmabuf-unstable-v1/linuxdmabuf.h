@@ -41,6 +41,8 @@
 #include <QtCore/QSize>
 #include <QtCore/QTextStream>
 
+#include <array>
+
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 

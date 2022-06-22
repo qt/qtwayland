@@ -7,7 +7,7 @@
 qt_internal_add_qml_module(WaylandTextureSharingExtension
     URI "QtWayland.Compositor.TextureSharingExtension"
     VERSION "1.${PROJECT_VERSION_MINOR}"
-    CLASSNAME QWaylandTextureSharingExtensionPlugin
+    CLASS_NAME QWaylandTextureSharingExtensionPlugin
     NO_PLUGIN_OPTIONAL
     NO_GENERATE_PLUGIN_SOURCE
     NO_GENERATE_QMLTYPES

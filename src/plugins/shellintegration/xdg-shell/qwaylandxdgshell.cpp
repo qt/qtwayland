@@ -10,6 +10,7 @@
 #include <QtWaylandClient/private/qwaylandscreen_p.h>
 #include <QtWaylandClient/private/qwaylandabstractdecoration_p.h>
 
+#include <QtGui/QGuiApplication>
 #include <QtGui/private/qwindow_p.h>
 
 QT_BEGIN_NAMESPACE
@@ -477,8 +478,29 @@ void QWaylandXdgSurface::xdg_surface_configure(uint32_t serial)
 bool QWaylandXdgSurface::requestActivate()
 {
     if (auto *activation = m_shell->activation()) {
-        activation->activate(m_activationToken, window()->wlSurface());
-        return true;
+        if (!m_activationToken.isEmpty()) {
+            activation->activate(m_activationToken, window()->wlSurface());
+            m_activationToken = {};
+            return true;
+        } else if (const auto token = qEnvironmentVariable("XDG_ACTIVATION_TOKEN"); !token.isEmpty()) {
+            activation->activate(token, window()->wlSurface());
+            qunsetenv("XDG_ACTIVATION_TOKEN");
+            return true;
+        } else if (const auto focusWindow = QGuiApplication::focusWindow()) {
+            const auto wlWindow = static_cast<QWaylandWindow*>(focusWindow->handle());
+            if (const auto xdgSurface = qobject_cast<QWaylandXdgSurface *>(wlWindow->shellSurface())) {
+                if (const auto seat = wlWindow->display()->lastInputDevice()) {
+                    const auto tokenProvider = activation->requestXdgActivationToken(
+                            wlWindow->display(), wlWindow->wlSurface(), seat->serial(), xdgSurface->m_appId);
+                    connect(tokenProvider, &QWaylandXdgActivationTokenV1::done, this,
+                            [this, tokenProvider](const QString &token) {
+                                m_shell->activation()->activate(token, window()->wlSurface());
+                                tokenProvider->deleteLater();
+                            });
+                    return true;
+                }
+            }
+        }
     }
     return false;
 }

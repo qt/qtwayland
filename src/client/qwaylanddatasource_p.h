@@ -56,7 +56,6 @@ protected:
     void data_source_action(uint32_t action) override;
 
 private:
-    QWaylandDisplay *m_display = nullptr;
     QMimeData *m_mime_data = nullptr;
     bool m_accepted = false;
     Qt::DropAction m_dropAction = Qt::IgnoreAction;

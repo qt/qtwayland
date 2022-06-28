@@ -61,6 +61,7 @@ public:
     void sendInputPanelState();
     void sendTextDirection();
     void sendLocale();
+    void sendModifiersMap(const QByteArray &modifiersMap);
 
     QVariant inputMethodQuery(Qt::InputMethodQuery property, QVariant argument) const;
 

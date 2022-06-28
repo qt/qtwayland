@@ -38,6 +38,8 @@ public:
     static const struct wl_interface *interface();
     static QByteArray interfaceName();
 
+    void sendModifiersMap(const QByteArray &modifiersMap);
+
 Q_SIGNALS:
     void updateInputMethod(Qt::InputMethodQueries queries);
     void surfaceEnabled(QWaylandSurface *surface);

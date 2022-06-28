@@ -77,7 +77,6 @@ protected:
     void zwp_primary_selection_source_v1_cancelled() override { emit cancelled(); }
 
 private:
-    QWaylandDisplay *m_display = nullptr;
     QMimeData *m_mimeData = nullptr;
 };
 

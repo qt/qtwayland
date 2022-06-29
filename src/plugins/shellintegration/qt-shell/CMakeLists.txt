@@ -4,7 +4,7 @@
 
 qt_internal_add_plugin(QWaylandQtShellIntegrationPlugin
     OUTPUT_NAME qt-shell
-    TYPE wayland-shell-integration
+    PLUGIN_TYPE wayland-shell-integration
     SOURCES
         main.cpp
         qwaylandqtshellintegration.cpp qwaylandqtshellintegration.h

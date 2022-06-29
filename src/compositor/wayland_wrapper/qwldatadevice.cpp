@@ -127,7 +127,7 @@ void DataDevice::dragMove(QWaylandSurface *target, const QPointF &pos)
 {
     if (target != m_dragFocus)
         setDragFocus(target, pos);
-    if (!target)
+    if (!target || !m_dragFocusResource)
         return;
     uint time = m_compositor->currentTimeMsecs(); //### should be serial
     send_motion(m_dragFocusResource->handle, time,
@@ -150,7 +150,7 @@ void DataDevice::cancelDrag()
 {
     setDragFocus(nullptr, QPoint());
 }
-    
+
 void DataDevice::data_device_start_drag(Resource *resource, struct ::wl_resource *source, struct ::wl_resource *origin, struct ::wl_resource *icon, uint32_t serial)
 {
     m_dragClient = resource->client();

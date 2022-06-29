@@ -17,7 +17,7 @@ qt_internal_add_qml_module(WaylandCompositorQtShell
         qwaylandqtshell.cpp qwaylandqtshell.h qwaylandqtshell_p.h
         qwaylandqtshellintegration.cpp qwaylandqtshellintegration_p.h
         qwaylandqtshellchrome.cpp qwaylandqtshellchrome.h qwaylandqtshellchrome_p.h
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Core
         Qt::Gui
         Qt::Quick

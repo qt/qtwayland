@@ -154,10 +154,13 @@ void QWaylandWindow::initWindow()
 
     setWindowFlags(window()->flags());
     QRect geometry = windowGeometry();
-    if (geometry.isEmpty())
-        setGeometry_helper(defaultGeometry());
-    else
-        setGeometry_helper(geometry);
+    QRect defaultGeometry = this->defaultGeometry();
+    if (geometry.width() <= 0)
+        geometry.setWidth(defaultGeometry.width());
+    if (geometry.height() <= 0)
+        geometry.setHeight(defaultGeometry.height());
+
+    setGeometry_helper(geometry);
     setMask(window()->mask());
     if (mShellSurface)
         mShellSurface->requestWindowStates(window()->windowStates());

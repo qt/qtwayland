@@ -110,7 +110,7 @@ void QWaylandTextInputMethod::text_input_method_v1_input_method_event_attribute(
         attributes.append(QInputMethodEvent::Attribute(QInputMethodEvent::AttributeType(type), startMapped, length));
         break;
     case QInputMethodEvent::Cursor:
-        attributes.append(QInputMethodEvent::Attribute(QInputMethodEvent::AttributeType(type), start, length, QColor(value)));
+        attributes.append(QInputMethodEvent::Attribute(QInputMethodEvent::AttributeType(type), start, length, QColor::fromString(value)));
         break;
     case QInputMethodEvent::TextFormat:
     {

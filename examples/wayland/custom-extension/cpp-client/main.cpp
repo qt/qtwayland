@@ -77,13 +77,13 @@ protected:
         QPainter p(this);
         p.setFont(m_font);
         p.fillRect(QRect(0,0,width(),height()),Qt::gray);
-        p.fillRect(rect1, QColor("#C0FFEE"));
+        p.fillRect(rect1, QColor::fromString("#C0FFEE"));
         p.drawText(rect1, Qt::TextWordWrap, "Press here to send spin request.");
-        p.fillRect(rect2, QColor("#decaff"));
+        p.fillRect(rect2, QColor::fromString("#decaff"));
         p.drawText(rect2, Qt::TextWordWrap, "Press here to send bounce request.");
-        p.fillRect(rect3, QColor("#7EA"));
+        p.fillRect(rect3, QColor::fromString("#7EA"));
         p.drawText(rect3, Qt::TextWordWrap, "Create new window.");
-        p.fillRect(rect4, QColor("#7EABA6"));
+        p.fillRect(rect4, QColor::fromString("#7EABA6"));
         p.drawText(rect4, Qt::TextWordWrap, "Create custom object.");
 
     }

@@ -191,7 +191,7 @@ public:
     QList<TabletPadV2 *> m_padsWaitingForDestroy;
 
 protected:
-    void zwp_tablet_seat_v2_bind_resource(Resource *resource)
+    void zwp_tablet_seat_v2_bind_resource(Resource *resource) override
     {
         for (auto *tablet : m_tablets)
             sendTabletAdded(resource, tablet);
@@ -701,12 +701,12 @@ void tst_tabletv2::pointerType()
 void tst_tabletv2::hardwareSerial()
 {
     ProximityFilter filter;
-    const qint64 uid = 0xbaba15dead15f00d;
+    const QPointingDeviceUniqueId uid = QPointingDeviceUniqueId::fromNumericId(0xbaba15dead15f00d);
 
     QCOMPOSITOR_TRY_VERIFY(tabletSeat());
     exec([&] {
         tabletSeat()->addTablet();
-        tabletSeat()->addTool(ToolType::type_pen, uid);
+        tabletSeat()->addTool(ToolType::type_pen, uid.numericId());
     });
 
     TabletWindow window;
@@ -726,11 +726,11 @@ void tst_tabletv2::hardwareSerial()
 
     QTRY_COMPARE(filter.numEvents(), 1);
     QTabletEvent *event = filter.popEvent();
-    QCOMPARE(event->uniqueId(), uid);
+    QCOMPARE(event->pointingDevice()->uniqueId(), uid);
 
     QTRY_VERIFY(window.numEvents());
     event = window.popEvent();
-    QCOMPARE(event->uniqueId(), uid);
+    QCOMPARE(event->pointingDevice()->uniqueId(), uid);
 
     exec([&] {
         tabletTool()->sendProximityOut();
@@ -739,7 +739,7 @@ void tst_tabletv2::hardwareSerial()
 
     QTRY_VERIFY(filter.numEvents());
     event = filter.popEvent();
-    QCOMPARE(event->uniqueId(), uid);
+    QCOMPARE(event->pointingDevice()->uniqueId(), uid);
 }
 
 // As defined in linux/input-event-codes.h

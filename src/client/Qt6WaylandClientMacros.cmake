@@ -1,3 +1,6 @@
+# Copyright (C) 2022 The Qt Company Ltd.
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 function(qt6_generate_wayland_protocol_client_sources target)
     cmake_parse_arguments(arg "" "__QT_INTERNAL_WAYLAND_INCLUDE_DIR" "FILES" ${ARGN})
     if(DEFINED arg_UNPARSED_ARGUMENTS)

@@ -1,3 +1,6 @@
+# Copyright (C) 2022 The Qt Company Ltd.
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
+
 if(QT_FEATURE_wayland_server)
 if(QT_FEATURE_opengl)
     qt_internal_add_example(minimal-cpp)

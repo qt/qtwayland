@@ -73,6 +73,8 @@ qt_internal_add_module(WaylandCompositor
         Qt::CorePrivate
         Qt::GuiPrivate
         Qt::WaylandGlobalPrivate
+    PRIVATE_HEADER_FILTERS
+        "^qwayland-.*\.h|^wayland-.*-protocol\.h"
 )
 
 set(compositor_no_pch_sources

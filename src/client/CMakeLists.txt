@@ -74,6 +74,8 @@ qt_internal_add_module(WaylandClient
         Qt::CorePrivate
         Qt::GuiPrivate
         Qt::WaylandGlobalPrivate
+    PRIVATE_HEADER_FILTERS
+        "^qwayland-.*\.h|^wayland-.*-protocol\.h"
 )
 
 qt6_generate_wayland_protocol_client_sources(WaylandClient

@@ -17,6 +17,8 @@ qt_internal_add_module(WlShellIntegrationPrivate
         Qt::GuiPrivate
         Qt::WaylandClientPrivate
         Wayland::Client
+    PRIVATE_HEADER_FILTERS
+        "^qwayland-.*\.h|^wayland-.*-protocol\.h"
 )
 
 qt6_generate_wayland_protocol_client_sources(WlShellIntegrationPrivate

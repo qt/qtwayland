@@ -4,6 +4,10 @@
 #ifndef QWAYLANDCLIENTGLOBAL_H
 #define QWAYLANDCLIENTGLOBAL_H
 
+#if 0
+#pragma qt_deprecates(qwaylandclientexport.h)
+#endif
+
 #include <QtGui/qtguiglobal.h>
 #include <QtWaylandClient/qtwaylandclient-config.h>
 #include <QtWaylandClient/qtwaylandclientexports.h>

@@ -24,6 +24,8 @@ qt_internal_add_qml_module(WaylandCompositorIviapplication
         Qt::WaylandCompositor
 )
 
+qt_internal_add_autogen_sync_header_dependencies(WaylandCompositorIviapplication WaylandCompositor)
+
 #### Keys ignored in scope 1:.:.:iviapplication.pro:<TRUE>:
 # CXX_MODULE = "qml"
 # QML_IMPORT_VERSION = "$$QT_VERSION"

@@ -24,6 +24,8 @@ qt_internal_add_qml_module(WaylandCompositorWLShell
         Qt::WaylandCompositor
 )
 
+qt_internal_add_autogen_sync_header_dependencies(WaylandCompositorWLShell WaylandCompositor)
+
 #### Keys ignored in scope 1:.:.:wlshell.pro:<TRUE>:
 # CXX_MODULE = "qml"
 # QML_IMPORT_VERSION = "$$QT_VERSION"

@@ -33,3 +33,5 @@ qt6_generate_wayland_protocol_server_sources(WaylandCompositorQtShell
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../extensions/qt-shell-unstable-v1.xml
 )
+
+qt_internal_add_autogen_sync_header_dependencies(WaylandCompositorQtShell WaylandCompositor)

@@ -39,6 +39,8 @@ qt6_generate_wayland_protocol_client_sources(WaylandTextureSharing
         ${CMAKE_CURRENT_SOURCE_DIR}/../../extensions/qt-texture-sharing-unstable-v1.xml
 )
 
+qt_internal_add_autogen_sync_header_dependencies(WaylandTextureSharing WaylandCompositor)
+
 #### Keys ignored in scope 1:.:.:texture-sharing.pro:<TRUE>:
 # CXX_MODULE = "qml"
 # IMPORT_VERSION = "1.$$QT_MINOR_VERSION"

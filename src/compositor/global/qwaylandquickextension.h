@@ -4,6 +4,10 @@
 #ifndef QWAYLANDQUICKEXTENSION_H
 #define QWAYLANDQUICKEXTENSION_H
 
+#if 0
+#pragma qt_class(QWaylandQuickExtension)
+#endif
+
 #include <QtWaylandCompositor/QWaylandCompositorExtension>
 #include <QtQml/QQmlParserStatus>
 #include <QtQml/QQmlListProperty>

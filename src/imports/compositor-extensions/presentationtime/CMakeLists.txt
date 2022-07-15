@@ -20,3 +20,6 @@ qt_internal_add_qml_module(WaylandCompositorPresentationTime
         Qt::Gui
         Qt::WaylandCompositorPrivate
 )
+
+qt_internal_add_autogen_sync_header_dependencies(WaylandCompositorPresentationTime
+    WaylandCompositor)

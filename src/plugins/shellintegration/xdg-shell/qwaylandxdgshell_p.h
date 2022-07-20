@@ -102,14 +102,15 @@ private:
 
     class Popup : public QtWayland::xdg_popup {
     public:
-        Popup(QWaylandXdgSurface *xdgSurface, QWaylandXdgSurface *parent, QtWayland::xdg_positioner *positioner);
+        Popup(QWaylandXdgSurface *xdgSurface, QWaylandWindow *parent, QtWayland::xdg_positioner *positioner);
         ~Popup() override;
 
         void grab(QWaylandInputDevice *seat, uint serial);
         void xdg_popup_popup_done() override;
 
         QWaylandXdgSurface *m_xdgSurface = nullptr;
-        QWaylandXdgSurface *m_parent = nullptr;
+        QWaylandXdgSurface *m_parentXdgSurface = nullptr;
+        QWaylandWindow *m_parent = nullptr;
         bool m_grabbing = false;
     };
 

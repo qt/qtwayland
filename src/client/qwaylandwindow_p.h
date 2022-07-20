@@ -206,6 +206,10 @@ public:
     void beginFrame();
     void endFrame();
 
+    void addChildPopup(QWaylandWindow* child);
+    void removeChildPopup(QWaylandWindow* child);
+    void closeChildPopups();
+
 public slots:
     void applyConfigure();
 
@@ -291,6 +295,8 @@ protected:
     QRegion mQueuedBufferDamage;
 
     QMargins mCustomMargins;
+
+    QList<QPointer<QWaylandWindow>> mChildPopups;
 
 private:
     void setGeometry_helper(const QRect &rect);

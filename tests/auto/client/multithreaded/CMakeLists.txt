@@ -10,6 +10,6 @@
 qt_internal_add_test(tst_multithreaded
     SOURCES
         tst_multithreaded.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         SharedClientTest
 )

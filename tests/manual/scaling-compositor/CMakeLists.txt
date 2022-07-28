@@ -11,7 +11,7 @@ qt_internal_add_manual_test(scaling-compositor
     GUI
     SOURCES
         main.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Gui
         Qt::Qml
 )

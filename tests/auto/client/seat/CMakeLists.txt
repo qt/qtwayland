@@ -10,6 +10,6 @@
 qt_internal_add_test(tst_seat
     SOURCES
         tst_seat.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         SharedClientTest
 )

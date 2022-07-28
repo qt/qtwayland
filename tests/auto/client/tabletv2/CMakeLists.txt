@@ -10,6 +10,6 @@
 qt_internal_add_test(tst_tabletv2
     SOURCES
         tst_tabletv2.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         SharedClientTest
 )

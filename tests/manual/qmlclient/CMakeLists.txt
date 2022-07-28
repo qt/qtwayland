@@ -11,7 +11,7 @@ qt_internal_add_manual_test(qmlclient
     GUI
     SOURCES
         main.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::CorePrivate
         Qt::Gui
         Qt::GuiPrivate

@@ -10,6 +10,6 @@
 qt_internal_add_test(tst_primaryselectionv1
     SOURCES
         tst_primaryselectionv1.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         SharedClientTest
 )

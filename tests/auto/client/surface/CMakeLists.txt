@@ -10,6 +10,6 @@
 qt_internal_add_test(tst_surface
     SOURCES
         tst_surface.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         SharedClientTest
 )

@@ -18,7 +18,7 @@ qt_internal_add_test(tst_compositor
         testkeyboardgrabber.cpp testkeyboardgrabber.h
         testseat.cpp testseat.h
         tst_compositor.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::CorePrivate
         Qt::Gui
         Qt::GuiPrivate
@@ -42,6 +42,6 @@ qt6_generate_wayland_protocol_client_sources(tst_compositor
 #####################################################################
 
 qt_internal_extend_target(tst_compositor CONDITION QT_FEATURE_xkbcommon
-    PUBLIC_LIBRARIES
+    LIBRARIES
         XKB::XKB
 )

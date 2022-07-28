@@ -14,7 +14,7 @@ qt_internal_add_manual_test(cpp-client
         main.cpp
     INCLUDE_DIRECTORIES
         ../../../../src/imports/texture-sharing
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Gui
         Qt::GuiPrivate
         Qt::OpenGL

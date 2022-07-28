@@ -13,7 +13,7 @@ qt_internal_add_manual_test(wip-cpp-compositor
         compositor.cpp compositor.h
         main.cpp
         window.cpp window.h
-    PUBLIC_LIBRARIES
+    LIBRARIES
         Qt::Gui
         Qt::WaylandCompositor
 )

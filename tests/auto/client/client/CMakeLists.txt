@@ -10,7 +10,7 @@
 qt_internal_add_test(tst_client
     SOURCES
         tst_client.cpp
-    PUBLIC_LIBRARIES
+    LIBRARIES
         SharedClientTest
 )
 

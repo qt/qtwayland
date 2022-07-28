@@ -1,8 +1,8 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 
-#ifndef QWAYLANDNATIVEINTERFACE_H
-#define QWAYLANDNATIVEINTERFACE_H
+#ifndef QWAYLANDNATIVEINTERFACE_P_H
+#define QWAYLANDNATIVEINTERFACE_P_H
 
 //
 //  W A R N I N G
@@ -21,6 +21,7 @@
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <QtCore/private/qglobal_p.h>
 #include <QtCore/qhash.h>
+#include <QtGui/qguiapplication_platform.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -31,7 +32,8 @@ namespace QtWaylandClient {
 class QWaylandIntegration;
 class QWaylandScreen;
 
-class Q_WAYLANDCLIENT_EXPORT QWaylandNativeInterface : public QPlatformNativeInterface
+class Q_WAYLANDCLIENT_EXPORT QWaylandNativeInterface : public QPlatformNativeInterface,
+                                                       public QNativeInterface::QWaylandApplication
 {
 public:
     QWaylandNativeInterface(QWaylandIntegration *integration);
@@ -51,6 +53,16 @@ public:
 
     void emitWindowPropertyChanged(QPlatformWindow *window, const QString &name);
 
+    // QWaylandApplication interface
+    wl_display *display() const override;
+    wl_compositor *compositor() const override;
+    wl_seat *seat() const override;
+    wl_keyboard *keyboard() const override;
+    wl_pointer *pointer() const override;
+    wl_touch *touch() const override;
+    uint lastInputSerial() const override;
+    wl_seat *lastInputSeat() const override;
+
 private:
     static void setWindowMargins(QWindow *window, const QMargins &margins);
 
@@ -62,4 +74,4 @@ private:
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDNATIVEINTERFACE_H
+#endif // QWAYLANDNATIVEINTERFACE_P_H

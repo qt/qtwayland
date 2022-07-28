@@ -12,6 +12,7 @@
 #include "qwaylandwindowmanagerintegration_p.h"
 #include "qwaylandscreen_p.h"
 #include "qwaylandinputdevice_p.h"
+#include <QtCore/private/qnativeinterface_p.h>
 #include <QtGui/private/qguiapplication_p.h>
 #include <QtGui/QScreen>
 #include <QtWaylandClient/private/qwaylandclientbufferintegration_p.h>
@@ -65,6 +66,60 @@ void *QWaylandNativeInterface::nativeResourceForIntegration(const QByteArray &re
     if (lowerCaseResource == "serial")
         return reinterpret_cast<void *>(quintptr(m_integration->display()->defaultInputDevice()->serial()));
 
+    return nullptr;
+}
+
+wl_display *QtWaylandClient::QWaylandNativeInterface::display() const
+{
+    return m_integration->display()->wl_display();
+}
+
+wl_compositor *QtWaylandClient::QWaylandNativeInterface::compositor() const
+{
+    return const_cast<wl_compositor *>(m_integration->display()->wl_compositor());
+}
+
+wl_seat *QtWaylandClient::QWaylandNativeInterface::seat() const
+{
+    if (auto inputDevice = m_integration->display()->defaultInputDevice()) {
+        return inputDevice->wl_seat();
+    }
+    return nullptr;
+}
+
+wl_keyboard *QtWaylandClient::QWaylandNativeInterface::keyboard() const
+{
+    if (auto inputDevice = m_integration->display()->defaultInputDevice())
+        if (auto keyboard = inputDevice->keyboard())
+            return keyboard->wl_keyboard();
+    return nullptr;
+}
+
+wl_pointer *QtWaylandClient::QWaylandNativeInterface::pointer() const
+{
+    if (auto inputDevice = m_integration->display()->defaultInputDevice())
+        if (auto pointer = inputDevice->pointer())
+            return pointer->wl_pointer();
+    return nullptr;
+}
+
+wl_touch *QtWaylandClient::QWaylandNativeInterface::touch() const
+{
+    if (auto inputDevice = m_integration->display()->defaultInputDevice())
+        if (auto touch = inputDevice->touch())
+            return touch->wl_touch();
+    return nullptr;
+}
+
+uint QtWaylandClient::QWaylandNativeInterface::lastInputSerial() const
+{
+    return m_integration->display()->lastInputSerial();
+}
+
+wl_seat *QtWaylandClient::QWaylandNativeInterface::lastInputSeat() const
+{
+    if (auto inputDevice = m_integration->display()->lastInputDevice())
+        return inputDevice->wl_seat();
     return nullptr;
 }
 

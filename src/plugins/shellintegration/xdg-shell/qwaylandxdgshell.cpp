@@ -410,8 +410,8 @@ void QWaylandXdgSurface::setPopup(QWaylandWindow *parent)
     QPoint transientPos = m_window->geometry().topLeft(); // this is absolute
     transientPos -= parent->geometry().topLeft();
     if (parent->decoration()) {
-        transientPos.setX(transientPos.x() + parent->decoration()->margins().left());
-        transientPos.setY(transientPos.y() + parent->decoration()->margins().top());
+        transientPos.setX(transientPos.x() + parent->decoration()->margins(QWaylandAbstractDecoration::ShadowsExcluded).left());
+        transientPos.setY(transientPos.y() + parent->decoration()->margins(QWaylandAbstractDecoration::ShadowsExcluded).top());
     }
     positioner->set_anchor_rect(transientPos.x(), transientPos.y(), 1, 1);
     positioner->set_anchor(QtWayland::xdg_positioner::anchor_top_left);

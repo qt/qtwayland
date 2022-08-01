@@ -10,7 +10,8 @@
 qt_internal_add_manual_test(cpp-client
     GUI
     SOURCES
-        ../../../../src/imports/texture-sharing/texturesharingextension.cpp ../../../../src/imports/texture-sharing/texturesharingextension.h
+        ../../../../src/imports/texture-sharing/texturesharingextension.cpp
+        ../../../../src/imports/texture-sharing/texturesharingextension_p.h
         main.cpp
     INCLUDE_DIRECTORIES
         ../../../../src/imports/texture-sharing

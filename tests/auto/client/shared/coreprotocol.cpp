@@ -493,6 +493,13 @@ void Touch::sendFrame(wl_client *client)
         send_frame(r->handle);
 }
 
+void Touch::sendCancel(wl_client *client)
+{
+    const auto touchResources = resourceMap().values(client);
+    for (auto *r : touchResources)
+        send_cancel(r->handle);
+}
+
 uint Keyboard::sendEnter(Surface *surface)
 {
     auto serial = m_seat->m_compositor->nextSerial();

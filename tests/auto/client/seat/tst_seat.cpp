@@ -50,6 +50,7 @@ private slots:
     void multiTouch();
     void multiTouchUpAndMotionFrame();
     void tapAndMoveInSameFrame();
+    void cancelTouch();
 };
 
 void tst_seat::bindsToSeat()
@@ -631,6 +632,35 @@ void tst_seat::tapAndMoveInSameFrame()
     // Make sure we eventually release
     QTRY_VERIFY(!window.m_events.empty());
     QTRY_COMPARE(window.m_events.last().touchPoints.first().state(), QEventPoint::State::Released);
+}
+
+void tst_seat::cancelTouch()
+{
+    TouchWindow window;
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+
+    exec([=] {
+        auto *t = touch();
+        auto *c = client();
+        t->sendDown(xdgToplevel()->surface(), {32, 32}, 1);
+        t->sendFrame(c);
+        t->sendCancel(c);
+        t->sendFrame(c);
+    });
+
+    QTRY_VERIFY(!window.m_events.empty());
+    {
+        auto e = window.m_events.takeFirst();
+        QCOMPARE(e.type, QEvent::TouchBegin);
+        QCOMPARE(e.touchPointStates, QEventPoint::State::Pressed);
+        QCOMPARE(e.touchPoints.length(), 1);
+        QCOMPARE(e.touchPoints.first().position(), QPointF(32-window.frameMargins().left(), 32-window.frameMargins().top()));
+    }
+    {
+        auto e = window.m_events.takeFirst();
+        QCOMPARE(e.type, QEvent::TouchCancel);
+        QCOMPARE(e.touchPoints.length(), 0);
+    }
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_seat)

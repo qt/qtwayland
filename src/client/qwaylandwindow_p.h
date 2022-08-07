@@ -112,6 +112,7 @@ public:
     bool waitForFrameSync(int timeout);
 
     QMargins frameMargins() const override;
+    QMargins customMargins() const;
     void setCustomMargins(const QMargins &margins);
     QSize surfaceSize() const;
     QRect windowContentGeometry() const;

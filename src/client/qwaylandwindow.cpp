@@ -728,6 +728,11 @@ QMargins QWaylandWindow::clientSideMargins() const
     return mWindowDecorationEnabled ? mWindowDecoration->margins() : QMargins{};
 }
 
+QMargins QWaylandWindow::customMargins() const
+{
+    return mCustomMargins;
+}
+
 void QWaylandWindow::setCustomMargins(const QMargins &margins) {
     const QMargins oldMargins = mCustomMargins;
     mCustomMargins = margins;

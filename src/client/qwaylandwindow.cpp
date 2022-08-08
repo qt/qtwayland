@@ -932,7 +932,11 @@ bool QWaylandWindow::createDecoration()
         // size and are not redrawn, leaving the new buffer empty. As a simple
         // work-around, we trigger a full extra update whenever the client-side
         // window decorations are toggled while the window is showing.
-        window()->requestUpdate();
+        // Note: createDecoration() is sometimes called from the render thread
+        // of Qt Quick. This is essentially wrong and could potentially cause problems,
+        // but until the underlying issue has been fixed, we have to use invokeMethod()
+        // here to avoid asserts.
+        QMetaObject::invokeMethod(window(), &QWindow::requestUpdate);
     }
 
     return mWindowDecoration;

@@ -294,7 +294,7 @@ bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
 
     if (!m_currentWindow->needToUpdateContentFBO() && (eglSurface != EGL_NO_SURFACE)) {
         if (!eglMakeCurrent(eglDisplay(), eglSurface, eglSurface, eglContext())) {
-            qWarning("QWaylandGLContext::makeCurrent: eglError: %x, this: %p \n", eglGetError(), this);
+            qWarning("QWaylandGLContext::makeCurrent: eglError: %#x, this: %p \n", eglGetError(), this);
             return false;
         }
         return true;
@@ -311,7 +311,7 @@ bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)
     }
 
     if (!eglMakeCurrent(eglDisplay(), eglSurface, eglSurface, eglContext())) {
-        qWarning("QWaylandGLContext::makeCurrent: eglError: %x, this: %p \n", eglGetError(), this);
+        qWarning("QWaylandGLContext::makeCurrent: eglError: %#x, this: %p \n", eglGetError(), this);
         m_currentWindow->setCanResize(true);
         return false;
     }

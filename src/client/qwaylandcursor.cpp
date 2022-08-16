@@ -120,6 +120,8 @@ wl_cursor *QWaylandCursorTheme::requestCursor(WaylandCursor shape)
 
         {SizeAllCursor, "size_all"},
 
+        {BlankCursor, "blank"},
+
         {SplitVCursor, "split_v"},
         {SplitVCursor, "row-resize"},
         {SplitVCursor, "sb_v_double_arrow"},

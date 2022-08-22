@@ -44,9 +44,6 @@ examplesinstallpath = wayland
 # Add generic thumbnail for all examples
 manifestmeta.thumbnail.names = *
 
-Cpp.ignoretokens         += Q_WAYLANDCOMPOSITOR_EXPORT
-Cpp.ignoredirectives     += Q_DECLARE_LOGGING_CATEGORY
-
 navigation.landingpage    = "Qt Wayland Compositor"
 navigation.qmltypespage   = "Qt Wayland Compositor QML Types"
 navigation.cppclassespage = "Qt Wayland Compositor C++ Classes"

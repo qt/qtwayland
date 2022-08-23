@@ -6,7 +6,8 @@
             "**/*Compositor*/**/*",
             "**/*Compositor*",
             "**/wayland-graphics-integration-server/*",
-            "**/wayland-hardware-layer-integration/*"
+            "**/wayland-hardware-layer-integration/*",
+            "**/QmlPlugins/Qt6WaylandTextureSharing*.cmake"
         ]
     }
 }

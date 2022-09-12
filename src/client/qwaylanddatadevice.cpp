@@ -168,7 +168,7 @@ void QWaylandDataDevice::data_device_drop()
 
 void QWaylandDataDevice::data_device_enter(uint32_t serial, wl_surface *surface, wl_fixed_t x, wl_fixed_t y, wl_data_offer *id)
 {
-    auto *dragWaylandWindow = QWaylandWindow::fromWlSurface(surface);
+    auto *dragWaylandWindow = surface ? QWaylandWindow::fromWlSurface(surface) : nullptr;
     if (!dragWaylandWindow)
         return; // Ignore foreign surfaces
 

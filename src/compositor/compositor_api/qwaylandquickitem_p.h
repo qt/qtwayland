@@ -80,6 +80,7 @@ public:
     ~QWaylandBufferMaterial() override;
 
     void setTextureForPlane(int plane, QOpenGLTexture *texture);
+    void setBufferRef(QWaylandQuickItem *surfaceItem, const QWaylandBufferRef &ref);
 
     void bind();
 
@@ -92,6 +93,7 @@ private:
 
     const QWaylandBufferRef::BufferFormatEgl m_format;
     QVarLengthArray<QOpenGLTexture*, 3> m_textures;
+    QWaylandBufferRef m_bufferRef;
 };
 #endif // QT_CONFIG(opengl)
 

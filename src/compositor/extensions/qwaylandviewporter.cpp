@@ -149,14 +149,16 @@ void QWaylandViewporterPrivate::Viewport::checkCommittedState()
         return;
     }
 
-    QRectF max = QRectF(QPointF(), m_surface->bufferSize() / m_surface->bufferScale());
-    // We can't use QRectF.contains, because that would return false for values on the border
-    if (max.united(source) != max) {
-        wl_resource_post_error(resource()->handle, error_out_of_buffer,
-                               "source %f,%f, %fx%f extends outside attached buffer %fx%f",
-                               source.x(), source.y(), source.width(), source.height(),
-                               max.width(), max.height());
-        return;
+    if (m_surface->bufferSize().isValid()) {
+        QRectF max = QRectF(QPointF(), m_surface->bufferSize() / m_surface->bufferScale());
+        // We can't use QRectF.contains, because that would return false for values on the border
+        if (max.united(source) != max) {
+            wl_resource_post_error(resource()->handle, error_out_of_buffer,
+                                   "source %f,%f, %fx%f extends outside attached buffer %fx%f",
+                                   source.x(), source.y(), source.width(), source.height(),
+                                   max.width(), max.height());
+            return;
+        }
     }
 }
 

@@ -4,6 +4,7 @@
 #include "qwaylandeglwindow_p.h"
 
 #include <QtWaylandClient/private/qwaylandscreen_p.h>
+#include <QtWaylandClient/private/qwaylandsurface_p.h>
 #include "qwaylandglcontext_p.h"
 
 #include <QtGui/private/qeglconvenience_p.h>
@@ -79,6 +80,7 @@ void QWaylandEglWindow::updateSurface(bool create)
         }
         mOffset = QPoint();
     } else {
+        QReadLocker locker(&mSurfaceLock);
         if (m_waylandEglWindow) {
             int current_width, current_height;
             static bool disableResizeCheck = qgetenv("QT_WAYLAND_DISABLE_RESIZECHECK").toInt();
@@ -93,8 +95,8 @@ void QWaylandEglWindow::updateSurface(bool create)
 
                 m_resize = true;
             }
-        } else if (create && wlSurface()) {
-            m_waylandEglWindow = wl_egl_window_create(wlSurface(), sizeWithMargins.width(), sizeWithMargins.height());
+        } else if (create && mSurface) {
+            m_waylandEglWindow = wl_egl_window_create(mSurface->object(), sizeWithMargins.width(), sizeWithMargins.height());
             m_requestedSize = sizeWithMargins;
         }
 

@@ -261,6 +261,7 @@ void QWaylandDataDevice::selectionSourceCancelled()
 #if QT_CONFIG(draganddrop)
 void QWaylandDataDevice::dragSourceCancelled()
 {
+    static_cast<QWaylandDrag *>(QGuiApplicationPrivate::platformIntegration()->drag())->finishDrag();
     m_dragSource.reset();
 }
 

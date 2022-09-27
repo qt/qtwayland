@@ -522,6 +522,8 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
 #if QT_CONFIG(wayland_client_primary_selection)
     } else if (interface == QLatin1String(QWaylandPrimarySelectionDeviceManagerV1::interface()->name)) {
         mPrimarySelectionManager.reset(new QWaylandPrimarySelectionDeviceManagerV1(this, id, 1));
+        for (QWaylandInputDevice *inputDevice : std::as_const(mInputDevices))
+            inputDevice->setPrimarySelectionDevice(mPrimarySelectionManager->createDevice(inputDevice));
 #endif
     } else if (interface == QLatin1String(QtWayland::qt_text_input_method_manager_v1::interface()->name)
             && (mTextInputManagerList.contains(interface) && mTextInputManagerList.indexOf(interface) < mTextInputManagerIndex)) {
@@ -674,6 +676,13 @@ void QWaylandDisplay::registry_global_remove(uint32_t id)
                     inputDevice->setTextInputMethod(nullptr);
                 mWaylandIntegration->reconfigureInputContext();
             }
+#if QT_CONFIG(wayland_client_primary_selection)
+            if (global.interface == QLatin1String(QtWayland::zwp_primary_selection_device_manager_v1::interface()->name)) {
+                mPrimarySelectionManager.reset();
+                for (QWaylandInputDevice *inputDevice : std::as_const(mInputDevices))
+                    inputDevice->setPrimarySelectionDevice(nullptr);
+            }
+#endif
             emit globalRemoved(mGlobals.takeAt(i));
             break;
         }

@@ -9,10 +9,10 @@
 #include <QtWaylandCompositor/qwaylandcompositorextension.h>
 #include <QtWaylandCompositor/QWaylandOutput>
 
-#include <QObject>
-#include <QImage>
-#include <QRect>
-#include <QLoggingCategory>
+#include <QtCore/QObject>
+#include <QtGui/QImage>
+#include <QtCore/QRect>
+#include <QtCore/QLoggingCategory>
 
 struct wl_display;
 

@@ -7,7 +7,7 @@
 #include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 #include <QtWaylandCompositor/qtwaylandqmlinclude.h>
 
-#include <QObject>
+#include <QtCore/QObject>
 
 #include <signal.h>
 

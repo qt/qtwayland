@@ -5,7 +5,7 @@
 #define QWAYLANDBUFFERREF_H
 
 #include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
-#include <QImage>
+#include <QtGui/QImage>
 
 #if QT_CONFIG(opengl)
 #include <QtGui/qopengl.h>

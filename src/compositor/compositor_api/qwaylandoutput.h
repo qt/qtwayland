@@ -9,10 +9,8 @@
 #include <QtWaylandCompositor/qwaylandcompositorextension.h>
 #include <QtWaylandCompositor/QWaylandOutputMode>
 #include <QtCore/QObject>
-
-#include <QObject>
-#include <QRect>
-#include <QSize>
+#include <QtCore/QRect>
+#include <QtCore/QSize>
 
 struct wl_resource;
 

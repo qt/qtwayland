@@ -5,7 +5,7 @@
 #define QWAYLANDINPUTMETHODCONTROL_H
 
 #include <QtGui/qtguiglobal.h>
-#include <QObject>
+#include <QtCore/QObject>
 
 QT_BEGIN_NAMESPACE
 

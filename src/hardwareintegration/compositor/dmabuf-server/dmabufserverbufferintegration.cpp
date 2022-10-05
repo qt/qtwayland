@@ -100,7 +100,7 @@ QOpenGLTexture *DmaBufServerBuffer::toOpenGlTexture()
 
 bool DmaBufServerBuffer::bufferInUse()
 {
-    return resourceMap().count() > 0;
+    return resourceMap().size() > 0;
 }
 
 DmaBufServerBufferIntegration::DmaBufServerBufferIntegration()

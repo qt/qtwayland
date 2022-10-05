@@ -107,12 +107,12 @@ void QWaylandTouchExtension::touch_extension_touch(uint32_t time,
 void QWaylandTouchExtension::sendTouchEvent()
 {
     // Copy all points, that are in the previous but not in the current list, as stationary.
-    for (int i = 0; i < mPrevTouchPoints.count(); ++i) {
+    for (int i = 0; i < mPrevTouchPoints.size(); ++i) {
         const QWindowSystemInterface::TouchPoint &prevPoint(mPrevTouchPoints.at(i));
         if (prevPoint.state == QEventPoint::Released)
             continue;
         bool found = false;
-        for (int j = 0; j < mTouchPoints.count(); ++j)
+        for (int j = 0; j < mTouchPoints.size(); ++j)
             if (mTouchPoints.at(j).id == prevPoint.id) {
                 found = true;
                 break;
@@ -132,14 +132,14 @@ void QWaylandTouchExtension::sendTouchEvent()
     QWindowSystemInterface::handleTouchEvent(mTargetWindow, mTimestamp, mTouchDevice, mTouchPoints);
 
     QEventPoint::States states = {};
-    for (int i = 0; i < mTouchPoints.count(); ++i)
+    for (int i = 0; i < mTouchPoints.size(); ++i)
         states |= mTouchPoints.at(i).state;
 
     if (mFlags & QT_TOUCH_EXTENSION_FLAGS_MOUSE_FROM_TOUCH) {
         const bool firstPress = states == QEventPoint::Pressed;
         if (firstPress)
             mMouseSourceId = mTouchPoints.first().id;
-        for (int i = 0; i < mTouchPoints.count(); ++i) {
+        for (int i = 0; i < mTouchPoints.size(); ++i) {
             const QWindowSystemInterface::TouchPoint &tp(mTouchPoints.at(i));
             if (tp.id == mMouseSourceId) {
                 const bool released = tp.state == QEventPoint::Released;

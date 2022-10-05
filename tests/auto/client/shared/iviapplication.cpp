@@ -15,7 +15,7 @@ void IviApplication::ivi_application_surface_create(Resource *resource, uint32_t
     auto *s = fromResource<Surface>(surface);
     auto *iviSurface = new IviSurface(this, s, ivi_id, resource->client(), id, resource->version());
     m_iviSurfaces << iviSurface;
-    qDebug() << "count is " << m_iviSurfaces.count();
+    qDebug() << "count is " << m_iviSurfaces.size();
 }
 
 IviSurface::IviSurface(IviApplication *iviApplication, Surface *surface, uint32_t ivi_id, wl_client *client, int id, int version)

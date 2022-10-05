@@ -92,7 +92,7 @@ bool LinuxDmabufParams::handleCreateParams(Resource *resource, int width, int he
     // check for holes in plane sequence
     auto planeIds = m_planes.keys();
     std::sort(planeIds.begin(), planeIds.end());
-    for (int i = 0; i < planeIds.count(); ++i) {
+    for (int i = 0; i < planeIds.size(); ++i) {
         if (uint(i) != planeIds[i]) {
             wl_resource_post_error(resource->handle,
                                    ZWP_LINUX_BUFFER_PARAMS_V1_ERROR_INCOMPLETE,

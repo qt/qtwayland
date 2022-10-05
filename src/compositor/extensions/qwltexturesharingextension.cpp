@@ -399,7 +399,7 @@ void QWaylandTextureSharingExtension::cleanupBuffers()
 
 void QWaylandTextureSharingExtension::dumpBufferInfo()
 {
-    qDebug() << "shared buffers:" << m_server_buffers.count();
+    qDebug() << "shared buffers:" << m_server_buffers.size();
     for (auto it = m_server_buffers.cbegin(); it != m_server_buffers.cend(); ++it)
         qDebug() << "    " << it.key() << ":" << it.value().buffer << "in use" << it.value().buffer->bufferInUse() << "usedLocally" << it.value().usedLocally ;
 }

@@ -78,7 +78,7 @@ void tst_xdgshell::basicConfigure()
     QTRY_VERIFY(window.isExposed());
 
     // The client is now going to ack the configure
-    QTRY_COMPARE(configureSpy.count(), 1);
+    QTRY_COMPARE(configureSpy.size(), 1);
     QCOMPARE(configureSpy.takeFirst().at(0).toUInt(), serial);
 
     // And attach a buffer
@@ -104,7 +104,7 @@ void tst_xdgshell::configureSize()
         xdgToplevel()->sendCompleteConfigure(configureSize);
     });
 
-    QTRY_COMPARE(configureSpy.count(), 1);
+    QTRY_COMPARE(configureSpy.size(), 1);
 
     exec([=] {
         Buffer *buffer = xdgToplevel()->surface()->m_committed.buffer;
@@ -192,7 +192,7 @@ void tst_xdgshell::popup()
     QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
     QSignalSpy toplevelConfigureSpy(exec([=] { return xdgSurface(); }), &XdgSurface::configureCommitted);
     exec([=] { xdgToplevel()->sendCompleteConfigure(); });
-    QTRY_COMPARE(toplevelConfigureSpy.count(), 1);
+    QTRY_COMPARE(toplevelConfigureSpy.size(), 1);
 
     uint clickSerial = exec([=] {
         auto *surface = xdgToplevel()->surface();
@@ -230,7 +230,7 @@ void tst_xdgshell::popup()
     QTRY_VERIFY(popup->isExposed());
 
     // The client is now going to ack the configure
-    QTRY_COMPARE(popupConfigureSpy.count(), 1);
+    QTRY_COMPARE(popupConfigureSpy.size(), 1);
     QCOMPARE(popupConfigureSpy.takeFirst().at(0).toUInt(), configureSerial);
 
     // And attach a buffer
@@ -560,7 +560,7 @@ void tst_xdgshell::pongs()
         wl_resource *resource = base->resourceMap().first()->handle;
         base->send_ping(resource, serial);
     });
-    QTRY_COMPARE(pongSpy.count(), 1);
+    QTRY_COMPARE(pongSpy.size(), 1);
     QCOMPARE(pongSpy.first().at(0).toUInt(), serial);
 }
 
@@ -626,7 +626,7 @@ void tst_xdgshell::foreignSurface()
     // the pointer events above are handled.
     QSignalSpy spy(exec([=] { return surface(newSurfaceIndex); }), &Surface::commit);
     wl_surface_commit(foreignSurface);
-    QTRY_COMPARE(spy.count(), 1);
+    QTRY_COMPARE(spy.size(), 1);
 
     wl_surface_destroy(foreignSurface);
 }

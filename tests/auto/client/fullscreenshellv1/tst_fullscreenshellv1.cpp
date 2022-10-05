@@ -25,7 +25,7 @@ void tst_WaylandClientFullScreenShellV1::createDestroyWindow()
     window.resize(800, 600);
     window.show();
 
-    QCOMPOSITOR_TRY_VERIFY(fullScreenShellV1()->surfaces().count() == 1);
+    QCOMPOSITOR_TRY_VERIFY(fullScreenShellV1()->surfaces().size() == 1);
     QCOMPOSITOR_VERIFY(surface(0));
 
     window.destroy();

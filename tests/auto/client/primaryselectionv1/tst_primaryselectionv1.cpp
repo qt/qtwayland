@@ -409,7 +409,7 @@ void tst_primaryselectionv1::destroysSelectionOnLeave()
         keyboard()->sendLeave(surface);
     });
 
-    QTRY_COMPARE(selectionChangedSpy.count(), 1);
+    QTRY_COMPARE(selectionChangedSpy.size(), 1);
     QVERIFY(!QGuiApplication::clipboard()->mimeData(QClipboard::Selection)->hasText());
 }
 

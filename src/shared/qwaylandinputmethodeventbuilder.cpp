@@ -106,7 +106,7 @@ QInputMethodEvent *QWaylandInputMethodEventBuilder::buildCommit(const QString &t
 
         const int absoluteOffset = absoluteCursor - cursor;
 
-        const int cursorAfterCommit = qMin(anchor, cursor) + replacement.first + text.length();
+        const int cursorAfterCommit = qMin(anchor, cursor) + replacement.first + text.size();
         surrounding.replace(qMin(anchor, cursor) + replacement.first,
                             qAbs(anchor - cursor) + replacement.second, text);
 
@@ -278,10 +278,10 @@ int QWaylandInputMethodEventBuilder::indexFromWayland(const QString &text, int l
 
     if (length < 0) {
         const QByteArray &utf8 = QStringView{text}.left(base).toUtf8();
-        return QString::fromUtf8(utf8.left(qMax(utf8.length() + length, 0))).length();
+        return QString::fromUtf8(utf8.left(qMax(utf8.size() + length, 0))).size();
     } else {
         const QByteArray &utf8 = QStringView{text}.mid(base).toUtf8();
-        return QString::fromUtf8(utf8.left(length)).length() + base;
+        return QString::fromUtf8(utf8.left(length)).size() + base;
     }
 }
 
@@ -304,20 +304,20 @@ int QWaylandInputMethodEventBuilder::trimmedIndexFromWayland(const QString &text
             const unsigned char ch = utf8.at(start + i);
             // check if current character is a utf8's initial character.
             if (ch < 0x80 || ch > 0xbf)
-                return QString::fromUtf8(utf8.left(start + i)).length();
+                return QString::fromUtf8(utf8.left(start + i)).size();
         }
     } else {
         const QByteArray &utf8 = QStringView{text}.mid(base).toUtf8();
         const int len = utf8.size();
         const int start = length;
         if (start >= len)
-            return base + QString::fromUtf8(utf8).length();
+            return base + QString::fromUtf8(utf8).size();
 
         for (int i = 0; i < 4; i++) {
             const unsigned char ch = utf8.at(start - i);
             // check if current character is a utf8's initial character.
             if (ch < 0x80 || ch > 0xbf)
-                return base + QString::fromUtf8(utf8.left(start - i)).length();
+                return base + QString::fromUtf8(utf8.left(start - i)).size();
         }
     }
     return -1;

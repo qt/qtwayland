@@ -105,10 +105,10 @@ void QWaylandTextInputPrivate::sendInputMethodEvent(QInputMethodEvent *event)
 
     if (event->replacementLength() > 0 || event->replacementStart() != 0) {
         // Remove replacement
-        afterCommit.cursorPosition = qBound(0, afterCommit.cursorPosition + event->replacementStart(), afterCommit.surroundingText.length());
+        afterCommit.cursorPosition = qBound(0, afterCommit.cursorPosition + event->replacementStart(), afterCommit.surroundingText.size());
         afterCommit.surroundingText.remove(afterCommit.cursorPosition,
                                            qMin(event->replacementLength(),
-                                                afterCommit.surroundingText.length() - afterCommit.cursorPosition));
+                                                afterCommit.surroundingText.size() - afterCommit.cursorPosition));
 
         if (event->replacementStart() <= 0 && (event->replacementLength() >= -event->replacementStart())) {
             const int selectionStart = qMin(currentState->cursorPosition, currentState->anchorPosition);
@@ -124,7 +124,7 @@ void QWaylandTextInputPrivate::sendInputMethodEvent(QInputMethodEvent *event)
 
     // Insert commit string
     afterCommit.surroundingText.insert(afterCommit.cursorPosition, event->commitString());
-    afterCommit.cursorPosition += event->commitString().length();
+    afterCommit.cursorPosition += event->commitString().size();
     afterCommit.anchorPosition = afterCommit.cursorPosition;
 
     for (const QInputMethodEvent::Attribute &attribute : event->attributes()) {

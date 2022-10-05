@@ -132,7 +132,7 @@ void QWaylandWindow::initWindow()
                     mShellSurface->setAppId(fi.baseName());
                 } else {
                     QString appId;
-                    for (int i = 0; i < domainName.count(); ++i)
+                    for (int i = 0; i < domainName.size(); ++i)
                         appId.prepend(QLatin1Char('.')).prepend(domainName.at(i));
                     appId.append(fi.baseName());
                     mShellSurface->setAppId(appId);
@@ -288,9 +288,9 @@ void QWaylandWindow::setWindowTitle(const QString &title)
         const int maxLength = libwaylandMaxBufferSize / 3 - 100;
 
         auto truncated = QStringView{formatted}.left(maxLength);
-        if (truncated.length() < formatted.length()) {
+        if (truncated.size() < formatted.size()) {
             qCWarning(lcQpaWayland) << "Window titles longer than" << maxLength << "characters are not supported."
-                                    << "Truncating window title (from" << formatted.length() << "chars)";
+                                    << "Truncating window title (from" << formatted.size() << "chars)";
         }
         mShellSurface->setTitle(truncated.toString());
     }

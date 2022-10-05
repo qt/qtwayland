@@ -222,7 +222,7 @@ void VulkanServerBuffer::releaseOpenGlTexture()
 
 bool VulkanServerBuffer::bufferInUse()
 {
-    return (m_texture && m_texture->isCreated()) || resourceMap().count() > 0;
+    return (m_texture && m_texture->isCreated()) || resourceMap().size() > 0;
 }
 
 void VulkanServerBuffer::server_buffer_release(Resource *resource)

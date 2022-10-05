@@ -69,10 +69,10 @@ void tst_clientextension::createWithoutGlobal()
     QSignalSpy spy(&extension, &QWaylandClientExtension::activeChanged);
     QVERIFY(spy.isValid());
     QVERIFY(!extension.isActive());
-    QCOMPARE(spy.count(), 0);
+    QCOMPARE(spy.size(), 0);
     extension.initialize();
     QVERIFY(!extension.isActive());
-    QCOMPARE(spy.count(), 0);
+    QCOMPARE(spy.size(), 0);
 }
 
 void tst_clientextension::createWithGlobalAutomatic()
@@ -83,7 +83,7 @@ void tst_clientextension::createWithGlobalAutomatic()
     QSignalSpy spy(&extension, &QWaylandClientExtension::activeChanged);
     QVERIFY(spy.isValid());
     QTRY_VERIFY(extension.isActive());
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.size(), 1);
 }
 
 void tst_clientextension::createWithGlobalManual()
@@ -96,7 +96,7 @@ void tst_clientextension::createWithGlobalManual()
     QVERIFY(spy.isValid());
     extension.initialize();
     QVERIFY(extension.isActive());
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.size(), 1);
 }
 
 void tst_clientextension::globalBecomesAvailable()
@@ -106,7 +106,7 @@ void tst_clientextension::globalBecomesAvailable()
     QVERIFY(spy.isValid());
     exec([this] { add<TestGlobal>(); });
     QTRY_VERIFY(extension.isActive());
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.size(), 1);
 }
 
 void tst_clientextension::globalRemoved()
@@ -120,7 +120,7 @@ void tst_clientextension::globalRemoved()
 
     exec([this] { removeAll<TestGlobal>(); });
     QTRY_VERIFY(!extension.isActive());
-    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.size(), 1);
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_clientextension)

@@ -148,7 +148,7 @@ QList<QPlatformScreen *> QWaylandScreen::virtualSiblings() const
     const QList<QWaylandScreen*> screens = mWaylandDisplay->screens();
     auto *placeholder = mWaylandDisplay->placeholderScreen();
 
-    list.reserve(screens.count() + (placeholder ? 1 : 0));
+    list.reserve(screens.size() + (placeholder ? 1 : 0));
 
     for (QWaylandScreen *screen : qAsConst(screens)) {
         if (screen->screen())

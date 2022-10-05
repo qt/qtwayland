@@ -213,7 +213,7 @@ void tst_datadevicev1::destroysSelectionOnLeave()
         keyboard()->sendLeave(surface);
     });
 
-    QTRY_COMPARE(dataChangedSpy.count(), 1);
+    QTRY_COMPARE(dataChangedSpy.size(), 1);
     QVERIFY(!QGuiApplication::clipboard()->mimeData(QClipboard::Clipboard)->hasText());
 }
 

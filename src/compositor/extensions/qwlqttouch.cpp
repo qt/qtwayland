@@ -33,13 +33,13 @@ static inline int toFixed(qreal f)
 bool TouchExtensionGlobal::postTouchEvent(QTouchEvent *event, QWaylandSurface *surface)
 {
     const QList<QTouchEvent::TouchPoint> points = event->points();
-    const int pointCount = points.count();
+    const int pointCount = points.size();
     if (!pointCount)
         return false;
 
     wl_client *surfaceClient = surface->client()->client();
     uint32_t time = m_compositor->currentTimeMsecs();
-    const int rescount = m_resources.count();
+    const int rescount = m_resources.size();
 
     for (int res = 0; res < rescount; ++res) {
         Resource *target = m_resources.at(res);

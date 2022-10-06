@@ -144,7 +144,7 @@ void Surface::surface_frame(Resource *resource, uint32_t callback)
 }
 
 bool WlCompositor::isClean() {
-    for (auto *surface : qAsConst(m_surfaces)) {
+    for (auto *surface : std::as_const(m_surfaces)) {
         if (!CursorRole::fromSurface(surface)) {
             if (m_compositor->m_type != CoreCompositor::CompositorType::Legacy)
                 return false;
@@ -160,7 +160,7 @@ QString WlCompositor::dirtyMessage()
     if (isClean())
         return "clean";
     QStringList messages;
-    for (auto *s : qAsConst(m_surfaces)) {
+    for (auto *s : std::as_const(m_surfaces)) {
         QString role = s->m_role ? s->m_role->staticMetaObject.className(): "none/unknown";
         messages << "Surface with role: " + role;
     }
@@ -547,7 +547,7 @@ Shm::Shm(CoreCompositor *compositor, QList<format> formats, int version)
 
 bool Shm::isClean()
 {
-//    for (ShmPool *pool : qAsConst(m_pools)) {
+//    for (ShmPool *pool : std::as_const(m_pools)) {
 //        //TODO: return false if not cursor buffer
 //        if (pool->m_buffers.isEmpty()) {
 //            return false;

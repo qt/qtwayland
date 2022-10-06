@@ -14,7 +14,7 @@ XdgWmBase::XdgWmBase(CoreCompositor *compositor, int version)
 XdgToplevel *XdgWmBase::toplevel(int i)
 {
     int j = 0;
-    for (auto *xdgSurface : qAsConst(m_xdgSurfaces)) {
+    for (auto *xdgSurface : std::as_const(m_xdgSurfaces)) {
         if (auto *toplevel = xdgSurface->m_toplevel) {
             if (j == i)
                 return toplevel;
@@ -27,7 +27,7 @@ XdgToplevel *XdgWmBase::toplevel(int i)
 XdgPopup *XdgWmBase::popup(int i)
 {
     int j = 0;
-    for (auto *xdgSurface : qAsConst(m_xdgSurfaces)) {
+    for (auto *xdgSurface : std::as_const(m_xdgSurfaces)) {
         if (auto *popup = xdgSurface->m_popup) {
             if (j == i)
                 return popup;

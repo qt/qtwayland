@@ -132,7 +132,7 @@ QInputMethodEvent *QWaylandInputMethodEventBuilder::buildPreedit(const QString &
         attributes.append(QInputMethodEvent::Attribute(QInputMethodEvent::Cursor, indexFromWayland(text, m_preeditCursor), 1, QVariant()));
     }
 
-    for (const QInputMethodEvent::Attribute &attr : qAsConst(m_preeditStyles)) {
+    for (const QInputMethodEvent::Attribute &attr : std::as_const(m_preeditStyles)) {
         int start = indexFromWayland(text, attr.start);
         int length = indexFromWayland(text, attr.start + attr.length) - start;
         attributes.append(QInputMethodEvent::Attribute(attr.type, start, length, attr.value));

@@ -289,7 +289,7 @@ void QWaylandCompositorPrivate::addPolishObject(QObject *object)
 void QWaylandCompositorPrivate::connectToExternalSockets()
 {
     // Clear out any backlog of user-supplied external socket descriptors
-    for (int fd : qAsConst(externally_added_socket_fds)) {
+    for (int fd : std::as_const(externally_added_socket_fds)) {
         if (wl_display_add_socket_fd(display, fd) != 0)
             qWarning() << "Failed to integrate user-supplied socket fd into the Wayland event loop";
     }
@@ -373,14 +373,14 @@ void QWaylandCompositorPrivate::initializeHardwareIntegration()
     loadClientBufferIntegration();
     loadServerBufferIntegration();
 
-    for (auto *integration : qAsConst(client_buffer_integrations))
+    for (auto *integration : std::as_const(client_buffer_integrations))
         integration->initializeHardware(display);
 #endif
 }
 
 void QWaylandCompositorPrivate::initializeSeats()
 {
-    for (QWaylandSeat *seat : qAsConst(seats))
+    for (QWaylandSeat *seat : std::as_const(seats))
         seat->initialize();
 }
 
@@ -410,7 +410,7 @@ void QWaylandCompositorPrivate::loadClientBufferIntegration()
 
     QString hwIntegrationName;
 
-    for (auto targetKey : qAsConst(targetKeys)) {
+    for (auto targetKey : std::as_const(targetKeys)) {
         auto *integration = QtWayland::ClientBufferIntegrationFactory::create(targetKey, QStringList());
         if (integration) {
             integration->setCompositor(q);

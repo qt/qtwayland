@@ -35,7 +35,7 @@ CoreCompositor::~CoreCompositor()
 bool CoreCompositor::isClean()
 {
     Lock lock(this);
-    for (auto *global : qAsConst(m_globals)) {
+    for (auto *global : std::as_const(m_globals)) {
         if (!global->isClean())
             return false;
     }
@@ -46,7 +46,7 @@ QString CoreCompositor::dirtyMessage()
 {
     Lock lock(this);
     QStringList messages;
-    for (auto *global : qAsConst(m_globals)) {
+    for (auto *global : std::as_const(m_globals)) {
         if (!global->isClean())
             messages << (global->metaObject()->className() % QLatin1String(": ") % global->dirtyMessage());
     }

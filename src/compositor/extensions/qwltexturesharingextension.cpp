@@ -144,7 +144,7 @@ QQuickImageResponse *QWaylandSharedTextureProvider::requestImageResponse(const Q
 
 void QWaylandSharedTextureProvider::setExtensionReady(QWaylandTextureSharingExtension *extension)
 {
-    for (auto *response : qAsConst(m_pendingResponses))
+    for (auto *response : std::as_const(m_pendingResponses))
         response->doRequest(extension);
     m_pendingResponses.clear();
     m_pendingResponses.squeeze();
@@ -199,7 +199,7 @@ void QWaylandTextureSharingExtension::initialize()
 
     auto suffixes = QTextureFileReader::supportedFileFormats();
     suffixes.append(QImageReader::supportedImageFormats());
-    for (auto ext : qAsConst(suffixes))
+    for (auto ext : std::as_const(suffixes))
         m_image_suffixes << QLatin1Char('.') + QString::fromLatin1(ext);
 
     //qDebug() << "m_image_suffixes" << m_image_suffixes << "m_image_dirs" << m_image_dirs;
@@ -224,13 +224,13 @@ QString QWaylandTextureSharingExtension::getExistingFilePath(const QString &key)
     if (key.contains(QLatin1String("../")))
         return QString();
 
-    for (auto dir : qAsConst(m_image_dirs)) {
+    for (auto dir : std::as_const(m_image_dirs)) {
         QString path = dir + key;
         if (QFileInfo::exists(path))
             return path;
     }
 
-    for (auto dir : qAsConst(m_image_dirs)) {
+    for (auto dir : std::as_const(m_image_dirs)) {
         for (auto ext : m_image_suffixes) {
             QString fp = dir + key + ext;
             //qDebug() << "trying" << fp;

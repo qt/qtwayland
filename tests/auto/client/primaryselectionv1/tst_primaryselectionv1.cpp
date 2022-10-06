@@ -147,7 +147,7 @@ public:
     {}
     bool isClean() override
     {
-        for (auto *device : qAsConst(m_devices)) {
+        for (auto *device : std::as_const(m_devices)) {
             // The client should not leak selection offers, i.e. if this fails, there is a missing
             // zwp_primary_selection_offer_v1.destroy request
             if (!device->m_sentSelectionOffers.empty())

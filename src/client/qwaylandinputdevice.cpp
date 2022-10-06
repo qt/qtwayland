@@ -1465,7 +1465,7 @@ void QWaylandInputDevice::handleTouchPoint(int id, QEventPoint::State state, con
 
 bool QWaylandInputDevice::Touch::allTouchPointsReleased()
 {
-    for (const auto &tp : qAsConst(mPendingTouchPoints)) {
+    for (const auto &tp : std::as_const(mPendingTouchPoints)) {
         if (tp.state != QEventPoint::Released)
             return false;
     }

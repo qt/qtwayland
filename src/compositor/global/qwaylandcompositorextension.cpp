@@ -222,7 +222,7 @@ QWaylandObject::QWaylandObject(QObjectPrivate &d, QObject *parent)
 
 QWaylandObject::~QWaylandObject()
 {
-    for (QWaylandCompositorExtension *extension : qAsConst(extension_vector))
+    for (QWaylandCompositorExtension *extension : std::as_const(extension_vector))
         QWaylandCompositorExtensionPrivate::get(extension)->extension_container = nullptr;
 }
 

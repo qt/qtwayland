@@ -213,7 +213,7 @@ void QWaylandCompositorPrivate::init()
 
     initialized = true;
 
-    for (const QPointer<QObject> &object : qExchange(polish_objects, {})) {
+    for (const QPointer<QObject> &object : std::exchange(polish_objects, {})) {
         if (object) {
             QEvent polishEvent(QEvent::Polish);
             QCoreApplication::sendEvent(object.data(), &polishEvent);

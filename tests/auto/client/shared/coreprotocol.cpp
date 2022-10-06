@@ -109,7 +109,7 @@ void Surface::surface_commit(Resource *resource)
             }
         }
 
-        for (wl_resource *frameCallback : qExchange(m_frameCallbackList, {})) {
+        for (wl_resource *frameCallback : std::exchange(m_frameCallbackList, {})) {
             auto time = m_wlCompositor->m_compositor->currentTimeMilliseconds();
             wl_callback_send_done(frameCallback, time);
             wl_resource_destroy(frameCallback);

@@ -345,9 +345,9 @@ QWaylandDisplay::~QWaylandDisplay(void)
     if (mSyncCallback)
         wl_callback_destroy(mSyncCallback);
 
-    qDeleteAll(qExchange(mInputDevices, {}));
+    qDeleteAll(std::exchange(mInputDevices, {}));
 
-    for (QWaylandScreen *screen : qExchange(mScreens, {})) {
+    for (QWaylandScreen *screen : std::exchange(mScreens, {})) {
         QWindowSystemInterface::handleScreenRemoved(screen);
     }
     qDeleteAll(mWaitingScreens);

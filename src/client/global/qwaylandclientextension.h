@@ -4,7 +4,7 @@
 #ifndef QWAYLANDCLIENTEXTENSION_H
 #define QWAYLANDCLIENTEXTENSION_H
 
-#include <QObject>
+#include <QtCore/QObject>
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 
 struct wl_interface;

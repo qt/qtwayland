@@ -4,7 +4,7 @@
 #ifndef QWAYLANDXDGOUTPUTV1_H
 #define QWAYLANDXDGOUTPUTV1_H
 
-#include <QRect>
+#include <QtCore/QRect>
 #include <QtWaylandCompositor/QWaylandCompositorExtension>
 #include <QtWaylandCompositor/qwaylandquickchildren.h>
 

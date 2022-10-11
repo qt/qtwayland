@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 function(qt6_generate_wayland_protocol_client_sources target)
-    cmake_parse_arguments(arg "" "__QT_INTERNAL_WAYLAND_INCLUDE_DIR" "FILES" ${ARGN})
+    cmake_parse_arguments(arg "NO_INCLUDE_CORE_ONLY" "__QT_INTERNAL_WAYLAND_INCLUDE_DIR" "FILES" ${ARGN})
     if(DEFINED arg_UNPARSED_ARGUMENTS)
         message(FATAL_ERROR "Unknown arguments were passed to qt6_generate_wayland_protocol_client_sources: (${arg_UNPARSED_ARGUMENTS}).")
     endif()
@@ -31,15 +31,18 @@ function(qt6_generate_wayland_protocol_client_sources target)
         set(qtwaylandscanner_header_output "${target_binary_dir}/qwayland-${protocol_name}.h")
         set(qtwaylandscanner_code_output "${target_binary_dir}/qwayland-${protocol_name}.cpp")
 
+        if (NOT arg_NO_INCLUDE_CORE_ONLY)
+            set(waylandscanner_extra_args "--include-core-only")
+        endif()
         add_custom_command(
             OUTPUT "${waylandscanner_header_output}"
             #TODO: Maybe put the files in ${CMAKE_CURRENT_BINARY_DIR/wayland_generated instead?
-            COMMAND Wayland::Scanner --strict --include-core-only client-header < "${protocol_file}" > "${waylandscanner_header_output}"
+            COMMAND Wayland::Scanner --strict ${waylandscanner_extra_args} client-header < "${protocol_file}" > "${waylandscanner_header_output}"
         )
 
         add_custom_command(
             OUTPUT "${waylandscanner_code_output}"
-            COMMAND Wayland::Scanner --strict --include-core-only public-code < "${protocol_file}" > "${waylandscanner_code_output}"
+            COMMAND Wayland::Scanner --strict ${waylandscanner_extra_args} public-code < "${protocol_file}" > "${waylandscanner_code_output}"
         )
 
         set(wayland_include_dir "")

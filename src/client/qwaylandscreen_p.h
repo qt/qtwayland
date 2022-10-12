@@ -16,6 +16,7 @@
 //
 
 #include <qpa/qplatformscreen.h>
+#include <qpa/qplatformscreen_p.h>
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
@@ -34,7 +35,10 @@ public:
     QWaylandXdgOutputManagerV1(QWaylandDisplay *display, uint id, uint version);
 };
 
-class Q_WAYLANDCLIENT_EXPORT QWaylandScreen : public QPlatformScreen, QtWayland::wl_output, QtWayland::zxdg_output_v1
+class Q_WAYLANDCLIENT_EXPORT QWaylandScreen : public QPlatformScreen,
+                                              QtWayland::wl_output,
+                                              QtWayland::zxdg_output_v1,
+                                              public QNativeInterface::Private::QWaylandScreen
 {
 public:
     QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uint32_t id);
@@ -70,7 +74,10 @@ public:
 #endif
 
     uint32_t outputId() const { return m_outputId; }
-    ::wl_output *output() { return QtWayland::wl_output::object(); }
+    ::wl_output *output() const override
+    {
+        return const_cast<::wl_output *>(QtWayland::wl_output::object());
+    }
 
     static QWaylandScreen *waylandScreenFromWindow(QWindow *window);
     static QWaylandScreen *fromWlOutput(::wl_output *output);

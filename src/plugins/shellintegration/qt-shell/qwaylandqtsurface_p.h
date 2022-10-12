@@ -42,6 +42,8 @@ public:
     void raise() override;
     void lower() override;
 
+    std::any surfaceRole() const override { return object(); };
+
 private:
     void resetConfiguration();
     void sendSizeHints();

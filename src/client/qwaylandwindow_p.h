@@ -28,10 +28,12 @@
 #include <QtCore/QMap> // for QVariantMap
 
 #include <qpa/qplatformwindow.h>
+#include <qpa/qplatformwindow_p.h>
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QtWaylandClient/qtwaylandclientglobal.h>
+#include <QtWaylandClient/private/qwaylandshellsurface_p.h>
 
 struct wl_egl_window;
 
@@ -56,7 +58,8 @@ class QWaylandSurface;
 class QWaylandFractionalScale;
 class QWaylandViewport;
 
-class Q_WAYLANDCLIENT_EXPORT QWaylandWindow : public QObject, public QPlatformWindow
+class Q_WAYLANDCLIENT_EXPORT QWaylandWindow : public QNativeInterface::Private::QWaylandWindow,
+                                              public QPlatformWindow
 {
     Q_OBJECT
 public:
@@ -115,17 +118,22 @@ public:
 
     QMargins frameMargins() const override;
     QMargins customMargins() const;
-    void setCustomMargins(const QMargins &margins);
+    void setCustomMargins(const QMargins &margins) override;
     QSize surfaceSize() const;
     QRect windowContentGeometry() const;
     QPointF mapFromWlSurface(const QPointF &surfacePosition) const;
 
     QWaylandSurface *waylandSurface() const { return mSurface.data(); }
     ::wl_surface *wlSurface();
+    ::wl_surface *surface() const override
+    {
+        return const_cast<QWaylandWindow *>(this)->wlSurface();
+    }
     static QWaylandWindow *fromWlSurface(::wl_surface *surface);
 
     QWaylandDisplay *display() const { return mDisplay; }
     QWaylandShellSurface *shellSurface() const;
+    std::any _surfaceRole() const override;
     QWaylandSubSurface *subSurfaceWindow() const;
     QWaylandScreen *waylandScreen() const;
 
@@ -207,7 +215,7 @@ public:
     void deliverUpdateRequest() override;
 
     void setXdgActivationToken(const QString &token);
-    void requestXdgActivationToken(uint serial);
+    void requestXdgActivationToken(uint serial) override;
 
     void beginFrame();
     void endFrame();
@@ -222,7 +230,6 @@ public slots:
 signals:
     void wlSurfaceCreated();
     void wlSurfaceDestroyed();
-    void xdgActivationTokenCreated(const QString &token);
 
 protected:
     virtual void doHandleFrameCallback();

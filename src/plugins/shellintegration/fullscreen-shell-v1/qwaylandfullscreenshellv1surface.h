@@ -18,6 +18,7 @@ class Q_WAYLANDCLIENT_EXPORT QWaylandFullScreenShellV1Surface : public QWaylandS
 {
 public:
     QWaylandFullScreenShellV1Surface(QtWayland::zwp_fullscreen_shell_v1 *shell, QWaylandWindow *window);
+    std::any surfaceRole() const override { return m_shell->object(); }
 
 private:
     QtWayland::zwp_fullscreen_shell_v1 *m_shell = nullptr;

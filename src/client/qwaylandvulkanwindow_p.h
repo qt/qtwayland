@@ -30,7 +30,7 @@ public:
 
     WindowType windowType() const override;
 
-    VkSurfaceKHR *surface();
+    VkSurfaceKHR *vkSurface();
 
 private:
     VkSurfaceKHR m_surface = VK_NULL_HANDLE;

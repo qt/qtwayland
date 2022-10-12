@@ -143,7 +143,7 @@ void *QWaylandNativeInterface::nativeResourceForWindow(const QByteArray &resourc
     if (lowerCaseResource == "vksurface") {
         if (window->surfaceType() == QSurface::VulkanSurface && window->handle()) {
             // return a pointer to the VkSurfaceKHR value, not the value itself
-            return static_cast<QWaylandVulkanWindow *>(window->handle())->surface();
+            return static_cast<QWaylandVulkanWindow *>(window->handle())->vkSurface();
         }
     }
 #endif

@@ -57,6 +57,8 @@ public:
     void applyConfigure() override;
     bool wantsDecorations() const override;
 
+    std::any surfaceRole() const override { return object(); };
+
 protected:
     void requestWindowStates(Qt::WindowStates states) override;
 

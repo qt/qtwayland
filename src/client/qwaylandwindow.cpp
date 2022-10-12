@@ -59,6 +59,11 @@ QWaylandWindow::QWaylandWindow(QWindow *window, QWaylandDisplay *display)
     static WId id = 1;
     mWindowId = id++;
     initializeWlSurface();
+
+    connect(this, &QWaylandWindow::wlSurfaceCreated, this,
+            &QNativeInterface::Private::QWaylandWindow::surfaceCreated);
+    connect(this, &QWaylandWindow::wlSurfaceDestroyed, this,
+            &QNativeInterface::Private::QWaylandWindow::surfaceDestroyed);
 }
 
 QWaylandWindow::~QWaylandWindow()
@@ -845,6 +850,15 @@ wl_surface *QWaylandWindow::wlSurface()
 QWaylandShellSurface *QWaylandWindow::shellSurface() const
 {
     return mShellSurface;
+}
+
+std::any QWaylandWindow::_surfaceRole() const
+{
+    if (mSubSurfaceWindow)
+        return mSubSurfaceWindow->object();
+    if (mShellSurface)
+        return mShellSurface->surfaceRole();
+    return {};
 }
 
 QWaylandSubSurface *QWaylandWindow::subSurfaceWindow() const

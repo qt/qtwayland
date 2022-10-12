@@ -72,6 +72,8 @@ public:
 
     void *nativeResource(const QByteArray &resource);
 
+    std::any surfaceRole() const override;
+
 protected:
     void requestWindowStates(Qt::WindowStates states) override;
     void xdg_surface_configure(uint32_t serial) override;

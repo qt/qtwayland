@@ -417,6 +417,15 @@ void *QWaylandXdgSurface::nativeResource(const QByteArray &resource)
     return nullptr;
 }
 
+std::any QWaylandXdgSurface::surfaceRole() const
+{
+    if (m_toplevel)
+        return m_toplevel->object();
+    if (m_popup)
+        return m_popup->object();
+    return {};
+}
+
 void QWaylandXdgSurface::requestWindowStates(Qt::WindowStates states)
 {
     if (m_toplevel)

@@ -26,7 +26,7 @@ QWaylandWindow::WindowType QWaylandVulkanWindow::windowType() const
     return QWaylandWindow::Vulkan;
 }
 
-VkSurfaceKHR *QWaylandVulkanWindow::surface()
+VkSurfaceKHR *QWaylandVulkanWindow::vkSurface()
 {
     if (m_surface)
         return &m_surface;

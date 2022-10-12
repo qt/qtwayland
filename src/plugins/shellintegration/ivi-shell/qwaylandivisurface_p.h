@@ -28,6 +28,8 @@ public:
 
     void applyConfigure() override;
 
+    std::any surfaceRole() const override { return ivi_surface::object(); };
+
 private:
     void createExtendedSurface(QWaylandWindow *window);
     void ivi_surface_configure(int32_t width, int32_t height) override;

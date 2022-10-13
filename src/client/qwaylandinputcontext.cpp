@@ -288,8 +288,7 @@ bool QWaylandInputContext::filterEvent(const QEvent *event)
     case XKB_COMPOSE_NOTHING:
         return false;
     default:
-        Q_UNREACHABLE();
-        return false;
+        Q_UNREACHABLE_RETURN(false);
     }
 }
 

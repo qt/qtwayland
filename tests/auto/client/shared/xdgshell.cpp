@@ -143,6 +143,11 @@ XdgToplevel::XdgToplevel(XdgSurface *xdgSurface, int id, int version)
     connect(surface(), &Surface::commit, this, [this] { m_committed = m_pending; });
 }
 
+void XdgToplevel::sendConfigureBounds(const QSize &size)
+{
+    send_configure_bounds(size.width(), size.height());
+}
+
 void XdgToplevel::sendConfigure(const QSize &size, const QList<uint> &states)
 {
     send_configure(size.width(), size.height(), toByteArray(states));

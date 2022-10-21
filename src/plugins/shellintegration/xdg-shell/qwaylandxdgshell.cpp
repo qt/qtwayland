@@ -58,18 +58,37 @@ void QWaylandXdgSurface::Toplevel::applyConfigure()
     m_xdgSurface->m_window->handleToplevelWindowTilingStatesChanged(m_toplevelStates);
     m_xdgSurface->m_window->handleWindowStatesChanged(m_pending.states);
 
-    if (m_pending.size.isEmpty()) {
-        // An empty size in the configure means it's up to the client to choose the size
-        bool normalPending = !(m_pending.states & (Qt::WindowMaximized|Qt::WindowFullScreen));
-        if (normalPending && !m_normalSize.isEmpty()) {
-            QSize size = m_normalSize;
-            if (!m_pending.bounds.isEmpty())
-                size = size.boundedTo(m_pending.bounds);
-            m_xdgSurface->m_window->resizeFromApplyConfigure(size);
-        }
+    // If the width or height is zero, the client should decide the size on its own.
+    QSize surfaceSize;
+
+    if (m_pending.size.width() > 0) {
+        surfaceSize.setWidth(m_pending.size.width());
     } else {
-        m_xdgSurface->m_window->resizeFromApplyConfigure(m_pending.size);
+        if (Q_UNLIKELY(m_pending.states & (Qt::WindowMaximized | Qt::WindowFullScreen))) {
+            qCWarning(lcQpaWayland) << "Configure event with maximized or fullscreen state contains invalid width:" << m_pending.size.width();
+        } else {
+            int width = m_normalSize.width();
+            if (!m_pending.bounds.isEmpty())
+                width = std::min(width, m_pending.bounds.width());
+            surfaceSize.setWidth(width);
+        }
     }
+
+    if (m_pending.size.height() > 0) {
+        surfaceSize.setHeight(m_pending.size.height());
+    } else {
+        if (Q_UNLIKELY(m_pending.states & (Qt::WindowMaximized | Qt::WindowFullScreen))) {
+            qCWarning(lcQpaWayland) << "Configure event with maximized or fullscreen state contains invalid height:" << m_pending.size.height();
+        } else {
+            int height = m_normalSize.height();
+            if (!m_pending.bounds.isEmpty())
+                height = std::min(height, m_pending.bounds.height());
+            surfaceSize.setHeight(height);
+        }
+    }
+
+    if (!surfaceSize.isEmpty())
+        m_xdgSurface->m_window->resizeFromApplyConfigure(surfaceSize);
 
     m_applied = m_pending;
     qCDebug(lcQpaWayland) << "Applied pending xdg_toplevel configure event:" << m_applied.size << m_applied.states;

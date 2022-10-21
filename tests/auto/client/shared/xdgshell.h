@@ -18,7 +18,7 @@ class XdgWmBase : public Global, public QtWaylandServer::xdg_wm_base
 {
     Q_OBJECT
 public:
-    explicit XdgWmBase(CoreCompositor *compositor, int version = 1);
+    explicit XdgWmBase(CoreCompositor *compositor, int version = 4);
     using QtWaylandServer::xdg_wm_base::send_ping;
     void send_ping(uint32_t) = delete; // It's a global, use resource specific instead
     bool isClean() override { return m_xdgSurfaces.empty(); }
@@ -90,6 +90,7 @@ class XdgToplevel : public QObject, public QtWaylandServer::xdg_toplevel
     Q_OBJECT
 public:
     explicit XdgToplevel(XdgSurface *xdgSurface, int id, int version = 1);
+    void sendConfigureBounds(const QSize &size);
     void sendConfigure(const QSize &size = {0, 0}, const QList<uint> &states = {});
     uint sendCompleteConfigure(const QSize &size = {0, 0}, const QList<uint> &states = {});
     Surface *surface() { return m_xdgSurface->m_surface; }

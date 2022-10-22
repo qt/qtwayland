@@ -23,7 +23,8 @@ QWaylandXdgActivationV1::~QWaylandXdgActivationV1()
 
 QWaylandXdgActivationTokenV1 *
 QWaylandXdgActivationV1::requestXdgActivationToken(QWaylandDisplay *display,
-                                                   struct ::wl_surface *surface, uint32_t serial,
+                                                   struct ::wl_surface *surface,
+                                                   std::optional<uint32_t> serial,
                                                    const QString &app_id)
 {
     auto wl = get_activation_token();
@@ -36,8 +37,8 @@ QWaylandXdgActivationV1::requestXdgActivationToken(QWaylandDisplay *display,
     if (!app_id.isEmpty())
         provider->set_app_id(app_id);
 
-    if (display->lastInputDevice())
-        provider->set_serial(serial, display->lastInputDevice()->wl_seat());
+    if (serial && display->lastInputDevice())
+        provider->set_serial(*serial, display->lastInputDevice()->wl_seat());
     provider->commit();
     return provider;
 }

@@ -143,6 +143,9 @@ public:
 
     void setMask(const QRegion &region) override;
 
+    void setAlertState(bool enabled) override;
+    bool isAlertState() const override;
+
     qreal scale() const;
     qreal devicePixelRatio() const override;
 

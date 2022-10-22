@@ -64,6 +64,8 @@ public:
     bool requestActivate() override;
     void setXdgActivationToken(const QString &token) override;
     void requestXdgActivationToken(quint32 serial) override;
+    void setAlertState(bool enabled) override;
+    bool isAlertState() const override { return m_alertState; }
     QString externWindowHandle() override;
 
     void setSizeHints();
@@ -132,6 +134,7 @@ private:
     uint m_appliedConfigureSerial = 0;
     QString m_activationToken;
     QString m_appId;
+    bool m_alertState = false;
 
     friend class QWaylandXdgShell;
 };

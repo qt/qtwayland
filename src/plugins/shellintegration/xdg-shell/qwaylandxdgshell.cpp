@@ -541,6 +541,29 @@ void QWaylandXdgSurface::setXdgActivationToken(const QString &token)
     }
 }
 
+void QWaylandXdgSurface::setAlertState(bool enabled)
+{
+    if (m_alertState == enabled)
+        return;
+
+    m_alertState = enabled;
+
+    if (!m_alertState)
+        return;
+
+    auto *activation = m_shell->activation();
+    if (!activation)
+        return;
+
+    const auto tokenProvider = activation->requestXdgActivationToken(
+            m_shell->m_display, m_window->wlSurface(), std::nullopt, m_appId);
+    connect(tokenProvider, &QWaylandXdgActivationTokenV1::done, this,
+            [this, tokenProvider](const QString &token) {
+                m_shell->activation()->activate(token, m_window->wlSurface());
+                tokenProvider->deleteLater();
+            });
+}
+
 QString QWaylandXdgSurface::externWindowHandle()
 {
     if (!m_toplevel || !m_shell->exporter()) {

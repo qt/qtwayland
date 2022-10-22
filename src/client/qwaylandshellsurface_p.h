@@ -71,6 +71,9 @@ public:
     virtual void setXdgActivationToken(const QString &token);
     virtual void requestXdgActivationToken(quint32 serial);
 
+    virtual void setAlertState(bool enabled) { Q_UNUSED(enabled); }
+    virtual bool isAlertState() const { return false; }
+
     virtual QString externWindowHandle() { return QString(); }
 
     inline QWaylandWindow *window() { return m_window; }

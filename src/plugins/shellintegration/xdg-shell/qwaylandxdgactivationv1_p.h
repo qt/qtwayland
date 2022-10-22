@@ -47,7 +47,8 @@ public:
 
     QWaylandXdgActivationTokenV1 *requestXdgActivationToken(QWaylandDisplay *display,
                                                             struct ::wl_surface *surface,
-                                                            uint32_t serial, const QString &app_id);
+                                                            std::optional<uint32_t> serial,
+                                                            const QString &app_id);
 };
 
 QT_END_NAMESPACE

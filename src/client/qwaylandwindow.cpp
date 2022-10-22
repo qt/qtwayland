@@ -502,6 +502,20 @@ void QWaylandWindow::setMask(const QRegion &mask)
     mSurface->commit();
 }
 
+void QWaylandWindow::setAlertState(bool enabled)
+{
+    if (mShellSurface)
+        mShellSurface->setAlertState(enabled);
+}
+
+bool QWaylandWindow::isAlertState() const
+{
+    if (mShellSurface)
+        return mShellSurface->isAlertState();
+
+    return false;
+}
+
 void QWaylandWindow::applyConfigureWhenPossible()
 {
     QMutexLocker resizeLocker(&mResizeLock);

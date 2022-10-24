@@ -375,7 +375,7 @@ QWaylandInputDevice::Touch::~Touch()
 }
 
 QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, uint32_t id)
-    : QtWayland::wl_seat(display->wl_registry(), id, qMin(version, 7))
+    : QtWayland::wl_seat(display->wl_registry(), id, qMin(version, 8))
     , mQDisplay(display)
     , mDisplay(display->wl_display())
 {
@@ -982,18 +982,40 @@ void QWaylandInputDevice::Pointer::pointer_axis_discrete(uint32_t axis, int32_t 
     if (!focusWindow())
         return;
 
+    const int32_t delta120 = value * 15 * 8;
+
     switch (axis) {
     case axis_vertical_scroll:
         qCDebug(lcQpaWaylandInput) << "wl_pointer.axis_discrete vertical:" << value;
-        mFrameData.discreteDelta.ry() += value;
+        mFrameData.delta120.ry() += delta120;
         break;
     case axis_horizontal_scroll:
         qCDebug(lcQpaWaylandInput) << "wl_pointer.axis_discrete horizontal:" << value;
-        mFrameData.discreteDelta.rx() += value;
+        mFrameData.delta120.rx() += delta120;
         break;
     default:
         //TODO: is this really needed?
         qCWarning(lcQpaWaylandInput) << "wl_pointer.axis_discrete: Unknown axis:" << axis;
+        return;
+    }
+}
+
+void QWaylandInputDevice::Pointer::pointer_axis_value120(uint32_t axis, int32_t value)
+{
+    if (!focusWindow())
+        return;
+
+    switch (axis) {
+    case axis_vertical_scroll:
+        qCDebug(lcQpaWaylandInput) << "wl_pointer.axis_value120 vertical:" << value;
+        mFrameData.delta120.ry() += value;
+        break;
+    case axis_horizontal_scroll:
+        qCDebug(lcQpaWaylandInput) << "wl_pointer.axis_value120 horizontal:" << value;
+        mFrameData.delta120.rx() += value;
+        break;
+    default:
+        qCWarning(lcQpaWaylandInput) << "wl_pointer.axis_value120: Unknown axis:" << axis;
         return;
     }
 }
@@ -1016,7 +1038,7 @@ void QWaylandInputDevice::Pointer::setFrameEvent(QWaylandPointerEvent *event)
 
 void QWaylandInputDevice::Pointer::FrameData::resetScrollData()
 {
-    discreteDelta = QPoint();
+    delta120 = QPoint();
     delta = QPointF();
     axisSource = axis_source_wheel;
 }
@@ -1060,15 +1082,16 @@ QPoint QWaylandInputDevice::Pointer::FrameData::pixelDeltaAndError(QPointF *accu
 
 QPoint QWaylandInputDevice::Pointer::FrameData::angleDelta() const
 {
-    if (discreteDelta.isNull()) {
+    if (delta120.isNull()) {
         // If we didn't get any discrete events, then we need to fall back to
         // the continuous information.
         return (delta * -12).toPoint(); //TODO: why multiply by 12?
     }
 
     // The angle delta is in eights of degrees, and our docs says most mice have
-    // 1 click = 15 degrees. It's also in the opposite direction of surface space.
-    return -discreteDelta * 15 * 8;
+    // 1 click = 15 degrees, i.e. 120 is one click. It's also in the opposite
+    // direction of surface space.
+    return -delta120;
 }
 
 Qt::MouseEventSource QWaylandInputDevice::Pointer::FrameData::wheelEventSource() const

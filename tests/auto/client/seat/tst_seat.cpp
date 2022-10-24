@@ -18,7 +18,7 @@ public:
             removeAll<Seat>();
 
             uint capabilities = MockCompositor::Seat::capability_pointer | MockCompositor::Seat::capability_touch;
-            int version = 7;
+            int version = 8;
             add<Seat>(capabilities, version);
         });
     }
@@ -40,8 +40,7 @@ private slots:
     void fingerScroll();
     void fingerScrollSlow();
     void continuousScroll();
-    void wheelDiscreteScroll_data();
-    void wheelDiscreteScroll();
+    void highResolutionScroll();
 
     // Touch tests
     void createsTouch();
@@ -56,13 +55,13 @@ private slots:
 void tst_seat::bindsToSeat()
 {
     QCOMPOSITOR_COMPARE(get<Seat>()->resourceMap().size(), 1);
-    QCOMPOSITOR_COMPARE(get<Seat>()->resourceMap().first()->version(), 7);
+    QCOMPOSITOR_COMPARE(get<Seat>()->resourceMap().first()->version(), 8);
 }
 
 void tst_seat::createsPointer()
 {
     QCOMPOSITOR_TRY_COMPARE(pointer()->resourceMap().size(), 1);
-    QCOMPOSITOR_TRY_COMPARE(pointer()->resourceMap().first()->version(), 7);
+    QCOMPOSITOR_TRY_COMPARE(pointer()->resourceMap().first()->version(), 8);
 }
 
 void tst_seat::setsCursorOnEnter()
@@ -320,28 +319,19 @@ void tst_seat::fingerScrollSlow()
     QCOMPARE(accumulated.y(), -1);
 }
 
-void tst_seat::wheelDiscreteScroll_data()
-{
-    QTest::addColumn<uint>("source");
-    QTest::newRow("wheel") << uint(Pointer::axis_source_wheel);
-    QTest::newRow("wheel tilt") << uint(Pointer::axis_source_wheel_tilt);
-}
-
-void tst_seat::wheelDiscreteScroll()
+void tst_seat::highResolutionScroll()
 {
     WheelWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
-
-    QFETCH(uint, source);
 
     exec([=] {
         auto *p = pointer();
         auto *c = client();
         p->sendEnter(xdgToplevel()->surface(), {32, 32});
         p->sendFrame(c);
-        p->sendAxisSource(c, Pointer::axis_source(source));
-        p->sendAxisDiscrete(c, Pointer::axis_vertical_scroll, 1); // 1 click downwards
-        p->sendAxis(c, Pointer::axis_vertical_scroll, 1.0);
+        p->sendAxisSource(c, Pointer::axis_source_wheel);
+        p->sendAxisValue120(c, Pointer::axis_vertical_scroll, 30); // quarter of a click
+        p->sendAxis(c, Pointer::axis_vertical_scroll, 3.75);
         p->sendFrame(c);
     });
 
@@ -350,10 +340,26 @@ void tst_seat::wheelDiscreteScroll()
         auto e = window.m_events.takeFirst();
         QCOMPARE(e.phase, Qt::NoScrollPhase);
         QVERIFY(qAbs(e.angleDelta.x()) <= qAbs(e.angleDelta.y())); // Vertical scroll
-        // According to the docs the angle delta is in eights of a degree and most mice have
-        // 1 click = 15 degrees. The angle delta should therefore be:
-        // 15 degrees / (1/8 eights per degrees) = 120 eights of degrees.
-        QCOMPARE(e.angleDelta, QPoint(0, -120));
+        QCOMPARE(e.angleDelta, QPoint(0, -30));
+        // Click scrolls are not continuous and should not have a pixel delta
+        QCOMPARE(e.pixelDelta, QPoint(0, 0));
+    }
+
+    exec([=] {
+        auto *p = pointer();
+        auto *c = client();
+        p->sendAxisSource(c, Pointer::axis_source_wheel);
+        p->sendAxisValue120(c, Pointer::axis_vertical_scroll, 90); // complete the click
+        p->sendAxis(c, Pointer::axis_vertical_scroll, 11.25);
+        p->sendFrame(c);
+    });
+
+    QTRY_VERIFY(!window.m_events.empty());
+    {
+        auto e = window.m_events.takeFirst();
+        QCOMPARE(e.phase, Qt::NoScrollPhase);
+        QVERIFY(qAbs(e.angleDelta.x()) <= qAbs(e.angleDelta.y())); // Vertical scroll
+        QCOMPARE(e.angleDelta, QPoint(0, -90));
         // Click scrolls are not continuous and should not have a pixel delta
         QCOMPARE(e.pixelDelta, QPoint(0, 0));
     }
@@ -388,7 +394,7 @@ void tst_seat::continuousScroll()
 void tst_seat::createsTouch()
 {
     QCOMPOSITOR_TRY_COMPARE(touch()->resourceMap().size(), 1);
-    QCOMPOSITOR_TRY_COMPARE(touch()->resourceMap().first()->version(), 7);
+    QCOMPOSITOR_TRY_COMPARE(touch()->resourceMap().first()->version(), 8);
 }
 
 class TouchWindow : public QRasterWindow {

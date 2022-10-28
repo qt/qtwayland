@@ -3,6 +3,9 @@
 
 #include "mockkeyboard.h"
 
+QT_WARNING_DISABLE_GCC("-Wmissing-field-initializers")
+QT_WARNING_DISABLE_CLANG("-Wmissing-field-initializers")
+
 void keyboardKeymap(void *keyboard, struct wl_keyboard *wl_keyboard, uint32_t format, int32_t fd, uint32_t size)
 {
     Q_UNUSED(keyboard);

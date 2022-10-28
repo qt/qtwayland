@@ -3,6 +3,9 @@
 
 #include "mockpointer.h"
 
+QT_WARNING_DISABLE_GCC("-Wmissing-field-initializers")
+QT_WARNING_DISABLE_CLANG("-Wmissing-field-initializers")
+
 static void pointerEnter(void *pointer, struct wl_pointer *wlPointer, uint serial, struct wl_surface *surface, wl_fixed_t x, wl_fixed_t y)
 {
     Q_UNUSED(wlPointer);

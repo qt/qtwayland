@@ -21,8 +21,6 @@
 
 using namespace MockCompositor;
 
-static const QSize screenSize(1600, 1200);
-
 constexpr int dataDeviceVersion = 1;
 
 class TestCompositor : public WlShellCompositor {

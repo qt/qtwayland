@@ -263,7 +263,7 @@ QString QWaylandInputDevice::Pointer::cursorThemeName() const
 
 int QWaylandInputDevice::Pointer::cursorSize() const
 {
-    constexpr int defaultCursorSize = 32;
+    constexpr int defaultCursorSize = 24;
     static const int xCursorSize = qEnvironmentVariableIntValue("XCURSOR_SIZE");
     return xCursorSize > 0 ? xCursorSize : defaultCursorSize;
 }

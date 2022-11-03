@@ -350,11 +350,67 @@ QList<uint64_t> LinuxDmabufClientBufferIntegration::supportedDrmModifiers(uint32
     return QList<uint64_t>();
 }
 
+
+void LinuxDmabufClientBufferIntegration::deleteGLTextureWhenPossible(QOpenGLTexture *texture, QOpenGLContext *ctx) {
+    QMutexLocker locker(&m_orphanedTexturesLock);
+
+    Q_ASSERT(m_orphanedTextures.size() == m_orphanedTexturesAboutToBeDestroyedConnection.size());
+
+    m_orphanedTextures << texture;
+    m_orphanedTexturesAboutToBeDestroyedConnection << QObject::connect(ctx, &QOpenGLContext::aboutToBeDestroyed,
+                                                                       ctx, [this, texture]() {
+        this->deleteSpecificOrphanedTexture(texture);
+    }, Qt::DirectConnection);
+}
+
+
 void LinuxDmabufClientBufferIntegration::deleteOrphanedTextures()
 {
     Q_ASSERT(QOpenGLContext::currentContext());
+
+    QMutexLocker locker(&m_orphanedTexturesLock);
+
+    if (!m_orphanedTextures.isEmpty())
+        qCDebug(qLcWaylandCompositorHardwareIntegration) << "About to delete some textures: "
+                                                           << m_orphanedTextures;
+
     qDeleteAll(m_orphanedTextures);
+
+    for (QMetaObject::Connection con : m_orphanedTexturesAboutToBeDestroyedConnection)
+           QObject::disconnect(con);
+
+    m_orphanedTexturesAboutToBeDestroyedConnection.clear();
     m_orphanedTextures.clear();
+}
+
+void LinuxDmabufClientBufferIntegration::deleteSpecificOrphanedTexture(QOpenGLTexture *texture)
+{
+    Q_ASSERT(m_orphanedTextures.size() == m_orphanedTexturesAboutToBeDestroyedConnection.size());
+
+    QMutexLocker locker(&m_orphanedTexturesLock);
+
+    // In this case, deleteOrphanedTextures was called while we entered (see lock!) this function!
+    if (m_orphanedTextures.length()==0) {
+        qCWarning(qLcWaylandCompositorHardwareIntegration)
+                << Q_FUNC_INFO
+                << "Looks like deleteOrphanedTextures() and this function where called simultaneously!"
+                << "This might cause issues!";
+        return;
+    }
+
+    int i = m_orphanedTextures.indexOf(texture);
+    Q_ASSERT(i!=-1);  // If it isn't empty (see above if), then it should be guaranteed to still contain this texture
+
+    m_orphanedTextures.removeAt(i);
+    QMetaObject::Connection con = m_orphanedTexturesAboutToBeDestroyedConnection.takeAt(i);
+
+    QObject::disconnect(con);
+    delete texture;
+
+    qCDebug(qLcWaylandCompositorHardwareIntegration)
+            << Q_FUNC_INFO
+            << "texture deleted due to QOpenGLContext::aboutToBeDestroyed!"
+            << "Pointer (now dead) was:" << (void*)texture;
 }
 
 void LinuxDmabufClientBufferIntegration::deleteImage(EGLImageKHR image)

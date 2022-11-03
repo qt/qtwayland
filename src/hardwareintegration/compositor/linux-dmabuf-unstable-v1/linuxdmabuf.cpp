@@ -257,10 +257,16 @@ LinuxDmabufWlBuffer::~LinuxDmabufWlBuffer()
 void LinuxDmabufWlBuffer::buffer_destroy(Resource *resource)
 {
     Q_UNUSED(resource);
+
+    QMutexLocker locker(&m_texturesLock);
+
     for (uint32_t i = 0; i < m_planesNumber; ++i) {
         if (m_textures[i] != nullptr) {
-            m_clientBufferIntegration->deleteGLTextureWhenPossible(m_textures[i]);
+            m_clientBufferIntegration->deleteGLTextureWhenPossible(m_textures[i], m_texturesContext[i]);
             m_textures[i] = nullptr;
+            m_texturesContext[i] = nullptr;
+            QObject::disconnect(m_texturesAboutToBeDestroyedConnection[i]);
+            m_texturesAboutToBeDestroyedConnection[i] = QMetaObject::Connection();
         }
         if (m_eglImages[i] != EGL_NO_IMAGE_KHR) {
             m_clientBufferIntegration->deleteImage(m_eglImages[i]);
@@ -282,9 +288,40 @@ void LinuxDmabufWlBuffer::initImage(uint32_t plane, EGLImageKHR image)
 
 void LinuxDmabufWlBuffer::initTexture(uint32_t plane, QOpenGLTexture *texture)
 {
+    QMutexLocker locker(&m_texturesLock);
+
     Q_ASSERT(plane < m_planesNumber);
     Q_ASSERT(m_textures.at(plane) == nullptr);
+    Q_ASSERT(QOpenGLContext::currentContext());
     m_textures[plane] = texture;
+    m_texturesContext[plane] = QOpenGLContext::currentContext();
+
+    m_texturesAboutToBeDestroyedConnection[plane] =
+            QObject::connect(m_texturesContext[plane], &QOpenGLContext::aboutToBeDestroyed,
+                             m_texturesContext[plane], [this, plane]() {
+
+        QMutexLocker locker(&this->m_texturesLock);
+
+        // See above lock - there is a chance that this has already been removed from m_textures[plane]!
+        // Furthermore, we can trust that all the rest (e.g. disconnect) has also been properly executed!
+        if (this->m_textures[plane] == nullptr)
+            return;
+
+        delete this->m_textures[plane];
+
+        qCDebug(qLcWaylandCompositorHardwareIntegration)
+                << Q_FUNC_INFO
+                << "texture deleted due to QOpenGLContext::aboutToBeDestroyed!"
+                << "Pointer (now dead) was:" << (void*)(this->m_textures[plane])
+                << "  Associated context (about to die too) is: " << (void*)(this->m_texturesContext[plane]);
+
+        this->m_textures[plane] = nullptr;
+        this->m_texturesContext[plane] = nullptr;
+
+        QObject::disconnect(this->m_texturesAboutToBeDestroyedConnection[plane]);
+        this->m_texturesAboutToBeDestroyedConnection[plane] = QMetaObject::Connection();
+
+    }, Qt::DirectConnection);
 }
 
 void LinuxDmabufWlBuffer::buffer_destroy_resource(Resource *resource)

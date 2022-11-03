@@ -38,11 +38,13 @@ function(qt6_generate_wayland_protocol_client_sources target)
             OUTPUT "${waylandscanner_header_output}"
             #TODO: Maybe put the files in ${CMAKE_CURRENT_BINARY_DIR/wayland_generated instead?
             COMMAND Wayland::Scanner --strict ${waylandscanner_extra_args} client-header < "${protocol_file}" > "${waylandscanner_header_output}"
+            DEPENDS ${protocol_file} Wayland::Scanner
         )
 
         add_custom_command(
             OUTPUT "${waylandscanner_code_output}"
             COMMAND Wayland::Scanner --strict ${waylandscanner_extra_args} public-code < "${protocol_file}" > "${waylandscanner_code_output}"
+            DEPENDS ${protocol_file} Wayland::Scanner
         )
 
         set(wayland_include_dir "")

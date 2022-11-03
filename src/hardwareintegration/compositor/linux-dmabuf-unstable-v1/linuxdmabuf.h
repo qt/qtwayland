@@ -16,6 +16,8 @@
 #include <QtCore/QTextStream>
 
 #include <array>
+#include <QtGui/QOpenGLContext>
+#include <QtCore/QMutex>
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -123,6 +125,10 @@ private:
     LinuxDmabufClientBufferIntegration *m_clientBufferIntegration = nullptr;
     std::array<EGLImageKHR, MaxDmabufPlanes> m_eglImages = { {EGL_NO_IMAGE_KHR, EGL_NO_IMAGE_KHR, EGL_NO_IMAGE_KHR, EGL_NO_IMAGE_KHR} };
     std::array<QOpenGLTexture *, MaxDmabufPlanes> m_textures = { {nullptr, nullptr, nullptr, nullptr} };
+    std::array<QOpenGLContext *, MaxDmabufPlanes> m_texturesContext = { {nullptr, nullptr, nullptr, nullptr} };
+    std::array<QMetaObject::Connection, MaxDmabufPlanes> m_texturesAboutToBeDestroyedConnection = { {QMetaObject::Connection(), QMetaObject::Connection(), QMetaObject::Connection(), QMetaObject::Connection()} };
+    QMutex m_texturesLock;
+
     void freeResources();
     void buffer_destroy(Resource *resource) override;
 

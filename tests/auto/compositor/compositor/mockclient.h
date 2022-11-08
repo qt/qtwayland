@@ -103,6 +103,8 @@ private:
                                 int refreshRate);
     static void outputDone(void *data, wl_output *output);
     static void outputScale(void *data, wl_output *output, int factor);
+    static void outputName(void *data, wl_output *output, const char *name);
+    static void outputDesc(void *data, wl_output *output, const char *desc);
 
     void handleGlobal(uint32_t id, const QByteArray &interface);
     void handleGlobalRemove(uint32_t id);

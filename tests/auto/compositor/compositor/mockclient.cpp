@@ -51,7 +51,9 @@ const wl_output_listener MockClient::outputListener = {
     MockClient::outputGeometryEvent,
     MockClient::outputModeEvent,
     MockClient::outputDone,
-    MockClient::outputScale
+    MockClient::outputScale,
+    MockClient::outputName,
+    MockClient::outputDesc
 };
 
 MockClient::~MockClient()
@@ -94,6 +96,16 @@ void MockClient::outputDone(void *, wl_output *)
 }
 
 void MockClient::outputScale(void *, wl_output *, int)
+{
+
+}
+
+void MockClient::outputName(void *, wl_output *, const char *)
+{
+
+}
+
+void MockClient::outputDesc(void *, wl_output *, const char *)
 {
 
 }

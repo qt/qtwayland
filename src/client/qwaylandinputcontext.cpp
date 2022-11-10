@@ -387,8 +387,10 @@ void QWaylandTextInput::zwp_text_input_v2_input_method_changed(uint32_t serial, 
 Qt::KeyboardModifiers QWaylandTextInput::modifiersToQtModifiers(uint32_t modifiers)
 {
     Qt::KeyboardModifiers ret = Qt::NoModifier;
-    for (int i = 0; modifiers >>= 1; ++i) {
-        ret |= m_modifiersMap[i];
+    for (int i = 0; i < m_modifiersMap.size(); ++i) {
+        if (modifiers & (1 << i)) {
+            ret |= m_modifiersMap[i];
+        }
     }
     return ret;
 }

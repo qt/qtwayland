@@ -36,9 +36,9 @@ private:
     {
         exec([&] {
             QList<arg_type *> extensions = getAll<arg_type>();
-            if (extensions.length() > 1)
+            if (extensions.size() > 1)
                 QFAIL("Requested type is a singleton, hence there should not be more then one object returned");
-            if (extensions.length() == 0)
+            if (extensions.size() == 0)
                 add<arg_type>();
         });
     }
@@ -48,9 +48,9 @@ private:
     {
         exec([&] {
             QList<arg_type *> extensions = getAll<arg_type>();
-            if (extensions.length() > 1)
+            if (extensions.size() > 1)
                 QFAIL("Requested type is a singleton, hence there should not be more then one object returned");
-            if (extensions.length() == 1)
+            if (extensions.size() == 1)
                 remove(extensions.first());
         });
     }

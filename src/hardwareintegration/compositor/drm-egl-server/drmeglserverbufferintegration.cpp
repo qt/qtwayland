@@ -87,7 +87,7 @@ QOpenGLTexture *DrmEglServerBuffer::toOpenGlTexture()
 
 bool DrmEglServerBuffer::bufferInUse()
 {
-    return resourceMap().count() > 0;
+    return resourceMap().size() > 0;
 }
 
 DrmEglServerBufferIntegration::DrmEglServerBufferIntegration()

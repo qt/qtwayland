@@ -590,7 +590,7 @@ void tst_WaylandClient::longWindowTitleWithUtf16Characters()
 {
     QWindow window;
     QString absurdlyLongTitle = QString("三").repeated(10000);
-    Q_ASSERT(absurdlyLongTitle.length() == 10000); // just making sure the test isn't broken
+    Q_ASSERT(absurdlyLongTitle.size() == 10000); // just making sure the test isn't broken
     window.setTitle(absurdlyLongTitle);
     window.show();
     QCOMPOSITOR_TRY_VERIFY(surface());

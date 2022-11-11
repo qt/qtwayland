@@ -36,7 +36,7 @@ QByteArray QWaylandMimeHelper::getByteArray(QMimeData *mimeData, const QString &
         content = qvariant_cast<QColor>(mimeData->colorData()).name().toLatin1();
     } else if (mimeType == QLatin1String("text/uri-list")) {
         QList<QUrl> urls = mimeData->urls();
-        for (int i = 0; i < urls.count(); ++i) {
+        for (int i = 0; i < urls.size(); ++i) {
             content.append(urls.at(i).toEncoded());
             content.append("\r\n");
         }

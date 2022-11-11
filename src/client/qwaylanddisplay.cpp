@@ -610,7 +610,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
 
 void QWaylandDisplay::registry_global_remove(uint32_t id)
 {
-    for (int i = 0, ie = mGlobals.count(); i != ie; ++i) {
+    for (int i = 0, ie = mGlobals.size(); i != ie; ++i) {
         RegistryGlobal &global = mGlobals[i];
         if (global.id == id) {
             if (global.interface == QLatin1String(QtWayland::wl_output::interface()->name)) {
@@ -677,7 +677,7 @@ void QWaylandDisplay::addRegistryListener(RegistryListener listener, void *data)
 {
     Listener l = { listener, data };
     mRegistryListeners.append(l);
-    for (int i = 0, ie = mGlobals.count(); i != ie; ++i)
+    for (int i = 0, ie = mGlobals.size(); i != ie; ++i)
         (*l.listener)(l.data, mGlobals[i].registry, mGlobals[i].id, mGlobals[i].interface, mGlobals[i].version);
 }
 

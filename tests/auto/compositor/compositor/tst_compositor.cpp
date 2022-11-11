@@ -312,14 +312,14 @@ void tst_WaylandCompositor::keyboardGrab()
     //QSignalSpy grabModifierSpy(grab, SIGNAL(modifiersCalled()));
 
     seat->setKeyboardFocus(waylandSurface);
-    QTRY_COMPARE(grabFocusSpy.count(), 1);
+    QTRY_COMPARE(grabFocusSpy.size(), 1);
 
     QKeyEvent ke(QEvent::KeyPress, Qt::Key_A, Qt::NoModifier, 30, 0, 0);
     QKeyEvent ke1(QEvent::KeyRelease, Qt::Key_A, Qt::NoModifier, 30, 0, 0);
     seat->sendFullKeyEvent(&ke);
     seat->sendFullKeyEvent(&ke1);
-    QTRY_COMPARE(grabKeyPressSpy.count(), 1);
-    QTRY_COMPARE(grabKeyReleaseSpy.count(), 1);
+    QTRY_COMPARE(grabKeyPressSpy.size(), 1);
+    QTRY_COMPARE(grabKeyReleaseSpy.size(), 1);
 
     QKeyEvent ke2(QEvent::KeyPress, Qt::Key_Shift, Qt::NoModifier, 50, 0, 0);
     QKeyEvent ke3(QEvent::KeyRelease, Qt::Key_Shift, Qt::NoModifier, 50, 0, 0);
@@ -327,14 +327,14 @@ void tst_WaylandCompositor::keyboardGrab()
     seat->sendFullKeyEvent(&ke3);
     //QTRY_COMPARE(grabModifierSpy.count(), 2);
     // Modifiers are also keys
-    QTRY_COMPARE(grabKeyPressSpy.count(), 2);
-    QTRY_COMPARE(grabKeyReleaseSpy.count(), 2);
+    QTRY_COMPARE(grabKeyPressSpy.size(), 2);
+    QTRY_COMPARE(grabKeyReleaseSpy.size(), 2);
 
     // Stop grabbing
     seat->setKeyboardFocus(nullptr);
     seat->sendFullKeyEvent(&ke);
     seat->sendFullKeyEvent(&ke1);
-    QTRY_COMPARE(grabKeyPressSpy.count(), 2);
+    QTRY_COMPARE(grabKeyPressSpy.size(), 2);
 }
 
 void tst_WaylandCompositor::geometry()
@@ -466,7 +466,7 @@ void tst_WaylandCompositor::mapSurface()
     wl_surface_damage(surface, 0, 0, size.width(), size.height());
     wl_surface_commit(surface);
 
-    QTRY_COMPARE(hasContentSpy.count(), 1);
+    QTRY_COMPARE(hasContentSpy.size(), 1);
     QCOMPARE(waylandSurface->hasContent(), true);
     QCOMPARE(waylandSurface->bufferSize(), size);
     QCOMPARE(waylandSurface->destinationSize(), size);
@@ -534,21 +534,21 @@ void tst_WaylandCompositor::mapSurfaceHiDpi()
     QCOMPARE(waylandSurface->destinationSize(), QSize());
     QCOMPARE(waylandSurface->hasContent(), false);
     QCOMPARE(waylandSurface->bufferScale(), 1);
-    QCOMPARE(offsetSpy.count(), 0);
+    QCOMPARE(offsetSpy.size(), 0);
 
     wl_surface_commit(surface);
 
-    QTRY_COMPARE(hasContentSpy.count(), 1);
-    QTRY_COMPARE(bufferSizeSpy.count(), 1);
-    QTRY_COMPARE(destinationSizeSpy.count(), 1);
-    QTRY_COMPARE(bufferScaleSpy.count(), 1);
-    QTRY_COMPARE(offsetSpy.count(), 1);
-    QTRY_COMPARE(damagedSpy.count(), 1);
+    QTRY_COMPARE(hasContentSpy.size(), 1);
+    QTRY_COMPARE(bufferSizeSpy.size(), 1);
+    QTRY_COMPARE(destinationSizeSpy.size(), 1);
+    QTRY_COMPARE(bufferScaleSpy.size(), 1);
+    QTRY_COMPARE(offsetSpy.size(), 1);
+    QTRY_COMPARE(damagedSpy.size(), 1);
 
     // Now verify that wl_surface_damage_buffer gets mapped properly
     wl_surface_damage_buffer(surface, 0, 0, bufferSize.width(), bufferSize.height());
     wl_surface_commit(surface);
-    QTRY_COMPARE(damagedSpy.count(), 2);
+    QTRY_COMPARE(damagedSpy.size(), 2);
 
     wl_surface_destroy(surface);
 }
@@ -617,7 +617,7 @@ void tst_WaylandCompositor::frameCallback()
         wl_surface_commit(surface);
 
         QTRY_COMPARE(waylandSurface->hasContent(), true);
-        QTRY_COMPARE(damagedSpy.count(), i + 1);
+        QTRY_COMPARE(damagedSpy.size(), i + 1);
 
         QCOMPARE(static_cast<BufferView*>(waylandSurface->views().first())->image(), buffer.image);
         compositor.defaultOutput()->frameStarted();
@@ -673,18 +673,18 @@ void tst_WaylandCompositor::outputs()
     window.resize(800, 600);
 
     auto output = new QWaylandOutput(&compositor, &window);
-    QTRY_COMPARE(outputAddedSpy.count(), 1);
+    QTRY_COMPARE(outputAddedSpy.size(), 1);
 
     compositor.setDefaultOutput(output);
-    QTRY_COMPARE(defaultOutputSpy.count(), 2);
+    QTRY_COMPARE(defaultOutputSpy.size(), 2);
 
     MockClient client;
     QTRY_COMPARE(client.m_outputs.size(), 2);
 
     delete output;
-    QTRY_COMPARE(outputRemovedSpy.count(), 1);
+    QTRY_COMPARE(outputRemovedSpy.size(), 1);
     QEXPECT_FAIL("", "FIXME: defaultOutputChanged() is not emitted when the default output is removed", Continue);
-    QTRY_COMPARE(defaultOutputSpy.count(), 3);
+    QTRY_COMPARE(defaultOutputSpy.size(), 3);
     compositor.flushClients();
     QTRY_COMPARE(client.m_outputs.size(), 1);
 }
@@ -966,7 +966,7 @@ void tst_WaylandCompositor::createsXdgSurfaces()
 
     wl_surface *surface = client.createSurface();
     xdg_surface *clientXdgSurface = client.createXdgSurface(surface);
-    QTRY_COMPARE(xdgSurfaceCreatedSpy.count(), 1);
+    QTRY_COMPARE(xdgSurfaceCreatedSpy.size(), 1);
     QTRY_VERIFY(xdgSurface);
     QTRY_VERIFY(xdgSurface->surface());
 
@@ -1183,7 +1183,7 @@ void tst_WaylandCompositor::createsIviSurfaces()
 
     wl_surface *surface = client.createSurface();
     client.createIviSurface(surface, 123);
-    QTRY_COMPARE(iviSurfaceCreatedSpy.count(), 1);
+    QTRY_COMPARE(iviSurfaceCreatedSpy.size(), 1);
     QTRY_VERIFY(iviSurface);
     QTRY_VERIFY(iviSurface->surface());
     QTRY_COMPARE(iviSurface->iviId(), 123u);
@@ -1210,7 +1210,7 @@ void tst_WaylandCompositor::emitsErrorOnSameIviId()
         {
             MockClient secondClient;
             QTRY_VERIFY(&secondClient.iviApplication);
-            QTRY_COMPARE(compositor.clients().count(), 2);
+            QTRY_COMPARE(compositor.clients().size(), 2);
 
             secondClient.createIviSurface(secondClient.createSurface(), 123);
             compositor.flushClients();
@@ -1218,7 +1218,7 @@ void tst_WaylandCompositor::emitsErrorOnSameIviId()
             QTRY_COMPARE(secondClient.error, EPROTO);
             QTRY_COMPARE(secondClient.protocolError.interface, &ivi_application_interface);
             QTRY_COMPARE(static_cast<ivi_application_error>(secondClient.protocolError.code), IVI_APPLICATION_ERROR_IVI_ID);
-            QTRY_COMPARE(compositor.clients().count(), 1);
+            QTRY_COMPARE(compositor.clients().size(), 1);
         }
     }
 
@@ -1292,7 +1292,7 @@ void tst_WaylandCompositor::destroysIviSurfaces()
 
     QSignalSpy destroySpy(iviSurface, SIGNAL(destroyed()));
     mockIviSurface.destroy();
-    QTRY_VERIFY(destroySpy.count() == 1);
+    QTRY_VERIFY(destroySpy.size() == 1);
 }
 
 class ViewporterTestCompositor: public TestCompositor {
@@ -1728,7 +1728,7 @@ void tst_WaylandCompositor::idleInhibit()
     QVERIFY(idleInhibitor);
     QTRY_COMPARE(waylandSurfacePrivate->idleInhibitors.size(), 1);
     QCOMPARE(waylandSurface->inhibitsIdle(), true);
-    QTRY_COMPARE(changedSpy.count(), 1);
+    QTRY_COMPARE(changedSpy.size(), 1);
 }
 
 class XdgOutputCompositor : public TestCompositor

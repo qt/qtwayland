@@ -67,7 +67,7 @@ void DataDeviceManager::retain()
 {
     QList<QString> offers = m_current_selection_source->mimeTypes();
     finishReadFromClient();
-    if (m_retainedReadIndex >= offers.count()) {
+    if (m_retainedReadIndex >= offers.size()) {
         QWaylandCompositorPrivate::get(m_compositor)->feedRetainedSelectionData(&m_retainedData);
         return;
     }
@@ -104,7 +104,7 @@ void DataDeviceManager::finishReadFromClient(bool exhausted)
 void DataDeviceManager::readFromClient(int fd)
 {
     static char buf[4096];
-    int obsCount = m_obsoleteRetainedReadNotifiers.count();
+    int obsCount = m_obsoleteRetainedReadNotifiers.size();
     for (int i = 0; i < obsCount; ++i) {
         QSocketNotifier *sn = m_obsoleteRetainedReadNotifiers.at(i);
         if (sn->socket() == fd) {

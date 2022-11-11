@@ -73,7 +73,7 @@ int QWaylandTouchPrivate::toSequentialWaylandId(int touchId)
         return availableId;
     }
     ids.append(touchId);
-    return ids.length() - 1;
+    return ids.size() - 1;
 }
 
 /*!
@@ -189,7 +189,7 @@ void QWaylandTouch::sendFullTouchEvent(QWaylandSurface *surface, QTouchEvent *ev
     if (points.isEmpty())
         return;
 
-    const int pointCount = points.count();
+    const int pointCount = points.size();
     for (int i = 0; i < pointCount; ++i) {
         const QTouchEvent::TouchPoint &tp(points.at(i));
         // Convert the local pos in the compositor window to surface-relative.

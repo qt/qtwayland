@@ -162,7 +162,7 @@ wl_kms_buffer *Vsp2Layer::nextKmsBuffer()
 
 void Vsp2HardwareLayerIntegration::enableVspLayers()
 {
-    for (auto &layer : qAsConst(m_layers)) {
+    for (auto &layer : std::as_const(m_layers)) {
         Q_ASSERT(!layer->isEnabled());
         layer->enableVspLayer();
     }
@@ -225,7 +225,7 @@ void Vsp2HardwareLayerIntegration::remove(QWaylandQuickHardwareLayer *hwLayer)
 
 void Vsp2HardwareLayerIntegration::sendFrameCallbacks()
 {
-    for (auto &layer : qAsConst(m_layers)) {
+    for (auto &layer : std::as_const(m_layers)) {
         if (auto *surface = layer->hwLayer()->waylandItem()->surface())
             surface->sendFrameCallbacks();
     }

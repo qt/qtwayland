@@ -25,7 +25,7 @@ static inline struct ::wl_surface *getWlSurface(QWindow *window)
 
 QWindow *CustomExtension::windowForSurface(struct ::wl_surface *surface)
 {
-    for (QWindow *w : qAsConst(m_windows)) {
+    for (QWindow *w : std::as_const(m_windows)) {
         if (getWlSurface(w) == surface)
             return w;
     }
@@ -79,7 +79,7 @@ void CustomExtension::sendSpin(QWindow *window, uint ms)
 void CustomExtension::handleExtensionActive()
 {
     if (isActive() && !m_activated) {
-        for (QWindow *w : qAsConst(m_windows))
+        for (QWindow *w : std::as_const(m_windows))
              sendWindowRegistration(w);
     }
 }
@@ -99,7 +99,7 @@ void CustomExtension::example_extension_set_font_size(wl_surface *surface, uint3
 void CustomExtension::example_extension_set_window_decoration(uint32_t state)
 {
     bool shown = state;
-    for (QWindow *w : qAsConst(m_windows)) {
+    for (QWindow *w : std::as_const(m_windows)) {
         Qt::WindowFlags f = w->flags();
         if (shown)
             f &= ~Qt::FramelessWindowHint;

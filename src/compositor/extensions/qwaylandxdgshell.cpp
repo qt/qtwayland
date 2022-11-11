@@ -45,7 +45,7 @@ void QWaylandXdgShellPrivate::unregisterXdgSurface(QWaylandXdgSurface *xdgSurfac
 
 QWaylandXdgSurface *QWaylandXdgShellPrivate::xdgSurfaceFromSurface(QWaylandSurface *surface)
 {
-    for (QWaylandXdgSurface *xdgSurface : qAsConst(m_xdgSurfaces)) {
+    for (QWaylandXdgSurface *xdgSurface : std::as_const(m_xdgSurfaces)) {
         if (surface == xdgSurface->surface())
             return xdgSurface;
     }

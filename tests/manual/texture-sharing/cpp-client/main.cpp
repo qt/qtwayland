@@ -87,7 +87,7 @@ protected:
         int x = 0;
         qDebug() << "*** paintGL ***";
         showBuffers();
-        for (auto buffer: qAsConst(m_buffers)) {
+        for (auto buffer: std::as_const(m_buffers)) {
             m_blitter->bind();
             QSize s(buffer->size());
             qDebug() << "painting" << buffer << s;

@@ -150,7 +150,7 @@ QList<QPlatformScreen *> QWaylandScreen::virtualSiblings() const
 
     list.reserve(screens.size() + (placeholder ? 1 : 0));
 
-    for (QWaylandScreen *screen : qAsConst(screens)) {
+    for (QWaylandScreen *screen : std::as_const(screens)) {
         if (screen->screen())
             list << screen;
     }

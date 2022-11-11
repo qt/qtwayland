@@ -422,7 +422,7 @@ void QWaylandIntegration::initializeShellIntegration()
         preferredShells << QLatin1String("qt-shell");
     }
 
-    for (const QString &preferredShell : qAsConst(preferredShells)) {
+    for (const QString &preferredShell : std::as_const(preferredShells)) {
         mShellIntegration.reset(createShellIntegration(preferredShell));
         if (mShellIntegration) {
             qCDebug(lcQpaWayland, "Using the '%s' shell integration", qPrintable(preferredShell));

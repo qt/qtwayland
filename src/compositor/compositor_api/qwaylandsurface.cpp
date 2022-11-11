@@ -101,9 +101,9 @@ QWaylandSurfacePrivate::~QWaylandSurfacePrivate()
 
     bufferRef = QWaylandBufferRef();
 
-    for (QtWayland::FrameCallback *c : qAsConst(pendingFrameCallbacks))
+    for (QtWayland::FrameCallback *c : std::as_const(pendingFrameCallbacks))
         c->destroy();
-    for (QtWayland::FrameCallback *c : qAsConst(frameCallbacks))
+    for (QtWayland::FrameCallback *c : std::as_const(frameCallbacks))
         c->destroy();
 }
 
@@ -276,7 +276,7 @@ void QWaylandSurfacePrivate::surface_commit(Resource *)
     // Notify buffers and views
     if (auto *buffer = bufferRef.buffer())
         buffer->setCommitted(damage);
-    for (auto *view : qAsConst(views))
+    for (auto *view : std::as_const(views))
         view->bufferCommitted(bufferRef, damage);
 
     // Now all double-buffered state has been applied so it's safe to emit general signals
@@ -705,7 +705,7 @@ QWaylandCompositor *QWaylandSurface::compositor() const
 void QWaylandSurface::frameStarted()
 {
     Q_D(QWaylandSurface);
-    for (QtWayland::FrameCallback *c : qAsConst(d->frameCallbacks))
+    for (QtWayland::FrameCallback *c : std::as_const(d->frameCallbacks))
         c->canSend = true;
 }
 

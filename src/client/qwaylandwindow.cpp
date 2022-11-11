@@ -559,7 +559,7 @@ void QWaylandWindow::sendRecursiveExposeEvent()
         return;
     sendExposeEvent(QRect(QPoint(), geometry().size()));
 
-    for (QWaylandSubSurface *subSurface : qAsConst(mChildren)) {
+    for (QWaylandSubSurface *subSurface : std::as_const(mChildren)) {
         auto subWindow = subSurface->window();
         subWindow->sendRecursiveExposeEvent();
     }
@@ -924,7 +924,7 @@ bool QWaylandWindow::createDecoration()
     }
 
     if (hadDecoration != mWindowDecorationEnabled) {
-        for (QWaylandSubSurface *subsurf : qAsConst(mChildren)) {
+        for (QWaylandSubSurface *subsurf : std::as_const(mChildren)) {
             QPoint pos = subsurf->window()->geometry().topLeft();
             QMargins m = frameMargins();
             subsurf->set_position(pos.x() + m.left(), pos.y() + m.top());

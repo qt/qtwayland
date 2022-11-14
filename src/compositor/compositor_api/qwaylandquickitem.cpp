@@ -453,9 +453,8 @@ private:
  * Constructs a QWaylandQuickItem with the given \a parent.
  */
 QWaylandQuickItem::QWaylandQuickItem(QQuickItem *parent)
-    : QQuickItem(*new QWaylandQuickItemPrivate(), parent)
+    : QWaylandQuickItem(*new QWaylandQuickItemPrivate(), parent)
 {
-    d_func()->init();
 }
 
 /*!
@@ -465,6 +464,7 @@ QWaylandQuickItem::QWaylandQuickItem(QWaylandQuickItemPrivate &dd, QQuickItem *p
     : QQuickItem(dd, parent)
 {
     d_func()->init();
+    connect(this, &QQuickItem::activeFocusChanged, this, &QWaylandQuickItem::updateFocus);
 }
 
 /*!
@@ -474,6 +474,7 @@ QWaylandQuickItem::~QWaylandQuickItem()
 {
     Q_D(QWaylandQuickItem);
     disconnect(this, &QQuickItem::windowChanged, this, &QWaylandQuickItem::updateWindow);
+    disconnect(this, &QQuickItem::activeFocusChanged, this, &QWaylandQuickItem::updateFocus);
     QMutexLocker locker(d->mutex);
     if (d->provider) {
         disconnect(d->texProviderConnection);
@@ -536,6 +537,8 @@ void QWaylandQuickItem::setSurface(QWaylandSurface *surface)
         emit compositorChanged();
     if (oldSurf != surface)
         emit surfaceChanged();
+
+    updateFocus();
     update();
 }
 
@@ -894,6 +897,13 @@ void QWaylandQuickItem::handlePlaceBelow(QWaylandSurface *referenceSurface)
         qWarning() << "Couldn't find QWaylandQuickItem for surface" << referenceSurface
                    << "when handling wl_subsurface.place_below";
     }
+}
+
+void QWaylandQuickItem::updateFocus()
+{
+    Q_D(const QWaylandQuickItem);
+    if (hasActiveFocus() && compositor())
+        compositor()->defaultSeat()->setKeyboardFocus(d->view->surface());
 }
 
 /*!

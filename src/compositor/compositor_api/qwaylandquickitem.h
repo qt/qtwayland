@@ -140,6 +140,7 @@ private Q_SLOTS:
 #if QT_CONFIG(im)
     void updateInputMethod(Qt::InputMethodQueries queries);
 #endif
+    void updateFocus();
 
 Q_SIGNALS:
     void surfaceChanged();

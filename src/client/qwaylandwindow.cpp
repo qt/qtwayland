@@ -45,6 +45,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window, QWaylandDisplay *display)
     : QPlatformWindow(window)
     , mDisplay(display)
     , mSurfaceLock(QReadWriteLock::Recursive)
+    , mShellIntegration(display->shellIntegration())
     , mResizeAfterSwap(qEnvironmentVariableIsSet("QT_WAYLAND_RESIZE_AFTER_SWAP"))
 {
     {
@@ -130,9 +131,9 @@ void QWaylandWindow::initWindow()
         }
     } else if (shouldCreateShellSurface()) {
         Q_ASSERT(!mShellSurface);
-        Q_ASSERT(mDisplay->shellIntegration());
+        Q_ASSERT(mShellIntegration);
 
-        mShellSurface = mDisplay->shellIntegration()->createShellSurface(this);
+        mShellSurface = mShellIntegration->createShellSurface(this);
         if (mShellSurface) {
             // Set initial surface title
             setWindowTitle(window()->title());
@@ -216,9 +217,19 @@ void QWaylandWindow::initializeWlSurface()
     emit wlSurfaceCreated();
 }
 
+void QWaylandWindow::setShellIntegration(QWaylandShellIntegration *shellIntegration)
+{
+    Q_ASSERT(shellIntegration);
+    if (mShellSurface) {
+        qCWarning(lcQpaWayland) << "Cannot set shell integration while there's already a shell surface created";
+        return;
+    }
+    mShellIntegration = shellIntegration;
+}
+
 bool QWaylandWindow::shouldCreateShellSurface() const
 {
-    if (!mDisplay->shellIntegration())
+    if (!shellIntegration())
         return false;
 
     if (shouldCreateSubSurface())

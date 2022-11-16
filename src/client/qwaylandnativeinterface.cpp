@@ -148,8 +148,9 @@ void *QWaylandNativeInterface::nativeResourceForWindow(const QByteArray &resourc
     }
 #endif
 
-    if (auto shellIntegration = m_integration->shellIntegration())
-        return shellIntegration->nativeResourceForWindow(resourceString, window);
+    QWaylandWindow *platformWindow = static_cast<QWaylandWindow *>(window->handle());
+    if (platformWindow && platformWindow->shellIntegration())
+        return platformWindow->shellIntegration()->nativeResourceForWindow(resourceString, window);
 
     return nullptr;
 }

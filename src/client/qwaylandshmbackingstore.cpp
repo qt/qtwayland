@@ -16,6 +16,7 @@
 
 #include <QtWaylandClient/private/wayland-wayland-client-protocol.h>
 
+#include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
 
@@ -24,6 +25,9 @@
 // from linux/memfd.h:
 #  ifndef MFD_CLOEXEC
 #    define MFD_CLOEXEC     0x0001U
+#  endif
+#  ifndef MFD_ALLOW_SEALING
+#    define MFD_ALLOW_SEALING 0x0002U
 #  endif
 #endif
 
@@ -39,7 +43,9 @@ QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
     int fd = -1;
 
 #ifdef SYS_memfd_create
-    fd = syscall(SYS_memfd_create, "wayland-shm", MFD_CLOEXEC);
+    fd = syscall(SYS_memfd_create, "wayland-shm", MFD_CLOEXEC | MFD_ALLOW_SEALING);
+    if (fd >= 0)
+        fcntl(fd, F_ADD_SEALS, F_SEAL_SHRINK | F_SEAL_SEAL);
 #endif
 
     QScopedPointer<QFile> filePointer;

@@ -44,6 +44,8 @@ QWaylandScreen::~QWaylandScreen()
 {
     if (zxdg_output_v1::isInitialized())
         zxdg_output_v1::destroy();
+    if (wl_output::isInitialized() && wl_output::version() >= WL_OUTPUT_RELEASE_SINCE_VERSION)
+        wl_output::release();
 }
 
 uint QWaylandScreen::requiredEvents() const

@@ -4,7 +4,6 @@
 import QtQuick
 import QtWayland.Compositor
 import QtWayland.Compositor.XdgShell
-import QtWayland.Compositor.WlShell
 
 WaylandCompositor {
     id: comp
@@ -50,7 +49,7 @@ WaylandCompositor {
 
     // ![xdgshell]
     XdgShell {
-        onToplevelCreated: {
+        onToplevelCreated: (toplevel, xdgSurface) => {
             var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": xdgSurface } );
             item.surface.activated.connect(item.raise);
         }
@@ -58,7 +57,7 @@ WaylandCompositor {
     // ![xdgshell]
 
     // ![onSurfaceRequested]
-    onSurfaceRequested: {
+    onSurfaceRequested: (client, id, version) => {
         var surface = surfaceComponent.createObject(comp, { } );
         surface.initialize(comp, client, id, version);
     }

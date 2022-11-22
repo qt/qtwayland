@@ -1,2 +1,5 @@
-qt_internal_add_example(client-plugin)
-qt_internal_add_example(compositor)
+cmake_minimum_required(VERSION 3.16)
+project(custom-shell)
+
+add_subdirectory(client-plugin)
+add_subdirectory(compositor)

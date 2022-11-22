@@ -32,7 +32,7 @@ WaylandOutput {
                 id: clientCursor
                 x: mouseTracker.mouseX
                 y: mouseTracker.mouseY
-                visible: surface !== null && mouseTracker.containsMouse
+                visible: surface != null && mouseTracker.containsMouse
                 seat : output.compositor.defaultSeat
             }
         }

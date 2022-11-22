@@ -63,7 +63,7 @@ WaylandCompositor {
 
     // ![XdgShell]
     XdgShell {
-        onToplevelCreated: shellSurfaces.append({shellSurface: xdgSurface});
+        onToplevelCreated: (toplevel, xdgSurface) => shellSurfaces.append({shellSurface: xdgSurface});
     }
     XdgDecorationManagerV1 {
         preferredMode: XdgToplevel.ServerSideDecoration

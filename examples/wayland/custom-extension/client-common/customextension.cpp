@@ -56,8 +56,10 @@ void CustomExtension::sendWindowRegistration(QWindow *window)
 void CustomExtension::registerWindow(QWindow *window)
 {
     m_windows << window;
-    if (isActive())
+    if (isActive()) {
+        m_activated = true;
         sendWindowRegistration(window);
+    }
 }
 
 CustomExtensionObject *CustomExtension::createCustomObject(const QString &color, const QString &text)
@@ -79,6 +81,7 @@ void CustomExtension::sendSpin(QWindow *window, uint ms)
 void CustomExtension::handleExtensionActive()
 {
     if (isActive() && !m_activated) {
+        m_activated = true;
         for (QWindow *w : std::as_const(m_windows))
              sendWindowRegistration(w);
     }

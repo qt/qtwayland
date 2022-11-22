@@ -15,7 +15,7 @@ WaylandCompositor {
 
     //! [shell]
     QtShell {
-        onQtShellSurfaceCreated: screen.handleShellSurface(qtShellSurface)
+        onQtShellSurfaceCreated: (qtShellSurface) => screen.handleShellSurface(qtShellSurface)
     }
     //! [shell]
 }

@@ -3,7 +3,7 @@
 
 import QtQuick
 import QtQuick.Window
-import QtQuick.Controls 2.2
+import QtQuick.Controls
 import QtWayland.Compositor
 import QtWayland.Compositor.XdgShell
 import QtWayland.Compositor.WlShell
@@ -32,37 +32,37 @@ WaylandCompositor {
                     duration: 1000
                 }
             }
-                Repeater {
-                    model: shellSurfaces
-                    ShellSurfaceItem {
-                        id: waylandItem
-                        onSurfaceDestroyed: shellSurfaces.remove(index)
-                        shellSurface: shSurface
-                        WaylandHardwareLayer {
-                            stackingLevel: level
-                            Component.onCompleted: console.log("Added hardware layer with stacking level", stackingLevel);
-                        }
-                        Component.onCompleted: console.log("Added wayland quick item");
-                        Behavior on x {
-                            PropertyAnimation {
-                                easing.type: Easing.OutBounce
-                                duration: 1000
-                            }
-                        }
-                        Timer {
-                            interval: 2000; running: animatePosition; repeat: true
-                            onTriggered: waylandItem.x = waylandItem.x === 0 ? win.width - waylandItem.width : 0
-                        }
-                        Behavior on opacity {
-                            PropertyAnimation {
-                                duration: 1000
-                            }
-                        }
-                        Timer {
-                            interval: 2000; running: animateOpacity; repeat: true
-                            onTriggered: waylandItem.opacity = waylandItem.opacity === 1 ? 0 : 1
+            Repeater {
+                model: shellSurfaces
+                ShellSurfaceItem {
+                    id: waylandItem
+                    onSurfaceDestroyed: shellSurfaces.remove(index)
+                    shellSurface: shSurface
+                    WaylandHardwareLayer {
+                        stackingLevel: level
+                        Component.onCompleted: console.log("Added hardware layer with stacking level", stackingLevel);
+                    }
+                    Component.onCompleted: console.log("Added wayland quick item");
+                    Behavior on x {
+                        PropertyAnimation {
+                            easing.type: Easing.OutBounce
+                            duration: 1000
                         }
                     }
+                    Timer {
+                        interval: 2000; running: animatePosition; repeat: true
+                        onTriggered: waylandItem.x = waylandItem.x === 0 ? win.width - waylandItem.width : 0
+                    }
+                    Behavior on opacity {
+                        PropertyAnimation {
+                            duration: 1000
+                        }
+                    }
+                    Timer {
+                        interval: 2000; running: animateOpacity; repeat: true
+                        onTriggered: waylandItem.opacity = waylandItem.opacity === 1 ? 0 : 1
+                    }
+                }
             }
             Column {
                 anchors.bottom: parent.bottom
@@ -94,7 +94,7 @@ WaylandCompositor {
                         }
                         Button {
                             text: "Kill"
-                            onClicked: shSurface.surface.client.close()
+                            onClicked: shSurface.surface.client.kill()
                         }
                     }
                 }
@@ -111,7 +111,7 @@ WaylandCompositor {
     function addShellSurface(shellSurface) {
         shellSurfaces.append({shSurface: shellSurface, animatePosition: false, animateOpacity: false, level: 0});
     }
-    XdgShell { onToplevelCreated: addShellSurface(xdgSurface) }
-    IviApplication { onIviSurfaceCreated: addShellSurface(iviSurface) }
-    WlShell { onWlShellSurfaceCreated: addShellSurface(shellSurface) }
+    XdgShell { onToplevelCreated: (toplevel, xdgSurface) => addShellSurface(xdgSurface) }
+    IviApplication { onIviSurfaceCreated: (iviSurface) => addShellSurface(iviSurface) }
+    WlShell { onWlShellSurfaceCreated: (shellSurface) => addShellSurface(shellSurface) }
 }

@@ -1,2 +1,5 @@
-qt_internal_add_example(cpp-client)
-qt_internal_add_example(compositor)
+cmake_minimum_required(VERSION 3.16)
+project(server-buffer)
+
+add_subdirectory(cpp-client)
+add_subdirectory(compositor)

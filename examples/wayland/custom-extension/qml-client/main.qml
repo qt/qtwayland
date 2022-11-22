@@ -7,12 +7,17 @@ import io.qt.examples.customextension
 
 Window {
     id: topLevelWindow
+
+    property alias textItem: bounceText
+
+    title: "QML Client"
     visible: true
+
     Rectangle {
         anchors.fill: parent
         color: "#f1eece"
     }
-    property alias textItem: bounceText
+
     Text {
         id: bounceText
         text: "press here to bounce"
@@ -49,7 +54,7 @@ Window {
             console.log("Custom extension is active:", active)
             registerWindow(topLevelWindow)
         }
-        onFontSize: {
+        onFontSize: (window, pixelSize) => {
             // signal arguments: window and pixelSize
             // we are free to interpret the protocol as we want, so
             // let's change the font size of just one of the text items

@@ -24,6 +24,7 @@ WaylandCompositor {
             }
         }
     }
+
     Component {
         id: chromeComponent
         ShellSurfaceItem {
@@ -32,11 +33,11 @@ WaylandCompositor {
     }
 
     WlShell {
-        onWlShellSurfaceCreated:
+        onWlShellSurfaceCreated: (shellSurface) => {
             chromeComponent.createObject(surfaceArea, { "shellSurface": shellSurface } );
+        }
     }
 
     ShareBufferExtension {
     }
-
 }

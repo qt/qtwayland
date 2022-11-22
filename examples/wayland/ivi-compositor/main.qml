@@ -48,14 +48,15 @@ WaylandCompositor {
             onWidthChanged: handleResized()
             onHeightChanged: handleResized()
             function handleResized() {
-                shellSurface.sendConfigure(Qt.size(width, height));
+                if (width > 0 && height > 0)
+                    shellSurface.sendConfigure(Qt.size(width, height));
             }
             //! [resizing]
         }
     }
     //! [connecting]
     IviApplication {
-        onIviSurfaceCreated: {
+        onIviSurfaceCreated: (iviSurface) =>  {
             var surfaceArea = iviSurface.iviId === 1337 ? leftArea : rightArea;
             var item = chromeComponent.createObject(surfaceArea, { "shellSurface": iviSurface } );
             item.handleResized();

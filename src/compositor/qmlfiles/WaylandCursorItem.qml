@@ -22,7 +22,7 @@ WaylandQuickItem {
 
     Connections {
         target: seat
-        onCursorSurfaceRequest: {
+        function onCursorSurfaceRequest(surface, hotspotX, hotspotY) {
             cursorItem.surface = surface;
             cursorItem.hotspotX = hotspotX;
             cursorItem.hotspotY = hotspotY;
@@ -41,7 +41,9 @@ WaylandQuickItem {
 
         Connections {
             target: dragIcon.surface
-            onOffsetForNextFrame: dragIcon.offset = offset;
+            function onOffsetForNextFrame(offset) {
+                dragIcon.offset = offset;
+            }
         }
     }
 }

@@ -65,7 +65,7 @@ WaylandCompositor {
     }
 
     XdgShell {
-        onToplevelCreated: {
+        onToplevelCreated: (toplevel, xdgSurface) => {
             const shellSurface = xdgSurface;
 
             // ![create items]

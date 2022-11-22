@@ -4,7 +4,6 @@
 
 import QtQml
 import QtQuick
-import QtQuick.Window as Window
 import QtWayland.Compositor
 import QtWayland.Compositor.XdgShell
 import QtWayland.Compositor.WlShell
@@ -54,11 +53,11 @@ WaylandCompositor {
     }
 
     WlShell {
-        onWlShellSurfaceCreated: handleShellSurfaceCreated(shellSurface)
+        onWlShellSurfaceCreated: (shellSurface) => handleShellSurfaceCreated(shellSurface)
     }
 
     XdgShell {
-        onToplevelCreated: handleShellSurfaceCreated(xdgSurface)
+        onToplevelCreated: (toplevel, xdgSurface) => handleShellSurfaceCreated(xdgSurface)
     }
 
     function createShellSurfaceItem(shellSurface, moveItem, output) {

@@ -46,17 +46,13 @@ WaylandCompositor {
 
     //! [shells]
     WlShell {
-        onWlShellSurfaceCreated:
-            shellSurfaces.append({shellSurface: shellSurface});
+        onWlShellSurfaceCreated: (shellSurface) => shellSurfaces.append({shellSurface: shellSurface});
     }
     XdgShell {
-        onToplevelCreated:
-            shellSurfaces.append({shellSurface: xdgSurface});
+        onToplevelCreated: (toplevel, xdgSurface) => shellSurfaces.append({shellSurface: xdgSurface});
     }
     IviApplication {
-        onIviSurfaceCreated: {
-            shellSurfaces.append({shellSurface: iviSurface});
-        }
+        onIviSurfaceCreated: (iviSurface) => shellSurfaces.append({shellSurface: iviSurface});
     }
     //! [shells]
 

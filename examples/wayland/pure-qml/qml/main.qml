@@ -16,17 +16,17 @@ WaylandCompositor {
     // Shell surface extension. Needed to provide a window concept for Wayland clients.
     // I.e. requests and events for maximization, minimization, resizing, closing etc.
     XdgShell {
-        onToplevelCreated: screen.handleShellSurface(xdgSurface)
+        onToplevelCreated: (toplevel, xdgSurface) => screen.handleShellSurface(xdgSurface)
     }
 
     // Minimalistic shell extension. Mainly used for embedded applications.
     IviApplication {
-        onIviSurfaceCreated: screen.handleShellSurface(iviSurface)
+        onIviSurfaceCreated: (iviSurface) => screen.handleShellSurface(iviSurface)
     }
 
     // Deprecated shell extension, still used by some clients
     WlShell {
-        onWlShellSurfaceCreated: screen.handleShellSurface(shellSurface)
+        onWlShellSurfaceCreated: (shellSurface) => screen.handleShellSurface(shellSurface)
     }
     // ![shell extensions]
 

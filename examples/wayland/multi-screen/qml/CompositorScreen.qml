@@ -46,7 +46,7 @@ WaylandOutput {
                 x: mouseTracker.mouseX
                 y: mouseTracker.mouseY
                 seat: comp.defaultSeat
-                visible: surface !== null && mouseTracker.containsMouse
+                visible: surface != null && mouseTracker.containsMouse
             }
         }
         Shortcut {

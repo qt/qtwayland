@@ -90,7 +90,7 @@ WaylandCompositor {
 
     // ![XdgShell]
     XdgShell {
-        onToplevelCreated: {
+        onToplevelCreated: (toplevel, xdgSurface) => {
             toplevels.append({xdgSurface});
             toplevel.sendFullscreen(Qt.size(win.pixelWidth, win.pixelHeight));
         }

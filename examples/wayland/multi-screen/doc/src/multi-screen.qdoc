@@ -45,7 +45,7 @@
  * screens. The global position of the client is stored in a shared
  * \l{ShellSurfaceItem::moveItem}{moveItem} and relative position of each screen's
  * \l ShellSurfaceItem is calculated based on this. If the \c moveItem is currently outside the
- * bounds of one screen, its coordinates will reflect this, and it will be not be visible on that
+ * bounds of one screen, its coordinates will reflect this, and it will not be visible on that
  * screen.
  *
  * \snippet multi-screen/qml/Chrome.qml position sync

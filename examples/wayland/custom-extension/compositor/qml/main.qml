@@ -3,7 +3,7 @@
 
 import QtQuick
 import QtWayland.Compositor
-import QtWayland.Compositor.WlShell
+import QtWayland.Compositor.XdgShell
 
 import io.qt.examples.customextension 1.0
 
@@ -34,36 +34,38 @@ WaylandCompositor {
             property int fontSize: 12
 
             onSurfaceDestroyed: {
-                var index = itemList.indexOf(chrome);
+                var index = itemList.indexOf(chrome)
                 if (index > -1) {
                     var listCopy = itemList
-                    listCopy.splice(index, 1);
+                    listCopy.splice(index, 1)
                     itemList = listCopy
                 }
                 chrome.destroy()
             }
+
             transform: [
                 Rotation {
                     id: xRot
-                    origin.x: chrome.width/2; origin.y: chrome.height/2;
+                    origin.x: chrome.width / 2; origin.y: chrome.height / 2
                     angle: 0
                     axis { x: 1; y: 0; z: 0 }
                 },
                 Rotation {
                     id: yRot
-                    origin.x: chrome.width/2; origin.y: chrome.height/2;
+                    origin.x: chrome.width / 2; origin.y: chrome.height / 2
                     angle: 0
                     axis { x: 0; y: 1; z: 0 }
                 }
             ]
+
             NumberAnimation {
                 id: spinAnimation
                 running: false
                 loops: 2
-                target: yRot;
-                property: "angle";
-                from: 0; to: 360;
-                duration: 400;
+                target: yRot
+                property: "angle"
+                from: 0; to: 360
+                duration: 400
             }
 
             function doSpin(ms) {
@@ -82,11 +84,13 @@ WaylandCompositor {
                 easing.type: Easing.OutBounce
                 duration: 1000
             }
+
             function doBounce(ms) {
                 console.log("bounce " + ms)
                 // using the 'ms' argument is left as an exercise for the reader...
                 bounceAnimation.start()
             }
+
             onFontSizeChanged: {
                 custom.setFontSize(surface, fontSize)
             }
@@ -120,22 +124,21 @@ WaylandCompositor {
 
             Connections {
                 target: obj
-                onResourceDestroyed: {
+                function onResourceDestroyed() {
                     customItem.destroy()
                 }
             }
         }
     }
 
-    WlShell {
-        id: defaultShell
-        onWlShellSurfaceCreated: {
-            var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": shellSurface } );
-            var w = defaultOutput.surfaceArea.width/2
-            var h = defaultOutput.surfaceArea.height/2
-            item.x = Math.random()*w
-            item.y = Math.random()*h
-            var listCopy = itemList // List properties cannot be modified through Javascript operations
+    XdgShell {
+        onToplevelCreated: (toplevel, xdgSurface) => {
+            var item = chromeComponent.createObject(defaultOutput.surfaceArea, { "shellSurface": xdgSurface } )
+            var w = defaultOutput.surfaceArea.width / 2
+            var h = defaultOutput.surfaceArea.height / 2
+            item.x = Math.random() * w
+            item.y = Math.random() * h
+            var listCopy = itemList; // List properties cannot be modified through Javascript operations
             listCopy.push(item)
             itemList = listCopy
         }
@@ -144,20 +147,21 @@ WaylandCompositor {
     CustomExtension {
         id: custom
 
-        onSurfaceAdded: {
+        onSurfaceAdded: (surface) => {
             var item = itemForSurface(surface)
             item.isCustom = true
         }
-        onBounce: {
+        onBounce: (surface, ms) => {
             var item = itemForSurface(surface)
             item.doBounce(ms)
         }
-        onSpin: {
+        onSpin: (surface, ms) => {
             var item = itemForSurface(surface)
             item.doSpin(ms)
         }
-        onCustomObjectCreated: {
-            var item = customObjectComponent.createObject(defaultOutput.surfaceArea, { "color": obj.color, "text": obj.text, "obj": obj } );
+        onCustomObjectCreated: (obj) => {
+            var item = customObjectComponent.createObject(defaultOutput.surfaceArea,
+                                                          { "color": obj.color, "text": obj.text, "obj": obj } )
         }
     }
 

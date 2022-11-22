@@ -1263,7 +1263,10 @@ void QWaylandWindow::setMouseCursor(QWaylandInputDevice *device, const QCursor &
 
 void QWaylandWindow::restoreMouseCursor(QWaylandInputDevice *device)
 {
-    setMouseCursor(device, window()->cursor());
+    if (const QCursor *overrideCursor = QGuiApplication::overrideCursor())
+        setMouseCursor(device, *overrideCursor);
+    else
+        setMouseCursor(device, window()->cursor());
 }
 #endif
 

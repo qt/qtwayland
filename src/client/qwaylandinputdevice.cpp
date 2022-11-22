@@ -285,8 +285,7 @@ void QWaylandInputDevice::Pointer::updateCursor()
     auto shape = seat()->mCursor.shape;
 
     if (shape == Qt::BlankCursor) {
-        if (mCursor.surface)
-            mCursor.surface->hide();
+        getOrCreateCursorSurface()->hide();
         return;
     }
 

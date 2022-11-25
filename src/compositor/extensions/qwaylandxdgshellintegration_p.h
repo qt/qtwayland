@@ -89,8 +89,10 @@ private:
                                                        // geometry-changed.
     } nonwindowedState;
 
+    bool filterPointerMoveEvent(const QPointF &scenePosition);
     bool filterMouseMoveEvent(QMouseEvent *event);
-    bool filterMouseReleaseEvent(QMouseEvent *event);
+    bool filterPointerReleaseEvent();
+    bool filterTouchUpdateEvent(QTouchEvent *event);
 };
 
 class XdgPopupIntegration : public QWaylandQuickShellIntegration

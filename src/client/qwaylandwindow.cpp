@@ -228,13 +228,16 @@ void QWaylandWindow::reset()
         mSurface.reset();
     }
 
-    if (mFrameCallback) {
-        wl_callback_destroy(mFrameCallback);
-        mFrameCallback = nullptr;
-    }
+    {
+        QMutexLocker lock(&mFrameSyncMutex);
+        if (mFrameCallback) {
+            wl_callback_destroy(mFrameCallback);
+            mFrameCallback = nullptr;
+        }
 
-    mFrameCallbackElapsedTimer.invalidate();
-    mWaitingForFrameCallback = false;
+        mFrameCallbackElapsedTimer.invalidate();
+        mWaitingForFrameCallback = false;
+    }
     mFrameCallbackTimedOut = false;
     mWaitingToApplyConfigure = false;
 
@@ -672,18 +675,21 @@ const wl_callback_listener QWaylandWindow::callbackListener = {
     [](void *data, wl_callback *callback, uint32_t time) {
         Q_UNUSED(time);
         auto *window = static_cast<QWaylandWindow*>(data);
-
-        Q_ASSERT(callback == window->mFrameCallback);
-        wl_callback_destroy(callback);
-        window->mFrameCallback = nullptr;
-
-        window->handleFrameCallback();
+        window->handleFrameCallback(callback);
     }
 };
 
-void QWaylandWindow::handleFrameCallback()
+void QWaylandWindow::handleFrameCallback(wl_callback* callback)
 {
     QMutexLocker locker(&mFrameSyncMutex);
+    if (!mFrameCallback) {
+        // This means the callback is already unset by QWaylandWindow::reset.
+        // The wl_callback object will be destroyed there too.
+        return;
+    }
+    Q_ASSERT(callback == mFrameCallback);
+    wl_callback_destroy(callback);
+    mFrameCallback = nullptr;
 
     mWaitingForFrameCallback = false;
     mFrameCallbackElapsedTimer.invalidate();
@@ -1382,19 +1388,24 @@ void QWaylandWindow::timerEvent(QTimerEvent *event)
     if (event->timerId() != mFrameCallbackCheckIntervalTimerId)
         return;
 
-    bool callbackTimerExpired = mFrameCallbackElapsedTimer.hasExpired(mFrameCallbackTimeout);
-    if (!mFrameCallbackElapsedTimer.isValid() || callbackTimerExpired ) {
-        killTimer(mFrameCallbackCheckIntervalTimerId);
-        mFrameCallbackCheckIntervalTimerId = -1;
-    }
-    if (mFrameCallbackElapsedTimer.isValid() && callbackTimerExpired) {
-        mFrameCallbackElapsedTimer.invalidate();
+    {
+        QMutexLocker lock(&mFrameSyncMutex);
 
-        qCDebug(lcWaylandBackingstore) << "Didn't receive frame callback in time, window should now be inexposed";
-        mFrameCallbackTimedOut = true;
-        mWaitingForUpdate = false;
-        sendExposeEvent(QRect());
+        bool callbackTimerExpired = mFrameCallbackElapsedTimer.hasExpired(mFrameCallbackTimeout);
+        if (!mFrameCallbackElapsedTimer.isValid() || callbackTimerExpired ) {
+            killTimer(mFrameCallbackCheckIntervalTimerId);
+            mFrameCallbackCheckIntervalTimerId = -1;
+        }
+        if (!mFrameCallbackElapsedTimer.isValid() || !callbackTimerExpired) {
+            return;
+        }
+        mFrameCallbackElapsedTimer.invalidate();
     }
+
+    qCDebug(lcWaylandBackingstore) << "Didn't receive frame callback in time, window should now be inexposed";
+    mFrameCallbackTimedOut = true;
+    mWaitingForUpdate = false;
+    sendExposeEvent(QRect());
 }
 
 void QWaylandWindow::requestUpdate()
@@ -1437,15 +1448,14 @@ void QWaylandWindow::handleUpdate()
 {
     qCDebug(lcWaylandBackingstore) << "handleUpdate" << QThread::currentThread();
 
-    if (mWaitingForFrameCallback)
-        return;
-
     // TODO: Should sync subsurfaces avoid requesting frame callbacks?
     QReadLocker lock(&mSurfaceLock);
     if (!mSurface)
         return;
 
     QMutexLocker locker(&mFrameSyncMutex);
+    if (mWaitingForFrameCallback)
+        return;
 
     struct ::wl_surface *wrappedSurface = reinterpret_cast<struct ::wl_surface *>(wl_proxy_create_wrapper(mSurface->object()));
     wl_proxy_set_queue(reinterpret_cast<wl_proxy *>(wrappedSurface), mDisplay->frameEventQueue());

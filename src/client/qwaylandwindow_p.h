@@ -261,12 +261,13 @@ protected:
 #endif
 
     WId mWindowId;
-    bool mWaitingForFrameCallback = false;
     bool mFrameCallbackTimedOut = false; // Whether the frame callback has timed out
-    QAtomicInt mWaitingForUpdateDelivery = false;
     int mFrameCallbackCheckIntervalTimerId = -1;
-    QElapsedTimer mFrameCallbackElapsedTimer;
-    struct ::wl_callback *mFrameCallback = nullptr;
+    QAtomicInt mWaitingForUpdateDelivery = false;
+
+    bool mWaitingForFrameCallback = false; // Protected by mFrameSyncMutex
+    QElapsedTimer mFrameCallbackElapsedTimer; // Protected by mFrameSyncMutex
+    struct ::wl_callback *mFrameCallback = nullptr; // Protected by mFrameSyncMutex
     QMutex mFrameSyncMutex;
     QWaitCondition mFrameSyncWait;
 
@@ -323,7 +324,7 @@ private:
     QRect mLastExposeGeometry;
 
     static const wl_callback_listener callbackListener;
-    void handleFrameCallback();
+    void handleFrameCallback(struct ::wl_callback* callback);
 
     static QWaylandWindow *mMouseGrab;
 

@@ -114,8 +114,8 @@ public: //member variables
 
     struct {
         QWaylandBufferRef buffer;
-        QRegion damage;
-        bool damageInBufferCoordinates = false;
+        QRegion surfaceDamage;
+        QRegion bufferDamage;
         QPoint offset;
         bool newlyAttached = false;
         QRegion inputRegion;

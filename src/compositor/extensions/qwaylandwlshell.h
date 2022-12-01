@@ -8,7 +8,9 @@
 #include <QtWaylandCompositor/QWaylandResource>
 #include <QtWaylandCompositor/QWaylandShell>
 #include <QtWaylandCompositor/QWaylandShellSurface>
+#if QT_CONFIG(wayland_compositor_quick)
 #include <QtWaylandCompositor/qwaylandquickchildren.h>
+#endif
 
 #include <QtCore/QSize>
 
@@ -52,7 +54,9 @@ class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandWlShellSurface : public QWaylandShellSu
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandWlShellSurface)
+#if QT_CONFIG(wayland_compositor_quick)
     Q_WAYLAND_COMPOSITOR_DECLARE_QUICK_CHILDREN(QWaylandWlShellSurface)
+#endif
     Q_PROPERTY(QWaylandSurface *surface READ surface NOTIFY surfaceChanged)
     Q_PROPERTY(QWaylandWlShell *shell READ shell NOTIFY shellChanged)
     Q_PROPERTY(QString title READ title NOTIFY titleChanged)

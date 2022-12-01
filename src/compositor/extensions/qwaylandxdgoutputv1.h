@@ -6,7 +6,9 @@
 
 #include <QtCore/QRect>
 #include <QtWaylandCompositor/QWaylandCompositorExtension>
+#if QT_CONFIG(wayland_compositor_quick)
 #include <QtWaylandCompositor/qwaylandquickchildren.h>
+#endif
 
 QT_BEGIN_NAMESPACE
 
@@ -33,7 +35,10 @@ class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandXdgOutputV1 : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWaylandXdgOutputV1)
+#if QT_CONFIG(wayland_compositor_quick)
     Q_WAYLAND_COMPOSITOR_DECLARE_QUICK_CHILDREN(QWaylandXdgOutputV1)
+#endif
+
     Q_PROPERTY(QWaylandXdgOutputManagerV1 *manager READ manager NOTIFY managerChanged)
     Q_PROPERTY(QWaylandOutput *output READ output NOTIFY outputChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)

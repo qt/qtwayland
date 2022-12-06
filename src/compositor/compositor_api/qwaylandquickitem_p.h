@@ -133,6 +133,7 @@ public:
     QScopedPointer<QWaylandView> view;
     QPointer<QWaylandSurface> oldSurface;
     mutable QWaylandSurfaceTextureProvider *provider = nullptr;
+    QMetaObject::Connection texProviderConnection;
     bool paintEnabled = true;
     bool touchEventsEnabled = true;
     bool inputEventsEnabled = true;

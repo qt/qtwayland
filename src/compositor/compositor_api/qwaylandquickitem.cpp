@@ -475,8 +475,10 @@ QWaylandQuickItem::~QWaylandQuickItem()
     Q_D(QWaylandQuickItem);
     disconnect(this, &QQuickItem::windowChanged, this, &QWaylandQuickItem::updateWindow);
     QMutexLocker locker(d->mutex);
-    if (d->provider)
+    if (d->provider) {
+        disconnect(d->texProviderConnection);
         d->provider->deleteLater();
+    }
 }
 
 /*!
@@ -1478,8 +1480,24 @@ QSGNode *QWaylandQuickItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeDat
             d->newTexture = true;
         }
 
-        if (!d->provider)
+        if (!d->provider) {
             d->provider = new QWaylandSurfaceTextureProvider();
+            if (compositor()) {
+                d->texProviderConnection =
+                    QObject::connect(
+                            compositor(),
+                            &QObject::destroyed,
+                            this,
+                            [this](QObject*) {
+                                    auto *itemPriv = QWaylandQuickItemPrivate::get(this);
+                                    if (itemPriv->provider) {
+                                        itemPriv->provider->deleteLater();
+                                        itemPriv->provider = nullptr;
+                                    }
+                                    disconnect(itemPriv->texProviderConnection); }
+                    );
+            }
+        }
 
         if (d->newTexture) {
             d->newTexture = false;

@@ -492,6 +492,11 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
 {
     struct ::wl_registry *registry = object();
 
+    static QByteArrayList interfaceBlacklist = qgetenv("QT_WAYLAND_DISABLED_INTERFACES").split(',');
+    if (interfaceBlacklist.contains(interface)) {
+        return;
+    }
+
     if (interface == QLatin1String(QtWayland::wl_output::interface()->name)) {
         mWaitingScreens << mWaylandIntegration->createPlatformScreen(this, version, id);
     } else if (interface == QLatin1String(QtWayland::wl_compositor::interface()->name)) {

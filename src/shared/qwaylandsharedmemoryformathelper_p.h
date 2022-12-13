@@ -24,6 +24,7 @@ public:
         case WL_SHM_FORMAT_RGB565: return QImage::Format_RGB16;
         case WL_SHM_FORMAT_XRGB1555: return QImage::Format_RGB555;
         case WL_SHM_FORMAT_RGB888: return QImage::Format_RGB888;
+        case WL_SHM_FORMAT_BGR888: return QImage::Format_BGR888;
         case WL_SHM_FORMAT_XRGB4444: return QImage::Format_RGB444;
         case WL_SHM_FORMAT_ARGB4444: return QImage::Format_ARGB4444_Premultiplied;
         case WL_SHM_FORMAT_XBGR8888: return QImage::Format_RGBX8888;
@@ -76,7 +77,13 @@ private:
             WL_SHM_FORMAT_XRGB2101010, //Format_RGB30,
             WL_SHM_FORMAT_ARGB2101010, //Format_A2RGB30_Premultiplied,
             WL_SHM_FORMAT_C8,          //Format_Alpha8,
-            WL_SHM_FORMAT_C8           //Format_Grayscale8,
+            WL_SHM_FORMAT_C8,          //Format_Grayscale8,
+            wl_shm_format(INT_MIN),    //Format_RGBX64,
+            wl_shm_format(INT_MIN),    //Format_RGBA64,
+            wl_shm_format(INT_MIN),    //Format_RGBA64_Premultiplied,
+            wl_shm_format(INT_MIN),    //Format_Grayscale16,
+            WL_SHM_FORMAT_BGR888,      //Format_BGR888
+
         };
         const size_t size = sizeof(formats_array) / sizeof(*formats_array);
         return Array(size, formats_array);

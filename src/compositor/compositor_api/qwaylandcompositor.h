@@ -67,6 +67,7 @@ public:
         ShmFormat_RGB888 = 0x34324752,
         ShmFormat_XBGR8888 = 0x34324258,
         ShmFormat_ABGR8888 = 0x34324241,
+        ShmFormat_BGR888 = 0x34324742,
         ShmFormat_XRGB2101010 = 0x30335258,
         ShmFormat_XBGR2101010 = 0x30334258,
         ShmFormat_ARGB2101010 = 0x30335241,

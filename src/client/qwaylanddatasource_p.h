@@ -74,8 +74,6 @@ public:
     QWaylandDataSource(QWaylandDataDeviceManager *dataDeviceManager, QMimeData *mimeData);
     ~QWaylandDataSource() override;
 
-    QMimeData *mimeData() const;
-
 Q_SIGNALS:
     void targetChanged(const QString &mime_type);
     void cancelled();

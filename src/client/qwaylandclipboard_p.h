@@ -80,6 +80,7 @@ public:
 private:
     QWaylandDisplay *mDisplay = nullptr;
     QMimeData m_emptyData;
+    QMimeData *m_clientClipboard[2];
 };
 
 }

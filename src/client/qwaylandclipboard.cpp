@@ -54,10 +54,15 @@ namespace QtWaylandClient {
 QWaylandClipboard::QWaylandClipboard(QWaylandDisplay *display)
     : mDisplay(display)
 {
+    m_clientClipboard[QClipboard::Clipboard] = nullptr;
+    m_clientClipboard[QClipboard::Selection] = nullptr;
 }
 
 QWaylandClipboard::~QWaylandClipboard()
 {
+    if (m_clientClipboard[QClipboard::Clipboard] != m_clientClipboard[QClipboard::Selection])
+        delete m_clientClipboard[QClipboard::Clipboard];
+    delete m_clientClipboard[QClipboard::Selection];
 }
 
 QMimeData *QWaylandClipboard::mimeData(QClipboard::Mode mode)
@@ -69,8 +74,8 @@ QMimeData *QWaylandClipboard::mimeData(QClipboard::Mode mode)
     switch (mode) {
     case QClipboard::Clipboard:
         if (auto *dataDevice = seat->dataDevice()) {
-            if (auto *source = dataDevice->selectionSource())
-                return source->mimeData();
+            if (dataDevice->selectionSource())
+                return m_clientClipboard[QClipboard::Clipboard];
             if (auto *offer = dataDevice->selectionOffer())
                 return offer->mimeData();
         }
@@ -78,8 +83,8 @@ QMimeData *QWaylandClipboard::mimeData(QClipboard::Mode mode)
     case QClipboard::Selection:
 #if QT_CONFIG(wayland_client_primary_selection)
         if (auto *selectionDevice = seat->primarySelectionDevice()) {
-            if (auto *source = selectionDevice->selectionSource())
-                return source->mimeData();
+            if (selectionDevice->selectionSource())
+                return m_clientClipboard[QClipboard::Selection];
             if (auto *offer = selectionDevice->selectionOffer())
                 return offer->mimeData();
         }
@@ -104,17 +109,27 @@ void QWaylandClipboard::setMimeData(QMimeData *data, QClipboard::Mode mode)
     if (data && data->hasFormat(plain) && !data->hasFormat(utf8))
         data->setData(utf8, data->data(plain));
 
+    if (m_clientClipboard[mode]) {
+        if (m_clientClipboard[QClipboard::Clipboard] != m_clientClipboard[QClipboard::Selection])
+            delete m_clientClipboard[mode];
+        m_clientClipboard[mode] = nullptr;
+    }
+
+    m_clientClipboard[mode] = data;
+
     switch (mode) {
     case QClipboard::Clipboard:
         if (auto *dataDevice = seat->dataDevice()) {
-            dataDevice->setSelectionSource(data ? new QWaylandDataSource(mDisplay->dndSelectionHandler(), data) : nullptr);
+            dataDevice->setSelectionSource(data ? new QWaylandDataSource(mDisplay->dndSelectionHandler(),
+                                                                         m_clientClipboard[QClipboard::Clipboard]) : nullptr);
             emitChanged(mode);
         }
         break;
     case QClipboard::Selection:
 #if QT_CONFIG(wayland_client_primary_selection)
         if (auto *selectionDevice = seat->primarySelectionDevice()) {
-            selectionDevice->setSelectionSource(data ? new QWaylandPrimarySelectionSourceV1(mDisplay->primarySelectionManager(), data) : nullptr);
+            selectionDevice->setSelectionSource(data ? new QWaylandPrimarySelectionSourceV1(mDisplay->primarySelectionManager(),
+                                                                                            m_clientClipboard[QClipboard::Selection]) : nullptr);
             emitChanged(mode);
         }
 #endif

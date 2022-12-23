@@ -280,8 +280,6 @@ public:
     ~Pointer() override;
     QWaylandWindow *focusWindow() const;
 #if QT_CONFIG(cursor)
-    QString cursorThemeName() const;
-    int cursorSize() const; // in surface coordinates
     int idealCursorScale() const;
     void updateCursorTheme();
     void updateCursor();

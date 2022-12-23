@@ -36,6 +36,7 @@
 #include <QtGui/private/qguiapplication_p.h>
 #include <qpa/qplatformwindow.h>
 #include <qpa/qplatforminputcontext.h>
+#include <qpa/qplatformtheme.h>
 #include <QDebug>
 
 #include <unistd.h>
@@ -229,19 +230,6 @@ private:
     QPoint m_hotspot;
 };
 
-QString QWaylandInputDevice::Pointer::cursorThemeName() const
-{
-    static QString themeName = qEnvironmentVariable("XCURSOR_THEME", QStringLiteral("default"));
-    return themeName;
-}
-
-int QWaylandInputDevice::Pointer::cursorSize() const
-{
-    constexpr int defaultCursorSize = 24;
-    static const int xCursorSize = qEnvironmentVariableIntValue("XCURSOR_SIZE");
-    return xCursorSize > 0 ? xCursorSize : defaultCursorSize;
-}
-
 int QWaylandInputDevice::Pointer::idealCursorScale() const
 {
     if (seat()->mQDisplay->compositor()->version() < 3) {
@@ -258,17 +246,30 @@ int QWaylandInputDevice::Pointer::idealCursorScale() const
 
 void QWaylandInputDevice::Pointer::updateCursorTheme()
 {
+    QString cursorThemeName;
+    QSize cursorSize;
+
+    if (const QPlatformTheme *platformTheme = QGuiApplicationPrivate::platformTheme()) {
+        cursorThemeName = platformTheme->themeHint(QPlatformTheme::MouseCursorTheme).toString();
+        cursorSize = platformTheme->themeHint(QPlatformTheme::MouseCursorSize).toSize();
+    }
+
+    if (cursorThemeName.isEmpty())
+        cursorThemeName = QStringLiteral("default");
+    if (cursorSize.isEmpty())
+        cursorSize = QSize(24, 24);
+
     int scale = idealCursorScale();
-    int pixelSize = cursorSize() * scale;
+    int pixelSize = cursorSize.width() * scale;
     auto *display = seat()->mQDisplay;
-    mCursor.theme = display->loadCursorTheme(cursorThemeName(), pixelSize);
+    mCursor.theme = display->loadCursorTheme(cursorThemeName, pixelSize);
 
     if (!mCursor.theme)
         return; // A warning has already been printed in loadCursorTheme
 
     if (auto *arrow = mCursor.theme->cursor(Qt::ArrowCursor)) {
         int arrowPixelSize = qMax(arrow->images[0]->width, arrow->images[0]->height); // Not all cursor themes are square
-        while (scale > 1 && arrowPixelSize / scale < cursorSize())
+        while (scale > 1 && arrowPixelSize / scale < cursorSize.width())
             --scale;
     } else {
         qCWarning(lcQpaWayland) << "Cursor theme does not support the arrow cursor";

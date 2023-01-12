@@ -58,9 +58,14 @@ void QWaylandTextInputv2::reset()
 void QWaylandTextInputv2::commit()
 {
     if (QObject *o = QGuiApplication::focusObject()) {
-        QInputMethodEvent event;
-        event.setCommitString(m_preeditCommit);
-        QCoreApplication::sendEvent(o, &event);
+        if (!m_preeditCommit.isEmpty()) {
+
+            QInputMethodEvent event;
+            event.setCommitString(m_preeditCommit);
+            m_preeditCommit = QString();
+
+            QCoreApplication::sendEvent(o, &event);
+        }
     }
 
     reset();

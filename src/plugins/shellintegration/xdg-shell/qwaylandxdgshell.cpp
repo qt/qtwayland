@@ -459,9 +459,7 @@ void QWaylandXdgSurface::setPopup(QWaylandWindow *parent)
     positioner->set_gravity(QtWayland::xdg_positioner::gravity_bottom_right);
     positioner->set_size(m_window->windowContentGeometry().width(), m_window->windowContentGeometry().height());
     positioner->set_constraint_adjustment(QtWayland::xdg_positioner::constraint_adjustment_slide_x
-        | QtWayland::xdg_positioner::constraint_adjustment_slide_y
-        | QtWayland::xdg_positioner::constraint_adjustment_flip_x
-        | QtWayland::xdg_positioner::constraint_adjustment_flip_y);
+        | QtWayland::xdg_positioner::constraint_adjustment_slide_y);
     m_popup = new Popup(this, parent, positioner);
     positioner->destroy();
 

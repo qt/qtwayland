@@ -496,8 +496,12 @@ bool QWaylandXdgSurface::requestActivate()
             activation->activate(token, window()->wlSurface());
             qunsetenv("XDG_ACTIVATION_TOKEN");
             return true;
-        } else if (const auto focusWindow = QGuiApplication::focusWindow()) {
-            const auto wlWindow = static_cast<QWaylandWindow*>(focusWindow->handle());
+        } else {
+            const auto focusWindow = QGuiApplication::focusWindow();
+            // At least GNOME requires to request the token in order to get the
+            // focus stealing prevention indication, so requestXdgActivationToken call
+            // is still necessary in that case.
+            const auto wlWindow = focusWindow ? static_cast<QWaylandWindow*>(focusWindow->handle()) : m_window;
             if (const auto xdgSurface = qobject_cast<QWaylandXdgSurface *>(wlWindow->shellSurface())) {
                 if (const auto seat = wlWindow->display()->lastInputDevice()) {
                     const auto tokenProvider = activation->requestXdgActivationToken(

@@ -319,11 +319,14 @@ void QWaylandQuickShellSurfaceItemPrivate::raise()
             return (!staysOnTop && surf->staysOnTop()) || (staysOnBottom && !surf->staysOnBottom());
         return true; // ignore any other Quick items that may be there
     };
-    while (skip(*it))
+    auto end = parent->childItems().crend();
+    while (it != end && skip(*it))
         ++it;
-    QQuickItem *top = *it;
-    if (moveItem != top)
-        moveItem->stackAfter(top);
+    if (it != end) {
+        QQuickItem *top = *it;
+        if (moveItem != top)
+            moveItem->stackAfter(top);
+    }
 }
 
 /*

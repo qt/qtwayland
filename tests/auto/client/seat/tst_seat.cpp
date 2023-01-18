@@ -17,7 +17,7 @@ public:
             removeAll<Seat>();
 
             uint capabilities = MockCompositor::Seat::capability_pointer | MockCompositor::Seat::capability_touch;
-            int version = 8;
+            int version = 9;
             add<Seat>(capabilities, version);
         });
     }
@@ -54,13 +54,13 @@ private slots:
 void tst_seat::bindsToSeat()
 {
     QCOMPOSITOR_COMPARE(get<Seat>()->resourceMap().size(), 1);
-    QCOMPOSITOR_COMPARE(get<Seat>()->resourceMap().first()->version(), 8);
+    QCOMPOSITOR_COMPARE(get<Seat>()->resourceMap().first()->version(), 9);
 }
 
 void tst_seat::createsPointer()
 {
     QCOMPOSITOR_TRY_COMPARE(pointer()->resourceMap().size(), 1);
-    QCOMPOSITOR_TRY_COMPARE(pointer()->resourceMap().first()->version(), 8);
+    QCOMPOSITOR_TRY_COMPARE(pointer()->resourceMap().first()->version(), 9);
 }
 
 void tst_seat::setsCursorOnEnter()
@@ -114,10 +114,6 @@ public:
             QCOMPARE(event->pixelDelta(), QPoint(0, 0));
         }
 
-        // The axis vector of the event is already in surface space, so there is now way to tell
-        // whether it is inverted or not.
-        QCOMPARE(event->inverted(), false);
-
         // We didn't press any buttons
         QCOMPARE(event->buttons(), Qt::NoButton);
 
@@ -131,12 +127,14 @@ public:
             , pixelDelta(event->pixelDelta())
             , angleDelta(event->angleDelta())
             , source(event->source())
+            , inverted(event->inverted())
         {
         }
         Qt::ScrollPhase phase{};
         QPoint pixelDelta;
         QPoint angleDelta; // eights of a degree, positive is upwards, left
         Qt::MouseEventSource source{};
+        bool inverted = false;
     };
     QList<Event> m_events;
 };
@@ -146,13 +144,21 @@ void tst_seat::simpleAxis_data()
     QTest::addColumn<uint>("axis");
     QTest::addColumn<qreal>("value");
     QTest::addColumn<QPoint>("angleDelta");
+    QTest::addColumn<bool>("inverted");
 
     // Directions in regular windows/linux terms (no "natural" scrolling)
-    QTest::newRow("down") << uint(Pointer::axis_vertical_scroll) << 1.0 << QPoint{0, -12};
-    QTest::newRow("up") << uint(Pointer::axis_vertical_scroll) << -1.0 << QPoint{0, 12};
-    QTest::newRow("left") << uint(Pointer::axis_horizontal_scroll) << 1.0 << QPoint{-12, 0};
-    QTest::newRow("right") << uint(Pointer::axis_horizontal_scroll) << -1.0 << QPoint{12, 0};
-    QTest::newRow("up big") << uint(Pointer::axis_vertical_scroll) << -10.0 << QPoint{0, 120};
+    QTest::newRow("down") << uint(Pointer::axis_vertical_scroll) << 1.0 << QPoint{0, -12} << false;
+    QTest::newRow("up") << uint(Pointer::axis_vertical_scroll) << -1.0 << QPoint{0, 12} << false;
+    QTest::newRow("left") << uint(Pointer::axis_horizontal_scroll) << 1.0 << QPoint{-12, 0} << false;
+    QTest::newRow("right") << uint(Pointer::axis_horizontal_scroll) << -1.0 << QPoint{12, 0} << false;
+    QTest::newRow("up big") << uint(Pointer::axis_vertical_scroll) << -10.0 << QPoint{0, 120} << false;
+
+    // (natural) scrolling
+    QTest::newRow("down inverted") << uint(Pointer::axis_vertical_scroll) << 1.0 << QPoint{0, -12} << true;
+    QTest::newRow("up inverted") << uint(Pointer::axis_vertical_scroll) << -1.0 << QPoint{0, 12} << true;
+    QTest::newRow("left inverted") << uint(Pointer::axis_horizontal_scroll) << 1.0 << QPoint{-12, 0} << true;
+    QTest::newRow("right inverted") << uint(Pointer::axis_horizontal_scroll) << -1.0 << QPoint{12, 0} << true;
+    QTest::newRow("up big inverted") << uint(Pointer::axis_vertical_scroll) << -10.0 << QPoint{0, 120} << true;
 }
 
 void tst_seat::simpleAxis()
@@ -160,6 +166,7 @@ void tst_seat::simpleAxis()
     QFETCH(uint, axis);
     QFETCH(qreal, value);
     QFETCH(QPoint, angleDelta);
+    QFETCH(bool, inverted);
 
     WheelWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
@@ -173,6 +180,8 @@ void tst_seat::simpleAxis()
             Pointer::axis(axis),
             value // Length of vector in surface-local space. i.e. positive is downwards
         );
+        auto direction = inverted ? Pointer::axis_relative_direction_inverted : Pointer::axis_relative_direction_identical;
+        p->sendAxisRelativeDirection(client(), Pointer::axis(axis), direction);
         p->sendFrame(client());
     });
 
@@ -186,6 +195,8 @@ void tst_seat::simpleAxis()
         // Documentation says not synthesized is appropriate in such cases
         QCOMPARE(e.source, Qt::MouseEventNotSynthesized);
         QCOMPARE(e.angleDelta, angleDelta);
+
+        QCOMPARE(e.inverted, inverted);
     }
 
     // Sending axis_stop is not mandatory when axis source != finger
@@ -386,6 +397,8 @@ void tst_seat::continuousScroll()
         QCOMPARE(e.phase, Qt::NoScrollPhase);
         QCOMPARE(e.pixelDelta, QPoint(5, -10));
         QCOMPARE(e.source, Qt::MouseEventSynthesizedBySystem); // touchpads are not wheels
+        QCOMPARE(e.inverted, false);
+
     }
     // Sending axis_stop is not mandatory when axis source != finger
 }
@@ -393,7 +406,7 @@ void tst_seat::continuousScroll()
 void tst_seat::createsTouch()
 {
     QCOMPOSITOR_TRY_COMPARE(touch()->resourceMap().size(), 1);
-    QCOMPOSITOR_TRY_COMPARE(touch()->resourceMap().first()->version(), 8);
+    QCOMPOSITOR_TRY_COMPARE(touch()->resourceMap().first()->version(), 9);
 }
 
 class TouchWindow : public QRasterWindow {

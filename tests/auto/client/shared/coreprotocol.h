@@ -299,7 +299,7 @@ class Seat : public Global, public QtWaylandServer::wl_seat
 {
     Q_OBJECT
 public:
-    explicit Seat(CoreCompositor *compositor, uint capabilities = Seat::capability_pointer | Seat::capability_keyboard | Seat::capability_touch, int version = 8);
+    explicit Seat(CoreCompositor *compositor, uint capabilities = Seat::capability_pointer | Seat::capability_keyboard | Seat::capability_touch, int version = 9);
     ~Seat() override;
     void send_capabilities(Resource *resource, uint capabilities) = delete; // Use wrapper instead
     void send_capabilities(uint capabilities) = delete; // Use wrapper instead
@@ -350,6 +350,7 @@ public:
     void sendAxisStop(wl_client *client, axis axis);
     void sendFrame(wl_client *client);
     void sendAxisValue120(wl_client *client, axis axis, int value120);
+    void sendAxisRelativeDirection(wl_client *client, axis axis, axis_relative_direction direction);
 
     Seat *m_seat = nullptr;
     QList<uint> m_enterSerials;

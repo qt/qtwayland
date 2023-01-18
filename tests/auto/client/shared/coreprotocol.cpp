@@ -432,6 +432,13 @@ void Pointer::sendAxisValue120(wl_client *client, QtWaylandServer::wl_pointer::a
         send_axis_value120(r->handle, axis, value120);
 }
 
+void Pointer::sendAxisRelativeDirection(wl_client *client, QtWaylandServer::wl_pointer::axis axis, QtWaylandServer::wl_pointer::axis_relative_direction direction)
+{
+    const auto pointerResources = resourceMap().values(client);
+    for (auto *r : pointerResources)
+        send_axis_relative_direction(r->handle, axis, direction);
+}
+
 void Pointer::pointer_set_cursor(Resource *resource, uint32_t serial, wl_resource *surface, int32_t hotspot_x, int32_t hotspot_y)
 {
     Q_UNUSED(resource);

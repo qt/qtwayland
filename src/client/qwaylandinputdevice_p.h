@@ -309,6 +309,7 @@ protected:
     void pointer_axis_discrete(uint32_t axis, int32_t value) override;
     void pointer_frame() override;
     void pointer_axis_value120(uint32_t axis, int32_t value120) override;
+    void pointer_axis_relative_direction(uint32_t axis, uint32_t direction) override;
 
 private slots:
     void handleFocusDestroyed() { invalidateFocus(); }
@@ -343,6 +344,8 @@ public:
         QPointF delta;
         QPoint delta120;
         axis_source axisSource = axis_source_wheel;
+        bool verticalAxisInverted = false;
+        bool horizontalAxisInverted = false;
 
         void resetScrollData();
         bool hasPixelDelta() const;
@@ -416,7 +419,7 @@ public:
                                 ulong timestamp, const QPointF &local, const QPointF &global,
                                 const QPoint &pixelDelta, const QPoint &angleDelta,
                                 Qt::MouseEventSource source,
-                                Qt::KeyboardModifiers modifiers)
+                                Qt::KeyboardModifiers modifiers, bool inverted)
         : type(type)
         , phase(phase)
         , timestamp(timestamp)
@@ -427,6 +430,7 @@ public:
         , angleDelta(angleDelta)
         , source(source)
         , surface(surface)
+        , inverted(inverted)
     {}
 
     QEvent::Type type = QEvent::None;
@@ -441,6 +445,7 @@ public:
     QPoint angleDelta;
     Qt::MouseEventSource source = Qt::MouseEventNotSynthesized;
     QPointer<QWaylandWindow> surface;
+    bool inverted = false;
 };
 
 #ifndef QT_NO_GESTURES

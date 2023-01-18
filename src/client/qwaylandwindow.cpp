@@ -1162,7 +1162,7 @@ void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, const QWaylan
             case QEvent::Wheel:
                 QWindowSystemInterface::handleWheelEvent(window(), e.timestamp, e.local, e.global,
                                                          e.pixelDelta, e.angleDelta, e.modifiers,
-                                                         e.phase, e.source, false);
+                                                         e.phase, e.source, e.inverted);
                 break;
         default:
             Q_UNREACHABLE();
@@ -1353,7 +1353,7 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
                 QWindowSystemInterface::handleWheelEvent(window(), e.timestamp,
                                                          localTranslated, globalTranslated,
                                                          e.pixelDelta, e.angleDelta, e.modifiers,
-                                                         e.phase, e.source, false);
+                                                         e.phase, e.source, e.inverted);
                 break;
             }
             default:

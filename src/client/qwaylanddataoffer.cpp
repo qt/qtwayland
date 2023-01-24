@@ -117,8 +117,9 @@ QVariant QWaylandMimeData::retrieveData_sys(const QString &mimeType, QMetaType t
 {
     Q_UNUSED(type);
 
-    if (m_data.contains(mimeType))
-        return m_data.value(mimeType);
+    auto it = m_data.constFind(mimeType);
+    if (it != m_data.constEnd())
+        return *it;
 
     QString mime = mimeType;
 

@@ -38,6 +38,9 @@ QWaylandTabletSeatV2::~QWaylandTabletSeatV2()
         tool->destroy();
     for (auto *pad : m_pads)
         pad->destroy();
+    qDeleteAll(m_tablets);
+    qDeleteAll(m_tools);
+    qDeleteAll(m_pads);
     destroy();
 }
 

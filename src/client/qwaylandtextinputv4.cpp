@@ -31,7 +31,7 @@ QWaylandTextInputv4::~QWaylandTextInputv4()
 }
 
 namespace {
-const Qt::InputMethodQueries supportedQueries = Qt::ImEnabled |
+const Qt::InputMethodQueries supportedQueries4 = Qt::ImEnabled |
                                                 Qt::ImSurroundingText |
                                                 Qt::ImCursorPosition |
                                                 Qt::ImAnchorPosition |
@@ -51,7 +51,7 @@ void QWaylandTextInputv4::zwp_text_input_v4_enter(struct ::wl_surface *surface)
     m_pendingDeleteAfterText = 0;
 
     enable();
-    updateState(supportedQueries, update_state_enter);
+    updateState(supportedQueries4, update_state_enter);
 }
 
 void QWaylandTextInputv4::zwp_text_input_v4_leave(struct ::wl_surface *surface)
@@ -177,7 +177,7 @@ void QWaylandTextInputv4::zwp_text_input_v4_done(uint32_t serial)
     QCoreApplication::sendEvent(focusObject, &event);
 
     if (serial == m_currentSerial)
-        updateState(supportedQueries, update_state_full);
+        updateState(supportedQueries4, update_state_full);
 }
 
 void QWaylandTextInputv4::reset()
@@ -225,7 +225,7 @@ void QWaylandTextInputv4::updateState(Qt::InputMethodQueries queries, uint32_t f
     if (!surface || (surface != m_surface))
         return;
 
-    queries &= supportedQueries;
+    queries &= supportedQueries4;
     bool needsCommit = false;
 
     QInputMethodQueryEvent event(queries);

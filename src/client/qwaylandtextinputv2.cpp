@@ -27,7 +27,7 @@ namespace QtWaylandClient {
 
 namespace {
 
-const Qt::InputMethodQueries supportedQueries = Qt::ImEnabled |
+const Qt::InputMethodQueries supportedQueries2 = Qt::ImEnabled |
                                                 Qt::ImSurroundingText |
                                                 Qt::ImCursorPosition |
                                                 Qt::ImAnchorPosition |
@@ -98,7 +98,7 @@ void QWaylandTextInputv2::updateState(Qt::InputMethodQueries queries, uint32_t f
     if (!surface || (surface != m_surface))
         return;
 
-    queries &= supportedQueries;
+    queries &= supportedQueries2;
 
     // Surrounding text, cursor and anchor positions are transferred together
     if ((queries & Qt::ImSurroundingText) || (queries & Qt::ImCursorPosition) || (queries & Qt::ImAnchorPosition))

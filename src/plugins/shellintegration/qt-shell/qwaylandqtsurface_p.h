@@ -14,7 +14,6 @@ namespace QtWaylandClient {
 
 class QWaylandWindow;
 class QWaylandInputDevice;
-class QWindow;
 
 class Q_WAYLANDCLIENT_EXPORT QWaylandQtSurface : public QWaylandShellSurface
         , public QtWayland::zqt_shell_surface_v1

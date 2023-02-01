@@ -14,7 +14,6 @@ namespace QtWaylandClient {
 
 class QWaylandWindow;
 class QWaylandInputDevice;
-class QWindow;
 class QWaylandExtendedSurface;
 
 class Q_WAYLANDCLIENT_EXPORT QWaylandIviSurface : public QtWayland::ivi_surface

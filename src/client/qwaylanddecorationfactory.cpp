@@ -12,17 +12,17 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
+Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, qwdfiLoader,
     (QWaylandDecorationFactoryInterface_iid, QLatin1String("/wayland-decoration-client"), Qt::CaseInsensitive))
 
 QStringList QWaylandDecorationFactory::keys()
 {
-    return loader->keyMap().values();
+    return qwdfiLoader->keyMap().values();
 }
 
 QWaylandAbstractDecoration *QWaylandDecorationFactory::create(const QString &name, const QStringList &args)
 {
-    return qLoadPlugin<QWaylandAbstractDecoration, QWaylandDecorationPlugin>(loader(), name, args);
+    return qLoadPlugin<QWaylandAbstractDecoration, QWaylandDecorationPlugin>(qwdfiLoader(), name, args);
 }
 
 }

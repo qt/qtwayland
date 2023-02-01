@@ -13,17 +13,17 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWayland {
 
-Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
+Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, qwhlifLoader,
     (QtWaylandHardwareLayerIntegrationFactoryInterface_iid, QLatin1String("/wayland-hardware-layer-integration"), Qt::CaseInsensitive))
 
 QStringList HardwareLayerIntegrationFactory::keys()
 {
-    return loader->keyMap().values();
+    return qwhlifLoader->keyMap().values();
 }
 
 HardwareLayerIntegration *HardwareLayerIntegrationFactory::create(const QString &name, const QStringList &args)
 {
-    return qLoadPlugin<HardwareLayerIntegration, HardwareLayerIntegrationPlugin>(loader(), name, args);
+    return qLoadPlugin<HardwareLayerIntegration, HardwareLayerIntegrationPlugin>(qwhlifLoader(), name, args);
 }
 
 }

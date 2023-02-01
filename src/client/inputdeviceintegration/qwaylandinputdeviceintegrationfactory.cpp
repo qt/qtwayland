@@ -12,17 +12,17 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
+Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, qwidfiLoader,
     (QWaylandInputDeviceIntegrationFactoryInterface_iid, QLatin1String("/wayland-inputdevice-integration"), Qt::CaseInsensitive))
 
 QStringList QWaylandInputDeviceIntegrationFactory::keys()
 {
-    return loader->keyMap().values();
+    return qwidfiLoader->keyMap().values();
 }
 
 QWaylandInputDeviceIntegration *QWaylandInputDeviceIntegrationFactory::create(const QString &name, const QStringList &args)
 {
-    return qLoadPlugin<QWaylandInputDeviceIntegration, QWaylandInputDeviceIntegrationPlugin>(loader(), name, args);
+    return qLoadPlugin<QWaylandInputDeviceIntegration, QWaylandInputDeviceIntegrationPlugin>(qwidfiLoader(), name, args);
 }
 
 }

@@ -12,17 +12,17 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
+Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, qwcbifLoader,
     (QWaylandClientBufferIntegrationFactoryInterface_iid, QLatin1String("/wayland-graphics-integration-client"), Qt::CaseInsensitive))
 
 QStringList QWaylandClientBufferIntegrationFactory::keys()
 {
-    return loader->keyMap().values();
+    return qwcbifLoader->keyMap().values();
 }
 
 QWaylandClientBufferIntegration *QWaylandClientBufferIntegrationFactory::create(const QString &name, const QStringList &args)
 {
-    return qLoadPlugin<QWaylandClientBufferIntegration, QWaylandClientBufferIntegrationPlugin>(loader(), name, args);
+    return qLoadPlugin<QWaylandClientBufferIntegration, QWaylandClientBufferIntegrationPlugin>(qwcbifLoader(), name, args);
 }
 
 }

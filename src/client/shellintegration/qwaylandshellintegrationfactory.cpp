@@ -12,18 +12,18 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
+Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, qwsifLoader,
     (QWaylandShellIntegrationFactoryInterface_iid, QLatin1String("/wayland-shell-integration"), Qt::CaseInsensitive))
 
 QStringList QWaylandShellIntegrationFactory::keys()
 {
-    return loader->keyMap().values();
+    return qwsifLoader->keyMap().values();
 }
 
 QWaylandShellIntegration *QWaylandShellIntegrationFactory::create(const QString &name, QWaylandDisplay *display, const QStringList &args)
 {
     std::unique_ptr<QWaylandShellIntegration> integration;
-    integration.reset(qLoadPlugin<QWaylandShellIntegration, QWaylandShellIntegrationPlugin>(loader(), name, args));
+    integration.reset(qLoadPlugin<QWaylandShellIntegration, QWaylandShellIntegrationPlugin>(qwsifLoader(), name, args));
 
     if (integration && !integration->initialize(display))
         return nullptr;

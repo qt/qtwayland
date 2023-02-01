@@ -7,7 +7,7 @@
  * \inmodule QtWaylandCompositor
  * \ingroup funclists
  *
- * \brief The <QWaylandQuickExtension> header file includes \l{macros} for creating Qt Quick types
+ * \brief The <QWaylandQuickExtension> header file includes macros for creating Qt Quick types
  * that correspond to subclasses of QWaylandCompositorExtension and QWaylandObject.
  *
  * If you are creating extensions to Qt Wayland Compositor, the macros in the QWaylandQuickExtension

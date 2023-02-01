@@ -70,7 +70,7 @@
  * \section2 Connecting Clients
  *
  * If no additional configuration has been done, a Qt application will connect with an \e{IVI-id}
- * equal to its process ID. For instance, if we run the \l{Wiggly Example} with
+ * equal to its process ID. For instance, if we run another Qt example application with
  * \c{-platform wayland}, it will be delegated to the right-hand side of the layout, granted that
  * its ID is different from "1337".
  *

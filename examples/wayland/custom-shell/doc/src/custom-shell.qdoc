@@ -4,6 +4,7 @@
 /*!
  * \title Custom Shell
  * \example custom-shell
+ * \meta category {Embedded}
  * \brief Custom Shell shows how to implement a custom shell extension.
  * \ingroup qtwaylandcompositor-examples
  *

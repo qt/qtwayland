@@ -4,6 +4,7 @@
 /*!
  * \title QtShell Compositor
  * \example qtshell
+ * \meta category {Embedded}
  * \brief QtShell Compositor shows how to use the QtShell shell extension.
  * \ingroup qtwaylandcompositor-examples
  *

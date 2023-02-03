@@ -28,5 +28,4 @@ qtHaveModule(quick) {
                     server-buffer
             }
     }
-    SUBDIRS += hwlayer-compositor
 }

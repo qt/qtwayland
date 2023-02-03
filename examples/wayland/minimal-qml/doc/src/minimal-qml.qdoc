@@ -4,6 +4,7 @@
 /*!
  * \title Qt Wayland Compositor Examples - Minimal QML
  * \example minimal-qml
+ * \meta category {Embedded}
  * \brief Minimal QML is a simple example that demonstrates how to write a Wayland compositor in QML.
  * \ingroup qtwaylandcompositor-examples
  *

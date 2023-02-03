@@ -4,6 +4,7 @@
 /*!
  * \title Qt Wayland Compositor Examples - Spanning Screens
  * \example spanning-screens
+ * \meta category {Embedded}
  * \brief Spanning Screens is an example that demonstrates how to let Wayland clients span multiple screens.
  * \ingroup qtwaylandcompositor-examples
  *

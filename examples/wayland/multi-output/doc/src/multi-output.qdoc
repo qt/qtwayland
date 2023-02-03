@@ -4,6 +4,7 @@
 /*!
     \title Qt Wayland Compositor Examples - Multi Output
     \example multi-output
+    \meta category {Embedded}
     \brief Multi Output is an example that demonstrates a compositor with multiple outputs.
     \ingroup qtwaylandcompositor-examples
 

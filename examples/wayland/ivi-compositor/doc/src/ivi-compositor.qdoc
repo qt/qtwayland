@@ -4,6 +4,7 @@
 /*!
  * \title Qt Wayland Compositor Examples - IVI Compositor
  * \example ivi-compositor
+ * \meta category {Embedded}
  * \brief IVI Compositor is an example that demonstrates how to use the IviApplication extension.
  * \ingroup qtwaylandcompositor-examples
  *

@@ -12,6 +12,8 @@
  * complete Qt Wayland Compositor which uses the specialized
  * \l{Shell Extensions - Qt Wayland Compositor}{shell extension protocol} called \l{QtShell}.
  *
+ * \image qtshell.jpg
+ *
  * The compositor is implemented with Qt Quick and QML.
  *
  * \section1 Making the Connection

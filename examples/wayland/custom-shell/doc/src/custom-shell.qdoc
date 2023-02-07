@@ -13,6 +13,8 @@
  * extensions, but in some circumstances it can be useful to be able to write a custom one which
  * contains the exact features your applications need.
  *
+ * \image custom-shell.jpg
+ *
  * This requires that you implement the shell extension on both the server-side and client-side
  * of the Wayland connection, so it is mainly useful when you are building a platform and are in
  * control of both the compositor and its client applications.

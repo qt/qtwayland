@@ -6,17 +6,14 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QPlatformSurfaceEvent>
+#include <QDebug>
+#include <QTimer>
 
 #include "../client-common/customextension.h"
-
-#include <QDebug>
-#include <QtGui/qpa/qplatformnativeinterface.h>
-#include <QTimer>
 
 class TestWindow : public QRasterWindow
 {
     Q_OBJECT
-
 public:
     TestWindow(CustomExtension *customExtension)
         : m_extension(customExtension)
@@ -25,8 +22,12 @@ public:
         , rect3(50, 350, 100, 100)
         , rect4(200,350, 100, 100)
     {
+        setTitle(tr("C++ Client"));
         m_extension->registerWindow(this);
+
+//! [connection]
         connect(m_extension, &CustomExtension::fontSize, this, &TestWindow::handleSetFontSize);
+//! [connection]
     }
 
 public slots:
@@ -39,6 +40,7 @@ public slots:
         qDebug() << "sending spin...";
         m_extension->sendSpin(this, 500);
     }
+
     void doBounce()
     {
         if (!m_extension->isActive()) {
@@ -58,7 +60,7 @@ public slots:
     CustomExtensionObject *newObject()
     {
         m_objectCount++;
-        QColor col = QColor::fromHsv(0, 511/(m_objectCount+1), 255);
+        QColor col = QColor::fromHsv(0, 511 / (m_objectCount + 1), 255);
 
         return m_extension->createCustomObject(col.name(), QString::number(m_objectCount));
     }
@@ -76,7 +78,7 @@ protected:
     {
         QPainter p(this);
         p.setFont(m_font);
-        p.fillRect(QRect(0,0,width(),height()),Qt::gray);
+        p.fillRect(QRect(0, 0, width(), height()), Qt::gray);
         p.fillRect(rect1, QColor::fromString("#C0FFEE"));
         p.drawText(rect1, Qt::TextWordWrap, "Press here to send spin request.");
         p.fillRect(rect2, QColor::fromString("#decaff"));
@@ -88,6 +90,7 @@ protected:
 
     }
 
+//! [mousePressEvent]
     void mousePressEvent(QMouseEvent *ev) override
     {
         if (rect1.contains(ev->position()))
@@ -99,6 +102,7 @@ protected:
         else if (rect4.contains(ev->position()))
             newObject();
     }
+//! [mousePressEvent]
 
 private:
     CustomExtension *m_extension = nullptr;

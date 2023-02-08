@@ -11,15 +11,9 @@
 
 #include "customextension.h"
 
-static void registerTypes()
-{
-    qmlRegisterType<CustomExtensionQuickExtension>("io.qt.examples.customextension", 1, 0, "CustomExtension");
-}
-
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
-    registerTypes();
     QQmlApplicationEngine appEngine(QUrl("qrc:///qml/main.qml"));
 
     return app.exec();

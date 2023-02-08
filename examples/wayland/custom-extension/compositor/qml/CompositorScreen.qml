@@ -9,6 +9,7 @@ WaylandOutput {
     id: output
     property alias surfaceArea: background
     sizeFollowsWindow: true
+
     window: Window {
         id: screen
 

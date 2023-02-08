@@ -9,14 +9,18 @@
 #include <QtWaylandCompositor/QWaylandCompositorExtensionTemplate>
 #include <QtWaylandCompositor/QWaylandQuickExtension>
 #include <QtWaylandCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/QWaylandSurface>
 #include "qwayland-server-custom.h"
 
 class CustomExtensionObject;
 
+//! [CustomExtension]
 class CustomExtension  : public QWaylandCompositorExtensionTemplate<CustomExtension>
         , public QtWaylandServer::qt_example_extension
 {
     Q_OBJECT
+    QML_ELEMENT
+//! [CustomExtension]
 public:
     CustomExtension(QWaylandCompositor *compositor = nullptr);
     void initialize() override;
@@ -25,7 +29,6 @@ signals:
     void surfaceAdded(QWaylandSurface *surface);
     void bounce(QWaylandSurface *surface, uint ms);
     void spin(QWaylandSurface *surface, uint ms);
-
     void customObjectCreated(CustomExtensionObject *obj);
 
 public slots:
@@ -33,11 +36,12 @@ public slots:
     void showDecorations(QWaylandClient *client, bool);
     void close(QWaylandSurface *surface);
 
+//! [example_extension_bounce]
 protected:
     void example_extension_bounce(Resource *resource, wl_resource *surface, uint32_t duration) override;
+//! [example_extension_bounce]
     void example_extension_spin(Resource *resource, wl_resource *surface, uint32_t duration) override;
     void example_extension_register_surface(Resource *resource, wl_resource *surface) override;
-
     void example_extension_create_local_object(Resource *resource, uint32_t id, const QString &color, const QString &text) override;
 };
 

@@ -2,6 +2,10 @@ QT += core gui qml
 
 QT += waylandcompositor
 
+CONFIG += qmltypes
+QML_IMPORT_NAME = io.qt.examples.customextension
+QML_IMPORT_MAJOR_VERSION = 1
+
 CONFIG += wayland-scanner
 CONFIG += c++11
 SOURCES += \

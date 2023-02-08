@@ -68,10 +68,12 @@ CustomExtensionObject *CustomExtension::createCustomObject(const QString &color,
     return new CustomExtensionObject(obj, text);
 }
 
+//! [sendBounce]
 void CustomExtension::sendBounce(QWindow *window, uint ms)
 {
     QtWayland::qt_example_extension::bounce(getWlSurface(window), ms);
 }
+//! [sendBounce]
 
 void CustomExtension::sendSpin(QWindow *window, uint ms)
 {

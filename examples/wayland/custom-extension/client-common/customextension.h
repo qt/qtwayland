@@ -6,16 +6,21 @@
 
 #include <QtWaylandClient/QWaylandClientExtension>
 #include <QtGui/QWindow>
+#include <QtQml/QQmlEngine>
+
 #include "qwayland-custom.h"
 
 QT_BEGIN_NAMESPACE
 
 class CustomExtensionObject;
 
+//! [CustomExtension]
 class CustomExtension : public QWaylandClientExtensionTemplate<CustomExtension>
         , public QtWayland::qt_example_extension
+//! [CustomExtension]
 {
     Q_OBJECT
+    QML_ELEMENT
 public:
     CustomExtension();
     Q_INVOKABLE void registerWindow(QWindow *window);
@@ -66,7 +71,6 @@ protected:
 
 public slots:
     void setText(const QString &text);
-
 
 signals:
     void textChanged(const QString &text);

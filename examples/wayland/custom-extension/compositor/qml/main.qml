@@ -91,12 +91,13 @@ WaylandCompositor {
                 bounceAnimation.start()
             }
 
+//! [setFontSize]
             onFontSizeChanged: {
                 custom.setFontSize(surface, fontSize)
             }
+//! [setFontSize]
         }
     }
-
 
     Component {
         id: customObjectComponent
@@ -107,7 +108,7 @@ WaylandCompositor {
 
             width: 100
             height: 100
-            radius: width/2
+            radius: width / 2
             x: Math.random() * (defaultOutput.surfaceArea.width - 100)
             y: Math.random() * (defaultOutput.surfaceArea.height - 100)
 
@@ -138,12 +139,13 @@ WaylandCompositor {
             var h = defaultOutput.surfaceArea.height / 2
             item.x = Math.random() * w
             item.y = Math.random() * h
-            var listCopy = itemList; // List properties cannot be modified through Javascript operations
+            var listCopy = itemList // List properties cannot be modified through Javascript operations
             listCopy.push(item)
             itemList = listCopy
         }
     }
 
+//! [CustomExtension]
     CustomExtension {
         id: custom
 
@@ -151,26 +153,31 @@ WaylandCompositor {
             var item = itemForSurface(surface)
             item.isCustom = true
         }
+
         onBounce: (surface, ms) => {
             var item = itemForSurface(surface)
             item.doBounce(ms)
         }
+
         onSpin: (surface, ms) => {
             var item = itemForSurface(surface)
             item.doSpin(ms)
         }
+
         onCustomObjectCreated: (obj) => {
             var item = customObjectComponent.createObject(defaultOutput.surfaceArea,
-                                                          { "color": obj.color, "text": obj.text, "obj": obj } )
+                                                          { "color": obj.color,
+                                                            "text": obj.text,
+                                                            "obj": obj } )
         }
     }
 
     function setDecorations(shown) {
         var n = itemList.length
         for (var i = 0; i < n; i++) {
-            // TODO: we only need to do it once for each client
             if (itemList[i].isCustom)
                 custom.showDecorations(itemList[i].surface.client, shown)
         }
     }
+//! [CustomExtension]
 }

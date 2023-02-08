@@ -8,7 +8,7 @@
 #include <QDebug>
 
 CustomExtension::CustomExtension(QWaylandCompositor *compositor)
-    :QWaylandCompositorExtensionTemplate(compositor)
+    : QWaylandCompositorExtensionTemplate(compositor)
 {
 }
 
@@ -19,6 +19,7 @@ void CustomExtension::initialize()
     init(compositor->display(), 1);
 }
 
+//! [setFontSize]
 void CustomExtension::setFontSize(QWaylandSurface *surface, uint pixelSize)
 {
     if (surface) {
@@ -29,6 +30,7 @@ void CustomExtension::setFontSize(QWaylandSurface *surface, uint pixelSize)
         }
     }
 }
+//! [setFontSize]
 
 void CustomExtension::showDecorations(QWaylandClient *client, bool shown)
 {
@@ -39,7 +41,6 @@ void CustomExtension::showDecorations(QWaylandClient *client, bool shown)
             send_set_window_decoration(target->handle, shown);
         }
     }
-
 }
 
 void CustomExtension::close(QWaylandSurface *surface)
@@ -53,6 +54,7 @@ void CustomExtension::close(QWaylandSurface *surface)
     }
 }
 
+//! [example_extension_bounce]
 void CustomExtension::example_extension_bounce(QtWaylandServer::qt_example_extension::Resource *resource, wl_resource *wl_surface, uint32_t duration)
 {
     Q_UNUSED(resource);
@@ -60,6 +62,7 @@ void CustomExtension::example_extension_bounce(QtWaylandServer::qt_example_exten
     qDebug() << "server received bounce" << surface << duration;
     emit bounce(surface, duration);
 }
+//! [example_extension_bounce]
 
 void CustomExtension::example_extension_spin(QtWaylandServer::qt_example_extension::Resource *resource, wl_resource *wl_surface, uint32_t duration)
 {
@@ -90,7 +93,6 @@ CustomExtensionObject::CustomExtensionObject(const QString &color, const QString
     , m_color(color)
     , m_text(text)
 {
-
 }
 
 void CustomExtensionObject::sendClicked()

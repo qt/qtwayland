@@ -10,6 +10,7 @@ Item {
     property alias shellSurface: surfaceItem.shellSurface
     property alias surfaceItem: surfaceItem
     property alias moveItem: surfaceItem.moveItem
+    property alias output: surfaceItem.output
 
     //! [position sync]
     x: surfaceItem.moveItem.x - surfaceItem.output.geometry.x

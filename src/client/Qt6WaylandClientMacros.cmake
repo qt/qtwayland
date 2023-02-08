@@ -86,12 +86,14 @@ function(qt6_generate_wayland_protocol_client_sources target)
             DEPENDS ${protocol_file} Qt6::qtwaylandscanner
         )
 
-        target_sources(${target} PRIVATE
-            "${waylandscanner_header_output}"
+        set(sources "${waylandscanner_header_output}"
             "${waylandscanner_code_output}"
             "${qtwaylandscanner_header_output}"
-            "${qtwaylandscanner_code_output}"
-        )
+            "${qtwaylandscanner_code_output}")
+
+        target_sources(${target} PRIVATE ${sources})
+
+        set_source_files_properties(${sources} PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
     endforeach()
     target_include_directories(${target} PRIVATE ${target_binary_dir})
 endfunction()

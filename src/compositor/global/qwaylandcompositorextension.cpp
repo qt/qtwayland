@@ -44,7 +44,7 @@ QT_BEGIN_NAMESPACE
  *
  * In this example, \c MyExtension is an implementation of the generated interface \c my_extension.
  *
- * \sa {Qt Wayland Compositor Examples - Custom Shell}
+ * \sa {Custom Shell}
  */
 
 /*!
@@ -68,7 +68,7 @@ QT_BEGIN_NAMESPACE
  * For example, for registering global extensions, you can inherit from QWaylandCompositorExtension
  * and pass the QWaylandCompositor object as extension container.
  *
- * \sa QWaylandCompositorExtensionTemplate, {Qt Wayland Compositor Examples - Custom Shell}
+ * \sa QWaylandCompositorExtensionTemplate, {Custom Shell}
  */
 
 /*!

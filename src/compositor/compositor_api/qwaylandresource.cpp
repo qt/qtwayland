@@ -15,7 +15,7 @@ QT_BEGIN_NAMESPACE
  * The QWaylandResource is a simple wrapper around the Wayland type \c wl_resource, and makes it
  * possible to use wl_resource pointers in Qt Quick APIs.
  *
- * \sa {Qt Wayland Compositor Examples - Custom Shell}
+ * \sa {Custom Shell}
  */
 
 /*!

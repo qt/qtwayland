@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \title Qt Wayland Compositor Examples - Pure QML
+    \title Pure QML
     \example pure-qml
     \meta category {Embedded}
     \brief Pure QML is an example that demonstrates how to write a Wayland compositor in pure QML.
@@ -13,15 +13,13 @@
     Pure QML is a small desktop-style Wayland compositor example that demonstrates the power and
     ease of the \l{Qt Wayland Compositor} QML APIs.
 
-    The Pure QML example is similar to the
-    \l{Qt Wayland Compositor Examples - Minimal QML}{Minimal QML example}, in that it is a
+    The Pure QML example is similar to the \l{Minimal QML}{Minimal QML example}, in that it is a
     full-blown Wayland compositor, implemented only using QML code.
 
     \section1 Initializing the Compositor
 
-    Like the \l{Qt Wayland Compositor Examples - Minimal QML}{Minimal QML example}, Pure QML
-    supports the main \l{Shell Extensions - Qt Wayland Compositor}{shell extensions} that are
-    supported by Qt.
+    Like the \l{Minimal QML}{Minimal QML example}, Pure QML supports the main
+    \l{Shell Extensions - Qt Wayland Compositor}{shell extensions} that are supported by Qt.
 
     \snippet pure-qml/qml/main.qml shell extensions
 

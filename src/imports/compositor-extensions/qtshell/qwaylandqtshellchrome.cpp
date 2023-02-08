@@ -112,7 +112,7 @@ void QWaylandQtShellChromePrivate::updateDecorationInteraction(quint8 flags,
  *
  * The QtShellChrome is intended to be used together with QtShell and QtShellSurface.
  *
- * \sa {Qt Wayland Compositor Examples - QtShell Compositor}
+ * \sa {QtShell Compositor}
  */
 QWaylandQtShellChrome::QWaylandQtShellChrome(QQuickItem *parent)
     : QQuickItem(*new QWaylandQtShellChromePrivate{}, parent)

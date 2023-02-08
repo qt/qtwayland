@@ -31,8 +31,7 @@
       \li \l IviApplication is a minimalistic protocol, originally intended for In-vehicle
           Infotainment systems. It is useful for embedded systems, where a pre-defined set of
           applications can run, often with pre-assigned screen real estate. For some more details
-          on this protocol, see the
-          \l{Qt Wayland Compositor Examples - IVI Compositor}{IVI Compositor example}.
+          on this protocol, see the \l{IVI Compositor}{IVI Compositor example}.
       \li \l QtShell is a specialized shell for Qt applications which supports the window management
           features available in Qt. It may be suitable on a platform where both the compositor and
           client applications are written with Qt, and where applications are trusted not to abuse
@@ -47,6 +46,6 @@
     applications involved which are not written in Qt and which have their own requirements.
 
     A Qt Wayland Compositor can also support multiple shell extensions at once. See the
-    \l{Qt Wayland Compositor Examples - Minimal QML}{Minimal QML example} for an example where
-    all three shell extensions listed above are supported.
+    \l{Minimal QML}{Minimal QML example} for an example where all three shell extensions listed
+    above are supported.
 */

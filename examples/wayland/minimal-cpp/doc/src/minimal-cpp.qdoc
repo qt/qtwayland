@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-  \title Qt Wayland Compositor Examples - Minimal CPP
+  \title Minimal CPP
   \example minimal-cpp
   \brief Minimal CPP is an example that demonstrates how to write a Wayland compositor in C++.
   \ingroup qtwaylandcompositor-examples
@@ -11,8 +11,8 @@
   using C++. The C++ API of QtWaylandCompositor is low-level and intended for specialized
   applications, such as supporting hardware features, or if Qt Quick is not available.  The QML API
   offers more convenience and functionality. For comparison, the
-  \l{Qt Wayland Compositor Examples - Minimal QML}{Minimal QML example} implements more
-  functionality with 30 lines of QML than this example does in 300+ lines.
+  \l{Minimal QML}{Minimal QML example} implements more functionality with 30 lines of QML than this
+  example does in 300+ lines.
 
   \image minimal-cpp.jpg
 

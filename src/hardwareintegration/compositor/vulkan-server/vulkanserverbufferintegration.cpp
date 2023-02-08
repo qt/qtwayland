@@ -16,7 +16,7 @@
 #include <QtCore/QDebug>
 
 QT_BEGIN_NAMESPACE
-static constexpr bool extraDebug = false;
+static constexpr bool vsbiExtraDebug = false;
 
 #define DECL_GL_FUNCTION(name, type) \
     type name
@@ -179,7 +179,7 @@ QOpenGLTexture *VulkanServerBuffer::toOpenGlTexture()
         return nullptr;
 
     funcs->glCreateMemoryObjectsEXT(1, &m_memoryObject);
-    if (extraDebug) qDebug() << "glCreateMemoryObjectsEXT" << Qt::hex << glGetError();
+    if (vsbiExtraDebug) qDebug() << "glCreateMemoryObjectsEXT" << Qt::hex << glGetError();
 
 
     int dupfd = fcntl(m_fd, F_DUPFD_CLOEXEC, 0);
@@ -189,7 +189,7 @@ QOpenGLTexture *VulkanServerBuffer::toOpenGlTexture()
     }
 
     funcs->glImportMemoryFdEXT(m_memoryObject, m_memorySize, GL_HANDLE_TYPE_OPAQUE_FD_EXT, dupfd);
-    if (extraDebug) qDebug() << "glImportMemoryFdEXT" << Qt::hex << glGetError();
+    if (vsbiExtraDebug) qDebug() << "glImportMemoryFdEXT" << Qt::hex << glGetError();
 
 
     if (!m_texture)
@@ -197,13 +197,13 @@ QOpenGLTexture *VulkanServerBuffer::toOpenGlTexture()
     m_texture->create();
 
     GLuint texId = m_texture->textureId();
-    if (extraDebug) qDebug() << "created texture" << texId << Qt::hex << glGetError();
+    if (vsbiExtraDebug) qDebug() << "created texture" << texId << Qt::hex << glGetError();
 
     m_texture->bind();
-    if (extraDebug) qDebug() << "bound texture" << texId << Qt::hex << glGetError();
+    if (vsbiExtraDebug) qDebug() << "bound texture" << texId << Qt::hex << glGetError();
     funcs->glTexStorageMem2DEXT(GL_TEXTURE_2D, 1, m_glInternalFormat, m_size.width(), m_size.height(), m_memoryObject, 0 );
-    if (extraDebug) qDebug() << "glTexStorageMem2DEXT" << Qt::hex << glGetError();
-    if (extraDebug) qDebug() << "format" << Qt::hex  << m_glInternalFormat << GL_RGBA8;
+    if (vsbiExtraDebug) qDebug() << "glTexStorageMem2DEXT" << Qt::hex << glGetError();
+    if (vsbiExtraDebug) qDebug() << "format" << Qt::hex  << m_glInternalFormat << GL_RGBA8;
 
 
     return m_texture;

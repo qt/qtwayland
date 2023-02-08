@@ -21,7 +21,7 @@
 
 QT_BEGIN_NAMESPACE
 
-static constexpr bool extraDebug = false;
+static constexpr bool vwExtraDebug = false;
 
 #define DECL_VK_FUNCTION(name) \
     PFN_ ## name name = nullptr;
@@ -228,7 +228,7 @@ VulkanImageWrapper *VulkanWrapperPrivate::createImage(VkFormat format, VkImageTi
 
     int res = vkBindImageMemory(m_device, image, imageWrapper->textureImageMemory, 0);
     Q_UNUSED(res);
-    if (extraDebug) qDebug() << "vkBindImageMemory res" << res;
+    if (vwExtraDebug) qDebug() << "vkBindImageMemory res" << res;
 
     VkMemoryGetFdInfoKHR memoryFdInfo = {};
     memoryFdInfo.sType = VK_STRUCTURE_TYPE_MEMORY_GET_FD_INFO_KHR;
@@ -236,7 +236,7 @@ VulkanImageWrapper *VulkanWrapperPrivate::createImage(VkFormat format, VkImageTi
     memoryFdInfo.handleType = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT_KHR;
 
     res = vkGetMemoryFdKHR(m_device, &memoryFdInfo, &imageWrapper->imgFd);
-    if (extraDebug) qDebug() << "vkGetMemoryFdKHR res" << res << "fd" << imageWrapper->imgFd;
+    if (vwExtraDebug) qDebug() << "vkGetMemoryFdKHR res" << res << "fd" << imageWrapper->imgFd;
 
     return imageWrapper.release();
 }
@@ -331,19 +331,19 @@ VkCommandBuffer VulkanWrapperPrivate::beginSingleTimeCommands()
     allocInfo.commandPool = m_commandPool;
     allocInfo.commandBufferCount = 1;
 
-    if (extraDebug) qDebug() << "allocating...";
+    if (vwExtraDebug) qDebug() << "allocating...";
 
     VkCommandBuffer commandBuffer;
     int res = vkAllocateCommandBuffers(m_device, &allocInfo, &commandBuffer);
     Q_UNUSED(res);
-    if (extraDebug) qDebug() << "vkAllocateCommandBuffers res" << res;
+    if (vwExtraDebug) qDebug() << "vkAllocateCommandBuffers res" << res;
 
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
     res = vkBeginCommandBuffer(commandBuffer, &beginInfo);
-    if (extraDebug) qDebug() << "BEGIN res" << res;
+    if (vwExtraDebug) qDebug() << "BEGIN res" << res;
 
     return commandBuffer;
 }
@@ -352,7 +352,7 @@ void VulkanWrapperPrivate::endSingleTimeCommands(VkCommandBuffer commandBuffer)
 {
     int res = vkEndCommandBuffer(commandBuffer);
     Q_UNUSED(res);
-    if (extraDebug) qDebug() << "END res" << res;
+    if (vwExtraDebug) qDebug() << "END res" << res;
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -409,7 +409,7 @@ QueueFamilyIndices VulkanWrapperPrivate::findQueueFamilies(VkPhysicalDevice devi
 
     uint32_t queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-    if (extraDebug) qDebug() << "queueFamilyCount" << queueFamilyCount;
+    if (vwExtraDebug) qDebug() << "queueFamilyCount" << queueFamilyCount;
 
 
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
@@ -482,7 +482,7 @@ VulkanImageWrapper *VulkanWrapperPrivate::createTextureImageFromData(const uchar
     int texWidth = size.width();
     int texHeight = size.height();
     bool ok;
-    if (extraDebug) qDebug("image load %p %dx%d", pixels, texWidth, texHeight);
+    if (vwExtraDebug) qDebug("image load %p %dx%d", pixels, texWidth, texHeight);
     if (!pixels) {
         qCritical("VulkanWrapper: failed to load texture image!");
         return nullptr;
@@ -497,17 +497,17 @@ VulkanImageWrapper *VulkanWrapperPrivate::createTextureImageFromData(const uchar
 
     void* data;
     vkMapMemory(m_device, stagingBufferMemory, 0, bufferSize, 0, &data);
-    if (extraDebug) qDebug() << "mapped" << data << bufferSize;
+    if (vwExtraDebug) qDebug() << "mapped" << data << bufferSize;
     memcpy(data, pixels, static_cast<size_t>(bufferSize));
     vkUnmapMemory(m_device, stagingBufferMemory);
 
-    if (extraDebug) qDebug() << "creating image...";
+    if (vwExtraDebug) qDebug() << "creating image...";
 
     std::unique_ptr<VulkanImageWrapper> imageWrapper(createImage(vkFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, size, bufferSize));
     if (!imageWrapper)
         return nullptr;
 
-    if (extraDebug) qDebug() << "transition...";
+    if (vwExtraDebug) qDebug() << "transition...";
 
     const VkImage textureImage = imageWrapper->textureImage;
 
@@ -516,7 +516,7 @@ VulkanImageWrapper *VulkanWrapperPrivate::createTextureImageFromData(const uchar
     if (!ok)
         return nullptr;
 
-    if (extraDebug) qDebug() << "copyBufferToImage...";
+    if (vwExtraDebug) qDebug() << "copyBufferToImage...";
     copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
     transitionImageLayout(textureImage, vkFormat, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
@@ -541,7 +541,7 @@ void VulkanWrapperPrivate::freeTextureImage(VulkanImageWrapper *imageWrapper)
 
 VulkanWrapperPrivate::VulkanWrapperPrivate(QOpenGLContext *glContext)
 {
-    if (extraDebug) qDebug("Creating Vulkan instance");
+    if (vwExtraDebug) qDebug("Creating Vulkan instance");
     VkApplicationInfo applicationInfo = {};
     applicationInfo.sType               = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     applicationInfo.pNext               = nullptr;
@@ -573,7 +573,7 @@ VulkanWrapperPrivate::VulkanWrapperPrivate(QOpenGLContext *glContext)
 
     VkResult   instanceCreationResult = vkCreateInstance(&instanceCreateInfo, nullptr, &m_instance);
 
-    if (extraDebug) qDebug() << "result" << instanceCreationResult;
+    if (vwExtraDebug) qDebug() << "result" << instanceCreationResult;
 
     if (instanceCreationResult != VK_SUCCESS) {
         qCritical() << "VulkanWrapper: Failed to create Vulkan instance: Error "
@@ -585,12 +585,12 @@ VulkanWrapperPrivate::VulkanWrapperPrivate(QOpenGLContext *glContext)
     uint32_t devCount;
 
     auto res = vkEnumeratePhysicalDevices(m_instance, &devCount, nullptr);
-    if (extraDebug) qDebug() << "vkEnumeratePhysicalDevices res =" << res << "count =" << devCount;
+    if (vwExtraDebug) qDebug() << "vkEnumeratePhysicalDevices res =" << res << "count =" << devCount;
 
     QVarLengthArray<VkPhysicalDevice, 5> dev(devCount);
 
     res = vkEnumeratePhysicalDevices(m_instance, &devCount, dev.data());
-    if (extraDebug) qDebug() << "...devs res =" << res << "count =" << devCount;
+    if (vwExtraDebug) qDebug() << "...devs res =" << res << "count =" << devCount;
 
 #ifdef VULKAN_SERVER_BUFFER_EXTRA_DEBUG
     VkPhysicalDeviceProperties props;

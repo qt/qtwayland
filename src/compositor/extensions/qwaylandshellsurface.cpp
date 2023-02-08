@@ -26,7 +26,7 @@
  *
  * The same usage pattern applies as for QWaylandCompositorExtensionTemplate.
  *
- * \sa {Qt Wayland Compositor Examples - Custom Shell}
+ * \sa { Custom Shell}
  */
 
 /*!

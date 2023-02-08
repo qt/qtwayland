@@ -13,7 +13,7 @@
  * If you are creating extensions to Qt Wayland Compositor, the macros in the QWaylandQuickExtension
  * header may be a useful alternative to manually implementing the required parts for each class.
  *
- * \sa {Qt Wayland Compositor Examples - Custom Shell}
+ * \sa {Custom Shell}
  */
 
 /*!

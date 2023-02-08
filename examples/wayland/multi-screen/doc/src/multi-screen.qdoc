@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
- * \title Qt Wayland Compositor Examples - Multi Screen
+ * \title Multi Screen
  * \example multi-screen
  * \brief Multi Screen is a desktop-style Wayland compositor for multiple screens.
  * \ingroup qtwaylandcompositor-examples
@@ -13,7 +13,7 @@
  * screens.
  *
  * For an introduction to the basic principles of creating a \l{Qt Wayland Compositor} with Qt,
- * see the \l{Qt Wayland Compositor Examples - Minimal QML}{Minimal QML example}.
+ * see the \l{Minimal QML}{Minimal QML example}.
  *
  * \section1 Supporting multiple screens
  *
@@ -61,5 +61,5 @@
  *
  * \snippet multi-screen/main.cpp share context
  *
- * \sa {Qt Wayland Compositor Examples - Multi Output}
+ * \sa {Multi Output}
  */

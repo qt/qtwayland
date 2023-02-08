@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
- * \title Qt Wayland Compositor Examples - Custom Shell
+ * \title Custom Shell
  * \example custom-shell
  * \brief Custom Shell shows how to implement a custom shell extension.
  * \ingroup qtwaylandcompositor-examples
@@ -122,11 +122,11 @@
  *
  * The final part of the example is the compositor itself. This has the same general structure as
  * the other compositor examples. See the
- * \l{Qt Wayland Compositor Examples - Minimal QML}{Minimal QML example} for more details on
+ * \l{Minimal QML}{Minimal QML example} for more details on
  * the building blocks of a \l{Qt Wayland Compositor}.
  *
  * One notable difference in the Custom Shell compositor is the instantiation of the shell
- * extension. Where the \l{Qt Wayland Compositor Examples - Minimal QML}{the Minimal QML example}
+ * extension. Where the \l{Minimal QML}{the Minimal QML example}
  * instantiates the shell extensions \l{IviApplication}, \l{XdgShell} and \l{WlShell}, the
  * Custom Shell example only creates an instance of the \c ExampleShell extension.
  *

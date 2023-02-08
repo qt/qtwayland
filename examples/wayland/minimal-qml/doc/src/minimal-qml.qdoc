@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
- * \title Qt Wayland Compositor Examples - Minimal QML
+ * \title Minimal QML
  * \example minimal-qml
  * \brief Minimal QML is a simple example that demonstrates how to write a Wayland compositor in QML.
  * \ingroup qtwaylandcompositor-examples
@@ -64,7 +64,7 @@
  * a \l WaylandOutput object as the direct child of the \l WaylandCompositor. If there is only
  * a single output, this will represent the primary screen on the system. (You may also create
  * multiple \l WaylandOutput objects to address multiple screens if they are available. See
- * the \l{Qt Wayland Compositor Examples - Multi Screen}{Multi Screen example} for more details
+ * the \l{Multi Screen}{Multi Screen example} for more details
  * about this.)
  *
  * \snippet minimal-qml/main.qml output
@@ -88,5 +88,5 @@
  *
  * And this is all the code needed to create a functional Wayland compositor using Qt Quick and
  * QML. For another example of a compositor written in QML but which has a few more features, take
- * a look at the \l{Qt Wayland Compositor Examples - Pure QML}{Pure QML example}.
+ * a look at the \l{Pure QML}{Pure QML example}.
  */

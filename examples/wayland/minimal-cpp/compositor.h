@@ -33,7 +33,6 @@ public:
     void initPosition(const QSize &screenSize, const QSize &surfaceSize);
 
 private:
-    friend class Compositor;
     QOpenGLTexture *m_texture = nullptr;
     bool m_positionSet = false;
     QPoint m_pos;
@@ -65,7 +64,6 @@ public:
 
 private slots:
     void onIviSurfaceCreated(QWaylandIviSurface *iviSurface);
-    void onSurfaceDestroyed();
     void triggerRender();
 
     void viewSurfaceDestroyed();

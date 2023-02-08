@@ -12,11 +12,13 @@
 #include <QRandomGenerator>
 #include <QOpenGLFunctions>
 
+//! [getTexture]
 QOpenGLTexture *View::getTexture() {
     if (advance())
         m_texture = currentBuffer().toOpenGLTexture();
     return m_texture;
 }
+//! [getTexture]
 
 QPoint View::mapToLocal(const QPoint &globalPos) const
 {
@@ -48,6 +50,7 @@ Compositor::~Compositor()
 {
 }
 
+//! [create]
 void Compositor::create()
 {
     QWaylandOutput *output = new QWaylandOutput(this, m_window);
@@ -59,6 +62,7 @@ void Compositor::create()
     m_iviApplication = new QWaylandIviApplication(this);
     connect(m_iviApplication, &QWaylandIviApplication::iviSurfaceCreated, this, &Compositor::onIviSurfaceCreated);
 }
+//! [create]
 
 View *Compositor::viewAt(const QPoint &position)
 {
@@ -85,17 +89,20 @@ static inline QPoint mapToView(const View *view, const QPoint &position)
     return view ? view->mapToLocal(position) : position;
 }
 
+//! [handleMousePress]
 void Compositor::handleMousePress(const QPoint &position, Qt::MouseButton button)
 {
     if (!m_mouseView) {
-        if (m_mouseView = viewAt(position))
+        if ((m_mouseView = viewAt(position)))
             raise(m_mouseView);
     }
     auto *seat = defaultSeat();
     seat->sendMouseMoveEvent(m_mouseView, mapToView(m_mouseView, position));
     seat->sendMousePressEvent(button);
 }
+//! [handleMousePress]
 
+//! [handleMouseRelease]
 void Compositor::handleMouseRelease(const QPoint &position, Qt::MouseButton button, Qt::MouseButtons buttons)
 {
     auto *seat = defaultSeat();
@@ -109,6 +116,7 @@ void Compositor::handleMouseRelease(const QPoint &position, Qt::MouseButton butt
         m_mouseView = nullptr;
     }
 }
+//! [handleMouseRelease]
 
 void Compositor::handleMouseMove(const QPoint &position)
 {
@@ -135,7 +143,7 @@ void Compositor::handleKeyRelease(quint32 nativeScanCode)
     defaultSeat()->sendKeyReleaseEvent(nativeScanCode);
 }
 
-
+//! [surfaceCreated]
 void Compositor::onIviSurfaceCreated(QWaylandIviSurface *iviSurface)
 {
     View *view = new View(iviSurface->iviId());
@@ -146,12 +154,9 @@ void Compositor::onIviSurfaceCreated(QWaylandIviSurface *iviSurface)
     connect(view, &QWaylandView::surfaceDestroyed, this, &Compositor::viewSurfaceDestroyed);
     connect(iviSurface->surface(), &QWaylandSurface::redraw, this, &Compositor::triggerRender);
 }
+//! [surfaceCreated]
 
-void Compositor::onSurfaceDestroyed()
-{
-    triggerRender();
-}
-
+//! [surfaceDestroyed]
 void Compositor::viewSurfaceDestroyed()
 {
     View *view = qobject_cast<View*>(sender());
@@ -159,6 +164,7 @@ void Compositor::viewSurfaceDestroyed()
     delete view;
     triggerRender();
 }
+//! [surfaceDestroyed]
 
 void Compositor::triggerRender()
 {

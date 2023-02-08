@@ -24,6 +24,7 @@ void Window::initializeGL()
     emit glReady();
 }
 
+//! [paintGL]
 void Window::paintGL()
 {
     m_compositor->startRender();
@@ -64,11 +65,14 @@ void Window::paintGL()
     m_textureBlitter.release();
     m_compositor->endRender();
 }
+//! [paintGL]
 
+//! [mousePressEvent]
 void Window::mousePressEvent(QMouseEvent *event)
 {
     m_compositor->handleMousePress(event->position().toPoint(), event->button());
 }
+//! [mousePressEvent]
 
 void Window::mouseReleaseEvent(QMouseEvent *event)
 {
@@ -85,10 +89,12 @@ void Window::wheelEvent(QWheelEvent *event)
     m_compositor->handleMouseWheel(event->angleDelta());
 }
 
+//! [keyPressEvent]
 void Window::keyPressEvent(QKeyEvent *e)
 {
     m_compositor->handleKeyPress(e->nativeScanCode());
 }
+//! [keyPressEvent]
 
 void Window::keyReleaseEvent(QKeyEvent *e)
 {

@@ -22,10 +22,5 @@ qtHaveModule(quick) {
         SUBDIRS += \
             custom-extension \
             custom-shell
-
-            qtConfig(opengl) {
-                SUBDIRS += \
-                    server-buffer
-            }
     }
 }

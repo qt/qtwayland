@@ -104,12 +104,17 @@ void QWaylandWindow::initWindow()
     if (mDisplay->fractionalScaleManager() && qApp->highDpiScaleFactorRoundingPolicy() == Qt::HighDpiScaleFactorRoundingPolicy::PassThrough) {
         mFractionalScale.reset(new QWaylandFractionalScale(mDisplay->fractionalScaleManager()->get_fractional_scale(mSurface->object())));
 
-        mScale = mFractionalScale->preferredScale();
+        if (mScale != mFractionalScale->preferredScale()) {
+            mScale = mFractionalScale->preferredScale();
+            QWindowSystemInterface::handleWindowDevicePixelRatioChanged(window());
+        }
+
         connect(mFractionalScale.data(), &QWaylandFractionalScale::preferredScaleChanged, this, [this]() {
             if (mScale == mFractionalScale->preferredScale()) {
                 return;
             }
             mScale = mFractionalScale->preferredScale();
+            QWindowSystemInterface::handleWindowDevicePixelRatioChanged(window());
             ensureSize();
             if (mViewport)
                 updateViewport();
@@ -1326,6 +1331,7 @@ void QWaylandWindow::handleScreensChanged()
 
     if (scale != mScale) {
         mScale = scale;
+        QWindowSystemInterface::handleWindowDevicePixelRatioChanged(window());
         if (mSurface) {
             if (mViewport)
                 updateViewport();

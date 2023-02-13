@@ -97,11 +97,11 @@
   when starting the compositor. The \c XDG_RUNTIME_DIR can point to any accessible location which
   is not already in use.
 
-  For instance, if you want to run the \l{Pure QML}{pure-qml} example with the
-  \c wayland-egl backend, you could use the following command line:
+  For instance, if you want to run the \l{Fancy Compositor}{fancy-compositor}
+  example with the \c wayland-egl backend, you could use the following command line:
 
   \code
-  % XDG_RUNTIME_DIR=~/my_temporary_runtime QT_XCB_GL_INTEGRATION=xcb_egl QT_WAYLAND_CLIENT_BUFFER_INTEGRATION=wayland-egl ./pure-qml
+  % XDG_RUNTIME_DIR=~/my_temporary_runtime QT_XCB_GL_INTEGRATION=xcb_egl QT_WAYLAND_CLIENT_BUFFER_INTEGRATION=wayland-egl ./fancy-compositor
   \endcode
 
   The client can subsequently be run on the compositor by setting the same \c XDG_RUNTIME_DIR and

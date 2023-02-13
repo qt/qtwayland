@@ -2,26 +2,26 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \title Pure QML
-    \example pure-qml
+    \title Fancy Compositor
+    \example fancy-compositor
     \meta category {Embedded}
-    \brief Pure QML is an example that demonstrates how to write a Wayland compositor in pure QML.
+    \brief Fancy Compositor is an example that demonstrates how to write a fancy Wayland compositor in pure QML.
     \ingroup qtwaylandcompositor-examples
 
     \section1 Introduction
 
-    Pure QML is a small desktop-style Wayland compositor example that demonstrates the power and
+    Fancy Compositor is a small desktop-style Wayland compositor example that demonstrates the power and
     ease of the \l{Qt Wayland Compositor} QML APIs.
 
-    The Pure QML example is similar to the \l{Minimal QML}{Minimal QML example}, in that it is a
+    The Fancy Compositor example is similar to the \l{Minimal QML}{Minimal QML example}, in that it is a
     full-blown Wayland compositor, implemented only using QML code.
 
     \section1 Initializing the Compositor
 
-    Like the \l{Minimal QML}{Minimal QML example}, Pure QML supports the main
+    Like the \l{Minimal QML}{Minimal QML example}, Fancy Compositor supports the main
     \l{Shell Extensions - Qt Wayland Compositor}{shell extensions} that are supported by Qt.
 
-    \snippet pure-qml/qml/main.qml shell extensions
+    \snippet fancy-compositor/qml/main.qml shell extensions
 
     These are instantiated as children of the \l{WaylandCompositor} which automatically adds
     them to the list of supported interfaces which is broadcasted to clients from the server.
@@ -30,7 +30,7 @@
     corresponding signal is emitted. This then calls a method inside our custom \l WaylandOutput
     class, which appends the \l ShellSurface to a \l{ListModel}.
 
-    \snippet pure-qml/qml/CompositorScreen.qml handleShellSurface
+    \snippet fancy-compositor/qml/CompositorScreen.qml handleShellSurface
 
     This model is used as the source for a \l Repeater which creates
     \l{ShellSurfaceItem}{ShellSurfaceItems} inside the compositor's \l WaylandOutput. This adds a
@@ -38,20 +38,20 @@
     certain interaction options for the user of the compositor, depending on which shell extension
     is in use.
 
-    \snippet pure-qml/qml/CompositorScreen.qml repeater
+    \snippet fancy-compositor/qml/CompositorScreen.qml repeater
 
     \section1 Keyboard
 
-    In addition to the basic windowing system functions, the Pure QML compositor also supports an
+    In addition to the basic windowing system functions, the Fancy Compositor also supports an
     optional on-screen keyboard running in-process. This uses the \l{Qt Virtual Keyboard} module,
     and will be enabled if the module is available.
 
-    \snippet pure-qml/qml/Keyboard.qml keyboard
+    \snippet fancy-compositor/qml/Keyboard.qml keyboard
 
     The code is simple. We instantiate an \l InputPanel in the bottom of the output, and make sure
     it is visible if and only if it is currently active.
 
-    \snippet pure-qml/qml/CompositorScreen.qml keyboard
+    \snippet fancy-compositor/qml/CompositorScreen.qml keyboard
 
     The keyboard is then added to the \l WaylandOutput using a \l Loader element. The \l Loader is
     used here to avoid having a hard dependency on the \l{Qt Virtual Keyboard} module. If loading
@@ -59,10 +59,10 @@
     on-screen keyboard.
 
     Finally, we need a way for the compositor to communicate the text input to its clients. This
-    is done via a \c{text-input} extension. The Pure QML example only supports the
+    is done via a \c{text-input} extension. The Fancy Compositor example only supports the
     \c{qt_text_input_method_unstable_v1} protocol.
 
-    \snippet pure-qml/qml/main.qml text input
+    \snippet fancy-compositor/qml/main.qml text input
 
     The extension is added to the compositor by instantiating the \l QtTextInputMethodManager as
     a child of the \l{WaylandCompositor}.
@@ -76,22 +76,22 @@
 
     \section1 Transitions
 
-    In addition to the basic functionality, the Pure QML example also demonstrates animated
+    In addition to the basic functionality, the Fancy Compositor example also demonstrates animated
     transitions between states.
 
     The first of these is the \e{activation} transition. This is only supported on the \l{XdgShell},
     since this is the only shell extension which has an \l{XdgToplevel::}{activated} state.
 
-    \snippet pure-qml/qml/Chrome.qml activation
+    \snippet fancy-compositor/qml/Chrome.qml activation
 
     When a client window becomes activated under the \l XdgShell protocol, we trigger an animation
     which makes the window "pop out" for 200 ms.
 
-    The Pure QML compositor also supports a \e{destruction} animation. This triggers whenever the
+    The Fancy Compositor also supports a \e{destruction} animation. This triggers whenever the
     window closes and surface is destroyed, whether this was because the client gracefully closed
     its window, or even if it crashes.
 
-    \snippet pure-qml/qml/Chrome.qml destruction
+    \snippet fancy-compositor/qml/Chrome.qml destruction
 
     To ensure that the content exists for the duration of the animation, we start by locking the
     buffer. This means the final frame rendered by the client will remain in memory until we are

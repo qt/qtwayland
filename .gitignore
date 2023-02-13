@@ -40,7 +40,7 @@ examples/wayland/custom-extension/testapp/testapp
 examples/wayland/minimal-cpp/minimal-cpp
 examples/wayland/minimal-qml/minimal-qml
 examples/wayland/multi-output/multi-output
-examples/wayland/pure-qml/pure-qml
+examples/wayland/fancy-compositor/fancy-compositor
 examples/wayland/server-buffer/client/client
 examples/wayland/server-buffer/compositor/compositor
 examples/wayland/server-side-decoration/server-side-decoration

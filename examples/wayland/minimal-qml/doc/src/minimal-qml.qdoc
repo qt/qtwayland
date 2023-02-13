@@ -89,5 +89,5 @@
  *
  * And this is all the code needed to create a functional Wayland compositor using Qt Quick and
  * QML. For another example of a compositor written in QML but which has a few more features, take
- * a look at the \l{Pure QML}{Pure QML example}.
+ * a look at the \l{Fancy Compositor}{Fancy Compositor example}.
  */

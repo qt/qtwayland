@@ -11,7 +11,7 @@ qtConfig(opengl) {
 qtHaveModule(quick) {
     SUBDIRS += minimal-qml
     SUBDIRS += spanning-screens
-    SUBDIRS += pure-qml
+    SUBDIRS += fancy-compositor
     SUBDIRS += multi-output
     SUBDIRS += multi-screen
     SUBDIRS += overview-compositor

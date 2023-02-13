@@ -12,3 +12,7 @@ if(TARGET Qt::WaylandCompositor)
     #add_subdirectory(wip-cpp-compositor)
     add_subdirectory(scaling-compositor)
 endif()
+
+if(QT_FEATURE_opengl AND TARGET Qt::Quick AND TARGET Qt::WaylandClient)
+    qt_internal_add_example(server-buffer)
+endif()

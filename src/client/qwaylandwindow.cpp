@@ -1632,4 +1632,4 @@ void QWaylandWindow::closeChildPopups() {
 
 QT_END_NAMESPACE
 
-#include "qwaylandwindow.moc"
+#include "moc_qwaylandwindow_p.cpp"

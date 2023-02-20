@@ -52,12 +52,15 @@ public:
     explicit QWaylandTabletSeatV2(QWaylandTabletManagerV2 *manager, QWaylandInputDevice *seat);
     ~QWaylandTabletSeatV2() override;
 
+    QWaylandInputDevice *seat() const { return m_seat; }
+
 protected:
     void zwp_tablet_seat_v2_tablet_added(struct ::zwp_tablet_v2 *id) override;
     void zwp_tablet_seat_v2_tool_added(struct ::zwp_tablet_tool_v2 *id) override;
     void zwp_tablet_seat_v2_pad_added(struct ::zwp_tablet_pad_v2 *id) override;
 
 private:
+    QWaylandInputDevice *m_seat;
     QList<QWaylandTabletV2 *> m_tablets;
     QList<QWaylandTabletToolV2 *> m_tools;
     QList<QWaylandTabletPadV2 *> m_pads;
@@ -81,7 +84,7 @@ class Q_WAYLANDCLIENT_EXPORT QWaylandTabletToolV2 : public QObject, public QtWay
 {
     Q_OBJECT
 public:
-    explicit QWaylandTabletToolV2(::zwp_tablet_tool_v2 *tool);
+    QWaylandTabletToolV2(QWaylandTabletSeatV2 *tabletSeat, ::zwp_tablet_tool_v2 *tool);
 
 protected:
     void zwp_tablet_tool_v2_type(uint32_t tool_type) override;
@@ -105,6 +108,7 @@ protected:
     void zwp_tablet_tool_v2_frame(uint32_t time) override;
 
 private:
+    QWaylandTabletSeatV2 *m_tabletSeat;
 
     // Static state (sent before done event)
     QPointingDevice::PointerType m_pointerType = QPointingDevice::PointerType::Unknown;

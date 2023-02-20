@@ -84,6 +84,7 @@ public:
 
     uint32_t capabilities() const { return mCaps; }
 
+    QWaylandDisplay *display() const { return mQDisplay; }
     struct ::wl_seat *wl_seat() { return QtWayland::wl_seat::object(); }
 
 #if QT_CONFIG(cursor)

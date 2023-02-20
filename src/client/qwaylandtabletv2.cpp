@@ -27,6 +27,7 @@ QWaylandTabletSeatV2 *QWaylandTabletManagerV2::createTabletSeat(QWaylandInputDev
 
 QWaylandTabletSeatV2::QWaylandTabletSeatV2(QWaylandTabletManagerV2 *manager, QWaylandInputDevice *seat)
     : QtWayland::zwp_tablet_seat_v2(manager->get_tablet_seat(seat->wl_seat()))
+    , m_seat(seat)
 {
 }
 
@@ -53,7 +54,7 @@ void QWaylandTabletSeatV2::zwp_tablet_seat_v2_tablet_added(zwp_tablet_v2 *id)
 
 void QWaylandTabletSeatV2::zwp_tablet_seat_v2_tool_added(zwp_tablet_tool_v2 *id)
 {
-    auto *tool = new QWaylandTabletToolV2(id);
+    auto *tool = new QWaylandTabletToolV2(this, id);
     m_tools.push_back(tool);
     connect(tool, &QWaylandTabletToolV2::destroyed, this, [this, tool] { m_tools.removeOne(tool); });
 }
@@ -76,8 +77,9 @@ void QWaylandTabletV2::zwp_tablet_v2_removed()
     delete this;
 }
 
-QWaylandTabletToolV2::QWaylandTabletToolV2(::zwp_tablet_tool_v2 *tool)
+QWaylandTabletToolV2::QWaylandTabletToolV2(QWaylandTabletSeatV2 *tabletSeat, ::zwp_tablet_tool_v2 *tool)
     : QtWayland::zwp_tablet_tool_v2(tool)
+    , m_tabletSeat(tabletSeat)
 {
 }
 
@@ -163,8 +165,14 @@ void QWaylandTabletToolV2::zwp_tablet_tool_v2_proximity_out()
 
 void QWaylandTabletToolV2::zwp_tablet_tool_v2_down(uint32_t serial)
 {
-    Q_UNUSED(serial);
     m_pending.down = true;
+
+    if (m_pending.proximitySurface) {
+        if (QWaylandWindow *window = m_pending.proximitySurface->waylandWindow()) {
+            QWaylandInputDevice *seat = m_tabletSeat->seat();
+            seat->display()->setLastInputDevice(seat, serial, window);
+        }
+    }
 }
 
 void QWaylandTabletToolV2::zwp_tablet_tool_v2_up()

@@ -214,7 +214,21 @@ QWaylandCursor::QWaylandCursor(QWaylandDisplay *display)
 QSharedPointer<QWaylandBuffer> QWaylandCursor::cursorBitmapBuffer(QWaylandDisplay *display, const QCursor *cursor)
 {
     Q_ASSERT(cursor->shape() == Qt::BitmapCursor);
-    const QImage &img = cursor->pixmap().toImage();
+    QImage img = !cursor->pixmap().isNull() ? cursor->pixmap().toImage() : cursor->bitmap().toImage();
+
+    // convert to supported format if necessary
+    if (!display->shm()->formatSupported(img.format())) {
+        if (cursor->mask().isNull()) {
+            img.convertTo(QImage::Format_RGB32);
+        } else {
+            // preserve mask
+            img.convertTo(QImage::Format_ARGB32);
+            QPixmap pixmap = QPixmap::fromImage(img);
+            pixmap.setMask(cursor->mask());
+            img = pixmap.toImage();
+        }
+    }
+
     QSharedPointer<QWaylandShmBuffer> buffer(new QWaylandShmBuffer(display, img.size(), img.format()));
     memcpy(buffer->image()->bits(), img.bits(), size_t(img.sizeInBytes()));
     return buffer;

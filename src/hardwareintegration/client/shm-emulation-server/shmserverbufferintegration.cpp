@@ -13,7 +13,7 @@ QT_BEGIN_NAMESPACE
 
 static QOpenGLTexture *createTextureFromShm(const QString &key, int w, int h, int bpl, int format)
 {
-    QSharedMemory shm(key);
+    QT_IGNORE_DEPRECATIONS(QSharedMemory shm(key);)
     bool ok;
     ok = shm.attach(QSharedMemory::ReadOnly);
     if (!ok) {

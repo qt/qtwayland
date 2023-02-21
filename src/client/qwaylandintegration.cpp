@@ -88,19 +88,6 @@ QWaylandIntegration::QWaylandIntegration()
 
     QWaylandWindow::fixedToplevelPositions =
             !qEnvironmentVariableIsSet("QT_WAYLAND_DISABLE_FIXED_POSITIONS");
-
-    // ### Not ideal...
-    // We don't want to use QPlatformWindow::requestActivate here, since that gives a warning
-    // for most shells. Also, we don't want to put this into the specific shells that can use
-    // it, since we want to support more than one shell in one client.
-    // In addition, this will send a new requestActivate when the focus object changes, even if
-    // the focus window stays the same.
-    QObject::connect(qApp, &QGuiApplication::focusObjectChanged, qApp, [](){
-        QWindow *fw = QGuiApplication::focusWindow();
-        auto *w = fw ? static_cast<QWaylandWindow*>(fw->handle()) : nullptr;
-        if (w && w->shellSurface())
-            w->shellSurface()->requestActivate();
-    });
 }
 
 QWaylandIntegration::~QWaylandIntegration()

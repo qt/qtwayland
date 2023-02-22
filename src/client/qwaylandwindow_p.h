@@ -118,9 +118,10 @@ public:
     bool waitForFrameSync(int timeout);
 
     QMargins frameMargins() const override;
-    QMargins customMargins() const;
+    QMargins clientSideMargins() const;
     void setCustomMargins(const QMargins &margins) override;
     QSize surfaceSize() const;
+    QMargins windowContentMargins() const;
     QRect windowContentGeometry() const;
     QPointF mapFromWlSurface(const QPointF &surfacePosition) const;
 
@@ -239,7 +240,6 @@ protected:
     virtual void doHandleFrameCallback();
     virtual QRect defaultGeometry() const;
     void sendExposeEvent(const QRect &rect);
-    QMargins clientSideMargins() const;
 
     QWaylandDisplay *mDisplay = nullptr;
 

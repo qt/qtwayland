@@ -45,7 +45,7 @@ QWaylandXdgSurface::Toplevel::~Toplevel()
 void QWaylandXdgSurface::Toplevel::applyConfigure()
 {
     if (!(m_applied.states & (Qt::WindowMaximized|Qt::WindowFullScreen)))
-        m_normalSize = m_xdgSurface->m_window->windowFrameGeometry().size();
+        m_normalSize = m_xdgSurface->m_window->windowContentGeometry().size();
 
     if ((m_pending.states & Qt::WindowActive) && !(m_applied.states & Qt::WindowActive)
         && !m_xdgSurface->m_window->display()->isKeyboardAvailable())
@@ -88,7 +88,7 @@ void QWaylandXdgSurface::Toplevel::applyConfigure()
     }
 
     if (!surfaceSize.isEmpty())
-        m_xdgSurface->m_window->resizeFromApplyConfigure(surfaceSize);
+        m_xdgSurface->m_window->resizeFromApplyConfigure(surfaceSize.grownBy(m_xdgSurface->m_window->windowContentMargins()));
 
     m_applied = m_pending;
     qCDebug(lcQpaWayland) << "Applied pending xdg_toplevel configure event:" << m_applied.size << m_applied.states;
@@ -446,18 +446,17 @@ void QWaylandXdgSurface::setPopup(QWaylandWindow *parent)
 
     auto positioner = new QtWayland::xdg_positioner(m_shell->create_positioner());
     // set_popup expects a position relative to the parent
-    QPoint topLeftMargins = QPoint(m_window->customMargins().left(), m_window->customMargins().top());
-    QPoint parentMargins = QPoint(parent->customMargins().left(), parent->customMargins().top());
-    QPoint transientPos = m_window->geometry().topLeft() + topLeftMargins; // this is absolute
-    transientPos -= parent->geometry().topLeft() + parentMargins;
-    if (parent->decoration()) {
-        transientPos.setX(transientPos.x() + parent->decoration()->margins(QWaylandAbstractDecoration::ShadowsExcluded).left());
-        transientPos.setY(transientPos.y() + parent->decoration()->margins(QWaylandAbstractDecoration::ShadowsExcluded).top());
-    }
+    QRect windowGeometry = m_window->windowContentGeometry();
+    QMargins windowMargins = m_window->windowContentMargins() - m_window->clientSideMargins();
+    QMargins parentMargins = parent->windowContentMargins() - parent->clientSideMargins();
+    QPoint transientPos = m_window->geometry().topLeft(); // this is absolute
+    transientPos += QPoint(windowMargins.left(), windowMargins.top());
+    transientPos -= parent->geometry().topLeft();
+    transientPos -= QPoint(parentMargins.left(), parentMargins.top());
     positioner->set_anchor_rect(transientPos.x(), transientPos.y(), 1, 1);
     positioner->set_anchor(QtWayland::xdg_positioner::anchor_top_left);
     positioner->set_gravity(QtWayland::xdg_positioner::gravity_bottom_right);
-    positioner->set_size(m_window->windowContentGeometry().width(), m_window->windowContentGeometry().height());
+    positioner->set_size(windowGeometry.width(), windowGeometry.height());
     positioner->set_constraint_adjustment(QtWayland::xdg_positioner::constraint_adjustment_slide_x
         | QtWayland::xdg_positioner::constraint_adjustment_slide_y);
     m_popup = new Popup(this, parent, positioner);

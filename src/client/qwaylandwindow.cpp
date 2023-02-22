@@ -455,20 +455,6 @@ void QWaylandWindow::repositionFromApplyConfigure(const QPoint &globalPosition)
 void QWaylandWindow::resizeFromApplyConfigure(const QSize &sizeWithMargins, const QPoint &offset)
 {
     QMargins margins = clientSideMargins();
-
-    // Exclude shadows from margins once they are excluded from window geometry
-    // 1) First resizeFromApplyConfigure() call will have sizeWithMargins equal to surfaceSize()
-    //    which has full margins (shadows included).
-    // 2) Following resizeFromApplyConfigure() calls should have sizeWithMargins equal to
-    //    windowContentGeometry() which excludes shadows, therefore in this case we have to
-    //    exclude them too in order not to accidentally apply smaller size to the window.
-    if (sizeWithMargins != surfaceSize()) {
-        if (mWindowDecorationEnabled)
-            margins = mWindowDecoration->margins(QWaylandAbstractDecoration::ShadowsExcluded);
-        if (!mCustomMargins.isNull())
-            margins -= mCustomMargins;
-    }
-
     int widthWithoutMargins = qMax(sizeWithMargins.width() - (margins.left() + margins.right()), 1);
     int heightWithoutMargins = qMax(sizeWithMargins.height() - (margins.top() + margins.bottom()), 1);
     QRect geometry(windowGeometry().topLeft(), QSize(widthWithoutMargins, heightWithoutMargins));
@@ -803,11 +789,6 @@ QMargins QWaylandWindow::clientSideMargins() const
     return mWindowDecorationEnabled ? mWindowDecoration->margins() : QMargins{};
 }
 
-QMargins QWaylandWindow::customMargins() const
-{
-    return mCustomMargins;
-}
-
 void QWaylandWindow::setCustomMargins(const QMargins &margins) {
     const QMargins oldMargins = mCustomMargins;
     mCustomMargins = margins;
@@ -822,11 +803,7 @@ QSize QWaylandWindow::surfaceSize() const
     return geometry().marginsAdded(clientSideMargins()).size();
 }
 
-/*!
- * Window geometry as defined by the xdg-shell spec (in wl_surface coordinates)
- * topLeft is where the shadow stops and the decorations border start.
- */
-QRect QWaylandWindow::windowContentGeometry() const
+QMargins QWaylandWindow::windowContentMargins() const
 {
     QMargins shadowMargins;
 
@@ -836,7 +813,17 @@ QRect QWaylandWindow::windowContentGeometry() const
     if (!mCustomMargins.isNull())
         shadowMargins += mCustomMargins;
 
-    return QRect(QPoint(shadowMargins.left(), shadowMargins.top()), surfaceSize().shrunkBy(shadowMargins));
+    return shadowMargins;
+}
+
+/*!
+ * Window geometry as defined by the xdg-shell spec (in wl_surface coordinates)
+ * topLeft is where the shadow stops and the decorations border start.
+ */
+QRect QWaylandWindow::windowContentGeometry() const
+{
+    const QMargins margins = windowContentMargins();
+    return QRect(QPoint(margins.left(), margins.top()), surfaceSize().shrunkBy(margins));
 }
 
 /*!

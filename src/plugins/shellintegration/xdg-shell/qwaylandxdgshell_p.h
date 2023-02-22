@@ -115,13 +115,19 @@ private:
         Popup(QWaylandXdgSurface *xdgSurface, QWaylandWindow *parent, QtWayland::xdg_positioner *positioner);
         ~Popup() override;
 
+        void applyConfigure();
+        void resetConfiguration();
+
         void grab(QWaylandInputDevice *seat, uint serial);
+        void xdg_popup_configure(int32_t x, int32_t y, int32_t width, int32_t height) override;
         void xdg_popup_popup_done() override;
 
         QWaylandXdgSurface *m_xdgSurface = nullptr;
         QWaylandXdgSurface *m_parentXdgSurface = nullptr;
         QWaylandWindow *m_parent = nullptr;
         bool m_grabbing = false;
+
+        QRect m_pendingGeometry;
     };
 
     void setToplevel();

@@ -243,11 +243,32 @@ QWaylandXdgSurface::Popup::~Popup()
     }
 }
 
+void QWaylandXdgSurface::Popup::applyConfigure()
+{
+    if (m_pendingGeometry.isValid()) {
+        QRect geometryWithMargins = m_pendingGeometry.marginsAdded(m_xdgSurface->m_window->windowContentMargins());
+        QMargins parentMargins = m_parent->windowContentMargins() - m_parent->clientSideMargins();
+        QRect globalGeometry = geometryWithMargins.translated(m_parent->geometry().topLeft() + QPoint(parentMargins.left(), parentMargins.top()));
+        m_xdgSurface->setGeometryFromApplyConfigure(globalGeometry.topLeft(), globalGeometry.size());
+    }
+    resetConfiguration();
+}
+
+void QWaylandXdgSurface::Popup::resetConfiguration()
+{
+    m_pendingGeometry = QRect();
+}
+
 void QWaylandXdgSurface::Popup::grab(QWaylandInputDevice *seat, uint serial)
 {
     m_xdgSurface->m_shell->m_topmostGrabbingPopup = this;
     xdg_popup::grab(seat->wl_seat(), serial);
     m_grabbing = true;
+}
+
+void QWaylandXdgSurface::Popup::xdg_popup_configure(int32_t x, int32_t y, int32_t width, int32_t height)
+{
+    m_pendingGeometry = QRect(x, y, width, height);
 }
 
 void QWaylandXdgSurface::Popup::xdg_popup_popup_done()
@@ -364,6 +385,8 @@ void QWaylandXdgSurface::applyConfigure()
 
     if (m_toplevel)
         m_toplevel->applyConfigure();
+    if (m_popup)
+        m_popup->applyConfigure();
     m_appliedConfigureSerial = m_pendingConfigureSerial;
 
     m_configured = true;

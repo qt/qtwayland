@@ -15,7 +15,7 @@
 // We mean it.
 //
 
-#include "qwaylandxdgshell_p.h"
+#include "qwayland-xdg-shell.h"
 
 #include <QtWaylandClient/private/qwaylandshellintegration_p.h>
 
@@ -23,16 +23,25 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-class Q_WAYLANDCLIENT_EXPORT QWaylandXdgShellIntegration : public QWaylandShellIntegration
+class QWaylandXdgShell;
+
+class Q_WAYLANDCLIENT_EXPORT QWaylandXdgShellIntegration
+    : public QWaylandShellIntegrationTemplate<QWaylandXdgShellIntegration>,
+      public QtWayland::xdg_wm_base
 {
 public:
-    QWaylandXdgShellIntegration() {}
-    bool initialize(QWaylandDisplay *display) override;
+    QWaylandXdgShellIntegration();
+    ~QWaylandXdgShellIntegration() override;
     QWaylandShellSurface *createShellSurface(QWaylandWindow *window) override;
     void *nativeResourceForWindow(const QByteArray &resource, QWindow *window) override;
+    bool initialize(QWaylandDisplay *display) override;
+
+protected:
+    void xdg_wm_base_ping(uint32_t serial) override;
 
 private:
-    QScopedPointer<QWaylandXdgShell> m_xdgShell;
+    QWaylandDisplay *mDisplay;
+    QScopedPointer<QWaylandXdgShell> mXdgShell;
 };
 
 }

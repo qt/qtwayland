@@ -444,7 +444,7 @@ void QWaylandXdgSurface::setPopup(QWaylandWindow *parent)
 {
     Q_ASSERT(!m_toplevel && !m_popup);
 
-    auto positioner = new QtWayland::xdg_positioner(m_shell->create_positioner());
+    auto positioner = new QtWayland::xdg_positioner(m_shell->m_xdgWmBase->create_positioner());
     // set_popup expects a position relative to the parent
     QRect windowGeometry = m_window->windowContentGeometry();
     QMargins windowMargins = m_window->windowContentMargins() - m_window->clientSideMargins();
@@ -615,9 +615,8 @@ QString QWaylandXdgSurface::externWindowHandle()
     return m_toplevel->m_exported->handle();
 }
 
-QWaylandXdgShell::QWaylandXdgShell(QWaylandDisplay *display, uint32_t id, uint32_t availableVersion)
-    : QtWayland::xdg_wm_base(display->wl_registry(), id, qMin(availableVersion, 4u))
-    , m_display(display)
+QWaylandXdgShell::QWaylandXdgShell(QWaylandDisplay *display, QtWayland::xdg_wm_base *xdgWmBase)
+    : m_display(display), m_xdgWmBase(xdgWmBase)
 {
     display->addRegistryListener(&QWaylandXdgShell::handleRegistryGlobal, this);
 }
@@ -625,17 +624,6 @@ QWaylandXdgShell::QWaylandXdgShell(QWaylandDisplay *display, uint32_t id, uint32
 QWaylandXdgShell::~QWaylandXdgShell()
 {
     m_display->removeListener(&QWaylandXdgShell::handleRegistryGlobal, this);
-    destroy();
-}
-
-QWaylandXdgSurface *QWaylandXdgShell::getXdgSurface(QWaylandWindow *window)
-{
-    return new QWaylandXdgSurface(this, get_xdg_surface(window->wlSurface()), window);
-}
-
-void QWaylandXdgShell::xdg_wm_base_ping(uint32_t serial)
-{
-    pong(serial);
 }
 
 void QWaylandXdgShell::handleRegistryGlobal(void *data, wl_registry *registry, uint id,

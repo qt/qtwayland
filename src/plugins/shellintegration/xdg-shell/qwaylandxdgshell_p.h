@@ -143,11 +143,11 @@ private:
     friend class QWaylandXdgShell;
 };
 
-class Q_WAYLANDCLIENT_EXPORT QWaylandXdgShell : public QtWayland::xdg_wm_base
+class Q_WAYLANDCLIENT_EXPORT QWaylandXdgShell
 {
 public:
-    QWaylandXdgShell(QWaylandDisplay *display, uint32_t id, uint32_t availableVersion);
-    ~QWaylandXdgShell() override;
+    QWaylandXdgShell(QWaylandDisplay *display, QtWayland::xdg_wm_base *xdg_wm_base);
+    ~QWaylandXdgShell();
 
     QWaylandDisplay *display() const { return m_display; }
 
@@ -156,14 +156,12 @@ public:
     QWaylandXdgExporterV2 *exporter() const { return m_xdgExporter.data(); }
     QWaylandXdgSurface *getXdgSurface(QWaylandWindow *window);
 
-protected:
-    void xdg_wm_base_ping(uint32_t serial) override;
-
 private:
     static void handleRegistryGlobal(void *data, ::wl_registry *registry, uint id,
                                      const QString &interface, uint version);
 
     QWaylandDisplay *m_display = nullptr;
+    QtWayland::xdg_wm_base *m_xdgWmBase = nullptr;
     QScopedPointer<QWaylandXdgDecorationManagerV1> m_xdgDecorationManager;
     QScopedPointer<QWaylandXdgActivationV1> m_xdgActivation;
     QScopedPointer<QWaylandXdgExporterV2> m_xdgExporter;

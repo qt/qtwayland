@@ -14,14 +14,14 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-class Q_WAYLANDCLIENT_EXPORT QWaylandFullScreenShellV1Integration : public QWaylandShellIntegration
+class Q_WAYLANDCLIENT_EXPORT QWaylandFullScreenShellV1Integration
+    : public QWaylandShellIntegrationTemplate<QWaylandFullScreenShellV1Integration>,
+      public QtWayland::zwp_fullscreen_shell_v1
 {
 public:
-    bool initialize(QWaylandDisplay *display) override;
+    QWaylandFullScreenShellV1Integration();
+    ~QWaylandFullScreenShellV1Integration() override;
     QWaylandShellSurface *createShellSurface(QWaylandWindow *window) override;
-
-private:
-    QScopedPointer<QtWayland::zwp_fullscreen_shell_v1> m_shell;
 };
 
 } // namespace QtWaylandClient

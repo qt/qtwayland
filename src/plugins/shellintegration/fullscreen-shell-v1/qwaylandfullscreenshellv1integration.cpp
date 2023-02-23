@@ -8,26 +8,20 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-bool QWaylandFullScreenShellV1Integration::initialize(QWaylandDisplay *display)
+QWaylandFullScreenShellV1Integration::QWaylandFullScreenShellV1Integration()
+    : QWaylandShellIntegrationTemplate(1)
 {
-    for (const QWaylandDisplay::RegistryGlobal &global : display->globals()) {
-        if (global.interface == QLatin1String("zwp_fullscreen_shell_v1") && !m_shell) {
-            m_shell.reset(new QtWayland::zwp_fullscreen_shell_v1(display->wl_registry(), global.id, global.version));
-            break;
-        }
-    }
+}
 
-    if (!m_shell) {
-        qCDebug(lcQpaWayland) << "Couldn't find global zwp_fullscreen_shell_v1 for fullscreen-shell";
-        return false;
-    }
-
-    return true;
+QWaylandFullScreenShellV1Integration::~QWaylandFullScreenShellV1Integration()
+{
+    if (isActive())
+        release();
 }
 
 QWaylandShellSurface *QWaylandFullScreenShellV1Integration::createShellSurface(QWaylandWindow *window)
 {
-    return new QWaylandFullScreenShellV1Surface(m_shell.data(), window);
+    return new QWaylandFullScreenShellV1Surface(this, window);
 }
 
 } // namespace QtWaylandClient

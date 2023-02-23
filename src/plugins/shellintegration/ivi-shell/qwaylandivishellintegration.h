@@ -16,8 +16,11 @@ namespace QtWaylandClient {
 
 class QWaylandWindow;
 class QWaylandDisplay;
+class QWaylandIviController;
 
-class Q_WAYLANDCLIENT_EXPORT QWaylandIviShellIntegration : public QWaylandShellIntegration
+class Q_WAYLANDCLIENT_EXPORT QWaylandIviShellIntegration
+    : public QWaylandShellIntegrationTemplate<QWaylandIviShellIntegration>,
+      public QtWayland::ivi_application
 {
 public:
     QWaylandIviShellIntegration();
@@ -29,8 +32,7 @@ private:
     uint32_t getNextUniqueSurfaceId();
 
 private:
-    QScopedPointer<QtWayland::ivi_application> m_iviApplication;
-    QScopedPointer<QtWayland::ivi_controller> m_iviController;
+    QScopedPointer<QWaylandIviController> m_iviController;
     uint32_t m_lastSurfaceId = 0;
     uint32_t m_surfaceNumber = 0;
     bool m_useEnvSurfaceId = false;

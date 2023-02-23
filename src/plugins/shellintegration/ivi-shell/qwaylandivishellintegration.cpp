@@ -20,25 +20,24 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
+class QWaylandIviController : public QWaylandClientExtensionTemplate<QWaylandIviController>,
+                              public QtWayland::ivi_controller
+{
+public:
+    QWaylandIviController() : QWaylandClientExtensionTemplate(1) { }
+    void initialize() { QWaylandClientExtensionTemplate::initialize(); }
+};
+
 QWaylandIviShellIntegration::QWaylandIviShellIntegration()
+    : QWaylandShellIntegrationTemplate(1), m_iviController(new QWaylandIviController)
 {
 }
 
 bool QWaylandIviShellIntegration::initialize(QWaylandDisplay *display)
 {
-    for (QWaylandDisplay::RegistryGlobal global : display->globals()) {
-        if (global.interface == QLatin1String("ivi_application") && !m_iviApplication)
-            m_iviApplication.reset(new QtWayland::ivi_application(display->wl_registry(), global.id, global.version));
-        if (global.interface == QLatin1String("ivi_controller") && !m_iviController)
-            m_iviController.reset(new QtWayland::ivi_controller(display->wl_registry(), global.id, global.version));
-    }
-
-    if (!m_iviApplication) {
-        qCDebug(lcQpaWayland) << "Couldn't find global ivi_application for ivi-shell";
-        return false;
-    }
-
-    return true;
+    QWaylandShellIntegrationTemplate::initialize(display);
+    m_iviController->initialize();
+    return isActive();
 }
 
 /* get unique id
@@ -91,15 +90,15 @@ uint32_t QWaylandIviShellIntegration::getNextUniqueSurfaceId()
 
 QWaylandShellSurface *QWaylandIviShellIntegration::createShellSurface(QWaylandWindow *window)
 {
-    if (!m_iviApplication)
+    if (!isActive())
         return nullptr;
 
     uint32_t surfaceId = getNextUniqueSurfaceId();
     if (surfaceId == 0)
         return nullptr;
 
-    struct ivi_surface *surface = m_iviApplication->surface_create(surfaceId, window->wlSurface());
-    if (!m_iviController)
+    struct ivi_surface *surface = surface_create(surfaceId, window->wlSurface());
+    if (!m_iviController->isActive())
         return new QWaylandIviSurface(surface, window);
 
     struct ::ivi_controller_surface *controller = m_iviController->ivi_controller::surface_create(surfaceId);

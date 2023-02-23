@@ -23,16 +23,16 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-class Q_WAYLANDCLIENT_EXPORT QWaylandWlShellIntegration : public QWaylandShellIntegration
+class Q_WAYLANDCLIENT_EXPORT QWaylandWlShellIntegration
+    : public QWaylandShellIntegrationTemplate<QWaylandWlShellIntegration>,
+      public QtWayland::wl_shell
 {
 public:
-    QWaylandWlShellIntegration() {}
-    bool initialize(QWaylandDisplay *) override;
+    QWaylandWlShellIntegration();
     QWaylandShellSurface *createShellSurface(QWaylandWindow *window) override;
     void *nativeResourceForWindow(const QByteArray &resource, QWindow *window) override;
 
 private:
-    QtWayland::wl_shell *m_wlShell = nullptr;
 };
 
 }

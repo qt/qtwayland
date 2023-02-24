@@ -147,6 +147,7 @@ public:
     void initEglTexture(WaylandEglClientBuffer *buffer, EGLint format);
     bool ensureContext();
     bool initEglStream(WaylandEglClientBuffer *buffer, struct ::wl_resource *bufferHandle);
+    void setupBufferAndCleanup(BufferState *bs, QOpenGLTexture *texture, int plane);
     void handleEglstreamTexture(WaylandEglClientBuffer *buffer, wl_resource *bufferHandle);
     void registerBuffer(struct ::wl_resource *buffer, BufferState state);
     void deleteGLTextureWhenPossible(QOpenGLTexture *texture, QOpenGLContext *ctx);
@@ -292,7 +293,7 @@ bool WaylandEglClientBufferIntegrationPrivate::ensureContext()
 }
 
 
-void setupWaylandEglClientBufferWithTextureContextAndAboutToBeDestroyedConnection(BufferState *bs, QOpenGLTexture *texture, int plane)
+void WaylandEglClientBufferIntegrationPrivate::setupBufferAndCleanup(BufferState *bs, QOpenGLTexture *texture, int plane)
 {
     QMutexLocker locker(&bs->texturesLock);
 
@@ -368,7 +369,7 @@ bool WaylandEglClientBufferIntegrationPrivate::initEglStream(WaylandEglClientBuf
 
     auto texture = new QOpenGLTexture(static_cast<QOpenGLTexture::Target>(GL_TEXTURE_EXTERNAL_OES));
     texture->create();
-    setupWaylandEglClientBufferWithTextureContextAndAboutToBeDestroyedConnection(buffer->d, texture, 0);
+    setupBufferAndCleanup(buffer->d, texture, 0);
 
     qCDebug(qLcWaylandCompositorHardwareIntegration)
             << " NEW texture! It's pointer and ctx pointer: "
@@ -677,7 +678,7 @@ QOpenGLTexture *WaylandEglClientBuffer::toOpenGlTexture(int plane)
         texture->setFormat(openGLFormatFromEglFormat(d->egl_format));
         texture->setSize(d->size.width(), d->size.height());
         texture->create();
-        setupWaylandEglClientBufferWithTextureContextAndAboutToBeDestroyedConnection(this->d, texture, plane);
+        p->setupBufferAndCleanup(this->d, texture, plane);
     }
 
     if (m_textureDirty) {

@@ -128,6 +128,7 @@ public:
 
     bool ensureContext();
     bool initEglStream(WaylandEglStreamClientBuffer *buffer, struct ::wl_resource *bufferHandle);
+    void setupBufferAndCleanup(BufferState *bs, QOpenGLTexture *texture, int plane);
     void handleEglstreamTexture(WaylandEglStreamClientBuffer *buffer);
     void deleteGLTextureWhenPossible(QOpenGLTexture *texture, QOpenGLContext *ctx);
     void deleteOrphanedTextures();
@@ -247,7 +248,7 @@ bool WaylandEglStreamClientBufferIntegrationPrivate::ensureContext()
 }
 
 
-void setupWaylandEglClientBufferWithTextureContextAndAboutToBeDestroyedConnection(BufferState *bs, QOpenGLTexture *texture, int plane)
+void WaylandEglStreamClientBufferIntegrationPrivate::setupBufferAndCleanup(BufferState *bs, QOpenGLTexture *texture, int plane)
 {
     QMutexLocker locker(&bs->texturesLock);
 
@@ -320,7 +321,7 @@ bool WaylandEglStreamClientBufferIntegrationPrivate::initEglStream(WaylandEglStr
 
     auto texture = new QOpenGLTexture(static_cast<QOpenGLTexture::Target>(GL_TEXTURE_EXTERNAL_OES));
     texture->create();
-    setupWaylandEglClientBufferWithTextureContextAndAboutToBeDestroyedConnection(buffer->d, texture, 0);
+    setupBufferAndCleanup(buffer->d, texture, 0);
 
     texture->bind();
 

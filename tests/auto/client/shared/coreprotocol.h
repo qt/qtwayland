@@ -288,6 +288,9 @@ public:
     OutputData m_data;
     int m_version = 1; // TODO: remove on libwayland upgrade
 
+Q_SIGNALS:
+    void outputBound(Resource *resource);
+
 protected:
     void output_bind_resource(Resource *resource) override;
 };

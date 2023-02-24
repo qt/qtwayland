@@ -226,6 +226,8 @@ void Output::output_bind_resource(QtWaylandServer::wl_output::Resource *resource
 
     if (m_version >= WL_OUTPUT_DONE_SINCE_VERSION)
         wl_output::send_done(resource->handle);
+
+    Q_EMIT outputBound(resource);
 }
 
 // Seat stuff

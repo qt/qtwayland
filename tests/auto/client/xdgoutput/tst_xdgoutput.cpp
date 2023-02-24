@@ -30,6 +30,7 @@ private slots:
     void primaryScreen();
     void overrideGeometry();
     void changeGeometry();
+    void outputCreateEnterRace();
 };
 
 void tst_xdgoutput::cleanup()
@@ -107,6 +108,40 @@ void tst_xdgoutput::changeGeometry()
     QTRY_COMPARE(screen->size(), QSize(1024, 768));
 
     exec([=] { remove(output(1)); });
+}
+
+void tst_xdgoutput::outputCreateEnterRace()
+{
+    m_config.autoConfigure = true;
+    m_config.autoEnter = false;
+    QRasterWindow window;
+    QSignalSpy screenChanged(&window, &QWindow::screenChanged);
+    window.resize(400, 320);
+    window.show();
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+    exec([=] { xdgToplevel()->surface()->sendEnter(output(0));});
+
+    QTRY_COMPARE(QGuiApplication::screens().size(), 1);
+    QScreen *primaryScreen = QGuiApplication::screens().first();
+    QCOMPARE(window.screen(), primaryScreen);
+
+     auto *out = exec([=] {
+        return add<Output>();
+     });
+
+     // In Compositor Thread
+     connect(out, &Output::outputBound, this, [this](QtWaylandServer::wl_output::Resource *resource){
+        auto surface = xdgToplevel()->surface();
+        surface->sendLeave(output(0));
+        surface->QtWaylandServer::wl_surface::send_enter(surface->resource()->handle, resource->handle);
+     }, Qt::DirectConnection);
+
+    QTRY_COMPARE(QGuiApplication::screens().size(), 2);
+    QTRY_COMPARE(window.screen(), QGuiApplication::screens()[1]);
+
+    exec([=] { remove(out); });
+    m_config.autoConfigure = false;
+    m_config.autoEnter = true;
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_xdgoutput)

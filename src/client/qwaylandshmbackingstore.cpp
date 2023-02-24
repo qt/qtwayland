@@ -29,6 +29,16 @@
 #  ifndef MFD_ALLOW_SEALING
 #    define MFD_ALLOW_SEALING 0x0002U
 #  endif
+// from bits/fcntl-linux.h
+#  ifndef F_ADD_SEALS
+#    define F_ADD_SEALS 1033
+#  endif
+#  ifndef F_SEAL_SEAL
+#    define F_SEAL_SEAL 0x0001
+#  endif
+#  ifndef F_SEAL_SHRINK
+#    define F_SEAL_SHRINK 0x0002
+#  endif
 #endif
 
 QT_BEGIN_NAMESPACE

@@ -105,9 +105,9 @@ public:
 
 #if QT_CONFIG(xkbcommon)
         xkb_state *xkbState = keyb->xkbState();
-        Qt::KeyboardModifiers modifiers = QXkbCommon::modifiers(xkbState);
 
         const xkb_keysym_t sym = xkb_state_key_get_one_sym(xkbState, code);
+        Qt::KeyboardModifiers modifiers = QXkbCommon::modifiers(xkbState, sym);
         int qtkey = QXkbCommon::keysymToQtKey(sym, modifiers, xkbState, code);
         QString text = QXkbCommon::lookupString(xkbState, code);
 

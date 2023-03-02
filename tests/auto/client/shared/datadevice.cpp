@@ -51,7 +51,7 @@ DataOffer *DataDevice::sendDataOffer(wl_client *client, const QStringList &mimeT
 {
     Q_ASSERT(client);
     auto *offer = new DataOffer(this, client, m_manager->m_version);
-    m_offers << offer;
+    m_offer = offer;
     for (auto *resource : resourceMap().values(client))
         wl_data_device::send_data_offer(resource->handle, offer->resource()->handle);
     for (const auto &mimeType : mimeTypes)
@@ -71,8 +71,8 @@ void DataDevice::sendEnter(Surface *surface, const QPoint &position)
 {
     uint serial = m_manager->m_compositor->nextSerial();
     Resource *resource = resourceMap().value(surface->resource()->client());
-    for (DataOffer *offer: m_offers)
-        wl_data_device::send_enter(resource->handle, serial, surface->resource()->handle, position.x(), position.y(), offer->resource()->handle);
+    if (m_offer)
+        wl_data_device::send_enter(resource->handle, serial, surface->resource()->handle, position.x(), position.y(), m_offer->resource()->handle);
 }
 
 void DataDevice::sendMotion(Surface *surface, const QPoint &position)
@@ -108,10 +108,7 @@ void DataOffer::data_offer_receive(Resource *resource, const QString &mime_type,
 
 void DataOffer::data_offer_destroy(QtWaylandServer::wl_data_offer::Resource *resource)
 {
-    bool removed = m_dataDevice->m_sentSelectionOffers.removeOne(this);
-    if (!removed)
-        removed = m_dataDevice->m_offers.removeOne(this);
-    QVERIFY(removed);
+    m_dataDevice->m_sentSelectionOffers.removeOne(this);
     wl_resource_destroy(resource->handle);
 }
 

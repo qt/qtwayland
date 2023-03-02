@@ -63,7 +63,7 @@ public:
     DataDeviceManager *m_manager = nullptr;
     Seat *m_seat = nullptr;
     QList<DataOffer *> m_sentSelectionOffers;
-    QList<DataOffer *> m_offers;
+    QPointer<DataOffer> m_offer;
 
 signals:
     void dragStarted();

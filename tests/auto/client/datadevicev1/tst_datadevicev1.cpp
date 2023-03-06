@@ -3,7 +3,6 @@
 
 #include "mockcompositor.h"
 
-#include <QtOpenGL/QOpenGLWindow>
 #include <QtGui/QRasterWindow>
 #include <QtGui/QClipboard>
 #include <QtGui/QDrag>

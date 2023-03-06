@@ -4,7 +4,6 @@
 #include "xdgoutputv1.h"
 #include "mockcompositor.h"
 
-#include <QtOpenGL/QOpenGLWindow>
 #include <QtGui/QRasterWindow>
 #include <QtGui/QScreen>
 

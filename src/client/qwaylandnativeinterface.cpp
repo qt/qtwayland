@@ -139,7 +139,7 @@ void *QWaylandNativeInterface::nativeResourceForScreen(const QByteArray &resourc
 {
     QByteArray lowerCaseResource = resourceString.toLower();
 
-    if (lowerCaseResource == "output")
+    if (lowerCaseResource == "output" && !screen->handle()->isPlaceholder())
         return ((QWaylandScreen *) screen->handle())->output();
 
     return nullptr;

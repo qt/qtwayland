@@ -3,7 +3,6 @@
 
 #include "mockcompositor.h"
 
-#include <QtOpenGL/QOpenGLWindow>
 #include <QtGui/QRasterWindow>
 #if QT_CONFIG(cursor)
 #include <wayland-cursor.h>

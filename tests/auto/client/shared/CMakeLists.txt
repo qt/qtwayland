@@ -53,10 +53,14 @@ qt6_generate_wayland_protocol_server_sources(SharedClientTest
         ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/xdg-shell.xml
 )
 
+if(QT_FEATURE_opengl)
+    set(optional_libraries Qt::OpenGL)
+endif()
+
 target_link_libraries(SharedClientTest
     PUBLIC
         Qt::Gui
-        Qt::OpenGL
+        ${optional_libraries}
         Qt::WaylandClientPrivate
         Wayland::Server
         Threads::Threads # special case

@@ -13,6 +13,8 @@
 #include "qwaylandabstractdecoration_p.h"
 #include "qwaylandsurface_p.h"
 
+#include <QtWaylandClient/private/qwayland-qt-toplevel-drag-v1.h>
+
 #include <QtCore/QMimeData>
 #include <QtGui/QGuiApplication>
 #include <QtGui/private/qguiapplication_p.h>
@@ -26,6 +28,8 @@
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
+
+using namespace Qt::StringLiterals;
 
 QWaylandDataDevice::QWaylandDataDevice(QWaylandDataDeviceManager *manager, QWaylandInputDevice *inputDevice)
     : QObject(inputDevice)
@@ -105,13 +109,46 @@ bool QWaylandDataDevice::startDrag(QMimeData *mimeData, Qt::DropActions supporte
                 drag->setResponse(response);
             }
     });
-    connect(m_dragSource.data(), &QWaylandDataSource::dndDropped, this, [](bool accepted, Qt::DropAction action) {
-        QPlatformDropQtResponse response(accepted, action);
-        static_cast<QWaylandDrag *>(QGuiApplicationPrivate::platformIntegration()->drag())->setDropResponse(response);
-    });
-    connect(m_dragSource.data(), &QWaylandDataSource::finished, this, []() {
+    connect(m_dragSource.data(), &QWaylandDataSource::dndDropped, this,
+            [this](bool accepted, Qt::DropAction action) {
+                QPlatformDropQtResponse response(accepted, action);
+                if (m_toplevelDrag) {
+                    // If the widget was dropped but the drag not accepted it
+                    // should be its own window in the future. To distinguish
+                    // from canceling mid-drag the drag is accepted here as the
+                    // we know if the widget is over a zone where it can be
+                    // incorporated or not
+                    response = { accepted, Qt::MoveAction };
+                }
+                static_cast<QWaylandDrag *>(QGuiApplicationPrivate::platformIntegration()->drag())
+                        ->setDropResponse(response);
+            });
+    connect(m_dragSource.data(), &QWaylandDataSource::finished, this, [this]() {
         static_cast<QWaylandDrag *>(QGuiApplicationPrivate::platformIntegration()->drag())->finishDrag();
+        if (m_toplevelDrag) {
+            m_toplevelDrag->destroy();
+            m_toplevelDrag = nullptr;
+        }
     });
+
+    if (mimeData->hasFormat("application/x-qt-mainwindowdrag-window"_L1)
+        && m_display->xdgToplevelDragManager()) {
+        qintptr dockWindowPtr;
+        QPoint offset;
+        QDataStream windowStream(mimeData->data("application/x-qt-mainwindowdrag-window"_L1));
+        windowStream >> dockWindowPtr;
+        QWindow *dockWindow = reinterpret_cast<QWindow *>(dockWindowPtr);
+        QDataStream offsetStream(mimeData->data("application/x-qt-mainwindowdrag-position"_L1));
+        offsetStream >> offset;
+        if (auto waylandWindow = static_cast<QWaylandWindow *>(dockWindow->handle())) {
+            if (auto toplevel = waylandWindow->surfaceRole<xdg_toplevel>()) {
+                m_toplevelDrag = new QtWayland::qt_toplevel_drag_v1(
+                        m_display->xdgToplevelDragManager()->get_qt_toplevel_drag(
+                                m_dragSource->object()));
+                m_toplevelDrag->attach(toplevel, offset.x(), offset.y());
+            }
+        }
+    }
 
     start_drag(m_dragSource->object(), origin->wlSurface(), icon->wlSurface(), m_display->currentInputDevice()->serial());
     return true;
@@ -148,7 +185,6 @@ void QWaylandDataDevice::data_device_drop()
     QPlatformDropQtResponse response = QWindowSystemInterface::handleDrop(m_dragWindow, dragData, m_dragPoint, supportedActions,
                                                                           QGuiApplication::mouseButtons(),
                                                                           QGuiApplication::keyboardModifiers());
-
     if (drag) {
         auto drag =  static_cast<QWaylandDrag *>(QGuiApplicationPrivate::platformIntegration()->drag());
         drag->setDropResponse(response);
@@ -175,16 +211,14 @@ void QWaylandDataDevice::data_device_enter(uint32_t serial, wl_surface *surface,
     QDrag *drag = static_cast<QWaylandDrag *>(QGuiApplicationPrivate::platformIntegration()->drag())->currentDrag();
     if (drag) {
         dragData = drag->mimeData();
-        supportedActions = drag->supportedActions();
     } else if (m_dragOffer) {
         dragData = m_dragOffer->mimeData();
         supportedActions = m_dragOffer->supportedActions();
     }
 
-    const QPlatformDragQtResponse &response = QWindowSystemInterface::handleDrag(m_dragWindow, dragData, m_dragPoint, supportedActions,
-                                                                                 QGuiApplication::mouseButtons(),
-                                                                                 QGuiApplication::keyboardModifiers());
-
+    const QPlatformDragQtResponse &response = QWindowSystemInterface::handleDrag(
+            m_dragWindow, dragData, m_dragPoint, supportedActions, QGuiApplication::mouseButtons(),
+            QGuiApplication::keyboardModifiers());
     if (drag) {
         static_cast<QWaylandDrag *>(QGuiApplicationPrivate::platformIntegration()->drag())->setResponse(response);
     }
@@ -263,6 +297,10 @@ void QWaylandDataDevice::dragSourceCancelled()
 {
     static_cast<QWaylandDrag *>(QGuiApplicationPrivate::platformIntegration()->drag())->finishDrag();
     m_dragSource.reset();
+    if (m_toplevelDrag) {
+        m_toplevelDrag->destroy();
+        m_toplevelDrag = nullptr;
+    }
 }
 
 QPoint QWaylandDataDevice::calculateDragPosition(int x, int y, QWindow *wnd) const

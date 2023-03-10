@@ -53,6 +53,7 @@
 #include <QtWaylandClient/private/qwayland-fractional-scale-v1.h>
 #include <QtWaylandClient/private/qwayland-viewporter.h>
 #include <QtWaylandClient/private/qwayland-cursor-shape-v1.h>
+#include <QtWaylandClient/private/qwayland-qt-toplevel-drag-v1.h>
 
 #include <QtCore/private/qcore_unix_p.h>
 
@@ -758,6 +759,9 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mViewporter.reset(new QtWayland::wp_viewporter(registry, id, qMin(1u, version)));
     } else if (interface == QLatin1String(QtWayland::wp_cursor_shape_manager_v1::interface()->name)) {
         mCursorShapeManager.reset(new QtWayland::wp_cursor_shape_manager_v1(registry, id, std::min(1u, version)));
+    } else if (
+            interface == QLatin1String(QtWayland::qt_toplevel_drag_manager_v1::interface()->name)) {
+        mXdgToplevelDragManager.reset(new QtWayland::qt_toplevel_drag_manager_v1(registry, id, 1));
     }
 
     mGlobals.append(RegistryGlobal(id, interface, version, registry));

@@ -31,6 +31,10 @@ class QMimeData;
 class QPlatformDragQtResponse;
 class QWindow;
 
+namespace QtWayland {
+class qt_toplevel_drag_v1;
+}
+
 namespace QtWaylandClient {
 
 class QWaylandDisplay;
@@ -93,8 +97,8 @@ private:
     QScopedPointer<QWaylandDataOffer> m_dragOffer;
     QScopedPointer<QWaylandDataOffer> m_selectionOffer;
     QScopedPointer<QWaylandDataSource> m_selectionSource;
-
     QScopedPointer<QWaylandDataSource> m_dragSource;
+    QtWayland::qt_toplevel_drag_v1 *m_toplevelDrag = nullptr;
 };
 
 }

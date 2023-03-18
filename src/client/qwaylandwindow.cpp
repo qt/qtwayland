@@ -262,18 +262,18 @@ void QWaylandWindow::endFrame()
 void QWaylandWindow::reset()
 {
     closeChildPopups();
-    delete mShellSurface;
-    mShellSurface = nullptr;
-    delete mSubSurfaceWindow;
-    mSubSurfaceWindow = nullptr;
-    mViewport.reset();
-    mFractionalScale.reset();
 
     if (mSurface) {
         emit wlSurfaceDestroyed();
         QWriteLocker lock(&mSurfaceLock);
         invalidateSurface();
+        delete mShellSurface;
+        mShellSurface = nullptr;
+        delete mSubSurfaceWindow;
+        mSubSurfaceWindow = nullptr;
         mSurface.reset();
+        mViewport.reset();
+        mFractionalScale.reset();
     }
 
     {

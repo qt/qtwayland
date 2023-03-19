@@ -846,7 +846,7 @@ void QWaylandInputDevice::Pointer::releaseButtons()
     mButtons = Qt::NoButton;
 
     if (auto *window = focusWindow()) {
-        MotionEvent e(focusWindow(), mParent->mTime, mSurfacePos, mGlobalPos, mButtons, mParent->modifiers());
+        ReleaseEvent e(focusWindow(), mParent->mTime, mSurfacePos, mGlobalPos, mButtons, Qt::NoButton, mParent->modifiers());
         window->handleMouse(mParent, e);
     }
 }

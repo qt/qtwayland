@@ -338,6 +338,7 @@ public:
     QPointF mSurfacePos;
     QPointF mGlobalPos;
     Qt::MouseButtons mButtons = Qt::NoButton;
+    Qt::MouseButton mLastButton = Qt::NoButton;
 
     struct FrameData {
         QWaylandPointerEvent *event = nullptr;

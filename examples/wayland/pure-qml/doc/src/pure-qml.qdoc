@@ -59,20 +59,18 @@
     on-screen keyboard.
 
     Finally, we need a way for the compositor to communicate the text input to its clients. This
-    is done via a \c{text-input} extension. The Pure QML example only supports the
-    \c{qt_text_input_method_unstable_v1} protocol.
+    is done via a \c{text-input} extension. The Pure QML example supports both the
+    \c{text_input_unstable_v2} protocol as well as Qt's \c{qt_text_input_method_unstable_v1}
+    protocol.
 
     \snippet pure-qml/qml/main.qml text input
 
-    The extension is added to the compositor by instantiating the \l QtTextInputMethodManager as
-    a child of the \l{WaylandCompositor}.
+    The \c{qt_text_input_method_unstable_v1} extension is added to the compositor by instantiating
+    the \l QtTextInputMethodManager as a child of the \l{WaylandCompositor}, and
+    \l{TextInputManager} adds \c{text_input_unstable_v2}.
 
-    In order for the on-screen keyboard to work, this protocol must also be supported by the client.
-    Therefore, the \l QtTextInputMethodManager is most useful if the clients are also Qt
-    applications.
-
-    \note Qt also supports \l{TextInputManager}, which is an implementation of the
-    \c{text_input_unstable_v2} protocol.
+    Newer Qt applications will pick \c{qt_text_input_method_unstable_v1} when it is available,
+    while other clients can use \c{text_input_unstable_v2}.
 
     \section1 Transitions
 

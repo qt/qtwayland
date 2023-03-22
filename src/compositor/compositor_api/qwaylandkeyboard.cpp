@@ -163,7 +163,7 @@ void QWaylandKeyboardPrivate::maybeUpdateXkbScanCodeTable()
                     continue;
 
                 Qt::KeyboardModifiers mods = {};
-                int qtKey = QXkbCommon::keysymToQtKey(syms[0], mods);
+                int qtKey = QXkbCommon::keysymToQtKey(syms[0], mods, nullptr, 0, false, false);
                 if (qtKey != 0)
                     scanCodesByQtKey->insert({layout, qtKey}, keycode);
             }

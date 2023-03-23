@@ -77,8 +77,6 @@ private:
 
     const QWaylandWindow *m_parentWindow = nullptr;
 
-    EGLConfig m_eglConfig = 0;
-
     EGLint m_globalImages[3*5];
     EGLSurface m_eglSurfaces[3];
 

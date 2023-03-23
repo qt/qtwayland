@@ -69,7 +69,9 @@
 #include "qwaylandextendedsurface_p.h"
 #include "qwaylandsubsurface_p.h"
 #include "qwaylandtouch_p.h"
+#if QT_CONFIG(tabletevent)
 #include "qwaylandtabletv2_p.h"
+#endif
 #include "qwaylandqtkey_p.h"
 
 #include <QtWaylandClient/private/qwayland-text-input-unstable-v2.h>
@@ -364,8 +366,10 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mTouchExtension.reset(new QWaylandTouchExtension(this, id));
     } else if (interface == QStringLiteral("zqt_key_v1")) {
         mQtKeyExtension.reset(new QWaylandQtKeyExtension(this, id));
+#if QT_CONFIG(tabletevent)
     } else if (interface == QStringLiteral("zwp_tablet_manager_v2")) {
         mTabletManager.reset(new QWaylandTabletManagerV2(this, id, qMin(1, int(version))));
+#endif
 #if QT_CONFIG(wayland_client_primary_selection)
     } else if (interface == QStringLiteral("zwp_primary_selection_device_manager_v1")) {
         mPrimarySelectionManager.reset(new QWaylandPrimarySelectionDeviceManagerV1(this, id, 1));

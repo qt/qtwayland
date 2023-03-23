@@ -69,7 +69,6 @@ private:
     QWaylandBuffer *m_buffer = nullptr;
 
     Window m_xWindow = 0;
-    EGLConfig m_config;
     EGLSurface m_surface = EGL_NO_SURFACE;
 };
 

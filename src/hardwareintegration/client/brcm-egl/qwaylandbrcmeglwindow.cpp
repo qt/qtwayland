@@ -185,14 +185,14 @@ void QWaylandBrcmEglWindow::createEglSurfaces()
 
     m_count = window()->format().swapBehavior() == QSurfaceFormat::TripleBuffer ? 3 : 2;
 
-    m_eglConfig = q_configFromGLFormat(m_eglIntegration->eglDisplay(), brcmFixFormat(window()->format()), true, EGL_PIXMAP_BIT);
+    EGLConfig eglConfig = q_configFromGLFormat(m_eglIntegration->eglDisplay(), brcmFixFormat(window()->format()), true, EGL_PIXMAP_BIT);
 
-    m_format = q_glFormatFromConfig(m_eglIntegration->eglDisplay(), m_eglConfig);
+    m_format = q_glFormatFromConfig(m_eglIntegration->eglDisplay(), eglConfig);
 
     EGLint pixel_format = EGL_PIXEL_FORMAT_ARGB_8888_BRCM;
 
     EGLint rt;
-    eglGetConfigAttrib(m_eglIntegration->eglDisplay(), m_eglConfig, EGL_RENDERABLE_TYPE, &rt);
+    eglGetConfigAttrib(m_eglIntegration->eglDisplay(), eglConfig, EGL_RENDERABLE_TYPE, &rt);
 
     if (rt & EGL_OPENGL_ES_BIT) {
         pixel_format |= EGL_PIXEL_FORMAT_RENDER_GLES_BRCM;
@@ -228,7 +228,7 @@ void QWaylandBrcmEglWindow::createEglSurfaces()
             EGL_NONE
         };
 
-        m_eglSurfaces[i] = eglCreatePixmapSurface(m_eglIntegration->eglDisplay(), m_eglConfig, (EGLNativePixmapType)&m_globalImages[5*i], attrs);
+        m_eglSurfaces[i] = eglCreatePixmapSurface(m_eglIntegration->eglDisplay(), eglConfig, (EGLNativePixmapType)&m_globalImages[5*i], attrs);
         if (m_eglSurfaces[i] == EGL_NO_SURFACE)
             qFatal("eglCreatePixmapSurface failed: %x, global image id: %d %d\n", eglGetError(), m_globalImages[5*i], m_globalImages[5*i+1]);
         m_buffers[i] = new QWaylandBrcmBuffer(mDisplay, m_eglIntegration->waylandBrcm(), size, &m_globalImages[5*i], 5, m_eventQueue);

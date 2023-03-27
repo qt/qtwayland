@@ -211,20 +211,14 @@ QWaylandXdgSurface::Popup::Popup(QWaylandXdgSurface *xdgSurface, QWaylandWindow 
     , m_parent(parent)
 {
 
-    init(xdgSurface->get_popup(m_parentXdgSurface ? m_parentXdgSurface->object() : nullptr, positioner->object()));
-    if (m_parent) {
-        m_parent->addChildPopup(m_xdgSurface->window());
-    }
+    init(xdgSurface->get_popup(m_parentXdgSurface ? m_parentXdgSurface->object() : nullptr,
+                               positioner->object()));
 }
 
 QWaylandXdgSurface::Popup::~Popup()
 {
     if (isInitialized())
         destroy();
-
-    if (m_parent) {
-        m_parent->removeChildPopup(m_xdgSurface->window());
-    }
 
     if (m_grabbing) {
         auto *shell = m_xdgSurface->m_shell;

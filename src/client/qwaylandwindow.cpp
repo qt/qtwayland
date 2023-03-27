@@ -137,9 +137,15 @@ void QWaylandWindow::initWindow()
     } else if (shouldCreateShellSurface()) {
         Q_ASSERT(!mShellSurface);
         Q_ASSERT(mShellIntegration);
+        mTransientParent = closestTransientParent();
 
         mShellSurface = mShellIntegration->createShellSurface(this);
         if (mShellSurface) {
+            if (mTransientParent) {
+                if (window()->type() == Qt::ToolTip || window()->type() == Qt::Popup)
+                    mTransientParent->addChildPopup(this);
+            }
+
             // Set initial surface title
             setWindowTitle(window()->title());
 
@@ -272,10 +278,13 @@ void QWaylandWindow::reset()
         emit wlSurfaceDestroyed();
         QWriteLocker lock(&mSurfaceLock);
         invalidateSurface();
+        if (mTransientParent)
+            mTransientParent->removeChildPopup(this);
         delete mShellSurface;
         mShellSurface = nullptr;
         delete mSubSurfaceWindow;
         mSubSurfaceWindow = nullptr;
+        mTransientParent = nullptr;
         mSurface.reset();
         mViewport.reset();
         mFractionalScale.reset();
@@ -1051,6 +1060,11 @@ static QWaylandWindow *closestShellSurfaceWindow(QWindow *window)
 
 QWaylandWindow *QWaylandWindow::transientParent() const
 {
+    return mTransientParent;
+}
+
+QWaylandWindow *QWaylandWindow::closestTransientParent() const
+{
     // Take the closest window with a shell surface, since the transient parent may be a
     // QWidgetWindow or some other window without a shell surface, which is then not able to
     // get mouse events.
@@ -1619,12 +1633,14 @@ void QWaylandWindow::setXdgActivationToken(const QString &token)
     mShellSurface->setXdgActivationToken(token);
 }
 
-void QWaylandWindow::addChildPopup(QWaylandWindow *surface) {
-    mChildPopups.append(surface);
+void QWaylandWindow::addChildPopup(QWaylandWindow *child)
+{
+    mChildPopups.append(child);
 }
 
-void QWaylandWindow::removeChildPopup(QWaylandWindow *surface) {
-    mChildPopups.removeAll(surface);
+void QWaylandWindow::removeChildPopup(QWaylandWindow *child)
+{
+    mChildPopups.removeAll(child);
 }
 
 void QWaylandWindow::closeChildPopups() {

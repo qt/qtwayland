@@ -225,8 +225,6 @@ public:
     void beginFrame();
     void endFrame();
 
-    void addChildPopup(QWaylandWindow* child);
-    void removeChildPopup(QWaylandWindow* child);
     void closeChildPopups();
 
     virtual void reinit();
@@ -320,6 +318,7 @@ protected:
 
     QMargins mCustomMargins;
 
+    QPointer<QWaylandWindow> mTransientParent;
     QList<QPointer<QWaylandWindow>> mChildPopups;
 
 private:
@@ -336,6 +335,10 @@ private:
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
     void handleScreensChanged();
     void sendRecursiveExposeEvent();
+
+    QWaylandWindow *closestTransientParent() const;
+    void addChildPopup(QWaylandWindow *child);
+    void removeChildPopup(QWaylandWindow *child);
 
     bool mInResizeFromApplyConfigure = false;
     bool lastVisible = false;

@@ -83,10 +83,6 @@ QWaylandIntegration::QWaylandIntegration()
 #endif
 {
     mDisplay.reset(new QWaylandDisplay(this));
-    if (!mDisplay->isInitialized()) {
-        mFailed = true;
-        return;
-    }
 
     QWaylandWindow::fixedToplevelPositions =
             !qEnvironmentVariableIsSet("QT_WAYLAND_DISABLE_FIXED_POSITIONS");
@@ -97,6 +93,11 @@ QWaylandIntegration::QWaylandIntegration()
 QWaylandIntegration::~QWaylandIntegration()
 {
     sInstance = nullptr;
+}
+
+bool QWaylandIntegration::init()
+{
+    return mDisplay->initialize();
 }
 
 QPlatformNativeInterface * QWaylandIntegration::nativeInterface() const
@@ -168,7 +169,7 @@ QPlatformNativeInterface *QWaylandIntegration::createPlatformNativeInterface()
 // Support platform specific initialization
 void QWaylandIntegration::initializePlatform()
 {
-    mDisplay->initialize();
+    mDisplay->initEventThread();
 
     mNativeInterface.reset(createPlatformNativeInterface());
     initializeInputDeviceIntegration();
@@ -184,14 +185,9 @@ void QWaylandIntegration::initializePlatform()
 
 void QWaylandIntegration::initialize()
 {
-    mDisplay->initEventThread();
-
-    // Call this after initializing event thread for QWaylandDisplay::forceRoundTrip()
     initializePlatform();
 
-    // But the aboutToBlock() and awake() should be connected after initializePlatform().
-    // Otherwise the connected flushRequests() may consumes up all events before processEvents starts to wait,
-    // so that processEvents(QEventLoop::WaitForMoreEvents) may be blocked in the forceRoundTrip().
+    // Call this after initializing event thread for QWaylandDisplay::flushRequests()
     QAbstractEventDispatcher *dispatcher = QGuiApplicationPrivate::eventDispatcher;
     QObject::connect(dispatcher, SIGNAL(aboutToBlock()), mDisplay.data(), SLOT(flushRequests()));
     QObject::connect(dispatcher, SIGNAL(awake()), mDisplay.data(), SLOT(flushRequests()));

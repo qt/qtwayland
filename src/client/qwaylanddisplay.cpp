@@ -380,8 +380,11 @@ QWaylandDisplay::~QWaylandDisplay(void)
 
 // Steps which is called just after constructor. This separates registry_global() out of the constructor
 // so that factory functions in integration can be overridden.
-void QWaylandDisplay::initialize()
+bool QWaylandDisplay::initialize()
 {
+    if (!isInitialized())
+        return false;
+
     forceRoundTrip();
 
     if (!mWaitingScreens.isEmpty()) {
@@ -390,6 +393,8 @@ void QWaylandDisplay::initialize()
     }
     if (!mClientSideInputContextRequested)
         mTextInputManagerIndex = INT_MAX;
+
+    return qEnvironmentVariableIntValue("QT_WAYLAND_DONT_CHECK_SHELL_INTEGRATION") || shellIntegration();
 }
 
 void QWaylandDisplay::ensureScreen()

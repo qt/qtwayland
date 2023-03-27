@@ -84,6 +84,9 @@ public:
 
     virtual std::any surfaceRole() const { return std::any(); };
 
+    virtual void attachPopup(QWaylandShellSurface *popup) { Q_UNUSED(popup); }
+    virtual void detachPopup(QWaylandShellSurface *popup) { Q_UNUSED(popup); }
+
 protected:
     void resizeFromApplyConfigure(const QSize &sizeWithMargins, const QPoint &offset = {0, 0});
     void repositionFromApplyConfigure(const QPoint &position);

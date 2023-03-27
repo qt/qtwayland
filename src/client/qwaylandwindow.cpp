@@ -1635,11 +1635,15 @@ void QWaylandWindow::setXdgActivationToken(const QString &token)
 
 void QWaylandWindow::addChildPopup(QWaylandWindow *child)
 {
+    if (mShellSurface)
+        mShellSurface->attachPopup(child->shellSurface());
     mChildPopups.append(child);
 }
 
 void QWaylandWindow::removeChildPopup(QWaylandWindow *child)
 {
+    if (mShellSurface)
+        mShellSurface->detachPopup(child->shellSurface());
     mChildPopups.removeAll(child);
 }
 

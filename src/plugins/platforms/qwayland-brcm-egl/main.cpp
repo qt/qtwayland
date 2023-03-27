@@ -22,7 +22,7 @@ QPlatformIntegration *QWaylandBrcmEglPlatformIntegrationPlugin::create(const QSt
     Q_UNUSED(system);
     auto *integration = new QWaylandBrcmEglPlatformIntegration();
 
-    if (integration->hasFailed()) {
+    if (!integration->init()) {
         delete integration;
         integration = nullptr;
     }

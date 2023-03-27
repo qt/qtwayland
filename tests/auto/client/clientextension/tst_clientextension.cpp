@@ -123,5 +123,17 @@ void tst_clientextension::globalRemoved()
     QCOMPARE(spy.size(), 1);
 }
 
-QCOMPOSITOR_TEST_MAIN(tst_clientextension)
+int main(int argc, char **argv)
+{
+    QTemporaryDir tmpRuntimeDir;
+    setenv("XDG_RUNTIME_DIR", tmpRuntimeDir.path().toLocal8Bit(), 1);
+    setenv("QT_QPA_PLATFORM", "wayland", 1);
+    setenv("QT_WAYLAND_DONT_CHECK_SHELL_INTEGRATION", "1", 1);
+
+    tst_clientextension tc;
+    QGuiApplication app(argc, argv);
+    QTEST_SET_MAIN_SOURCE_PATH
+    return QTest::qExec(&tc, argc, argv);
+}
+
 #include "tst_clientextension.moc"

@@ -22,7 +22,7 @@ QPlatformIntegration *QWaylandIntegrationPlugin::create(const QString& system, c
     Q_UNUSED(system);
     auto *integration =  new QWaylandIntegration();
 
-    if (integration->hasFailed()) {
+    if (!integration->init()) {
         delete integration;
         integration = nullptr;
     }

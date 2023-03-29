@@ -41,6 +41,8 @@ public:
     QWaylandIntegration();
     ~QWaylandIntegration() override;
 
+    static QWaylandIntegration *instance() { return sInstance; }
+
     bool hasFailed() { return mFailed; }
 
     bool hasCapability(QPlatformIntegration::Capability cap) const override;
@@ -136,6 +138,8 @@ private:
     bool mClientBufferIntegrationInitialized = false;
     bool mServerBufferIntegrationInitialized = false;
     bool mShellIntegrationInitialized = false;
+
+    static QWaylandIntegration *sInstance;
 
     friend class QWaylandDisplay;
 };

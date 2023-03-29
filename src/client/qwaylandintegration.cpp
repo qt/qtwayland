@@ -73,6 +73,8 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
+QWaylandIntegration *QWaylandIntegration::sInstance = nullptr;
+
 QWaylandIntegration::QWaylandIntegration()
 #if defined(Q_OS_MACOS)
     : mFontDb(new QCoreTextFontDatabaseEngineFactory<QCoreTextFontEngine>)
@@ -88,10 +90,13 @@ QWaylandIntegration::QWaylandIntegration()
 
     QWaylandWindow::fixedToplevelPositions =
             !qEnvironmentVariableIsSet("QT_WAYLAND_DISABLE_FIXED_POSITIONS");
+
+    sInstance = this;
 }
 
 QWaylandIntegration::~QWaylandIntegration()
 {
+    sInstance = nullptr;
 }
 
 QPlatformNativeInterface * QWaylandIntegration::nativeInterface() const

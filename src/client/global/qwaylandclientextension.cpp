@@ -6,10 +6,6 @@
 #include "qwaylandclientextension_p.h"
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QtWaylandClient/private/qwaylandintegration_p.h>
-#include <QtGui/QGuiApplication>
-#include <QtGui/qpa/qplatformnativeinterface.h>
-#include <QtGui/private/qguiapplication_p.h>
-#include <QtCore/QDebug>
 
 QT_BEGIN_NAMESPACE
 
@@ -19,12 +15,9 @@ QWaylandClientExtensionPrivate::QWaylandClientExtensionPrivate()
 {
     // Keep the possibility to use a custom waylandIntegration as a plugin,
     // but also add the possibility to run it as a QML component.
-    waylandIntegration = static_cast<QtWaylandClient::QWaylandIntegration *>(QGuiApplicationPrivate::platformIntegration());
+    waylandIntegration = QtWaylandClient::QWaylandIntegration::instance();
     if (!waylandIntegration)
         waylandIntegration = new QtWaylandClient::QWaylandIntegration();
-
-    if (!waylandIntegration->nativeInterface()->nativeResourceForIntegration("wl_display"))
-        qWarning() << "This application requires a Wayland platform plugin";
 }
 
 void QWaylandClientExtensionPrivate::globalAdded(const RegistryGlobal &global)

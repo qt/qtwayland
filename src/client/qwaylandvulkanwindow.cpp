@@ -14,16 +14,23 @@ QWaylandVulkanWindow::QWaylandVulkanWindow(QWindow *window, QWaylandDisplay *dis
 
 QWaylandVulkanWindow::~QWaylandVulkanWindow()
 {
-    if (m_surface) {
-        QVulkanInstance *inst = window()->vulkanInstance();
-        if (inst)
-            static_cast<QWaylandVulkanInstance *>(inst->handle())->destroySurface(m_surface);
-    }
+    invalidateSurface();
 }
 
 QWaylandWindow::WindowType QWaylandVulkanWindow::windowType() const
 {
     return QWaylandWindow::Vulkan;
+}
+
+void QWaylandVulkanWindow::invalidateSurface()
+{
+    if (m_surface) {
+        QVulkanInstance *inst = window()->vulkanInstance();
+        if (inst)
+            static_cast<QWaylandVulkanInstance *>(inst->handle())->destroySurface(m_surface);
+    }
+    m_surface = nullptr;
+    QWaylandWindow::invalidateSurface();
 }
 
 VkSurfaceKHR *QWaylandVulkanWindow::vkSurface()

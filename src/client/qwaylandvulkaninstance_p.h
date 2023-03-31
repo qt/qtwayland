@@ -42,6 +42,9 @@ public:
 
     VkSurfaceKHR createSurface(QWaylandWindow *window);
 
+    void beginFrame(QWindow *window) override;
+    void endFrame(QWindow *window) override;
+
 private:
     QVulkanInstance *m_instance = nullptr;
     PFN_vkGetPhysicalDeviceWaylandPresentationSupportKHR m_getPhysDevPresSupport = nullptr;

@@ -101,6 +101,26 @@ void QWaylandVulkanInstance::presentAboutToBeQueued(QWindow *window)
     w->handleUpdate();
 }
 
+void QWaylandVulkanInstance::beginFrame(QWindow *window)
+{
+    auto *w = static_cast<QWaylandWindow *>(window->handle());
+    if (!w) {
+        qWarning() << "Attempted to call beginFrame() without a valid platform window";
+        return;
+    }
+    w->beginFrame();
+}
+
+void QWaylandVulkanInstance::endFrame(QWindow *window)
+{
+    auto *w = static_cast<QWaylandWindow *>(window->handle());
+    if (!w) {
+        qWarning() << "Attempted to call endFrame() without a valid platform window";
+        return;
+    }
+    w->endFrame();
+}
+
 } // namespace QtWaylandClient
 
 QT_END_NAMESPACE

@@ -515,6 +515,11 @@ void QWaylandIntegration::reset()
     mClientBufferIntegrationInitialized = false;
 }
 
+void QWaylandIntegration::setApplicationBadge(qint64 number)
+{
+    auto unixServices = mDisplay->windowManagerIntegration();
+    unixServices->setApplicationBadge(number);
+}
 }
 
 QT_END_NAMESPACE

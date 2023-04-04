@@ -370,11 +370,11 @@ QWaylandDisplay::~QWaylandDisplay(void)
 #if QT_CONFIG(cursor)
     mCursorThemes.clear();
 #endif
-    if (mDisplay)
-        wl_display_disconnect(mDisplay);
 
     if (m_frameEventQueue)
         wl_event_queue_destroy(m_frameEventQueue);
+    if (mDisplay)
+        wl_display_disconnect(mDisplay);
 }
 
 // Steps which is called just after constructor. This separates registry_global() out of the constructor

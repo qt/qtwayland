@@ -4,7 +4,7 @@
 /*!
     \title Fancy Compositor
     \example fancy-compositor
-    \meta category {Embedded}
+    \examplecategory {Embedded}
     \brief Fancy Compositor is an example that demonstrates how to write a fancy Wayland compositor in pure QML.
     \ingroup qtwaylandcompositor-examples
 

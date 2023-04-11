@@ -4,7 +4,7 @@
 /*!
  * \title Server Side Decoration Compositor
  * \example server-side-decoration
- * \meta category {Embedded}
+ * \examplecategory {Embedded}
  * \brief Server Side Decoration Compositor is a simple example that demonstrates server side window decorations on xdg-shell.
  * \ingroup qtwaylandcompositor-examples
  *

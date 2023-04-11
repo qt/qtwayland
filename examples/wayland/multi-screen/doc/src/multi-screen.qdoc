@@ -4,7 +4,7 @@
 /*!
  * \title Multi Screen
  * \example multi-screen
- * \meta category {Embedded}
+ * \examplecategory {Embedded}
  * \brief Multi Screen is a desktop-style Wayland compositor for multiple screens.
  * \ingroup qtwaylandcompositor-examples
  *

@@ -4,7 +4,7 @@
 /*!
     \title Pure QML
     \example pure-qml
-    \meta category {Embedded}
+    \examplecategory {Embedded}
     \brief Pure QML is an example that demonstrates how to write a Wayland compositor in pure QML.
     \ingroup qtwaylandcompositor-examples
 

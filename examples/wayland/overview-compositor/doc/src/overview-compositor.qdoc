@@ -4,7 +4,7 @@
 /*!
  * \title Overview Compositor
  * \example overview-compositor
- * \meta category {Embedded}
+ * \examplecategory {Embedded}
  * \brief Overview Compositor shows how to switch between clients in a grid.
  *
  * \section1 Introduction

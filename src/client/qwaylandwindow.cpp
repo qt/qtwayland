@@ -30,6 +30,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QThread>
+#include <QtCore/private/qthread_p.h>
 
 #include <QtWaylandClient/private/qwayland-fractional-scale-v1.h>
 
@@ -599,10 +600,22 @@ void QWaylandWindow::doApplyConfigure()
     if (!mWaitingToApplyConfigure)
         return;
 
+    Q_ASSERT_X(QThread::currentThreadId() == QThreadData::get2(thread())->threadId.loadRelaxed(),
+               "QWaylandWindow::doApplyConfigure", "not called from main thread");
+
     if (mShellSurface)
         mShellSurface->applyConfigure();
 
     mWaitingToApplyConfigure = false;
+}
+
+void QWaylandWindow::doApplyConfigureFromOtherThread()
+{
+    QMutexLocker lock(&mResizeLock);
+    if (!mCanResize || !mWaitingToApplyConfigure)
+        return;
+    doApplyConfigure();
+    sendExposeEvent(QRect(QPoint(), geometry().size()));
 }
 
 void QWaylandWindow::setCanResize(bool canResize)
@@ -615,8 +628,13 @@ void QWaylandWindow::setCanResize(bool canResize)
             QWindowSystemInterface::handleGeometryChange(window(), geometry());
         }
         if (mWaitingToApplyConfigure) {
-            doApplyConfigure();
-            sendExposeEvent(QRect(QPoint(), geometry().size()));
+            bool inGuiThread = QThread::currentThreadId() == QThreadData::get2(thread())->threadId.loadRelaxed();
+            if (inGuiThread) {
+                doApplyConfigure();
+                sendExposeEvent(QRect(QPoint(), geometry().size()));
+            } else {
+                QMetaObject::invokeMethod(this, &QWaylandWindow::doApplyConfigureFromOtherThread, Qt::QueuedConnection);
+            }
         } else if (mResizeDirty) {
             mResizeDirty = false;
             sendExposeEvent(QRect(QPoint(), geometry().size()));

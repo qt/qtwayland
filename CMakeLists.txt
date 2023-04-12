@@ -16,6 +16,7 @@ project(QtWayland # special case
 find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS
     BuildInternals
 )
+qt_internal_project_setup()
 
 if(NOT MACOS AND NOT QNX AND (ANDROID OR NOT LINUX))
     message(NOTICE "Skipping the build as the condition \"LINUX OR MACOS OR QNX\" is not met.")

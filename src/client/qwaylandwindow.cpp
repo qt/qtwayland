@@ -174,7 +174,7 @@ void QWaylandWindow::initWindow()
         }
     }
 
-    if (display()->viewporter() && !window()->flags().testFlag(Qt::BypassWindowManagerHint)) {
+    if (display()->viewporter()) {
         mViewport.reset(new QWaylandViewport(display()->createViewport(this)));
     }
 

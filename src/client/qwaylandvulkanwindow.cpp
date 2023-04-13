@@ -29,7 +29,7 @@ void QWaylandVulkanWindow::invalidateSurface()
         if (inst)
             static_cast<QWaylandVulkanInstance *>(inst->handle())->destroySurface(m_surface);
     }
-    m_surface = nullptr;
+    m_surface = VK_NULL_HANDLE;
     QWaylandWindow::invalidateSurface();
 }
 

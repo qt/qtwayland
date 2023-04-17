@@ -199,6 +199,10 @@ void tst_surface::createSubsurfaceForHiddenParent()
 
     // Make sure the client doesn't quit before it has a chance to crash
     xdgPingAndWaitForPong();
+
+    // Make sure the subsurface was actually created
+    const Subsurface *subsurface = exec([=] {return subSurface(0);});
+    QVERIFY(subsurface);
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_surface)

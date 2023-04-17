@@ -131,6 +131,8 @@ void QWaylandWindow::initWindow()
         Q_ASSERT(!mSubSurfaceWindow);
 
         auto *parent = static_cast<QWaylandWindow *>(QPlatformWindow::parent());
+        if (!parent->mSurface)
+            parent->initializeWlSurface();
         if (parent->wlSurface()) {
             if (::wl_subsurface *subsurface = mDisplay->createSubSurface(this, parent))
                 mSubSurfaceWindow = new QWaylandSubSurface(this, parent, subsurface);

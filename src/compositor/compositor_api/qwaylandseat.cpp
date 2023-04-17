@@ -434,6 +434,11 @@ void QWaylandSeat::sendFullTouchEvent(QWaylandSurface *surface, QTouchEvent *eve
 
 /*!
  * Sends the \a event to the keyboard device.
+ *
+ * \note The \a event should correspond to an actual keyboard key in the current mapping.
+ * For example, \c Qt::Key_Exclam is normally not a separate key: with most keyboards the
+ * exclamation mark is produced with Shift + 1. In that case, to send an exclamation mark
+ * key press event, use \c{QKeyEvent(QEvent::KeyPress, Qt::Key_1, Qt::ShiftModifier)}.
  */
 void QWaylandSeat::sendFullKeyEvent(QKeyEvent *event)
 {
@@ -512,6 +517,9 @@ void QWaylandSeat::sendFullKeyEvent(QKeyEvent *event)
 /*!
  * Sends a key press (if \a pressed is \c true) or release (if \a pressed is \c false)
  * event of a key \a qtKey to the keyboard device.
+ *
+ * \note This function does not support key events that require modifiers, such as \c Qt::Key_Exclam.
+ * Use \l{sendFullKeyEvent} instead.
  *
  * \since 5.12
  */

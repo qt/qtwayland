@@ -13,15 +13,23 @@
   The QML types can be imported into your application using the following
   import statement:
 
+  \section1 Using the Module
+
+  \include {module-use.qdocinc} {using the c++ api} {WaylandCompositor}
+
+  \section2 Building with CMake
+
+  \include {module-use.qdocinc} {building with cmake} {WaylandCompositor}
+
+  \section2 Building with qmake
+
+  \include {module-use.qdocinc} {building_with_qmake} {waylandcompositor}
+
+  \section2 QML import
+
   \qml
-  import QtWayland.Compositor
+    import QtWayland.Compositor
   \endqml
-
-  To link against the module, add this line to your \l qmake \c .pro file:
-
-  \badcode
-  QT += waylandcompositor
-  \endcode
 
   For more information about using these types in your application,
   see the \l{Qt Wayland Compositor} documentation.

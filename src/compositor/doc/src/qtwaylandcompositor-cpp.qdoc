@@ -10,11 +10,17 @@
 
   \brief Provides C++ classes for writing custom Wayland display servers.
 
-  To link against the module, add this line to your \l qmake \c .pro file:
+  \section1 Using the Module
 
-  \code
-  QT += waylandcompositor
-  \endcode
+  \include {module-use.qdocinc} {using the c++ api} {WaylandCompositor}
+
+  \section2 Building with CMake
+
+  \include {module-use.qdocinc} {building with cmake} {WaylandCompositor}
+
+  \section2 Building with qmake
+
+  \include {module-use.qdocinc} {building_with_qmake} {waylandcompositor}
 
   For more information about using these classes in your application,
   see the \l{Qt Wayland Compositor} documentation.

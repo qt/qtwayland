@@ -5,7 +5,7 @@
   \module QtWaylandCompositor
   \title Qt Wayland Compositor C++ Classes
   \ingroup modules
-  \qtcmakepackage Waylandcompositor
+  \qtcmakepackage WaylandCompositor
   \qtvariable waylandcompositor
 
   \brief Provides C++ classes for writing custom Wayland display servers.

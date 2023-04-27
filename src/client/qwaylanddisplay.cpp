@@ -420,6 +420,12 @@ void QWaylandDisplay::reconnect()
     qDeleteAll(mWaitingScreens);
     mWaitingScreens.clear();
 
+    const auto screens = std::exchange(mScreens, {});
+    ensureScreen();
+    for (QWaylandScreen *screen : screens) {
+        QWindowSystemInterface::handleScreenRemoved(screen);
+    }
+
     // mCompositor
     mShm.reset();
     mCursorThemes.clear();
@@ -448,9 +454,6 @@ void QWaylandDisplay::reconnect()
 
     qDeleteAll(std::exchange(mInputDevices, {}));
     mLastInputDevice = nullptr;
-
-    auto screens = mScreens;
-    mScreens.clear();
 
     for (const RegistryGlobal &global : mGlobals) {
         emit globalRemoved(global);

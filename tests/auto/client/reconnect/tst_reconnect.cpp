@@ -101,6 +101,7 @@ private Q_SLOTS:
 //core
     void cleanup() { QTRY_VERIFY2(m_comp->isClean(), qPrintable(m_comp->dirtyMessage())); }
     void basicWindow();
+    void screens();
 
 //input
     void keyFocus();
@@ -139,6 +140,30 @@ void tst_WaylandReconnect::basicWindow()
     triggerReconnect();
 
     QCOMPOSITOR_TRY_VERIFY(m_comp->xdgToplevel());
+}
+
+void tst_WaylandReconnect::screens()
+{
+    QRasterWindow window;
+    window.resize(64, 48);
+    window.show();
+    QCOMPOSITOR_TRY_VERIFY(m_comp->xdgToplevel());
+
+    auto originalScreens = QGuiApplication::screens();
+
+    QSignalSpy screenRemovedSpy(qGuiApp, &QGuiApplication::screenRemoved);
+    QVERIFY(screenRemovedSpy.isValid());
+
+    triggerReconnect();
+
+    // All screens plus temporary placeholder screen removed
+    QCOMPARE(screenRemovedSpy.count(), originalScreens.count() + 1);
+    for (const auto &screen : std::as_const(screenRemovedSpy)) {
+        originalScreens.removeOne(screen[0].value<QScreen *>());
+    }
+    QVERIFY(originalScreens.isEmpty());
+    QVERIFY(window.screen());
+    QVERIFY(QGuiApplication::screens().contains(window.screen()));
 }
 
 void tst_WaylandReconnect::keyFocus()

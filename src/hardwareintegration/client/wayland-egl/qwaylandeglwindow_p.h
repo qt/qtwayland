@@ -50,7 +50,6 @@ public:
     void bindContentFBO();
 
     void invalidateSurface() override;
-    void reinit() override;
 
 private:
     QWaylandEglClientBufferIntegration *m_clientBufferIntegration = nullptr;

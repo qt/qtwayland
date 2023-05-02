@@ -623,7 +623,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
 {
     struct ::wl_registry *registry = object();
 
-    static QByteArrayList interfaceBlacklist = qgetenv("QT_WAYLAND_DISABLED_INTERFACES").split(',');
+    static QStringList interfaceBlacklist = qEnvironmentVariable("QT_WAYLAND_DISABLED_INTERFACES").split(u',');
     if (interfaceBlacklist.contains(interface)) {
         return;
     }

@@ -939,8 +939,7 @@ QWaylandSeat *QWaylandCompositor::defaultSeat() const
 
 /*!
  * Select the seat for a given input event \a inputEvent.
- * Currently, Qt only supports a single seat, but you can reimplement
- * QWaylandCompositorPrivate::seatFor for a custom seat selection.
+ * Currently, Qt only supports a single seat.
  */
 QWaylandSeat *QWaylandCompositor::seatFor(QInputEvent *inputEvent)
 {

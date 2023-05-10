@@ -41,7 +41,7 @@
 #include <QThread>
 
 #if QT_CONFIG(opengl)
-#include <QtGui/private/qshaderdescription_p_p.h>
+#include <QtGui/private/qshaderdescription_p.h>
 #endif
 
 #ifndef GL_TEXTURE_EXTERNAL_OES

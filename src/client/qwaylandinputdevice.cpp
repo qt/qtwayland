@@ -63,6 +63,7 @@ static const int MaxTouchPoints = 10;
 QWaylandInputDevice::Keyboard::Keyboard(QWaylandInputDevice *p)
     : mParent(p)
 {
+    init(p->get_keyboard());
     mRepeatTimer.callOnTimeout([&]() {
         if (!focusWindow()) {
             // We destroyed the keyboard focus surface, but the server didn't get the message yet...
@@ -124,6 +125,7 @@ QWaylandWindow *QWaylandInputDevice::Keyboard::focusWindow() const
 QWaylandInputDevice::Pointer::Pointer(QWaylandInputDevice *seat)
     : mParent(seat)
 {
+    init(seat->get_pointer());
 #if QT_CONFIG(cursor)
     mCursor.frameTimer.setSingleShot(true);
     mCursor.frameTimer.callOnTimeout([&]() {
@@ -364,6 +366,7 @@ void QWaylandInputDevice::Pointer::cursorFrameCallback()
 QWaylandInputDevice::Touch::Touch(QWaylandInputDevice *p)
     : mParent(p)
 {
+    init(p->get_touch());
 }
 
 QWaylandInputDevice::Touch::~Touch()
@@ -423,14 +426,12 @@ void QWaylandInputDevice::seat_capabilities(uint32_t caps)
 
     if (caps & WL_SEAT_CAPABILITY_KEYBOARD && !mKeyboard) {
         mKeyboard.reset(createKeyboard(this));
-        mKeyboard->init(get_keyboard());
     } else if (!(caps & WL_SEAT_CAPABILITY_KEYBOARD) && mKeyboard) {
         mKeyboard.reset();
     }
 
     if (caps & WL_SEAT_CAPABILITY_POINTER && !mPointer) {
         mPointer.reset(createPointer(this));
-        mPointer->init(get_pointer());
 
         auto *pointerGestures = mQDisplay->pointerGestures();
         if (pointerGestures) {
@@ -453,7 +454,6 @@ void QWaylandInputDevice::seat_capabilities(uint32_t caps)
 
     if (caps & WL_SEAT_CAPABILITY_TOUCH && !mTouch) {
         mTouch.reset(createTouch(this));
-        mTouch->init(get_touch());
 
         if (!mTouchDevice) {
             // TODO number of touchpoints, actual name and ID

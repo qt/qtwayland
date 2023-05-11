@@ -52,6 +52,7 @@
 #include <QtWaylandClient/private/qwayland-qt-text-input-method-unstable-v1.h>
 #include <QtWaylandClient/private/qwayland-fractional-scale-v1.h>
 #include <QtWaylandClient/private/qwayland-viewporter.h>
+#include <QtWaylandClient/private/qwayland-cursor-shape-v1.h>
 
 #include <QtCore/private/qcore_unix_p.h>
 
@@ -755,6 +756,8 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mFractionalScaleManager.reset(new QtWayland::wp_fractional_scale_manager_v1(registry, id, 1));
     } else if (interface == QLatin1String("wp_viewporter")) {
         mViewporter.reset(new QtWayland::wp_viewporter(registry, id, qMin(1u, version)));
+    } else if (interface == QLatin1String(QtWayland::wp_cursor_shape_manager_v1::interface()->name)) {
+        mCursorShapeManager.reset(new QtWayland::wp_cursor_shape_manager_v1(registry, id, std::min(1u, version)));
     }
 
     mGlobals.append(RegistryGlobal(id, interface, version, registry));

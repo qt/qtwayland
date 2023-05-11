@@ -39,6 +39,7 @@ add_library(SharedClientTest
 
 qt6_generate_wayland_protocol_server_sources(SharedClientTest
     FILES
+        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/cursor-shape-v1.xml
         ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/fullscreen-shell-unstable-v1.xml
         ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/ivi-application.xml
         ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/wp-primary-selection-unstable-v1.xml

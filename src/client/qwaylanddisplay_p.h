@@ -51,8 +51,9 @@ namespace QtWayland {
     class zwp_text_input_manager_v2;
     class zwp_text_input_manager_v4;
     class qt_text_input_method_manager_v1;
-    class wp_viewporter;
+    class wp_cursor_shape_manager_v1;
     class wp_fractional_scale_manager_v1;
+    class wp_viewporter;
 }
 
 namespace QtWaylandClient {
@@ -152,6 +153,7 @@ public:
     QWaylandXdgOutputManagerV1 *xdgOutputManager() const { return mXdgOutputManager.data(); }
     QtWayland::wp_fractional_scale_manager_v1 *fractionalScaleManager() const { return mFractionalScaleManager.data(); }
     QtWayland::wp_viewporter *viewporter() const { return mViewporter.data(); }
+    QtWayland::wp_cursor_shape_manager_v1 *cursorShapeManager() const { return mCursorShapeManager.data();}
 
     struct RegistryGlobal {
         uint32_t id;
@@ -277,6 +279,7 @@ private:
     QScopedPointer<QWaylandXdgOutputManagerV1> mXdgOutputManager;
     QScopedPointer<QtWayland::wp_viewporter> mViewporter;
     QScopedPointer<QtWayland::wp_fractional_scale_manager_v1> mFractionalScaleManager;
+    QScopedPointer<QtWayland::wp_cursor_shape_manager_v1> mCursorShapeManager;
     int mFd = -1;
     int mWritableNotificationFd = -1;
     QList<RegistryGlobal> mGlobals;

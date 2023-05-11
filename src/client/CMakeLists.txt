@@ -82,6 +82,7 @@ qt_internal_add_module(WaylandClient
 
 qt6_generate_wayland_protocol_client_sources(WaylandClient
     FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/cursor-shape-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/pointer-gestures-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/tablet-unstable-v2.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input-unstable-v1.xml

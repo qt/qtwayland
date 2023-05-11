@@ -127,6 +127,10 @@ QWaylandInputDevice::Pointer::Pointer(QWaylandInputDevice *seat)
 {
     init(seat->get_pointer());
 #if QT_CONFIG(cursor)
+    if (auto cursorShapeManager = seat->mQDisplay->cursorShapeManager()) {
+        mCursor.shape.reset(new QWaylandCursorShape(cursorShapeManager->get_pointer(object())));
+    }
+
     mCursor.frameTimer.setSingleShot(true);
     mCursor.frameTimer.callOnTimeout([&]() {
         cursorTimerCallback();
@@ -300,6 +304,11 @@ void QWaylandInputDevice::Pointer::updateCursor()
         auto hotspot = seat()->mCursor.hotspot;
         int bufferScale = seat()->mCursor.bitmapScale;
         getOrCreateCursorSurface()->update(buffer->buffer(), hotspot, buffer->size(), bufferScale);
+        return;
+    }
+
+    if (mCursor.shape) {
+        mCursor.shape->setShape(mEnterSerial, shape);
         return;
     }
 

@@ -64,6 +64,7 @@ class QWaylandTextInputInterface;
 class QWaylandTextInputMethod;
 #if QT_CONFIG(cursor)
 class QWaylandCursorTheme;
+class QWaylandCursorShape;
 class CursorSurface;
 #endif
 
@@ -323,6 +324,7 @@ public:
     uint32_t mEnterSerial = 0;
 #if QT_CONFIG(cursor)
     struct {
+        QScopedPointer<QWaylandCursorShape> shape;
         QWaylandCursorTheme *theme = nullptr;
         int themeBufferScale = 0;
         QScopedPointer<CursorSurface> surface;

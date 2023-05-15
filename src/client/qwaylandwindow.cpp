@@ -141,19 +141,15 @@ void QWaylandWindow::initWindow()
             setWindowTitle(window()->title());
 
             // The appId is the desktop entry identifier that should follow the
-            // reverse DNS convention (see http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s02.html).
-            // According to xdg-shell the appId is only the name, without
-            // the .desktop suffix.
+            // reverse DNS convention (see
+            // http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s02.html). According
+            // to xdg-shell the appId is only the name, without the .desktop suffix.
             //
-            // If the application specifies the desktop file name use that
-            // removing the ".desktop" suffix, otherwise fall back to the
-            // executable name and prepend the reversed organization domain
-            // when available.
+            // If the application specifies the desktop file name use that,
+            // otherwise fall back to the executable name and prepend the
+            // reversed organization domain when available.
             if (!QGuiApplication::desktopFileName().isEmpty()) {
-                QString name = QGuiApplication::desktopFileName();
-                if (name.endsWith(QLatin1String(".desktop")))
-                    name.chop(8);
-                mShellSurface->setAppId(name);
+                mShellSurface->setAppId(QGuiApplication::desktopFileName());
             } else {
                 QFileInfo fi = QFileInfo(QCoreApplication::instance()->applicationFilePath());
                 QStringList domainName =

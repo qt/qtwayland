@@ -4,6 +4,12 @@
 # Generated from src.pro.
 # special case begin
 qt_find_package(WaylandScanner PROVIDED_TARGETS Wayland::Scanner)
+if(TARGET Wayland::Client)
+    qt_internal_disable_find_package_global_promotion(Wayland::Client)
+endif()
+if(TARGET Wayland::Server)
+    qt_internal_disable_find_package_global_promotion(Wayland::Server)
+endif()
 qt_find_package(Wayland 1.15 PROVIDED_TARGETS Wayland::Client Wayland::Server)
 
 if (NOT WaylandScanner_FOUND OR NOT Wayland_FOUND)

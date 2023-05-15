@@ -12,21 +12,35 @@ set(INPUT_wayland_text_input_v4_wip OFF CACHE BOOL "")
 
 if(LINUX OR QT_FIND_ALL_PACKAGES_ALWAYS)
     # waylandclient libraries
+    if(TARGET Wayland::Client)
+        qt_internal_disable_find_package_global_promotion(Wayland::Client)
+    endif()
     qt_find_package(Wayland
         PROVIDED_TARGETS Wayland::Client
         MODULE_NAME waylandclient
         QMAKE_LIB wayland-client)
+
+    if(TARGET Wayland::Cursor)
+        qt_internal_disable_find_package_global_promotion(Wayland::Cursor)
+    endif()
     qt_find_package(Wayland
         PROVIDED_TARGETS Wayland::Cursor
         MODULE_NAME waylandclient
         QMAKE_LIB wayland-cursor)
     qt_add_qmake_lib_dependency(wayland-cursor wayland-client)
+
+    if(TARGET Wayland::Egl)
+        qt_internal_disable_find_package_global_promotion(Wayland::Egl)
+    endif()
     qt_find_package(Wayland
         PROVIDED_TARGETS Wayland::Egl
         MODULE_NAME waylandclient
         QMAKE_LIB wayland-egl)
 
     # waylandcompositor libraries
+    if(TARGET Wayland::Server)
+        qt_internal_disable_find_package_global_promotion(Wayland::Server)
+    endif()
     qt_find_package(Wayland
         PROVIDED_TARGETS Wayland::Server
         MODULE_NAME waylandcompositor

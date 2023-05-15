@@ -418,7 +418,7 @@ void QWaylandXdgSurface::setSizeHints()
             maxHeight = 0;
 
         // It will not change min/max sizes if invalid.
-        if (minWidth > maxHeight || minHeight > maxHeight)
+        if (minWidth > maxWidth || minHeight > maxHeight)
             return;
 
         m_toplevel->set_min_size(minWidth, minHeight);

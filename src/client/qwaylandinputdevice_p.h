@@ -337,10 +337,6 @@ public:
     QPointF mGlobalPos;
     Qt::MouseButtons mButtons = Qt::NoButton;
     Qt::MouseButton mLastButton = Qt::NoButton;
-#if QT_CONFIG(cursor)
-    wl_buffer *mCursorBuffer = nullptr;
-    Qt::CursorShape mCursorShape = Qt::BitmapCursor;
-#endif
 
     struct FrameData {
         QWaylandPointerEvent *event = nullptr;

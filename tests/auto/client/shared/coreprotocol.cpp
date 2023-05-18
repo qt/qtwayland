@@ -338,7 +338,7 @@ uint Pointer::sendEnter(Surface *surface, const QPointF &position)
 
     uint serial = m_seat->m_compositor->nextSerial();
     m_enterSerials << serial;
-    m_cursorRole = nullptr; // According to the protocol, the pointer image is undefined after enter
+    m_cursorRole.clear(); // According to the protocol, the pointer image is undefined after enter
 
     wl_client *client = surface->resource()->client();
     const auto pointerResources = resourceMap().values(client);

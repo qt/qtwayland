@@ -337,7 +337,7 @@ class Pointer : public QObject, public QtWaylandServer::wl_pointer
 public:
     explicit Pointer(Seat *seat) : m_seat(seat) {}
     Surface *cursorSurface();
-    CursorRole* m_cursorRole = nullptr; //TODO: cleanup
+    QPointer<CursorRole> m_cursorRole;
     void send_enter() = delete;
     uint sendEnter(Surface *surface, const QPointF &position);
     void send_leave() = delete;
@@ -369,6 +369,7 @@ public:
     explicit CursorRole(Surface *surface) // TODO: needs some more args
         : m_surface(surface)
     {
+        connect(m_surface, &QObject::destroyed, this, &QObject::deleteLater);
     }
     static CursorRole *fromSurface(Surface *surface) { return qobject_cast<CursorRole *>(surface->m_role); }
     Surface *m_surface = nullptr;

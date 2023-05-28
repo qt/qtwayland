@@ -106,7 +106,7 @@ QWaylandShmBuffer::~QWaylandShmBuffer(void)
 
 QImage *QWaylandShmBuffer::imageInsideMargins(const QMargins &marginsIn)
 {
-    QMargins margins = marginsIn * int(mImage.devicePixelRatio());
+    QMargins margins = marginsIn * mImage.devicePixelRatio();
 
     if (!margins.isNull() && margins != mMargins) {
         if (mMarginsImage) {

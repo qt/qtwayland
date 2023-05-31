@@ -228,7 +228,7 @@ QtWayland::xdg_toplevel::resize_edge QWaylandXdgSurface::Toplevel::convertToResi
 }
 
 QWaylandXdgSurface::Popup::Popup(QWaylandXdgSurface *xdgSurface, QWaylandWindow *parent,
-                                 QtWayland::xdg_positioner *positioner)
+                                 Positioner *positioner)
     : m_xdgSurface(xdgSurface)
     , m_parentXdgSurface(qobject_cast<QWaylandXdgSurface *>(parent->shellSurface()))
     , m_parent(parent)
@@ -291,6 +291,12 @@ void QWaylandXdgSurface::Popup::xdg_popup_configure(int32_t x, int32_t y, int32_
 void QWaylandXdgSurface::Popup::xdg_popup_popup_done()
 {
     QWindowSystemInterface::handleCloseEvent(m_xdgSurface->m_window->window());
+}
+
+void QWaylandXdgSurface::Popup::xdg_popup_repositioned(uint32_t token)
+{
+    if (token == m_waitingForRepositionSerial)
+        m_waitingForReposition = false;
 }
 
 QWaylandXdgSurface::QWaylandXdgSurface(QWaylandXdgShell *shell, ::xdg_surface *surface, QWaylandWindow *window)
@@ -380,7 +386,13 @@ bool QWaylandXdgSurface::isExposed() const
     if (m_toplevel && m_toplevel->m_applied.suspended)
         return false;
 
-    return m_configured || m_pendingConfigureSerial;
+    // the popup repositioning specification is async
+    // we need to defer commits between our resize request
+    // and our new popup position being set
+    if (m_popup && m_popup->m_waitingForReposition)
+        return false;
+
+    return m_configured;
 }
 
 bool QWaylandXdgSurface::handleExpose(const QRegion &region)
@@ -388,11 +400,14 @@ bool QWaylandXdgSurface::handleExpose(const QRegion &region)
     if (!isExposed() && !region.isEmpty()) {
         return true;
     }
+    setWindowGeometry(window()->windowContentGeometry());
     return false;
 }
 
 void QWaylandXdgSurface::applyConfigure()
 {
+    bool wasExposed = isExposed();
+
     // It is a redundant ack_configure, so skipped.
     if (m_pendingConfigureSerial == m_appliedConfigureSerial)
         return;
@@ -405,6 +420,9 @@ void QWaylandXdgSurface::applyConfigure()
 
     m_configured = true;
     ack_configure(m_appliedConfigureSerial);
+
+    if (!wasExposed && isExposed())
+        m_window->sendRecursiveExposeEvent();
 }
 
 bool QWaylandXdgSurface::wantsDecorations() const
@@ -487,106 +505,8 @@ void QWaylandXdgSurface::setPopup(QWaylandWindow *parent)
 {
     Q_ASSERT(!m_toplevel && !m_popup);
 
-    auto positioner = new QtWayland::xdg_positioner(m_shell->m_xdgWmBase->create_positioner());
-    // set_popup expects a position relative to the parent
-    QRect windowGeometry = m_window->windowContentGeometry();
-    QMargins windowMargins = m_window->windowContentMargins() - m_window->clientSideMargins();
-    QMargins parentMargins = parent->windowContentMargins() - parent->clientSideMargins();
-
-    // These property overrides may be removed when public API becomes available
-    QRect placementAnchor = m_window->window()->property("_q_waylandPopupAnchorRect").toRect();
-    if (!placementAnchor.isValid()) {
-        placementAnchor = QRect(m_window->geometry().topLeft() - parent->geometry().topLeft(), QSize(1,1));
-    }
-    placementAnchor.translate(windowMargins.left(), windowMargins.top());
-    placementAnchor.translate(-parentMargins.left(), -parentMargins.top());
-
-    uint32_t anchor = QtWayland::xdg_positioner::anchor_top_right;
-    const QVariant anchorVariant = m_window->window()->property("_q_waylandPopupAnchor");
-    if (anchorVariant.isValid()) {
-        switch (anchorVariant.value<Qt::Edges>()) {
-        case Qt::Edges():
-            anchor = QtWayland::xdg_positioner::anchor_none;
-            break;
-        case Qt::TopEdge:
-            anchor = QtWayland::xdg_positioner::anchor_top;
-            break;
-        case Qt::TopEdge | Qt::RightEdge:
-            anchor = QtWayland::xdg_positioner::anchor_top_right;
-            break;
-        case Qt::RightEdge:
-            anchor = QtWayland::xdg_positioner::anchor_right;
-            break;
-        case Qt::BottomEdge | Qt::RightEdge:
-            anchor = QtWayland::xdg_positioner::anchor_bottom_right;
-            break;
-        case Qt::BottomEdge:
-            anchor = QtWayland::xdg_positioner::anchor_bottom;
-            break;
-        case Qt::BottomEdge | Qt::LeftEdge:
-            anchor = QtWayland::xdg_positioner::anchor_bottom_left;
-            break;
-        case Qt::LeftEdge:
-            anchor = QtWayland::xdg_positioner::anchor_left;
-            break;
-        case Qt::TopEdge | Qt::LeftEdge:
-            anchor = QtWayland::xdg_positioner::anchor_top_left;
-            break;
-        }
-    }
-
-    uint32_t gravity = QtWayland::xdg_positioner::gravity_bottom_right;
-    const QVariant popupGravityVariant = m_window->window()->property("_q_waylandPopupGravity");
-    if (popupGravityVariant.isValid()) {
-        switch (popupGravityVariant.value<Qt::Edges>()) {
-        case Qt::Edges():
-            gravity = QtWayland::xdg_positioner::gravity_none;
-            break;
-        case Qt::TopEdge:
-            gravity = QtWayland::xdg_positioner::gravity_top;
-            break;
-        case Qt::TopEdge | Qt::RightEdge:
-            gravity = QtWayland::xdg_positioner::gravity_top_right;
-            break;
-        case Qt::RightEdge:
-            gravity = QtWayland::xdg_positioner::gravity_right;
-            break;
-        case Qt::BottomEdge | Qt::RightEdge:
-            gravity = QtWayland::xdg_positioner::gravity_bottom_right;
-            break;
-        case Qt::BottomEdge:
-            gravity = QtWayland::xdg_positioner::gravity_bottom;
-            break;
-        case Qt::BottomEdge | Qt::LeftEdge:
-            gravity = QtWayland::xdg_positioner::gravity_bottom_left;
-            break;
-        case Qt::LeftEdge:
-            gravity = QtWayland::xdg_positioner::gravity_left;
-            break;
-        case Qt::TopEdge | Qt::LeftEdge:
-            gravity = QtWayland::xdg_positioner::gravity_top_left;
-            break;
-        }
-    }
-
-    uint32_t constraintAdjustment = QtWayland::xdg_positioner::constraint_adjustment_slide_x | QtWayland::xdg_positioner::constraint_adjustment_slide_y;
-    const QVariant constraintAdjustmentVariant = m_window->window()->property("_q_waylandPopupConstraintAdjustment");
-    if (constraintAdjustmentVariant.isValid()) {
-        constraintAdjustment = constraintAdjustmentVariant.toUInt();
-    }
-
-    positioner->set_anchor_rect(placementAnchor.x(),
-                                placementAnchor.y(),
-                                placementAnchor.width(),
-                                placementAnchor.height());
-    positioner->set_anchor(anchor);
-    positioner->set_gravity(gravity);
-    positioner->set_size(windowGeometry.width(), windowGeometry.height());
-    positioner->set_constraint_adjustment(constraintAdjustment);
-    m_popup = new Popup(this, parent, positioner);
-    positioner->destroy();
-
-    delete positioner;
+    std::unique_ptr<Positioner> positioner = createPositioner(parent);
+    m_popup = new Popup(this, parent, positioner.get());
 }
 
 void QWaylandXdgSurface::setGrabPopup(QWaylandWindow *parent, QWaylandInputDevice *device, int serial)
@@ -616,8 +536,6 @@ void QWaylandXdgSurface::xdg_surface_configure(uint32_t serial)
     if (!m_configured) {
         // We have to do the initial applyConfigure() immediately, since that is the expose.
         applyConfigure();
-        if (isExposed())
-            m_window->sendRecursiveExposeEvent();
     } else {
         // Later configures are probably resizes, so we have to queue them up for a time when we
         // are not painting to the window.
@@ -743,6 +661,124 @@ QString QWaylandXdgSurface::externWindowHandle()
     return m_toplevel->m_exported->handle();
 }
 
+void QWaylandXdgSurface::setWindowPosition(const QPoint &position)
+{
+    Q_UNUSED(position);
+
+    if (!m_popup)
+        return;
+
+    if (m_popup->version() < XDG_POPUP_REPOSITIONED_SINCE_VERSION)
+        return;
+
+    std::unique_ptr<Positioner> positioner = createPositioner(m_window->transientParent());
+    m_popup->m_waitingForRepositionSerial++;
+    m_popup->reposition(positioner->object(), m_popup->m_waitingForRepositionSerial);
+    m_popup->m_waitingForReposition = true;
+}
+
+std::unique_ptr<QWaylandXdgSurface::Positioner> QWaylandXdgSurface::createPositioner(QWaylandWindow *parent)
+{
+    std::unique_ptr<Positioner> positioner(new Positioner(m_shell));
+    // set_popup expects a position relative to the parent
+    QRect windowGeometry = m_window->windowContentGeometry();
+    QMargins windowMargins = m_window->windowContentMargins() - m_window->clientSideMargins();
+    QMargins parentMargins = parent->windowContentMargins() - parent->clientSideMargins();
+
+    // These property overrides may be removed when public API becomes available
+    QRect placementAnchor = m_window->window()->property("_q_waylandPopupAnchorRect").toRect();
+    if (!placementAnchor.isValid()) {
+        placementAnchor = QRect(m_window->geometry().topLeft() - parent->geometry().topLeft(), QSize(1,1));
+    }
+    placementAnchor.translate(windowMargins.left(), windowMargins.top());
+    placementAnchor.translate(-parentMargins.left(), -parentMargins.top());
+
+    uint32_t anchor = QtWayland::xdg_positioner::anchor_top_left;
+    const QVariant anchorVariant = m_window->window()->property("_q_waylandPopupAnchor");
+    if (anchorVariant.isValid()) {
+        switch (anchorVariant.value<Qt::Edges>()) {
+        case Qt::Edges():
+            anchor = QtWayland::xdg_positioner::anchor_none;
+            break;
+        case Qt::TopEdge:
+            anchor = QtWayland::xdg_positioner::anchor_top;
+            break;
+        case Qt::TopEdge | Qt::RightEdge:
+            anchor = QtWayland::xdg_positioner::anchor_top_right;
+            break;
+        case Qt::RightEdge:
+            anchor = QtWayland::xdg_positioner::anchor_right;
+            break;
+        case Qt::BottomEdge | Qt::RightEdge:
+            anchor = QtWayland::xdg_positioner::anchor_bottom_right;
+            break;
+        case Qt::BottomEdge:
+            anchor = QtWayland::xdg_positioner::anchor_bottom;
+            break;
+        case Qt::BottomEdge | Qt::LeftEdge:
+            anchor = QtWayland::xdg_positioner::anchor_bottom_left;
+            break;
+        case Qt::LeftEdge:
+            anchor = QtWayland::xdg_positioner::anchor_left;
+            break;
+        case Qt::TopEdge | Qt::LeftEdge:
+            anchor = QtWayland::xdg_positioner::anchor_top_left;
+            break;
+        }
+    }
+
+    uint32_t gravity = QtWayland::xdg_positioner::gravity_bottom_right;
+    const QVariant popupGravityVariant = m_window->window()->property("_q_waylandPopupGravity");
+    if (popupGravityVariant.isValid()) {
+        switch (popupGravityVariant.value<Qt::Edges>()) {
+        case Qt::Edges():
+            gravity = QtWayland::xdg_positioner::gravity_none;
+            break;
+        case Qt::TopEdge:
+            gravity = QtWayland::xdg_positioner::gravity_top;
+            break;
+        case Qt::TopEdge | Qt::RightEdge:
+            gravity = QtWayland::xdg_positioner::gravity_top_right;
+            break;
+        case Qt::RightEdge:
+            gravity = QtWayland::xdg_positioner::gravity_right;
+            break;
+        case Qt::BottomEdge | Qt::RightEdge:
+            gravity = QtWayland::xdg_positioner::gravity_bottom_right;
+            break;
+        case Qt::BottomEdge:
+            gravity = QtWayland::xdg_positioner::gravity_bottom;
+            break;
+        case Qt::BottomEdge | Qt::LeftEdge:
+            gravity = QtWayland::xdg_positioner::gravity_bottom_left;
+            break;
+        case Qt::LeftEdge:
+            gravity = QtWayland::xdg_positioner::gravity_left;
+            break;
+        case Qt::TopEdge | Qt::LeftEdge:
+            gravity = QtWayland::xdg_positioner::gravity_top_left;
+            break;
+        }
+    }
+
+    uint32_t constraintAdjustment = QtWayland::xdg_positioner::constraint_adjustment_slide_x | QtWayland::xdg_positioner::constraint_adjustment_slide_y;
+    const QVariant constraintAdjustmentVariant = m_window->window()->property("_q_waylandPopupConstraintAdjustment");
+    if (constraintAdjustmentVariant.isValid()) {
+        constraintAdjustment = constraintAdjustmentVariant.toUInt();
+    }
+
+    positioner->set_anchor_rect(placementAnchor.x(),
+                                placementAnchor.y(),
+                                placementAnchor.width(),
+                                placementAnchor.height());
+    positioner->set_anchor(anchor);
+    positioner->set_gravity(gravity);
+    positioner->set_size(windowGeometry.width(), windowGeometry.height());
+    positioner->set_constraint_adjustment(constraintAdjustment);
+    return positioner;
+}
+
+
 QWaylandXdgShell::QWaylandXdgShell(QWaylandDisplay *display, QtWayland::xdg_wm_base *xdgWmBase)
     : m_display(display), m_xdgWmBase(xdgWmBase)
 {
@@ -772,6 +808,16 @@ void QWaylandXdgShell::handleRegistryGlobal(void *data, wl_registry *registry, u
     if (interface == QLatin1String(QWaylandXdgDialogWmV1::interface()->name)) {
         xdgShell->m_xdgDialogWm.reset(new QWaylandXdgDialogWmV1(registry, id, version));
     }
+}
+
+QWaylandXdgSurface::Positioner::Positioner(QWaylandXdgShell *xdgShell)
+    : QtWayland::xdg_positioner(xdgShell->m_xdgWmBase->create_positioner())
+{
+}
+
+QWaylandXdgSurface::Positioner::~Positioner()
+{
+    destroy();
 }
 
 }

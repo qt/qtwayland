@@ -41,8 +41,11 @@ void QWaylandPointerGestureSwipe::zwp_pointer_gesture_swipe_v1_begin(uint32_t se
                                                                      uint32_t fingers)
 {
 #ifndef QT_NO_GESTURES
-    mParent->mSerial = serial;
     mFocus = QWaylandWindow::fromWlSurface(surface);
+    if (!mFocus) {
+        return;
+    }
+    mParent->mSerial = serial;
     mFingers = fingers;
 
     const auto* pointer = mParent->pointer();
@@ -62,6 +65,9 @@ void QWaylandPointerGestureSwipe::zwp_pointer_gesture_swipe_v1_update(uint32_t t
                                                                       wl_fixed_t dx, wl_fixed_t dy)
 {
 #ifndef QT_NO_GESTURES
+    if (!mFocus) {
+        return;
+    }
     const auto* pointer = mParent->pointer();
 
     const QPointF delta = QPointF(wl_fixed_to_double(dx), wl_fixed_to_double(dy));
@@ -79,6 +85,9 @@ void QWaylandPointerGestureSwipe::zwp_pointer_gesture_swipe_v1_end(uint32_t seri
                                                                    int32_t cancelled)
 {
 #ifndef QT_NO_GESTURES
+    if (!mFocus) {
+        return;
+    }
     mParent->mSerial = serial;
     const auto* pointer = mParent->pointer();
 
@@ -113,11 +122,13 @@ void QWaylandPointerGesturePinch::zwp_pointer_gesture_pinch_v1_begin(uint32_t se
                                                                      uint32_t fingers)
 {
 #ifndef QT_NO_GESTURES
-    mParent->mSerial = serial;
     mFocus = QWaylandWindow::fromWlSurface(surface);
+    if (!mFocus) {
+        return;
+    }
+    mParent->mSerial = serial;
     mFingers = fingers;
     mLastScale = 1;
-
     const auto* pointer = mParent->pointer();
 
     qCDebug(lcQpaWaylandInput) << "zwp_pointer_gesture_pinch_v1_begin @ "
@@ -137,6 +148,9 @@ void QWaylandPointerGesturePinch::zwp_pointer_gesture_pinch_v1_update(uint32_t t
                                                                       wl_fixed_t rotation)
 {
 #ifndef QT_NO_GESTURES
+    if (!mFocus) {
+        return;
+    }
     const auto* pointer = mParent->pointer();
 
     const qreal rscale = wl_fixed_to_double(scale);
@@ -161,6 +175,9 @@ void QWaylandPointerGesturePinch::zwp_pointer_gesture_pinch_v1_end(uint32_t seri
                                                                    int32_t cancelled)
 {
 #ifndef QT_NO_GESTURES
+    if (!mFocus) {
+        return;
+    }
     mParent->mSerial = serial;
     const auto* pointer = mParent->pointer();
 

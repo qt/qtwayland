@@ -451,6 +451,8 @@ void QWaylandDisplay::reconnect()
     mXdgOutputManager.reset();
     mViewporter.reset();
     mFractionalScaleManager.reset();
+    mCursorShapeManager.reset();
+    mXdgToplevelDragManager.reset();
 
     mWaylandIntegration->reset();
 

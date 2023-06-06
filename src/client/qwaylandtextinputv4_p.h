@@ -18,6 +18,7 @@
 #include "qwaylandtextinputinterface_p.h"
 #include <QtWaylandClient/private/qwayland-text-input-unstable-v4-wip.h>
 #include <qwaylandinputmethodeventbuilder_p.h>
+#include <QLoggingCategory>
 
 struct wl_callback;
 struct wl_callback_listener;

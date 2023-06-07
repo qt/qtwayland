@@ -230,13 +230,13 @@ public:
     uint32_t mNativeModifiers = 0;
 
     struct repeatKey {
-        int key;
-        uint32_t code;
-        uint32_t time;
+        int key = 0;
+        uint32_t code = 0;
+        uint32_t time = 0 ;
         QString text;
         Qt::KeyboardModifiers modifiers;
-        uint32_t nativeVirtualKey;
-        uint32_t nativeModifiers;
+        uint32_t nativeVirtualKey = 0;
+        uint32_t nativeModifiers = 0;
     } mRepeatKey;
 
     QTimer mRepeatTimer;

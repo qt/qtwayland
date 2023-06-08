@@ -345,7 +345,7 @@ const struct wl_interface *QWaylandWlShell::interface()
 }
 
 /*!
- * \qmlsignal void QtWaylandCompositor::WlShell::wlShellSurfaceRequested(WaylandSurface surface, WaylandResource resource)
+ * \qmlsignal void WlShell::wlShellSurfaceRequested(WaylandSurface surface, WaylandResource resource)
  *
  * This signal is emitted when the client has requested a \c wl_shell_surface to be associated with
  * \a surface. The handler for this signal may create a shell surface for \a resource and initialize
@@ -363,7 +363,7 @@ const struct wl_interface *QWaylandWlShell::interface()
  */
 
 /*!
- * \qmlsignal void QtWaylandCompositor::WlShell::wlShellSurfaceCreated(WlShellSurface shellSurface)
+ * \qmlsignal void WlShell::wlShellSurfaceCreated(WlShellSurface shellSurface)
  *
  * This signal is emitted when the client has created a \c wl_shell_surface.
  * A common use case is to let the handler of this signal instantiate a ShellSurfaceItem or
@@ -438,7 +438,7 @@ QWaylandWlShellSurface::~QWaylandWlShellSurface()
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::WlShellSurface::initialize(WlShell shell, WaylandSurface surface, WaylandResource resource)
+ * \qmlmethod void WlShellSurface::initialize(WlShell shell, WaylandSurface surface, WaylandResource resource)
  *
  * Initializes the WlShellSurface and associates it with the given \a shell, \a surface, and \a resource.
  */
@@ -538,7 +538,7 @@ void QWaylandWlShellSurface::sendConfigure(const QSize &size, ResizeEdge edges)
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::WlShellSurface::sendPopupDone()
+ * \qmlmethod void WlShellSurface::sendPopupDone()
  *
  * Sends a popup_done event to the client to indicate that the user has clicked
  * somewhere outside the client's surfaces.
@@ -562,7 +562,7 @@ QWaylandQuickShellIntegration *QWaylandWlShellSurface::createIntegration(QWaylan
 #endif
 
 /*!
- * \qmlproperty WaylandSurface QtWaylandCompositor::WlShellSurface::surface
+ * \qmlproperty WaylandSurface WlShellSurface::surface
  *
  * This property holds the \c wl_surface associated with this WlShellSurface.
  */
@@ -579,7 +579,7 @@ QWaylandSurface *QWaylandWlShellSurface::surface() const
 }
 
 /*!
- * \qmlproperty WlShell QtWaylandCompositor::WlShellSurface::shell
+ * \qmlproperty WlShell WlShellSurface::shell
  *
  * This property holds the shell associated with this WlShellSurface.
  */
@@ -596,7 +596,7 @@ QWaylandWlShell *QWaylandWlShellSurface::shell() const
 }
 
 /*!
- * \qmlproperty enum QtWaylandCompositor::WlShellSurface::windowType
+ * \qmlproperty enum WlShellSurface::windowType
  *
  * This property holds the window type of the WlShellSurface.
  */
@@ -608,7 +608,7 @@ Qt::WindowType QWaylandWlShellSurface::windowType() const
 }
 
 /*!
- * \qmlproperty string QtWaylandCompositor::WlShellSurface::title
+ * \qmlproperty string WlShellSurface::title
  *
  * This property holds the title of the WlShellSurface.
  */
@@ -625,7 +625,7 @@ QString QWaylandWlShellSurface::title() const
 }
 
 /*!
- * \qmlproperty string QtWaylandCompositor::WlShellSurface::className
+ * \qmlproperty string WlShellSurface::className
  *
  * This property holds the class name of the WlShellSurface.
  */
@@ -647,7 +647,7 @@ QWaylandSurfaceRole *QWaylandWlShellSurface::role()
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::WlShellSurface::ping()
+ * \qmlmethod void WlShellSurface::ping()
  *
  * Sends a ping event to the client. If the client replies to the event the pong
  * signal will be emitted.

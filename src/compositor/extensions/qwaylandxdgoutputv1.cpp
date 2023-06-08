@@ -206,7 +206,7 @@ QWaylandXdgOutputV1::~QWaylandXdgOutputV1()
 }
 
 /*!
- * \qmlproperty XdgOutputManagerV1 QtWaylandCompositor::XdgOutputV1::manager
+ * \qmlproperty XdgOutputManagerV1 XdgOutputV1::manager
  * \readonly
  *
  * This property holds the object that manages this XdgOutputV1.
@@ -224,7 +224,7 @@ QWaylandXdgOutputManagerV1 *QWaylandXdgOutputV1::manager() const
 }
 
 /*!
- * \qmlproperty WaylandOutput QtWaylandCompositor::XdgOutputV1::output
+ * \qmlproperty WaylandOutput XdgOutputV1::output
  * \readonly
  *
  * This property holds the WaylandOutput associated with this XdgOutputV1.
@@ -242,7 +242,7 @@ QWaylandOutput *QWaylandXdgOutputV1::output() const
 }
 
 /*!
- * \qmlproperty string QtWaylandCompositor::XdgOutputV1::name
+ * \qmlproperty string XdgOutputV1::name
  *
  * This property holds the name of this output.
  *
@@ -293,7 +293,7 @@ void QWaylandXdgOutputV1::setName(const QString &name)
 }
 
 /*!
- *  \qmlproperty string QtWaylandCompositor::XdgOutputV1::description
+ *  \qmlproperty string XdgOutputV1::description
  *
  *  This property holds the description of this output.
  *
@@ -334,7 +334,7 @@ void QWaylandXdgOutputV1::setDescription(const QString &description)
 }
 
 /*!
- * \qmlproperty point QtWaylandCompositor::XdgOutputV1::logicalPosition
+ * \qmlproperty point XdgOutputV1::logicalPosition
  *
  * This property holds the coordinates of the output within the global compositor space.
  *
@@ -370,7 +370,7 @@ void QWaylandXdgOutputV1::setLogicalPosition(const QPoint &position)
 }
 
 /*!
- * \qmlproperty size QtWaylandCompositor::XdgOutputV1::logicalSize
+ * \qmlproperty size XdgOutputV1::logicalSize
  *
  * This property holds the size of the output in the global compositor space.
  *
@@ -422,7 +422,7 @@ void QWaylandXdgOutputV1::setLogicalSize(const QSize &size)
 }
 
 /*!
- * \qmlproperty rect QtWaylandCompositor::XdgOutputV1::logicalGeometry
+ * \qmlproperty rect XdgOutputV1::logicalGeometry
  * \readonly
  *
  * This property holds the position and size of the output in the global compositor space.

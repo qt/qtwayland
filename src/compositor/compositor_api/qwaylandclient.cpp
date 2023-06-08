@@ -134,7 +134,7 @@ QWaylandClient *QWaylandClient::fromWlClient(QWaylandCompositor *compositor, wl_
 }
 
 /*!
- * \qmlproperty WaylandCompositor QtWaylandCompositor::WaylandClient::compositor
+ * \qmlproperty WaylandCompositor QtWayland.Compositor::WaylandClient::compositor
  *
  * This property holds the compositor of this WaylandClient.
  */
@@ -162,7 +162,7 @@ wl_client *QWaylandClient::client() const
 }
 
 /*!
- * \qmlproperty int QtWaylandCompositor::WaylandClient::userId
+ * \qmlproperty int QtWayland.Compositor::WaylandClient::userId
  *
  * This property holds the user id of this WaylandClient.
  */
@@ -181,7 +181,7 @@ qint64 QWaylandClient::userId() const
 }
 
 /*!
- * \qmlproperty int QtWaylandCompositor::WaylandClient::groupId
+ * \qmlproperty int QtWayland.Compositor::WaylandClient::groupId
  * \readonly
  *
  * This property holds the group id of this WaylandClient.
@@ -200,7 +200,7 @@ qint64 QWaylandClient::groupId() const
 }
 
 /*!
- * \qmlproperty int QtWaylandCompositor::WaylandClient::processId
+ * \qmlproperty int QtWayland.Compositor::WaylandClient::processId
  * \readonly
  *
  * This property holds the process id of this WaylandClient.
@@ -219,7 +219,7 @@ qint64 QWaylandClient::processId() const
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::WaylandClient::kill(signal)
+ * \qmlmethod void QtWayland.Compositor::WaylandClient::kill(signal)
  *
  * Kills the client with the specified \a signal.
  */
@@ -235,7 +235,7 @@ void QWaylandClient::kill(int signal)
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::WaylandClient::close()
+ * \qmlmethod void QtWayland.Compositor::WaylandClient::close()
  *
  * Closes the client
  */

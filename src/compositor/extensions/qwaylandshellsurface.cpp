@@ -81,7 +81,7 @@
 #endif
 
 /*!
- * \qmlproperty enum QtWaylandCompositor::ShellSurface::windowType
+ * \qmlproperty enum QtWayland.Compositor::ShellSurface::windowType
  *
  * This property holds the window type of the ShellSurface.
  */

@@ -37,7 +37,7 @@ QWaylandQuickSurface::~QWaylandQuickSurface()
 }
 
 /*!
- * \qmlproperty bool QtWaylandCompositor::WaylandSurface::useTextureAlpha
+ * \qmlproperty bool QtWayland.Compositor::WaylandSurface::useTextureAlpha
  *
  * This property specifies whether the surface should use texture alpha.
  */

@@ -358,7 +358,7 @@ void QWaylandOutput::update()
 }
 
 /*!
- * \qmlproperty WaylandCompositor QtWaylandCompositor::WaylandOutput::compositor
+ * \qmlproperty WaylandCompositor QtWayland.Compositor::WaylandOutput::compositor
  *
  * This property holds the compositor displaying content on this WaylandOutput.
  *
@@ -398,7 +398,7 @@ void QWaylandOutput::setCompositor(QWaylandCompositor *compositor)
 }
 
 /*!
- * \qmlproperty string QtWaylandCompositor::WaylandOutput::manufacturer
+ * \qmlproperty string QtWayland.Compositor::WaylandOutput::manufacturer
  *
  * This property holds a textual description of the manufacturer of this WaylandOutput.
  */
@@ -426,7 +426,7 @@ void QWaylandOutput::setManufacturer(const QString &manufacturer)
 }
 
 /*!
- * \qmlproperty string QtWaylandCompositor::WaylandOutput::model
+ * \qmlproperty string QtWayland.Compositor::WaylandOutput::model
  *
  * This property holds a textual description of the model of this WaylandOutput.
  */
@@ -454,7 +454,7 @@ void QWaylandOutput::setModel(const QString &model)
 }
 
 /*!
- * \qmlproperty point QtWaylandCompositor::WaylandOutput::position
+ * \qmlproperty point QtWayland.Compositor::WaylandOutput::position
  *
  * This property holds the position of this WaylandOutput in the compositor's coordinate system.
  */
@@ -559,7 +559,7 @@ void QWaylandOutput::setCurrentMode(const QWaylandOutputMode &mode)
 }
 
 /*!
- * \qmlproperty rect QtWaylandCompositor::WaylandOutput::geometry
+ * \qmlproperty rect QtWayland.Compositor::WaylandOutput::geometry
  *
  * This property holds the geometry of the WaylandOutput.
  */
@@ -578,7 +578,7 @@ QRect QWaylandOutput::geometry() const
 }
 
 /*!
- * \qmlproperty rect QtWaylandCompositor::WaylandOutput::availableGeometry
+ * \qmlproperty rect QtWayland.Compositor::WaylandOutput::availableGeometry
  *
  * This property holds the geometry of the WaylandOutput available for displaying content.
  * The available geometry is in output coordinates space, starts from 0,0 and it's as big
@@ -621,7 +621,7 @@ void QWaylandOutput::setAvailableGeometry(const QRect &availableGeometry)
 }
 
 /*!
- * \qmlproperty size QtWaylandCompositor::WaylandOutput::physicalSize
+ * \qmlproperty size QtWayland.Compositor::WaylandOutput::physicalSize
  *
  * This property holds the physical size of the WaylandOutput in millimeters.
  *
@@ -669,7 +669,7 @@ void QWaylandOutput::setPhysicalSize(const QSize &size)
  */
 
 /*!
- * \qmlproperty enum QtWaylandCompositor::WaylandOutput::subpixel
+ * \qmlproperty enum QtWayland.Compositor::WaylandOutput::subpixel
  *
  * This property holds the subpixel arrangement of this WaylandOutput.
  *
@@ -726,7 +726,7 @@ void QWaylandOutput::setSubpixel(const Subpixel &subpixel)
 */
 
 /*!
- * \qmlproperty enum QtWaylandCompositor::WaylandOutput::transform
+ * \qmlproperty enum QtWayland.Compositor::WaylandOutput::transform
  *
  * This property holds the transformation that the QWaylandCompositor applies to a surface
  * to compensate for the orientation of the QWaylandOutput.
@@ -772,7 +772,7 @@ void QWaylandOutput::setTransform(const Transform &transform)
 }
 
 /*!
- * \qmlproperty int QtWaylandCompositor::WaylandOutput::scaleFactor
+ * \qmlproperty int QtWayland.Compositor::WaylandOutput::scaleFactor
  *
  * This property holds the factor by which the WaylandCompositor scales surface buffers
  * before they are displayed. It is used on high density output devices where unscaled content
@@ -822,7 +822,7 @@ void QWaylandOutput::setScaleFactor(int scale)
 }
 
 /*!
- * \qmlproperty bool QtWaylandCompositor::WaylandOutput::sizeFollowsWindow
+ * \qmlproperty bool QtWayland.Compositor::WaylandOutput::sizeFollowsWindow
  *
  * This property controls whether the size of the WaylandOutput matches the
  * size of its window.
@@ -860,7 +860,7 @@ void QWaylandOutput::setSizeFollowsWindow(bool follow)
 }
 
 /*!
- * \qmlproperty Window QtWaylandCompositor::WaylandOutput::window
+ * \qmlproperty Window QtWayland.Compositor::WaylandOutput::window
  *
  * This property holds the Window for this WaylandOutput.
  *

@@ -104,7 +104,7 @@ QWaylandCompositor *QWaylandPresentationTime::compositor() const
 }
 
 /*!
- * \qmlmethod void QWaylandCompositor::PresentationTime::sendFeedback(Window window, int sequence, int sec, int nsec)
+ * \qmlmethod void PresentationTime::sendFeedback(Window window, int sequence, int sec, int nsec)
  *
  * Interface to notify that a frame is presented on screen using \a window.
  * If your platform supports DRM events, \c page_flip_handler is the proper timing to send it.

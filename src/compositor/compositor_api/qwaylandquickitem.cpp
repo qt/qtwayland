@@ -482,7 +482,7 @@ QWaylandQuickItem::~QWaylandQuickItem()
 }
 
 /*!
- * \qmlproperty WaylandCompositor QtWaylandCompositor::WaylandQuickItem::compositor
+ * \qmlproperty WaylandCompositor QtWayland.Compositor::WaylandQuickItem::compositor
  *
  * This property holds the compositor for the surface rendered by this WaylandQuickItem.
  */
@@ -508,7 +508,7 @@ QWaylandView *QWaylandQuickItem::view() const
 }
 
 /*!
- * \qmlproperty WaylandSurface QtWaylandCompositor::WaylandQuickItem::surface
+ * \qmlproperty WaylandSurface QtWayland.Compositor::WaylandQuickItem::surface
  *
  * This property holds the surface rendered by this WaylandQuickItem.
  */
@@ -540,7 +540,7 @@ void QWaylandQuickItem::setSurface(QWaylandSurface *surface)
 }
 
 /*!
- * \qmlproperty enum QtWaylandCompositor::WaylandQuickItem::origin
+ * \qmlproperty enum QtWayland.Compositor::WaylandQuickItem::origin
  *
  * This property holds the origin of the QWaylandQuickItem.
  */
@@ -897,7 +897,7 @@ void QWaylandQuickItem::handlePlaceBelow(QWaylandSurface *referenceSurface)
 }
 
 /*!
-  \qmlproperty object QtWaylandCompositor::WaylandQuickItem::subsurfaceHandler
+  \qmlproperty object QtWayland.Compositor::WaylandQuickItem::subsurfaceHandler
 
   This property provides a way to override the default subsurface behavior.
 
@@ -953,7 +953,7 @@ void QWaylandQuickItem::setOutput(QWaylandOutput *output)
 }
 
 /*!
- * \qmlproperty bool QtWaylandCompositor::WaylandQuickItem::bufferLocked
+ * \qmlproperty bool QtWayland.Compositor::WaylandQuickItem::bufferLocked
  *
  * This property holds whether the item's buffer is currently locked. As long as
  * the buffer is locked, it will not be released and returned to the client.
@@ -1168,7 +1168,7 @@ void QWaylandQuickItem::updateSize()
 }
 
 /*!
- * \qmlproperty bool QtWaylandCompositor::WaylandQuickItem::focusOnClick
+ * \qmlproperty bool QtWayland.Compositor::WaylandQuickItem::focusOnClick
  *
  * This property specifies whether the WaylandQuickItem should take focus when
  * it is clicked or touched.
@@ -1283,7 +1283,7 @@ QVariant QWaylandQuickItem::inputMethodQuery(Qt::InputMethodQuery query, QVarian
 #endif
 
 /*!
-    \qmlproperty bool QtWaylandCompositor::WaylandQuickItem::paintEnabled
+    \qmlproperty bool QtWayland.Compositor::WaylandQuickItem::paintEnabled
 
     Returns true if the item is hidden, though the texture
     is still updated. As opposed to hiding the item by
@@ -1318,7 +1318,7 @@ void QWaylandQuickItem::setPaintEnabled(bool enabled)
 }
 
 /*!
-    \qmlproperty  bool QtWaylandCompositor::WaylandQuickItem::touchEventsEnabled
+    \qmlproperty  bool QtWayland.Compositor::WaylandQuickItem::touchEventsEnabled
 
     This property holds \c true if touch events are forwarded to the client
     surface, \c false otherwise.
@@ -1413,7 +1413,7 @@ void QWaylandQuickItem::updateInputMethod(Qt::InputMethodQueries queries)
 #endif
 
 /*!
- * \qmlsignal void QtWaylandCompositor::WaylandQuickItem::surfaceDestroyed()
+ * \qmlsignal void QtWayland.Compositor::WaylandQuickItem::surfaceDestroyed()
  *
  * This signal is emitted when the client has destroyed the \c wl_surface associated
  * with the WaylandQuickItem. The handler for this signal is expected to either destroy the

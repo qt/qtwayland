@@ -61,7 +61,7 @@ QWaylandIviSurface::QWaylandIviSurface(QWaylandIviApplication *application, QWay
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::IviSurface::initialize(IviApplication iviApplication, WaylandSurface surface, int iviId, WaylandResource resource)
+ * \qmlmethod void IviSurface::initialize(IviApplication iviApplication, WaylandSurface surface, int iviId, WaylandResource resource)
  *
  * Initializes the IviSurface, associating it with the given \a iviApplication, \a surface,
  * \a iviId, and \a resource.
@@ -89,7 +89,7 @@ void QWaylandIviSurface::initialize(QWaylandIviApplication *iviApplication, QWay
 }
 
 /*!
- * \qmlproperty WaylandSurface QtWaylandCompositor::IviSurface::surface
+ * \qmlproperty WaylandSurface IviSurface::surface
  *
  * This property holds the surface associated with this IviSurface.
  */
@@ -106,7 +106,7 @@ QWaylandSurface *QWaylandIviSurface::surface() const
 }
 
 /*!
- * \qmlproperty int QtWaylandCompositor::IviSurface::iviId
+ * \qmlproperty int IviSurface::iviId
  * \readonly
  *
  * This property holds the ivi id id of this IviSurface.
@@ -155,7 +155,7 @@ QWaylandIviSurface *QWaylandIviSurface::fromResource(wl_resource *resource)
 }
 
 /*!
- * \qmlmethod int QtWaylandCompositor::IviSurface::sendConfigure(size size)
+ * \qmlmethod int IviSurface::sendConfigure(size size)
  *
  * Sends a configure event to the client, telling it to resize the surface to the given \a size.
  */

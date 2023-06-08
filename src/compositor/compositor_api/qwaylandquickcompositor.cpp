@@ -47,7 +47,7 @@ QWaylandQuickCompositor::QWaylandQuickCompositor(QObject *parent)
 }
 
 /*!
- * \qmlproperty list QtWaylandCompositor::WaylandCompositor::extensions
+ * \qmlproperty list QtWayland.Compositor::WaylandCompositor::extensions
  *
  * A list of extensions that the compositor advertises to its clients. For
  * any Wayland extension the compositor should support, instantiate its component,

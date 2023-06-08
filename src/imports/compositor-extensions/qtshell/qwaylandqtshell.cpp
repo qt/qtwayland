@@ -157,7 +157,7 @@ QByteArray QWaylandQtShell::interfaceName()
 }
 
 /*!
- * \qmlsignal void QtWaylandCompositor::QtShell::qtShellSurfaceRequested(WaylandSurface surface, WaylandResource resource)
+ * \qmlsignal void QtShell::qtShellSurfaceRequested(WaylandSurface surface, WaylandResource resource)
  *
  * This signal is emitted when the client has requested a QtShellSurface to be associated
  * with \a surface. The handler for this signal is expected to create the QtShellSurface for
@@ -166,7 +166,7 @@ QByteArray QWaylandQtShell::interfaceName()
  */
 
 /*!
- * \qmlsignal void QtWaylandCompositor::QtShell::qtShellSurfaceCreated(QtShellSurface *qtShellSurface)
+ * \qmlsignal void QtShell::qtShellSurfaceCreated(QtShellSurface *qtShellSurface)
  *
  * This signal is emitted when an QtShellSurface has been created. The supplied \a qtShellSurface is
  * most commonly used to instantiate a ShellSurfaceItem.
@@ -221,7 +221,7 @@ QWaylandSurfaceRole QWaylandQtShellSurfacePrivate::s_role("qt_shell_surface");
  */
 
 /*!
-  \qmlsignal void QtWaylandCompositor::QtShellSurface::startMove()
+  \qmlsignal void QtShellSurface::startMove()
 
   The client has requested an interactive move operation in the compositor by calling
   \l{QWindow::startSystemMove()}.
@@ -230,7 +230,7 @@ QWaylandSurfaceRole QWaylandQtShellSurfacePrivate::s_role("qt_shell_surface");
 */
 
 /*!
-  \qmlsignal void QtWaylandCompositor::QtShellSurface::startResize(enum edges)
+  \qmlsignal void QtShellSurface::startResize(enum edges)
 
   The client has requested an interactive resize operation in the compositor by calling
   \l{QWindow::startSystemResize()}.
@@ -259,7 +259,7 @@ QWaylandQtShellSurface::QWaylandQtShellSurface(QWaylandQtShell *application, QWa
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::QtShellSurface::initialize(QtShell qtShell, WaylandSurface surface, WaylandResource resource)
+ * \qmlmethod void QtShellSurface::initialize(QtShell qtShell, WaylandSurface surface, WaylandResource resource)
  *
  * Initializes the QtShellSurface, associating it with the given \a qtShell, \a surface, and
  * \a resource.
@@ -282,7 +282,7 @@ void QWaylandQtShellSurface::initialize(QWaylandQtShell *qtShell, QWaylandSurfac
 }
 
 /*!
- * \qmlproperty WaylandSurface QtWaylandCompositor::QtShellSurface::surface
+ * \qmlproperty WaylandSurface QtShellSurface::surface
  *
  * This property holds the surface associated with this QtShellSurface.
  */
@@ -299,7 +299,7 @@ QWaylandQtShell *QWaylandQtShellSurface::shell() const
 }
 
 /*!
- * \qmlproperty point QtWaylandCompositor::QtShellSurface::windowPosition
+ * \qmlproperty point QtShellSurface::windowPosition
  *
  * This property holds the position of the shell surface relative to its output.
  */
@@ -324,7 +324,7 @@ void QWaylandQtShellSurface::setWindowPosition(const QPoint &position)
 }
 
 /*!
- * \qmlproperty rect QtWaylandCompositor::QtShellSurface::windowGeometry
+ * \qmlproperty rect QtShellSurface::windowGeometry
  *
  * This property holds the window geometry of the shell surface.
  */
@@ -335,7 +335,7 @@ QRect QWaylandQtShellSurface::windowGeometry() const
 }
 
 /*!
- * \qmlproperty size QtWaylandCompositor::QtShellSurface::minimumSize
+ * \qmlproperty size QtShellSurface::minimumSize
  *
  * The minimum size of the window if the client has specified one. Otherwise an invalid size.
  */
@@ -346,7 +346,7 @@ QSize QWaylandQtShellSurface::minimumSize() const
 }
 
 /*!
- * \qmlproperty size QtWaylandCompositor::QtShellSurface::maximumSize
+ * \qmlproperty size QtShellSurface::maximumSize
  *
  * The maximum size of the window if the client has specified one. Otherwise an invalid size.
  */
@@ -357,7 +357,7 @@ QSize QWaylandQtShellSurface::maximumSize() const
 }
 
 /*!
- *  \qmlmethod void QtWaylandCompositor::QtShellSurface::requestWindowGeometry(int windowState, rect windowGeometry)
+ *  \qmlmethod void QtShellSurface::requestWindowGeometry(int windowState, rect windowGeometry)
  *
  *  Requests a new \a windowState and \a windowGeometry for the QtShellSurface. The state and
  *  geometry is updated when the client has acknowledged the request (at which point it is safe to
@@ -402,7 +402,7 @@ void QWaylandQtShellSurface::setFrameMargins(const QMargins &margins)
 }
 
 /*!
- *  \qmlproperty int QtWaylandCompositor::QtShellSurface::frameMarginLeft
+ *  \qmlproperty int QtShellSurface::frameMarginLeft
  *
  *  This holds the window frame margin to the left of the surface.
  */
@@ -425,7 +425,7 @@ int QWaylandQtShellSurface::frameMarginLeft() const
 }
 
 /*!
- *  \qmlproperty int QtWaylandCompositor::QtShellSurface::frameMarginRight
+ *  \qmlproperty int QtShellSurface::frameMarginRight
  *
  *  This holds the window frame margin to the right of the surface.
  */
@@ -448,7 +448,7 @@ int QWaylandQtShellSurface::frameMarginRight() const
 }
 
 /*!
- *  \qmlproperty int QtWaylandCompositor::QtShellSurface::frameMarginTop
+ *  \qmlproperty int QtShellSurface::frameMarginTop
  *
  *  This holds the window frame margin above the surface.
  */
@@ -471,7 +471,7 @@ int QWaylandQtShellSurface::frameMarginTop() const
 }
 
 /*!
- *  \qmlproperty int QtWaylandCompositor::QtShellSurface::frameMarginBottom
+ *  \qmlproperty int QtShellSurface::frameMarginBottom
  *
  *  This holds the window frame margin below the surface.
  */
@@ -499,7 +499,7 @@ int QWaylandQtShellSurface::frameMarginBottom() const
 }
 
 /*!
- *  \qmlproperty int QtWaylandCompositor::QtShellSurface::windowFlags
+ *  \qmlproperty int QtShellSurface::windowFlags
  *
  *  This property holds the window flags of the QtShellSurface.
  */
@@ -510,7 +510,7 @@ uint QWaylandQtShellSurface::windowFlags() const
 }
 
 /*!
- *  \qmlmethod void QtWaylandCompositor::QtShellSurface::sendClose()
+ *  \qmlmethod void QtShellSurface::sendClose()
  *
  *  Requests that the client application closes itself.
  */
@@ -521,7 +521,7 @@ void QWaylandQtShellSurface::sendClose()
 }
 
 /*!
- *  \qmlproperty string QtWaylandCompositor::QtShellSurface::windowTitle
+ *  \qmlproperty string QtShellSurface::windowTitle
  *
  *  This property holds the window title of the QtShellSurface.
  */
@@ -532,7 +532,7 @@ QString QWaylandQtShellSurface::windowTitle() const
 }
 
 /*!
- *  \qmlproperty bool QtWaylandCompositor::QtShellSurface::active
+ *  \qmlproperty bool QtShellSurface::active
  *
  *  This property holds whether the surface is currently considered active.
  *
@@ -561,7 +561,7 @@ bool QWaylandQtShellSurface::active() const
 }
 
 /*!
- *  \qmlproperty enum QtWaylandCompositor::QtShellSurface::capabilities
+ *  \qmlproperty enum QtShellSurface::capabilities
  *
  * This property holds the capabilities of the compositor. By default, no special capabilities are
  * enabled.
@@ -594,7 +594,7 @@ QWaylandQtShellSurface::CapabilityFlags QWaylandQtShellSurface::capabilities() c
 }
 
 /*!
- *  \qmlproperty int QtWaylandCompositor::QtShellSurface::windowState
+ *  \qmlproperty int QtShellSurface::windowState
  *
  *  This property holds the window state of the QtShellSurface.
  *

@@ -84,7 +84,7 @@ QObject *QWaylandView::renderObject() const
 }
 
 /*!
- * \qmlproperty WaylandSurface QtWaylandCompositor::WaylandView::surface
+ * \qmlproperty WaylandSurface QtWayland.Compositor::WaylandView::surface
  *
  * This property holds the surface viewed by this WaylandView.
  */
@@ -143,7 +143,7 @@ void QWaylandView::setSurface(QWaylandSurface *newSurface)
 }
 
 /*!
- * \qmlproperty WaylandOutput QtWaylandCompositor::WaylandView::output
+ * \qmlproperty WaylandOutput QtWayland.Compositor::WaylandView::output
  *
  * This property holds the output on which this view displays its surface.
  */
@@ -258,7 +258,7 @@ QRegion QWaylandView::currentDamage()
 }
 
 /*!
- * \qmlproperty bool QtWaylandCompositor::WaylandView::bufferLocked
+ * \qmlproperty bool QtWayland.Compositor::WaylandView::bufferLocked
  *
  * This property holds whether the view's buffer is currently locked. When
  * the buffer is locked, advance() will not advance to the next buffer and
@@ -291,7 +291,7 @@ void QWaylandView::setBufferLocked(bool locked)
     emit bufferLockedChanged();
 }
 /*!
- * \qmlproperty bool QtWaylandCompositor::WaylandView::allowDiscardFrontBuffer
+ * \qmlproperty bool QtWayland.Compositor::WaylandView::allowDiscardFrontBuffer
  *
  * By default, the view locks the current buffer until advance() is called. Set this property
  * to true to allow Qt to release the buffer when the primary view is no longer using it.

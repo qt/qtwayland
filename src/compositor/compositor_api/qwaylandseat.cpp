@@ -279,7 +279,7 @@ uint QWaylandSeat::sendTouchPointEvent(QWaylandSurface *surface, int id, const Q
 }
 
 /*!
- * \qmlmethod uint QtWaylandCompositor::WaylandSeat::sendTouchPointPressed(WaylandSurface surface, int id, point position)
+ * \qmlmethod uint QtWayland.Compositor::WaylandSeat::sendTouchPointPressed(WaylandSurface surface, int id, point position)
  *
  * Sends a touch pressed event for the touch point \a id on \a surface with
  * position \a position.
@@ -313,7 +313,7 @@ uint QWaylandSeat::sendTouchPointPressed(QWaylandSurface *surface, int id, const
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::WaylandSeat::sendTouchPointReleased(WaylandSurface surface, int id, point position)
+ * \qmlmethod void QtWayland.Compositor::WaylandSeat::sendTouchPointReleased(WaylandSurface surface, int id, point position)
  *
  * Sends a touch released event for the touch point \a id on \a surface with
  * position \a position.
@@ -347,7 +347,7 @@ uint QWaylandSeat::sendTouchPointReleased(QWaylandSurface *surface, int id, cons
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::WaylandSeat::sendTouchPointMoved(WaylandSurface surface, int id, point position)
+ * \qmlmethod void QtWayland.Compositor::WaylandSeat::sendTouchPointMoved(WaylandSurface surface, int id, point position)
  *
  * Sends a touch moved event for the touch point \a id on \a surface with
  * position \a position.
@@ -381,7 +381,7 @@ uint QWaylandSeat::sendTouchPointMoved(QWaylandSurface *surface, int id, const Q
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::WaylandSeat::sendTouchFrameEvent(WaylandClient client)
+ * \qmlmethod void QtWayland.Compositor::WaylandSeat::sendTouchFrameEvent(WaylandClient client)
  *
  * Sends a frame event to the touch device of a \a client to indicate the end
  * of a series of touch up, down, and motion events.
@@ -399,7 +399,7 @@ void QWaylandSeat::sendTouchFrameEvent(QWaylandClient *client)
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::WaylandSeat::sendTouchCancelEvent(WaylandClient client)
+ * \qmlmethod void QtWayland.Compositor::WaylandSeat::sendTouchCancelEvent(WaylandClient client)
  *
  * Sends a cancel event to the touch device of a \a client.
  */
@@ -507,7 +507,7 @@ void QWaylandSeat::sendFullKeyEvent(QKeyEvent *event)
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::WaylandSeat::sendKeyEvent(int qtKey, bool pressed)
+ * \qmlmethod void QtWayland.Compositor::WaylandSeat::sendKeyEvent(int qtKey, bool pressed)
  * \since 5.12
  *
  * Sends a key press (if \a pressed is \c true) or release (if \a pressed is \c false)
@@ -713,7 +713,7 @@ void QWaylandSeat::handleMouseFocusDestroyed()
 }
 
 
-/*! \qmlsignal void QtWaylandCompositor::QWaylandSeat::keyboardFocusChanged(QWaylandSurface newFocus, QWaylandSurface oldFocus)
+/*! \qmlsignal void QtWayland.Compositor::WaylandSeat::keyboardFocusChanged(QWaylandSurface newFocus, QWaylandSurface oldFocus)
  *
  * This signal is emitted when setKeyboardFocus() is called or when a WaylandQuickItem has focus
  * and the user starts pressing keys.
@@ -733,7 +733,7 @@ void QWaylandSeat::handleMouseFocusDestroyed()
  * \a oldFocus has the surface that lost keyboard focus; or \c nullptr if no surface had focus.
  */
 
-/*! \qmlsignal void QtWaylandCompositor::QWaylandSeat::cursorSurfaceRequest(QWaylandSurface surface, int hotspotX, int hotspotY)
+/*! \qmlsignal void QtWayland.Compositor::WaylandSeat::cursorSurfaceRequest(QWaylandSurface surface, int hotspotX, int hotspotY)
  *
  * This signal is emitted when the client has requested for a specific \a surface to be the mouse
  * cursor. For example, when the user hovers over a particular surface, and you want the cursor

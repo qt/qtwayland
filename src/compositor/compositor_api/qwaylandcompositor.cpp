@@ -504,7 +504,7 @@ QWaylandSeat *QWaylandCompositorPrivate::seatFor(QInputEvent *inputEvent)
 */
 
 /*!
-  \qmlsignal void QtWaylandCompositor::WaylandCompositor::surfaceRequested(WaylandClient client, int id, int version)
+  \qmlsignal void QtWayland.Compositor::WaylandCompositor::surfaceRequested(WaylandClient client, int id, int version)
 
   This signal is emitted when a \a client has created a surface with id \a id.
   The interface \a version is also available.
@@ -526,7 +526,7 @@ QWaylandSeat *QWaylandCompositorPrivate::seatFor(QInputEvent *inputEvent)
 */
 
 /*!
-  \qmlsignal void QtWaylandCompositor::WaylandCompositor::surfaceCreated(WaylandSurface surface)
+  \qmlsignal void QtWayland.Compositor::WaylandCompositor::surfaceCreated(WaylandSurface surface)
 
   This signal is emitted when a new WaylandSurface instance \a surface has been created.
 */
@@ -573,7 +573,7 @@ void QWaylandCompositor::create()
 }
 
 /*!
- * \qmlproperty bool QtWaylandCompositor::WaylandCompositor::created
+ * \qmlproperty bool QtWayland.Compositor::WaylandCompositor::created
  *
  * This property is true if WaylandCompositor has been initialized,
  * otherwise it's false.
@@ -592,7 +592,7 @@ bool QWaylandCompositor::isCreated() const
 }
 
 /*!
- * \qmlproperty string QtWaylandCompositor::WaylandCompositor::socketName
+ * \qmlproperty string QtWayland.Compositor::WaylandCompositor::socketName
  *
  * This property holds the socket name used by WaylandCompositor to communicate with
  * clients. It must be set before the component is completed.
@@ -635,7 +635,7 @@ QByteArray QWaylandCompositor::socketName() const
 }
 
 /*!
- * \qmlmethod QtWaylandCompositor::WaylandCompositor::addSocketDescriptor(fd)
+ * \qmlmethod QtWayland.Compositor::WaylandCompositor::addSocketDescriptor(fd)
  * \since 5.12
  *
  * Listen for client connections on a file descriptor, \a fd, referring to a
@@ -698,7 +698,7 @@ QList<QWaylandClient *>QWaylandCompositor::clients() const
 }
 
 /*!
- * \qmlmethod QtWaylandCompositor::WaylandCompositor::destroyClientForSurface(surface)
+ * \qmlmethod QtWayland.Compositor::WaylandCompositor::destroyClientForSurface(surface)
  *
  * Destroys the client for the WaylandSurface \a surface.
  */
@@ -712,7 +712,7 @@ void QWaylandCompositor::destroyClientForSurface(QWaylandSurface *surface)
 }
 
 /*!
- * \qmlmethod QtWaylandCompositor::WaylandCompositor::destroyClient(client)
+ * \qmlmethod QtWayland.Compositor::WaylandCompositor::destroyClient(client)
  *
  * Destroys the given WaylandClient \a client.
  */
@@ -770,7 +770,7 @@ QWaylandOutput *QWaylandCompositor::outputFor(QWindow *window) const
 }
 
 /*!
- * \qmlproperty WaylandOutput QtWaylandCompositor::WaylandCompositor::defaultOutput
+ * \qmlproperty WaylandOutput QtWayland.Compositor::WaylandCompositor::defaultOutput
  *
  * This property contains the first in the list of outputs added to the
  * WaylandCompositor, or null if no outputs have been added.
@@ -871,7 +871,7 @@ QWaylandTouch *QWaylandCompositor::createTouchDevice(QWaylandSeat *seat)
 }
 
 /*!
- * \qmlproperty bool QtWaylandCompositor::WaylandCompositor::retainedSelection
+ * \qmlproperty bool QtWayland.Compositor::WaylandCompositor::retainedSelection
  *
  * This property holds whether retained selection is enabled.
  */
@@ -917,7 +917,7 @@ void QWaylandCompositor::overrideSelection(const QMimeData *data)
 }
 
 /*!
- * \qmlproperty WaylandSeat QtWaylandCompositor::WaylandCompositor::defaultSeat
+ * \qmlproperty WaylandSeat QtWayland.Compositor::WaylandCompositor::defaultSeat
  *
  * This property contains the default seat for this
  * WaylandCompositor.
@@ -948,7 +948,7 @@ QWaylandSeat *QWaylandCompositor::seatFor(QInputEvent *inputEvent)
 }
 
 /*!
- * \qmlproperty bool QtWaylandCompositor::WaylandCompositor::useHardwareIntegrationExtension
+ * \qmlproperty bool QtWayland.Compositor::WaylandCompositor::useHardwareIntegrationExtension
  *
  * This property holds whether the hardware integration extension should be enabled for
  * this WaylandCompositor.
@@ -1034,7 +1034,7 @@ void QWaylandCompositor::grabSurface(QWaylandSurfaceGrabber *grabber, const QWay
 }
 
 /*!
- * \qmlproperty list<enum> QtWaylandCompositor::WaylandCompositor::additionalShmFormats
+ * \qmlproperty list<enum> QtWayland.Compositor::WaylandCompositor::additionalShmFormats
  *
  * This property holds the list of additional wl_shm formats advertised as supported by the
  * compositor.

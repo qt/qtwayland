@@ -442,7 +442,7 @@ QWaylandSurface::~QWaylandSurface()
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::WaylandSurface::initialize(WaylandCompositor compositor, WaylandClient client, int id, int version)
+ * \qmlmethod void QtWayland.Compositor::WaylandSurface::initialize(WaylandCompositor compositor, WaylandClient client, int id, int version)
  *
  * Initializes the WaylandSurface with the given \a compositor and \a client, and with the given \a id
  * and \a version.
@@ -477,7 +477,7 @@ bool QWaylandSurface::isInitialized() const
 }
 
 /*!
- * \qmlproperty WaylandClient QtWaylandCompositor::WaylandSurface::client
+ * \qmlproperty WaylandClient QtWayland.Compositor::WaylandSurface::client
  *
  * This property holds the client using this WaylandSurface.
  */
@@ -508,7 +508,7 @@ QWaylandClient *QWaylandSurface::client() const
 }
 
 /*!
- * \qmlproperty bool QtWaylandCompositor::WaylandSurface::hasContent
+ * \qmlproperty bool QtWayland.Compositor::WaylandSurface::hasContent
  *
  * This property holds whether the WaylandSurface has content.
  */
@@ -525,7 +525,7 @@ bool QWaylandSurface::hasContent() const
 }
 
 /*!
- * \qmlproperty rect QtWaylandCompositor::WaylandSurface::sourceGeometry
+ * \qmlproperty rect QtWayland.Compositor::WaylandSurface::sourceGeometry
  * \since 5.13
  *
  * This property describes the portion of the attached Wayland buffer that should
@@ -556,7 +556,7 @@ QRectF QWaylandSurface::sourceGeometry() const
 }
 
 /*!
- * \qmlproperty size QtWaylandCompositor::WaylandSurface::destinationSize
+ * \qmlproperty size QtWayland.Compositor::WaylandSurface::destinationSize
  * \since 5.13
  *
  * This property holds the size of this WaylandSurface in surface coordinates.
@@ -581,7 +581,7 @@ QSize QWaylandSurface::destinationSize() const
 }
 
 /*!
- * \qmlproperty size QtWaylandCompositor::WaylandSurface::bufferSize
+ * \qmlproperty size QtWayland.Compositor::WaylandSurface::bufferSize
  *
  * This property holds the size of the current buffer of this WaylandSurface in pixels,
  * not in surface coordinates.
@@ -610,7 +610,7 @@ QSize QWaylandSurface::bufferSize() const
 }
 
 /*!
- * \qmlproperty size QtWaylandCompositor::WaylandSurface::bufferScale
+ * \qmlproperty size QtWayland.Compositor::WaylandSurface::bufferScale
  *
  * This property holds the WaylandSurface's buffer scale. The buffer scale lets
  * a client supply higher resolution buffer data for use on high resolution
@@ -631,7 +631,7 @@ int QWaylandSurface::bufferScale() const
 }
 
 /*!
- * \qmlproperty enum QtWaylandCompositor::WaylandSurface::contentOrientation
+ * \qmlproperty enum QtWayland.Compositor::WaylandSurface::contentOrientation
  *
  * This property holds the orientation of the WaylandSurface's contents.
  *
@@ -661,7 +661,7 @@ Qt::ScreenOrientation QWaylandSurface::contentOrientation() const
  */
 
 /*!
- * \qmlproperty enum QtWaylandCompositor::WaylandSurface::origin
+ * \qmlproperty enum QtWayland.Compositor::WaylandSurface::origin
  *
  * This property holds the origin of the WaylandSurface's buffer, or
  * WaylandSurface.OriginTopLeft if the surface has no buffer.
@@ -752,7 +752,7 @@ bool QWaylandSurface::inputRegionContains(const QPointF &position) const
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::WaylandSurface::destroy()
+ * \qmlmethod void QtWayland.Compositor::WaylandSurface::destroy()
  *
  * Destroys the WaylandSurface.
  */
@@ -767,7 +767,7 @@ void QWaylandSurface::destroy()
 }
 
 /*!
- * \qmlmethod bool QtWaylandCompositor::WaylandSurface::isDestroyed()
+ * \qmlmethod bool QtWayland.Compositor::WaylandSurface::isDestroyed()
  *
  * Returns \c true if the WaylandSurface has been destroyed. Otherwise returns \c false.
  */
@@ -782,7 +782,7 @@ bool QWaylandSurface::isDestroyed() const
 }
 
 /*!
- * \qmlproperty bool QtWaylandCompositor::WaylandSurface::cursorSurface
+ * \qmlproperty bool QtWayland.Compositor::WaylandSurface::cursorSurface
  *
  * This property holds whether the WaylandSurface is a cursor surface.
  */
@@ -809,7 +809,7 @@ bool QWaylandSurface::isCursorSurface() const
 }
 
 /*!
- * \qmlproperty bool QtWaylandCompositor::WaylandSurface::inhibitsIdle
+ * \qmlproperty bool QtWayland.Compositor::WaylandSurface::inhibitsIdle
  * \since 5.14
  *
  * This property holds whether this surface is intended to inhibit the idle
@@ -834,7 +834,7 @@ bool QWaylandSurface::inhibitsIdle() const
 }
 
 /*!
- *  \qmlproperty bool QtWaylandCompositor::WaylandSurface::isOpaque
+ *  \qmlproperty bool QtWayland.Compositor::WaylandSurface::isOpaque
  *  \since 6.4
  *
  *  This property holds whether the surface is fully opaque, as reported by the
@@ -1075,7 +1075,7 @@ void QWaylandSurfacePrivate::Subsurface::subsurface_set_desync(wl_subsurface::Re
 }
 
 /*!
- * \qmlsignal QtWaylandCompositor::WaylandSurface::childAdded(WaylandSurface child)
+ * \qmlsignal QtWayland.Compositor::WaylandSurface::childAdded(WaylandSurface child)
  *
  * This signal is emitted when a wl_subsurface, \a child, has been added to the surface.
  */
@@ -1087,7 +1087,7 @@ void QWaylandSurfacePrivate::Subsurface::subsurface_set_desync(wl_subsurface::Re
  */
 
 /*!
- * \qmlsignal QtWaylandCompositor::WaylandSurface::surfaceDestroyed()
+ * \qmlsignal QtWayland.Compositor::WaylandSurface::surfaceDestroyed()
  *
  * This signal is emitted when the corresponding wl_surface is destroyed.
  */
@@ -1099,7 +1099,7 @@ void QWaylandSurfacePrivate::Subsurface::subsurface_set_desync(wl_subsurface::Re
  */
 
 /*!
- * \qmlsignal void QtWaylandCompositor::WaylandSurface::dragStarted(WaylandDrag drag)
+ * \qmlsignal void QtWayland.Compositor::WaylandSurface::dragStarted(WaylandDrag drag)
  *
  * This signal is emitted when a \a drag has started from this surface.
  */

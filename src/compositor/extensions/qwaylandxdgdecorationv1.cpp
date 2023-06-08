@@ -86,7 +86,7 @@ void QWaylandXdgDecorationManagerV1::initialize()
 }
 
 /*!
-    \qmlproperty string QtWaylandCompositor::XdgDecorationManagerV1::preferredMode
+    \qmlproperty string XdgDecorationManagerV1::preferredMode
 
     This property holds the decoration mode the compositor prefers.
 

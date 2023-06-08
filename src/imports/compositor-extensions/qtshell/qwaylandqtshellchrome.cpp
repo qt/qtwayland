@@ -171,7 +171,7 @@ void QWaylandQtShellChrome::init()
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::QtShellChrome::toggleFullScreen()
+ * \qmlmethod void QtShellChrome::toggleFullScreen()
  *
  * Toggles between fullscreen and normal window states. This method also clears the minimized
  * or maximized window states if either is set.
@@ -195,7 +195,7 @@ void QWaylandQtShellChrome::toggleFullScreen()
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::QtShellChrome::toggleMaximized()
+ * \qmlmethod void QtShellChrome::toggleMaximized()
  *
  * Toggles between maximized and normal states. This method also clears the minimized
  * window state if it is set.
@@ -219,7 +219,7 @@ void QWaylandQtShellChrome::toggleMaximized()
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::QtShellChrome::toggleMinimized()
+ * \qmlmethod void QtShellChrome::toggleMinimized()
  *
  * Toggles between minimized and normal states. This method also clears the maximized
  * window state if it is set.
@@ -243,7 +243,7 @@ void QWaylandQtShellChrome::toggleMinimized()
 }
 
 /*!
- * \qmlproperty ShellSurfaceItem QtWaylandCompositor::QtShellChrome::shellSurfaceItem
+ * \qmlproperty ShellSurfaceItem QtShellChrome::shellSurfaceItem
  *
  * This property holds the shell surface item associated with this QtShellChrome. It will
  * in turn manage the \c shellSurface of this item. The \c shellSurface of the item is expected to
@@ -402,7 +402,7 @@ void QWaylandQtShellChrome::titleBarMove()
 }
 
 /*!
- * \qmlproperty Item QtWaylandCompositor::QtShellChrome::titleBar
+ * \qmlproperty Item QtShellChrome::titleBar
  *
  * This property holds the default title bar item of the QtShellChrome. If set, a \l DragHandler
  * will be installed on the title bar which moves the window around on user interaction. In
@@ -475,7 +475,7 @@ void QWaylandQtShellChrome::setTitleBar(QQuickItem *item)
 }
 
 /*!
- * \qmlproperty Item QtWaylandCompositor::QtShellChrome::leftResizeHandle
+ * \qmlproperty Item QtShellChrome::leftResizeHandle
  *
  * This property holds the default left resize handle of the QtShellChrome. If set, a \l DragHandler
  * will be installed on the resize handle which resizes the window by moving its left edge.
@@ -539,7 +539,7 @@ void QWaylandQtShellChrome::setLeftResizeHandle(QQuickItem *item)
 }
 
 /*!
- * \qmlproperty Item QtWaylandCompositor::QtShellChrome::rightResizeHandle
+ * \qmlproperty Item QtShellChrome::rightResizeHandle
  *
  * This property holds the default right resize handle of the QtShellChrome. If set, a \l DragHandler
  * will be installed on the resize handle which resizes the window by moving its right edge.
@@ -603,7 +603,7 @@ void QWaylandQtShellChrome::setRightResizeHandle(QQuickItem *item)
 }
 
 /*!
- * \qmlproperty Item QtWaylandCompositor::QtShellChrome::topResizeHandle
+ * \qmlproperty Item QtShellChrome::topResizeHandle
  *
  * This property holds the default top resize handle of the QtShellChrome. If set, a \l DragHandler
  * will be installed on the resize handle which resizes the window by moving its top edge.
@@ -667,7 +667,7 @@ void QWaylandQtShellChrome::setTopResizeHandle(QQuickItem *item)
 }
 
 /*!
- * \qmlproperty Item QtWaylandCompositor::QtShellChrome::bottomResizeHandle
+ * \qmlproperty Item QtShellChrome::bottomResizeHandle
  *
  * This property holds the default bottom resize handle of the QtShellChrome. If set, a \l DragHandler
  * will be installed on the resize handle which resizes the window by moving its bottom edge.
@@ -732,7 +732,7 @@ void QWaylandQtShellChrome::setBottomResizeHandle(QQuickItem *item)
 }
 
 /*!
- * \qmlproperty Item QtWaylandCompositor::QtShellChrome::topLeftResizeHandle
+ * \qmlproperty Item QtShellChrome::topLeftResizeHandle
  *
  * This property holds the default top-left resize handle of the QtShellChrome. If set, a \l DragHandler
  * will be installed on the resize handle which resizes the window by moving its top and left edges
@@ -789,7 +789,7 @@ void QWaylandQtShellChrome::setTopLeftResizeHandle(QQuickItem *item)
 }
 
 /*!
- * \qmlproperty Item QtWaylandCompositor::QtShellChrome::bottomLeftResizeHandle
+ * \qmlproperty Item QtShellChrome::bottomLeftResizeHandle
  *
  * This property holds the default bottom-left resize handle of the QtShellChrome. If set, a \l DragHandler
  * will be installed on the resize handle which resizes the window by moving its bottom and left edges
@@ -846,7 +846,7 @@ void QWaylandQtShellChrome::setBottomLeftResizeHandle(QQuickItem *item)
 }
 
 /*!
- * \qmlproperty Item QtWaylandCompositor::QtShellChrome::topRightResizeHandle
+ * \qmlproperty Item QtShellChrome::topRightResizeHandle
  *
  * This property holds the default top-right resize handle of the QtShellChrome. If set, a \l DragHandler
  * will be installed on the resize handle which resizes the window by moving its top and right edges
@@ -903,7 +903,7 @@ void QWaylandQtShellChrome::setTopRightResizeHandle(QQuickItem *item)
 }
 
 /*!
- * \qmlproperty Item QtWaylandCompositor::QtShellChrome::bottomRightResizeHandle
+ * \qmlproperty Item QtShellChrome::bottomRightResizeHandle
  *
  * This property holds the default bottom-right resize handle of the QtShellChrome. If set, a \l DragHandler
  * will be installed on the resize handle which resizes the window by moving its bottom and right edges
@@ -960,7 +960,7 @@ void QWaylandQtShellChrome::setBottomRightResizeHandle(QQuickItem *item)
 }
 
 /*!
- * \qmlproperty rect QtWaylandCompositor::QtShellChrome::maximizedRect
+ * \qmlproperty rect QtShellChrome::maximizedRect
  *
  * This property holds the are of the WaylandOutput which is available to be filled by the
  * window when it is in maximized state. By default, the window will fill the entire geometry
@@ -1161,7 +1161,7 @@ void QWaylandQtShellChrome::updateWindowFlags()
 }
 
 /*!
- * \qmlproperty int QtWaylandCompositor::QtShellChrome::windowFlags
+ * \qmlproperty int QtShellChrome::windowFlags
  *
  * This property holds the window flags of the QtShellChrome. They will match the \c windowFlags
  * property of the associated QtShellSurface, except when this is equal to Qt.Window. In this case,
@@ -1175,7 +1175,7 @@ uint QWaylandQtShellChrome::currentWindowFlags() const
 }
 
 /*!
- * \qmlproperty int QtWaylandCompositor::QtShellChrome::windowState
+ * \qmlproperty int QtShellChrome::windowState
  *
  * This property holds the window state of the shell surface. It will be updated immediately when
  * the window state is requested on the compositor-side, before this has been acknowledged by the
@@ -1200,7 +1200,7 @@ bool QWaylandQtShellChrome::hasTitleBar() const
 }
 
 /*!
- * \qmlproperty bool QtWaylandCompositor::QtShellChrome::hasDecorations
+ * \qmlproperty bool QtShellChrome::hasDecorations
  *
  * This property is true if the QtShellChrome's decorations should be visible, based on its window
  * state and window flags.
@@ -1290,7 +1290,7 @@ void QWaylandQtShellChrome::updateAutomaticPosition()
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::QtShellChrome::deactivate()
+ * \qmlmethod void QtShellChrome::deactivate()
  *
  * Manually deactivates this window. If the window was active, this will activate the next window in
  * the stack instead.
@@ -1319,7 +1319,7 @@ void QWaylandQtShellChrome::activateOnGrab(QPointingDevice::GrabTransition trans
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::QtShellChrome::activate()
+ * \qmlmethod void QtShellChrome::activate()
  *
  * Manually activate this window. This will also raise the window.
  *
@@ -1334,7 +1334,7 @@ void QWaylandQtShellChrome::activate()
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::QtShellChrome::raise()
+ * \qmlmethod void QtShellChrome::raise()
  *
  * Raise this window, so that it stacks on top of other windows (except if the other window's
  * flags prohibit this.)
@@ -1347,7 +1347,7 @@ void QWaylandQtShellChrome::raise()
 }
 
 /*!
- * \qmlmethod void QtWaylandCompositor::QtShellChrome::lower()
+ * \qmlmethod void QtShellChrome::lower()
  *
  * Lower this window, so that it stacks underneath other windows (except if the other window's
  * window flags prohibit this.)
@@ -1374,7 +1374,7 @@ void QWaylandQtShellChrome::updateActiveState()
 }
 
 /*!
- * \qmlproperty int QtWaylandCompositor::QtShellChrome::frameMarginLeft
+ * \qmlproperty int QtShellChrome::frameMarginLeft
  *
  * Sets the size of the left margin of the QtShellChrome which is reserved for window decorations.
  * By default, this will equal the width of the \l leftResizeHandle if it is set. Otherwise it will
@@ -1405,7 +1405,7 @@ int QWaylandQtShellChrome::frameMarginLeft() const
 }
 
 /*!
- * \qmlproperty int QtWaylandCompositor::QtShellChrome::frameMarginRight
+ * \qmlproperty int QtShellChrome::frameMarginRight
  *
  * Sets the size of the right margin of the QtShellChrome which is reserved for window decorations.
  * By default, this will equal the width of the \l rightResizeHandle if it is set. Otherwise it will
@@ -1436,7 +1436,7 @@ int QWaylandQtShellChrome::frameMarginRight() const
 }
 
 /*!
- * \qmlproperty int QtWaylandCompositor::QtShellChrome::frameMarginTop
+ * \qmlproperty int QtShellChrome::frameMarginTop
  *
  * Sets the size of the top margin of the QtShellChrome which is reserved for window decorations.
  * By default, this will equal the sum of the \l leftResizeHandle and the \l{titleBar}'s heights,
@@ -1466,7 +1466,7 @@ int QWaylandQtShellChrome::frameMarginTop() const
 }
 
 /*!
- * \qmlproperty int QtWaylandCompositor::QtShellChrome::frameMarginBottom
+ * \qmlproperty int QtShellChrome::frameMarginBottom
  *
  * Sets the size of the bottom margin of the QtShellChrome which is reserved for window decorations.
  * By default, this will equal the height of the \l bottomResizeHandle if it is set. Otherwise it will

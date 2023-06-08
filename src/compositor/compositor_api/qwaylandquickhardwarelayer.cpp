@@ -79,7 +79,7 @@ QWaylandQuickHardwareLayer::~QWaylandQuickHardwareLayer()
 }
 
 /*!
- * \qmlproperty int QtWaylandCompositor::WaylandHardwareLayer::stackingLevel
+ * \qmlproperty int QtWayland.Compositor::WaylandHardwareLayer::stackingLevel
  *
  * This property holds the stacking level of this hardware layer relative to other hardware layers,
  * and can be used to sort hardware layers. I.e. a layer with a higher level is rendered on top of

@@ -26,7 +26,7 @@
  *
  * When a client connects to the QtShell interface, it creates a \l{QtShellSurface}. The compositor
  * is notified of this by the emission of the
- * \l{QtWaylandCompositor::QtShell::qtShellSurfaceCreated()}{qtShellSurfaceCreated} signal. The
+ * \l [QML] {QtShell::}{qtShellSurfaceCreated} signal. The
  * example then adds the shell surface to a ListModel for easy access later.
  *
  * \snippet qtshell/qml/CompositorScreen.qml handleShellSurface

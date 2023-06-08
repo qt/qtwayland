@@ -29,7 +29,7 @@ QWaylandShell::QWaylandShell(QWaylandObject *waylandObject)
  */
 
 /*!
- * \qmlproperty enumeration QtWaylandCompositor::Shell::focusPolicy
+ * \qmlproperty enumeration Shell::focusPolicy
  *
  * This property holds the focus policy of the Shell.
  */

@@ -232,3 +232,5 @@ void QWaylandIviSurfacePrivate::ivi_surface_destroy(QtWaylandServer::ivi_surface
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandivisurface.cpp"

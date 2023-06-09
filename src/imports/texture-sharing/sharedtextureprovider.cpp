@@ -319,4 +319,6 @@ QQuickImageResponse *SharedTextureProvider::requestImageResponse(const QString &
 
 QT_END_NAMESPACE
 
+#include "moc_sharedtextureprovider.cpp"
+
 #include "sharedtextureprovider.moc"

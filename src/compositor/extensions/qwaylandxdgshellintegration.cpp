@@ -311,3 +311,5 @@ void XdgPopupIntegration::handleGeometryChanged()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandxdgshellintegration_p.cpp"

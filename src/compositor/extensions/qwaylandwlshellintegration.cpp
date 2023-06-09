@@ -333,3 +333,5 @@ bool WlShellIntegration::filterMouseReleaseEvent(QMouseEvent *event)
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandwlshellintegration_p.cpp"

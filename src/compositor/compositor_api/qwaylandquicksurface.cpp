@@ -118,3 +118,5 @@ void QWaylandQuickSurface::setClientRenderingEnabled(bool enabled)
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandquicksurface.cpp"

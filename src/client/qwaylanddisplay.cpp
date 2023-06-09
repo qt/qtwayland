@@ -657,3 +657,5 @@ QWaylandCursorTheme *QWaylandDisplay::loadCursorTheme(const QString &name, int p
 } // namespace QtWaylandClient
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylanddisplay_p.cpp"

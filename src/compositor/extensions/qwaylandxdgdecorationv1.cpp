@@ -252,3 +252,5 @@ void QWaylandXdgToplevelDecorationV1::handleClientPreferredModeChanged()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qwaylandxdgdecorationv1.cpp"

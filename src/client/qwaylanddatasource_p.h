@@ -86,7 +86,6 @@ protected:
     void data_source_target(const QString &mime_type) override;
 
 private:
-    QWaylandDisplay *m_display = nullptr;
     QMimeData *m_mime_data = nullptr;
 };
 

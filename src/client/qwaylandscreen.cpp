@@ -22,6 +22,11 @@ QWaylandXdgOutputManagerV1::QWaylandXdgOutputManagerV1(QWaylandDisplay* display,
 {
 }
 
+QWaylandXdgOutputManagerV1::~QWaylandXdgOutputManagerV1()
+{
+    destroy();
+}
+
 QWaylandScreen::QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uint32_t id)
     : QtWayland::wl_output(waylandDisplay->wl_registry(), id, qMin(version, 3))
     , m_outputId(id)
@@ -44,8 +49,10 @@ QWaylandScreen::~QWaylandScreen()
 {
     if (zxdg_output_v1::isInitialized())
         zxdg_output_v1::destroy();
-    if (wl_output::isInitialized() && wl_output::version() >= WL_OUTPUT_RELEASE_SINCE_VERSION)
+    if (wl_output::version() >= WL_OUTPUT_RELEASE_SINCE_VERSION)
         wl_output::release();
+    else
+        wl_output_destroy(wl_output::object());
 }
 
 uint QWaylandScreen::requiredEvents() const

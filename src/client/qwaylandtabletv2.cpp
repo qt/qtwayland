@@ -20,6 +20,11 @@ QWaylandTabletManagerV2::QWaylandTabletManagerV2(QWaylandDisplay *display, uint 
         createTabletSeat(seat);
 }
 
+QWaylandTabletManagerV2::~QWaylandTabletManagerV2()
+{
+    destroy();
+}
+
 QWaylandTabletSeatV2 *QWaylandTabletManagerV2::createTabletSeat(QWaylandInputDevice *seat)
 {
     return new QWaylandTabletSeatV2(this, seat);

@@ -20,6 +20,11 @@ QWaylandPrimarySelectionDeviceManagerV1::QWaylandPrimarySelectionDeviceManagerV1
 {
 }
 
+QWaylandPrimarySelectionDeviceManagerV1::~QWaylandPrimarySelectionDeviceManagerV1()
+{
+    destroy();
+}
+
 QWaylandPrimarySelectionDeviceV1 *QWaylandPrimarySelectionDeviceManagerV1::createDevice(QWaylandInputDevice *seat)
 {
     return new QWaylandPrimarySelectionDeviceV1(this, seat);

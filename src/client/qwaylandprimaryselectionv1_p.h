@@ -37,6 +37,7 @@ class QWaylandPrimarySelectionDeviceManagerV1 : public QtWayland::zwp_primary_se
 {
 public:
     explicit QWaylandPrimarySelectionDeviceManagerV1(QWaylandDisplay *display, uint id, uint version);
+    ~QWaylandPrimarySelectionDeviceManagerV1();
     QWaylandPrimarySelectionDeviceV1 *createDevice(QWaylandInputDevice *seat);
     QWaylandDisplay *display() const { return m_display; }
 

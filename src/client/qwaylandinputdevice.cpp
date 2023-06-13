@@ -418,8 +418,13 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, 
 #endif
 }
 
-// Can't be in header because dtors for scoped pointers aren't known there.
-QWaylandInputDevice::~QWaylandInputDevice() = default;
+QWaylandInputDevice::~QWaylandInputDevice()
+{
+    if (version() >= WL_SEAT_RELEASE_SINCE_VERSION)
+        release();
+    else
+        wl_seat_destroy(object());
+}
 
 void QWaylandInputDevice::seat_capabilities(uint32_t caps)
 {

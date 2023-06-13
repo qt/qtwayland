@@ -33,6 +33,7 @@ class QWaylandCursor;
 class Q_WAYLANDCLIENT_EXPORT QWaylandXdgOutputManagerV1 : public QtWayland::zxdg_output_manager_v1 {
 public:
     QWaylandXdgOutputManagerV1(QWaylandDisplay *display, uint id, uint version);
+    ~QWaylandXdgOutputManagerV1();
 };
 
 class Q_WAYLANDCLIENT_EXPORT QWaylandScreen : public QPlatformScreen,

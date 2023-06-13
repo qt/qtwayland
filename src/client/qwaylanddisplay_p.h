@@ -128,8 +128,10 @@ public:
     struct wl_display *wl_display() const { return mDisplay; }
     struct ::wl_registry *wl_registry() { return object(); }
 
-    const struct wl_compositor *wl_compositor() const { return mCompositor.object(); }
-    QtWayland::wl_compositor *compositor() { return &mCompositor; }
+    QtWayland::wl_compositor *compositor()
+    {
+        return mGlobals.compositor.get();
+    }
 
     QList<QWaylandInputDevice *> inputDevices() const { return mInputDevices; }
     QWaylandInputDevice *defaultInputDevice() const;
@@ -225,7 +227,10 @@ public:
     void addRegistryListener(RegistryListener listener, void *data);
     void removeListener(RegistryListener listener, void *data);
 
-    QWaylandShm *shm() const { return mShm.data(); }
+    QWaylandShm *shm() const
+    {
+        return mGlobals.shm.get();
+    }
 
     void forceRoundTrip();
 
@@ -281,8 +286,6 @@ private:
     std::unique_ptr<EventThread> m_eventThread;
     wl_event_queue *m_frameEventQueue = nullptr;
     QScopedPointer<EventThread> m_frameEventQueueThread;
-    QtWayland::wl_compositor mCompositor;
-    QScopedPointer<QWaylandShm> mShm;
     QList<QWaylandScreen *> mWaitingScreens;
     QList<QWaylandScreen *> mScreens;
     QPlatformPlaceholderScreen *mPlaceholderScreen = nullptr;
@@ -313,6 +316,8 @@ private:
 
     struct GlobalHolder
     {
+        std::unique_ptr<QtWayland::wl_compositor> compositor;
+        std::unique_ptr<QWaylandShm> shm;
 #if QT_CONFIG(wayland_datadevice)
         std::unique_ptr<QWaylandDataDeviceManager> dndSelectionHandler;
 #endif

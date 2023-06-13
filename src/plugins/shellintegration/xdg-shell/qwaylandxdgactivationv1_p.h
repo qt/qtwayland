@@ -33,6 +33,7 @@ class Q_WAYLANDCLIENT_EXPORT QWaylandXdgActivationTokenV1
 {
     Q_OBJECT
 public:
+    ~QWaylandXdgActivationTokenV1() override;
     void xdg_activation_token_v1_done(const QString &token) override { Q_EMIT done(token); }
 
 Q_SIGNALS:

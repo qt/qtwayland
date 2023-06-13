@@ -32,6 +32,7 @@ class Q_WAYLANDCLIENT_EXPORT QWaylandTouchExtension : public QtWayland::qt_touch
 {
 public:
     QWaylandTouchExtension(QWaylandDisplay *display, uint32_t id);
+    ~QWaylandTouchExtension() override;
 
     void touchCanceled();
 

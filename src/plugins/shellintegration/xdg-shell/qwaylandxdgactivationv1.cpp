@@ -43,6 +43,10 @@ QWaylandXdgActivationV1::requestXdgActivationToken(QWaylandDisplay *display,
     return provider;
 }
 
+QWaylandXdgActivationTokenV1::~QWaylandXdgActivationTokenV1()
+{
+    destroy();
+}
 }
 
 QT_END_NAMESPACE

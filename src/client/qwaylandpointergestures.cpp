@@ -14,6 +14,14 @@ QWaylandPointerGestures::QWaylandPointerGestures(QWaylandDisplay *display, uint 
 {
 }
 
+QWaylandPointerGestures::~QWaylandPointerGestures() noexcept
+{
+    if (version() >= ZWP_POINTER_GESTURES_V1_RELEASE_SINCE_VERSION)
+        release();
+    else
+        zwp_pointer_gestures_v1_destroy(object());
+}
+
 QWaylandPointerGestureSwipe *
     QWaylandPointerGestures::createPointerGestureSwipe(QWaylandInputDevice *device)
 {

@@ -34,7 +34,6 @@ public:
 QWaylandWindowManagerIntegrationPrivate::QWaylandWindowManagerIntegrationPrivate(QWaylandDisplay *waylandDisplay)
     : m_waylandDisplay(waylandDisplay)
 {
-
 }
 
 QWaylandWindowManagerIntegration::QWaylandWindowManagerIntegration(QWaylandDisplay *waylandDisplay)
@@ -45,7 +44,8 @@ QWaylandWindowManagerIntegration::QWaylandWindowManagerIntegration(QWaylandDispl
 
 QWaylandWindowManagerIntegration::~QWaylandWindowManagerIntegration()
 {
-
+    if (object())
+        qt_windowmanager_destroy(object());
 }
 
 bool QWaylandWindowManagerIntegration::showIsFullScreen() const

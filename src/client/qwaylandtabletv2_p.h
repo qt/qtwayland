@@ -42,6 +42,7 @@ class Q_WAYLANDCLIENT_EXPORT QWaylandTabletManagerV2 : public QtWayland::zwp_tab
 {
 public:
     explicit QWaylandTabletManagerV2(QWaylandDisplay *display, uint id, uint version);
+    ~QWaylandTabletManagerV2() override;
     QWaylandTabletSeatV2 *createTabletSeat(QWaylandInputDevice *seat);
 };
 

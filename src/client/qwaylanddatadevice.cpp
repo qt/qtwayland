@@ -43,6 +43,8 @@ QWaylandDataDevice::~QWaylandDataDevice()
 {
     if (version() >= WL_DATA_DEVICE_RELEASE_SINCE_VERSION)
         release();
+    else
+        wl_data_device_destroy(object());
 }
 
 QWaylandDataOffer *QWaylandDataDevice::selectionOffer() const

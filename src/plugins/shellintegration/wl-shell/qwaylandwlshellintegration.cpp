@@ -18,6 +18,12 @@ QWaylandWlShellIntegration::QWaylandWlShellIntegration() : QWaylandShellIntegrat
                             << "by setting the environment variable QT_WAYLAND_SHELL_INTEGRATION";
 }
 
+QWaylandWlShellIntegration::~QWaylandWlShellIntegration()
+{
+    if (object())
+        wl_shell_destroy(object());
+}
+
 QWaylandShellSurface *QWaylandWlShellIntegration::createShellSurface(QWaylandWindow *window)
 {
     return new QWaylandWlShellSurface(get_shell_surface(window->wlSurface()), window);

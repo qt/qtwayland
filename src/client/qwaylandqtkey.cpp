@@ -15,6 +15,11 @@ QWaylandQtKeyExtension::QWaylandQtKeyExtension(QWaylandDisplay *display, uint32_
 {
 }
 
+QWaylandQtKeyExtension::~QWaylandQtKeyExtension()
+{
+    zqt_key_v1_destroy(object());
+}
+
 void QWaylandQtKeyExtension::zqt_key_v1_key(struct wl_surface *surface,
                                                  uint32_t time,
                                                  uint32_t type,

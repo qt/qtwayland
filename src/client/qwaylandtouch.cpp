@@ -23,6 +23,11 @@ QWaylandTouchExtension::QWaylandTouchExtension(QWaylandDisplay *display, uint32_
 {
 }
 
+QWaylandTouchExtension::~QWaylandTouchExtension()
+{
+    qt_touch_extension_destroy(object());
+}
+
 void QWaylandTouchExtension::registerDevice(int caps)
 {
     // TODO number of touchpoints, actual name and ID

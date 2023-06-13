@@ -36,6 +36,7 @@ class Q_WAYLANDCLIENT_EXPORT QWaylandPointerGestures : public QtWayland::zwp_poi
 {
 public:
     explicit QWaylandPointerGestures(QWaylandDisplay *display, uint id, uint version);
+    ~QWaylandPointerGestures();
 
     QWaylandPointerGestureSwipe *createPointerGestureSwipe(QWaylandInputDevice *device);
     QWaylandPointerGesturePinch *createPointerGesturePinch(QWaylandInputDevice *device);

@@ -35,8 +35,10 @@ void *QWaylandNativeInterface::nativeResourceForIntegration(const QByteArray &re
 
     if (lowerCaseResource == "display" || lowerCaseResource == "wl_display" || lowerCaseResource == "nativedisplay")
         return m_integration->display()->wl_display();
-    if (lowerCaseResource == "compositor")
-        return const_cast<wl_compositor *>(m_integration->display()->wl_compositor());
+    if (lowerCaseResource == "compositor") {
+        if (auto compositor = m_integration->display()->compositor())
+            return compositor->object();
+    }
     if (lowerCaseResource == "server_buffer_integration")
         return m_integration->serverBufferIntegration();
 
@@ -76,7 +78,9 @@ wl_display *QtWaylandClient::QWaylandNativeInterface::display() const
 
 wl_compositor *QtWaylandClient::QWaylandNativeInterface::compositor() const
 {
-    return const_cast<wl_compositor *>(m_integration->display()->wl_compositor());
+    if (auto compositor = m_integration->display()->compositor())
+        return compositor->object();
+    return nullptr;
 }
 
 wl_seat *QtWaylandClient::QWaylandNativeInterface::seat() const
@@ -129,8 +133,10 @@ void *QWaylandNativeInterface::nativeResourceForWindow(const QByteArray &resourc
 
     if (lowerCaseResource == "display")
         return m_integration->display()->wl_display();
-    if (lowerCaseResource == "compositor")
-        return const_cast<wl_compositor *>(m_integration->display()->wl_compositor());
+    if (lowerCaseResource == "compositor") {
+        if (auto compositor = m_integration->display()->compositor())
+            return compositor->object();
+    }
     if (lowerCaseResource == "surface") {
         QWaylandWindow *w = static_cast<QWaylandWindow*>(window->handle());
         return w ? w->wlSurface() : nullptr;

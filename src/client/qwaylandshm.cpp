@@ -16,7 +16,7 @@ QWaylandShm::QWaylandShm(QWaylandDisplay *display, int version, uint32_t id)
 
 QWaylandShm::~QWaylandShm()
 {
-
+    wl_shm_destroy(object());
 }
 
 void QWaylandShm::shm_format(uint32_t format)

@@ -25,6 +25,7 @@ QWaylandTextInputMethod::QWaylandTextInputMethod(QWaylandDisplay *display, struc
 
 QWaylandTextInputMethod::~QWaylandTextInputMethod()
 {
+    qt_text_input_method_v1_destroy(object());
 }
 
 void QWaylandTextInputMethod::text_input_method_v1_visible_changed(int32_t visible)

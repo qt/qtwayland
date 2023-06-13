@@ -31,6 +31,7 @@ class Q_WAYLANDCLIENT_EXPORT QWaylandQtKeyExtension : public QtWayland::zqt_key_
 {
 public:
     QWaylandQtKeyExtension(QWaylandDisplay *display, uint32_t id);
+    ~QWaylandQtKeyExtension();
 
 private:
     QWaylandDisplay *m_display = nullptr;

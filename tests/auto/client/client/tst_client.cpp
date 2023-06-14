@@ -465,7 +465,6 @@ void tst_WaylandClient::mouseDrag()
 
 void tst_WaylandClient::dontCrashOnMultipleCommits()
 {
-    QSKIP("This test is flaky. See QTBUG-68756.");
     auto window = new TestWindow();
     window->show();
 

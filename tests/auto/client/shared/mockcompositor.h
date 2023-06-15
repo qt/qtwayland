@@ -61,6 +61,7 @@ public:
         bool autoEnter = true;
         bool autoRelease = true;
         bool autoConfigure = false;
+        bool autoFrameCallback = true;
     } m_config;
     void resetConfig() { exec([&] { m_config = Config{}; }); }
 };

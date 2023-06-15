@@ -12,6 +12,8 @@ using namespace MockCompositor;
 class tst_surface : public QObject, private DefaultCompositor
 {
     Q_OBJECT
+public:
+    explicit tst_surface();
 private slots:
     void cleanup() { QTRY_VERIFY2(isClean(), qPrintable(dirtyMessage())); }
     void createDestroySurface();
@@ -25,6 +27,11 @@ private slots:
     void createSubsurface();
     void createSubsurfaceForHiddenParent();
 };
+
+tst_surface::tst_surface()
+{
+    m_config.autoFrameCallback = false;
+}
 
 void tst_surface::createDestroySurface()
 {

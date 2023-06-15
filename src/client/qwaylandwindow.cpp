@@ -636,7 +636,7 @@ void QWaylandWindow::doApplyConfigureFromOtherThread()
     if (!mCanResize || !mWaitingToApplyConfigure)
         return;
     doApplyConfigure();
-    sendExposeEvent(QRect(QPoint(), geometry().size()));
+    sendRecursiveExposeEvent();
 }
 
 void QWaylandWindow::setCanResize(bool canResize)
@@ -652,7 +652,7 @@ void QWaylandWindow::setCanResize(bool canResize)
             bool inGuiThread = QThread::currentThreadId() == QThreadData::get2(thread())->threadId.loadRelaxed();
             if (inGuiThread) {
                 doApplyConfigure();
-                sendExposeEvent(QRect(QPoint(), geometry().size()));
+                sendRecursiveExposeEvent();
             } else {
                 QMetaObject::invokeMethod(this, &QWaylandWindow::doApplyConfigureFromOtherThread, Qt::QueuedConnection);
             }
@@ -677,9 +677,10 @@ void QWaylandWindow::applyConfigure()
 
 void QWaylandWindow::sendRecursiveExposeEvent()
 {
-    if (!window()->isVisible())
-        return;
-    sendExposeEvent(QRect(QPoint(), geometry().size()));
+    if (!isExposed())
+        sendExposeEvent(QRect());
+    else
+        sendExposeEvent(QRect(QPoint(), geometry().size()));
 
     for (QWaylandSubSurface *subSurface : std::as_const(mChildren)) {
         auto subWindow = subSurface->window();
@@ -745,7 +746,7 @@ void QWaylandWindow::safeCommit(QWaylandBuffer *buffer, const QRegion &damage)
 void QWaylandWindow::handleExpose(const QRegion &region)
 {
     QWindowSystemInterface::handleExposeEvent(window(), region);
-    if (mQueuedBuffer) {
+    if (mQueuedBuffer && !region.isEmpty()) {
         commit(mQueuedBuffer, mQueuedBufferDamage);
         mQueuedBuffer = nullptr;
         mQueuedBufferDamage = QRegion();

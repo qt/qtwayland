@@ -1,5 +1,6 @@
 // Copyright (C) 2017 The Qt Company Ltd.
 // Copyright (C) 2017 Eurogiciel, author: <philippe.coval@eurogiciel.fr>
+// Copyright (C) 2023 David Edmundson <davidedmundson@kde.org>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 
 #include "qwaylandxdgshell_p.h"
@@ -87,10 +88,11 @@ void QWaylandXdgSurface::Toplevel::applyConfigure()
         }
     }
 
+    m_applied = m_pending;
+
     if (!surfaceSize.isEmpty())
         m_xdgSurface->m_window->resizeFromApplyConfigure(surfaceSize.grownBy(m_xdgSurface->m_window->windowContentMargins()));
 
-    m_applied = m_pending;
     qCDebug(lcQpaWayland) << "Applied pending xdg_toplevel configure event:" << m_applied.size << m_applied.states;
 }
 
@@ -115,6 +117,7 @@ void QWaylandXdgSurface::Toplevel::xdg_toplevel_configure(int32_t width, int32_t
     auto *xdgStates = static_cast<uint32_t *>(states->data);
     size_t numStates = states->size / sizeof(uint32_t);
 
+    m_pending.suspended = false;
     m_pending.states = Qt::WindowNoState;
     m_toplevelStates = QWaylandWindow::WindowNoState;
 
@@ -140,6 +143,9 @@ void QWaylandXdgSurface::Toplevel::xdg_toplevel_configure(int32_t width, int32_t
             break;
         case XDG_TOPLEVEL_STATE_TILED_BOTTOM:
             m_toplevelStates |= QWaylandWindow::WindowTiledBottom;
+            break;
+        case XDG_TOPLEVEL_STATE_SUSPENDED:
+            m_pending.suspended = true;
             break;
         default:
             break;
@@ -359,6 +365,9 @@ void QWaylandXdgSurface::setWindowFlags(Qt::WindowFlags flags)
 
 bool QWaylandXdgSurface::isExposed() const
 {
+    if (m_toplevel && m_toplevel->m_applied.suspended)
+        return false;
+
     return m_configured || m_pendingConfigureSerial;
 }
 
@@ -606,8 +615,8 @@ void QWaylandXdgSurface::xdg_surface_configure(uint32_t serial)
     if (!m_configured) {
         // We have to do the initial applyConfigure() immediately, since that is the expose.
         applyConfigure();
-        QRegion exposeRegion = QRegion(QRect(QPoint(), m_window->geometry().size()));
-        m_window->handleExpose(exposeRegion);
+        if (isExposed())
+            m_window->handleExpose(QRect(QPoint(), m_window->geometry().size()));
     } else {
         // Later configures are probably resizes, so we have to queue them up for a time when we
         // are not painting to the window.

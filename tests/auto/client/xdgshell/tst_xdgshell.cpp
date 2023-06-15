@@ -1,4 +1,5 @@
 // Copyright (C) 2018 The Qt Company Ltd.
+// Copyright (C) 2023 David Edmundson <davidedmundson@kde.org>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mockcompositor.h"
@@ -30,6 +31,8 @@ private slots:
     void windowGeometry();
     void foreignSurface();
     void nativeResources();
+    void suspended();
+    void initiallySuspended();
 };
 
 void tst_xdgshell::init()
@@ -693,6 +696,36 @@ void tst_xdgshell::nativeResources()
 
     auto *xdg_popup_proxy = static_cast<::wl_proxy *>(ni->nativeResourceForWindow("xdg_popup", &window));
     QCOMPARE(xdg_popup_proxy, nullptr);
+}
+
+void tst_xdgshell::suspended()
+{
+    QRasterWindow window;
+    window.resize(400, 320);
+    window.show();
+    QVERIFY(!window.isExposed()); // not exposed until we're configured
+    QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
+
+    exec([=] { xdgToplevel()->sendCompleteConfigure(); });
+    QCOMPOSITOR_TRY_VERIFY(xdgToplevel()->m_xdgSurface->m_committedConfigureSerial);
+    QTRY_VERIFY(window.isExposed());
+
+    exec([=] { xdgToplevel()->sendCompleteConfigure(QSize(), {XdgToplevel::state_suspended}); });
+    QTRY_VERIFY(!window.isExposed());
+
+    exec([=] { xdgToplevel()->sendCompleteConfigure(QSize(), {}); });
+    QTRY_VERIFY(window.isExposed());
+}
+
+void tst_xdgshell::initiallySuspended()
+{
+    QRasterWindow window;
+    window.resize(400, 320);
+    window.show();
+    QVERIFY(!window.isExposed());
+    QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
+    exec([=] { xdgToplevel()->sendCompleteConfigure(QSize(), {XdgToplevel::state_suspended}); });
+    QVERIFY(!window.isExposed());
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_xdgshell)

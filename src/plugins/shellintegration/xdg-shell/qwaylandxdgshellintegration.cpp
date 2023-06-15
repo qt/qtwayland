@@ -12,7 +12,7 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-QWaylandXdgShellIntegration::QWaylandXdgShellIntegration() : QWaylandShellIntegrationTemplate(4)
+QWaylandXdgShellIntegration::QWaylandXdgShellIntegration() : QWaylandShellIntegrationTemplate(6)
 {
     connect(this, &QWaylandShellIntegrationTemplate::activeChanged, this, [this] {
         if (isActive()) {

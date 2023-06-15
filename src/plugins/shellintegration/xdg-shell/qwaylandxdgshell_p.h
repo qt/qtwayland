@@ -101,6 +101,7 @@ private:
             QSize bounds = {0, 0};
             QSize size = {0, 0};
             Qt::WindowStates states = Qt::WindowNoState;
+            bool suspended = false;
         }  m_pending, m_applied;
         QWaylandWindow::ToplevelWindowTilingStates m_toplevelStates = QWaylandWindow::WindowNoState;
         QSize m_normalSize;

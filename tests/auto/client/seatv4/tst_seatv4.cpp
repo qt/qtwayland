@@ -23,6 +23,7 @@ public:
     {
         exec([this] {
             m_config.autoConfigure = true;
+            m_config.autoFrameCallback = false; // for cursor animation test
 
             removeAll<Seat>();
 

@@ -92,6 +92,7 @@ private:
     QVector<uint64_t> supportedDrmModifiers(uint32_t format);
 
     EGLDisplay m_eglDisplay = EGL_NO_DISPLAY;
+    ::wl_display *m_wlDisplay = nullptr;
     bool m_displayBound = false;
     QVector<QOpenGLTexture *> m_orphanedTextures;
     QHash<EGLint, YuvFormatConversion> m_yuvFormats;

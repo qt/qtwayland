@@ -655,9 +655,9 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         qCDebug(lcQpaWayland) << "text input: register qt_text_input_method_manager_v1";
         if (mTextInputManagerIndex < INT_MAX) {
             mGlobals.textInputManagerv1.reset();
-            mGlobals.mTextInputManagerv2.reset();
+            mGlobals.textInputManagerv2.reset();
 #if QT_WAYLAND_TEXT_INPUT_V4_WIP
-            mTextInputManagerv4.reset();
+            mGlobals.textInputManagerv4.reset();
 #endif // QT_WAYLAND_TEXT_INPUT_V4_WIP
             for (QWaylandInputDevice *inputDevice : std::as_const(mInputDevices))
                 inputDevice->setTextInput(nullptr);
@@ -677,9 +677,9 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         qCDebug(lcQpaWayland) << "text input: register zwp_text_input_v1";
         if (mTextInputManagerIndex < INT_MAX) {
             mGlobals.textInputMethodManager.reset();
-            mGlobals.mTextInputManagerv2.reset();
+            mGlobals.textInputManagerv2.reset();
 #if QT_WAYLAND_TEXT_INPUT_V4_WIP
-            mTextInputManagerv4.reset();
+            mGlobals.textInputManagerv4.reset();
 #endif // QT_WAYLAND_TEXT_INPUT_V4_WIP
             for (QWaylandInputDevice *inputDevice : std::as_const(mInputDevices))
                 inputDevice->setTextInputMethod(nullptr);
@@ -703,17 +703,17 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
             mGlobals.textInputMethodManager.reset();
             mGlobals.textInputManagerv1.reset();
 #if QT_WAYLAND_TEXT_INPUT_V4_WIP
-            mTextInputManagerv4.reset();
+            mGlobals.textInputManagerv4.reset();
 #endif // QT_WAYLAND_TEXT_INPUT_V4_WIP
             for (QWaylandInputDevice *inputDevice : std::as_const(mInputDevices))
                 inputDevice->setTextInputMethod(nullptr);
         }
 
-        mGlobals.mTextInputManagerv2.reset(
+        mGlobals.textInputManagerv2.reset(
                 new QtWayland::zwp_text_input_manager_v2(registry, id, 1));
         for (QWaylandInputDevice *inputDevice : std::as_const(mInputDevices))
             inputDevice->setTextInput(new QWaylandTextInputv2(
-                    this, mGlobals.mTextInputManagerv2->get_text_input(inputDevice->wl_seat())));
+                    this, mGlobals.textInputManagerv2->get_text_input(inputDevice->wl_seat())));
         mWaylandIntegration->reconfigureInputContext();
         mTextInputManagerIndex = mTextInputManagerList.indexOf(interface);
 #if QT_WAYLAND_TEXT_INPUT_V4_WIP
@@ -800,14 +800,14 @@ void QWaylandDisplay::registry_global_remove(uint32_t id)
                 mWaylandIntegration->reconfigureInputContext();
             }
             if (global.interface == QLatin1String(QtWayland::zwp_text_input_manager_v2::interface()->name)) {
-                mGlobals.mTextInputManagerv2.reset();
+                mGlobals.textInputManagerv2.reset();
                 for (QWaylandInputDevice *inputDevice : std::as_const(mInputDevices))
                     inputDevice->setTextInput(nullptr);
                 mWaylandIntegration->reconfigureInputContext();
             }
 #if QT_WAYLAND_TEXT_INPUT_V4_WIP
             if (global.interface == QLatin1String(QtWayland::zwp_text_input_manager_v4::interface()->name)) {
-                mTextInputManagerv4.reset();
+                mGlobals.textInputManagerv4.reset();
                 for (QWaylandInputDevice *inputDevice : std::as_const(mInputDevices))
                     inputDevice->setTextInput(nullptr);
                 mWaylandIntegration->reconfigureInputContext();

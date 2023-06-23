@@ -174,7 +174,7 @@ public:
     }
     QtWayland::zwp_text_input_manager_v2 *textInputManagerv2() const
     {
-        return mGlobals.mTextInputManagerv2.get();
+        return mGlobals.textInputManagerv2.get();
     }
     QtWayland::zwp_text_input_manager_v4 *textInputManagerv4() const
     {
@@ -330,7 +330,7 @@ private:
 #endif
         std::unique_ptr<QtWayland::qt_text_input_method_manager_v1> textInputMethodManager;
         std::unique_ptr<QtWayland::zwp_text_input_manager_v1> textInputManagerv1;
-        std::unique_ptr<QtWayland::zwp_text_input_manager_v2> mTextInputManagerv2;
+        std::unique_ptr<QtWayland::zwp_text_input_manager_v2> textInputManagerv2;
         std::unique_ptr<QtWayland::zwp_text_input_manager_v4> textInputManagerv4;
         std::unique_ptr<QWaylandHardwareIntegration> hardwareIntegration;
         std::unique_ptr<QWaylandXdgOutputManagerV1> xdgOutputManager;

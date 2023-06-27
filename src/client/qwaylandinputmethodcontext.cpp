@@ -423,7 +423,7 @@ void QWaylandInputMethodContext::setFocusObject(QObject *)
 
 QWaylandTextInputMethod *QWaylandInputMethodContext::textInputMethod() const
 {
-    return m_display->defaultInputDevice()->textInputMethod();
+    return m_display->defaultInputDevice() ? m_display->defaultInputDevice()->textInputMethod() : nullptr;
 }
 
 } // QtWaylandClient

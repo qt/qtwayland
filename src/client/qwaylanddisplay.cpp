@@ -996,7 +996,7 @@ void QWaylandDisplay::requestWaylandSync()
 
 QWaylandInputDevice *QWaylandDisplay::defaultInputDevice() const
 {
-    return mInputDevices.isEmpty() ? 0 : mInputDevices.first();
+    return mInputDevices.isEmpty() ? nullptr : mInputDevices.first();
 }
 
 bool QWaylandDisplay::isKeyboardAvailable() const

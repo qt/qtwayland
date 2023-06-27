@@ -206,7 +206,7 @@ void QWaylandInputContext::setFocusObject(QObject *object)
 
 QWaylandTextInputInterface *QWaylandInputContext::textInput() const
 {
-    return mDisplay->defaultInputDevice()->textInput();
+    return mDisplay->defaultInputDevice() ? mDisplay->defaultInputDevice()->textInput() : nullptr;
 }
 
 #if QT_CONFIG(xkbcommon)

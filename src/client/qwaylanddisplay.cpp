@@ -927,6 +927,9 @@ void QWaylandDisplay::handleWindowDeactivated(QWaylandWindow *window)
 
     mActiveWindows.removeOne(window);
 
+    if (QCoreApplication::closingDown())
+        return;
+
     if (auto *decoration = window->decoration())
         decoration->update();
 }

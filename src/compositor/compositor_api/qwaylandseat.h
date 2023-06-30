@@ -70,6 +70,7 @@ public:
 
     void sendFullKeyEvent(QKeyEvent *event);
     Q_INVOKABLE void sendKeyEvent(int qtKey, bool pressed);
+    Q_REVISION(6, 7) Q_INVOKABLE void sendUnicodeKeyEvent(uint unicode, bool pressed);
 
     uint sendTouchPointEvent(QWaylandSurface *surface, int id, const QPointF &point, Qt::TouchPointState state);
     Q_INVOKABLE uint sendTouchPointPressed(QWaylandSurface *surface, int id, const QPointF &position);

@@ -28,7 +28,18 @@ qhp.QtWaylandCompositor.subprojects.examples.indexTitle     = Qt Wayland Composi
 qhp.QtWaylandCompositor.subprojects.examples.selectors      = fake:example
 qhp.QtWaylandCompositor.subprojects.examples.sortPages      = true
 
-depends += qtcore qtqml qtquick qtdoc qtquickcontrols qmake qtgui qtqmlmodels qtwidgets qtvirtualkeyboard
+depends += qtcore \
+           qtqml \
+           qtquick \
+           qtdoc \
+           qtquickcontrols \
+           qmake \
+           qtgui \
+           qtqmlmodels \
+           qtwidgets \
+           qtvirtualkeyboard \
+           qtcmake \
+           qtopengl
 
 exampledirs += ../../../examples/wayland
 headerdirs += \

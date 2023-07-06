@@ -4,10 +4,6 @@
 #ifndef QWAYLANDCOMPOSITORGLOBAL_H
 #define QWAYLANDCOMPOSITORGLOBAL_H
 
-#if 0
-#pragma qt_deprecates(qwaylandexport.h)
-#endif
-
 #include <QtGui/qtguiglobal.h>
 #include <QtWaylandCompositor/qtwaylandcompositor-config.h>
 #include <QtWaylandCompositor/qtwaylandcompositorexports.h>

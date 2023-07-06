@@ -30,6 +30,15 @@ endif()
 
 # See global/README for a description of the following module.
 qt_internal_add_module(WaylandGlobalPrivate INTERNAL_MODULE HEADER_MODULE)
+
+# Work around 115101.
+# If nothing depends on the WaylandGlobalPrivate target it doesn't run custom commands that the
+# target depends on. WaylandGlobalPrivate_ensure_sync_headers makes sure that 'all' depends on
+# WaylandGlobalPrivate_sync_headers.
+# TODO: This needs to be removed once the fix for QTBUG-115101 is merged in qtbase.
+add_custom_target(WaylandGlobalPrivate_ensure_sync_headers ALL)
+add_dependencies(WaylandGlobalPrivate_ensure_sync_headers WaylandGlobalPrivate_sync_headers)
+
 add_subdirectory(qtwaylandscanner)
 
 # special case begin

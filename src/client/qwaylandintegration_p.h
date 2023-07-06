@@ -90,6 +90,7 @@ public:
 #endif
 
     void setApplicationBadge(qint64 number) override;
+    void beep() const override;
 
     virtual QWaylandInputDevice *createInputDevice(QWaylandDisplay *display, int version, uint32_t id) const;
     virtual QWaylandScreen *createPlatformScreen(QWaylandDisplay *waylandDisplay, int version, uint32_t id) const;

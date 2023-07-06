@@ -57,6 +57,8 @@
 #include "qwaylandinputdeviceintegrationfactory_p.h"
 #include "qwaylandwindow_p.h"
 
+#include <QtWaylandClient/private/qwayland-xdg-system-bell-v1.h>
+
 #if QT_CONFIG(accessibility_atspi_bridge)
 #include <QtGui/private/qspiaccessiblebridge_p.h>
 #endif
@@ -529,6 +531,14 @@ void QWaylandIntegration::setApplicationBadge(qint64 number)
 {
     mPlatformServices->setApplicationBadge(number);
 }
+
+void QWaylandIntegration::beep() const
+{
+    if (auto bell = mDisplay->systemBell()) {
+        bell->ring(nullptr);
+    }
+}
+
 }
 
 QT_END_NAMESPACE

@@ -107,6 +107,7 @@ qt6_generate_wayland_protocol_client_sources(WaylandClient
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/fractional-scale/fractional-scale-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/viewporter/viewporter.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-shell/xdg-shell.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-system-bell/xdg-system-bell-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-toplevel-drag/xdg-toplevel-drag-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-key-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-text-input-method-unstable-v1.xml

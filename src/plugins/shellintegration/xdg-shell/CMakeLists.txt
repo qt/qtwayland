@@ -17,6 +17,7 @@ qt_internal_add_plugin(QWaylandXdgShellIntegrationPlugin
         qwaylandxdgshell.cpp qwaylandxdgshell_p.h
         qwaylandxdgshellintegration.cpp qwaylandxdgshellintegration_p.h
         qwaylandxdgexporterv2.cpp qwaylandxdgexporterv2_p.h
+        qwaylandxdgdialogv1.cpp qwaylandxdgdialogv1_p.h
     LIBRARIES
         Qt::Core
         Qt::Gui
@@ -31,6 +32,7 @@ qt6_generate_wayland_protocol_client_sources(QWaylandXdgShellIntegrationPlugin
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../3rdparty/protocol/xdg-shell.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../3rdparty/protocol/xdg-activation-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../3rdparty/protocol/xdg-foreign-unstable-v2.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../3rdparty/protocol/xdg-dialog-v1.xml
 )
 
 #### Keys ignored in scope 1:.:.:xdg-shell.pro:<TRUE>:

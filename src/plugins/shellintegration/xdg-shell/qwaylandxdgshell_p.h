@@ -39,6 +39,8 @@ class QWaylandInputDevice;
 class QWaylandXdgShell;
 class QWaylandXdgExportedV2;
 class QWaylandXdgExporterV2;
+class QWaylandXdgDialogWmV1;
+class QWaylandXdgDialogV1;
 
 class Q_WAYLANDCLIENT_EXPORT QWaylandXdgSurface : public QWaylandShellSurface, public QtWayland::xdg_surface
 {
@@ -109,6 +111,7 @@ private:
         QWaylandXdgSurface *m_xdgSurface = nullptr;
         QWaylandXdgToplevelDecorationV1 *m_decoration = nullptr;
         QScopedPointer<QWaylandXdgExportedV2> m_exported;
+        QScopedPointer<QWaylandXdgDialogV1> m_xdgDialog;
     };
 
     class Popup : public QtWayland::xdg_popup {
@@ -171,6 +174,7 @@ private:
     QScopedPointer<QWaylandXdgDecorationManagerV1> m_xdgDecorationManager;
     QScopedPointer<QWaylandXdgActivationV1> m_xdgActivation;
     QScopedPointer<QWaylandXdgExporterV2> m_xdgExporter;
+    QScopedPointer<QWaylandXdgDialogWmV1> m_xdgDialogWm;
 
     friend class QWaylandXdgSurface;
 };

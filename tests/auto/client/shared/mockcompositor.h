@@ -13,6 +13,7 @@
 #include "xdgshell.h"
 #include "viewport.h"
 #include "fractionalscalev1.h"
+#include "xdgdialog.h"
 
 #include <QtGui/QGuiApplication>
 
@@ -50,6 +51,7 @@ public:
     IviSurface *iviSurface(int i = 0) { return get<IviApplication>()->m_iviSurfaces.value(i, nullptr); }
     FractionalScale *fractionalScale(int i = 0) {return get<FractionalScaleManager>()->m_fractionalScales.value(i, nullptr); }
     Viewport *viewport(int i = 0) {return get<Viewporter>()->m_viewports.value(i, nullptr); }
+    XdgDialog *xdgDialog(int i = 0) { return get<XdgWmDialog>()->m_dialogs.value(i, nullptr); }
 
     uint sendXdgShellPing();
     void xdgPingAndWaitForPong();

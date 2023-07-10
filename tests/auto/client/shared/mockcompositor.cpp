@@ -23,6 +23,7 @@ DefaultCompositor::DefaultCompositor(CompositorType t, int socketFd)
         add<XdgWmBase>();
         add<FractionalScaleManager>();
         add<Viewporter>();
+        add<XdgWmDialog>();
 
         switch (m_type) {
         case CompositorType::Default:

@@ -16,6 +16,7 @@ qt_manual_moc(moc_files
     textinput.h
     qttextinput.h
     viewport.h
+    xdgdialog.h
     xdgoutputv1.h
     xdgshell.h
 )
@@ -33,6 +34,7 @@ add_library(SharedClientTest
         qttextinput.cpp qttextinput.h
         xdgoutputv1.cpp xdgoutputv1.h
         xdgshell.cpp xdgshell.h
+        xdgdialog.cpp xdgdialog.h
         viewport.cpp viewport.h
         ${moc_files}
 )
@@ -50,6 +52,7 @@ qt6_generate_wayland_protocol_server_sources(SharedClientTest
         ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/viewporter.xml
         ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/wayland.xml
         ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/xdg-decoration-unstable-v1.xml
+        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/xdg-dialog-v1.xml
         ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/xdg-output-unstable-v1.xml
         ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/xdg-shell.xml
 )

@@ -6,6 +6,7 @@
 #include "qwaylandxdgshell_p.h"
 
 #include "qwaylandxdgexporterv2_p.h"
+#include "qwaylandxdgdialogv1_p.h"
 
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QtWaylandClient/private/qwaylandwindow_p.h>
@@ -32,6 +33,16 @@ QWaylandXdgSurface::Toplevel::Toplevel(QWaylandXdgSurface *xdgSurface)
     }
     requestWindowStates(window->windowStates());
     requestWindowFlags(window->flags());
+    if (auto transientParent = xdgSurface->window()->transientParent()) {
+        if (auto parentSurface =
+                    qobject_cast<QWaylandXdgSurface *>(transientParent->shellSurface())) {
+            set_parent(parentSurface->m_toplevel->object());
+            if (window->modality() != Qt::NonModal && m_xdgSurface->m_shell->m_xdgDialogWm) {
+                m_xdgDialog.reset(m_xdgSurface->m_shell->m_xdgDialogWm->getDialog(object()));
+                m_xdgDialog->set_modal();
+            }
+        }
+    }
 }
 
 QWaylandXdgSurface::Toplevel::~Toplevel()
@@ -296,11 +307,6 @@ QWaylandXdgSurface::QWaylandXdgSurface(QWaylandXdgShell *shell, ::xdg_surface *s
         setGrabPopup(transientParent, display->lastInputDevice(), display->lastInputSerial());
     } else {
         setToplevel();
-        if (transientParent) {
-            auto parentXdgSurface = qobject_cast<QWaylandXdgSurface *>(transientParent->shellSurface());
-            if (parentXdgSurface)
-                m_toplevel->set_parent(parentXdgSurface->m_toplevel->object());
-        }
     }
     setSizeHints();
 }
@@ -751,6 +757,10 @@ void QWaylandXdgShell::handleRegistryGlobal(void *data, wl_registry *registry, u
 
     if (interface == QLatin1String(QWaylandXdgExporterV2::interface()->name)) {
         xdgShell->m_xdgExporter.reset(new QWaylandXdgExporterV2(registry, id, version));
+    }
+
+    if (interface == QLatin1String(QWaylandXdgDialogWmV1::interface()->name)) {
+        xdgShell->m_xdgDialogWm.reset(new QWaylandXdgDialogWmV1(registry, id, version));
     }
 }
 

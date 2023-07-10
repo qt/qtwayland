@@ -34,6 +34,7 @@ private slots:
     void nativeResources();
     void suspended();
     void initiallySuspended();
+    void modality();
 };
 
 void tst_xdgshell::init()
@@ -767,6 +768,41 @@ void tst_xdgshell::initiallySuspended()
     QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
     exec([=] { xdgToplevel()->sendCompleteConfigure(QSize(), {XdgToplevel::state_suspended}); });
     QVERIFY(!window.isExposed());
+}
+
+void tst_xdgshell::modality()
+{
+    QRasterWindow parent;
+    parent.resize(400, 320);
+    parent.show();
+
+    QRasterWindow child;
+    child.resize(400, 320);
+    child.setTransientParent(&parent);
+    child.show();
+    QCOMPOSITOR_TRY_VERIFY(xdgToplevel(1));
+    QCOMPOSITOR_VERIFY(!xdgDialog());
+
+    child.hide();
+    child.setModality(Qt::WindowModal);
+    child.show();
+    QCOMPOSITOR_TRY_VERIFY(xdgDialog());
+    QCOMPOSITOR_VERIFY(xdgDialog()->modal);
+
+    child.hide();
+    QCOMPOSITOR_TRY_VERIFY(!xdgDialog());
+
+    child.setModality(Qt::ApplicationModal);
+    child.show();
+    QCOMPOSITOR_TRY_VERIFY(xdgDialog());
+    QCOMPOSITOR_VERIFY(xdgDialog()->modal);
+
+    child.hide();
+    QCOMPOSITOR_TRY_VERIFY(!xdgDialog());
+
+    child.show();
+    child.setModality(Qt::NonModal);
+    QCOMPOSITOR_TRY_VERIFY(!xdgDialog());
 }
 
 QCOMPOSITOR_TEST_MAIN(tst_xdgshell)

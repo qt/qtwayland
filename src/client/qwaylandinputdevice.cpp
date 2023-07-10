@@ -64,7 +64,7 @@ QWaylandInputDevice::Keyboard::Keyboard(QWaylandInputDevice *p)
     : mParent(p)
 {
     init(p->get_keyboard());
-    mRepeatTimer.callOnTimeout([&]() {
+    mRepeatTimer.callOnTimeout(this, [&]() {
         if (!focusWindow()) {
             // We destroyed the keyboard focus surface, but the server didn't get the message yet...
             // or the server didn't send an enter event first.
@@ -132,7 +132,7 @@ QWaylandInputDevice::Pointer::Pointer(QWaylandInputDevice *seat)
     }
 
     mCursor.frameTimer.setSingleShot(true);
-    mCursor.frameTimer.callOnTimeout([&]() {
+    mCursor.frameTimer.callOnTimeout(this, [&]() {
         cursorTimerCallback();
     });
 #endif

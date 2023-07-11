@@ -101,6 +101,8 @@ public:
         ke->nativeScanCode += offset;
 #endif
         uint32_t code = ke->nativeScanCode;
+        if (code == 0)
+            code = seat->keyboard()->keyToScanCode(ke->key);
         bool isDown = ke->keyType == QEvent::KeyPress;
 
 #if QT_CONFIG(xkbcommon)

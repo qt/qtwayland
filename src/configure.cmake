@@ -4,9 +4,6 @@
 # configure.cmake for the QtWaylandGlobalPrivate module
 
 #### Inputs
-set(INPUT_wayland_text_input_v4_wip OFF CACHE BOOL "")
-
-
 
 #### Libraries
 
@@ -248,12 +245,7 @@ qt_feature("wayland-vulkan-server-buffer" PRIVATE
 qt_feature("wayland-datadevice" PRIVATE
     CONDITION QT_FEATURE_draganddrop OR QT_FEATURE_clipboard
 )
-qt_feature("wayland-text-input-v4-wip" PRIVATE
-    LABEL "Qt Wayland TextInput Protocol V4(WIP)"
-    PURPOSE "Enables wayland_text_input_unstable_v4(wip)"
-)
 
-qt_configure_add_summary_entry(ARGS "wayland-text-input-v4-wip")
 qt_configure_add_summary_entry(ARGS "wayland-client")
 qt_configure_add_summary_entry(ARGS "wayland-server")
 qt_configure_add_summary_section(NAME "Qt Wayland Drivers")

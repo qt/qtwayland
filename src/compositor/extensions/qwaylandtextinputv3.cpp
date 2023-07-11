@@ -1,8 +1,8 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 
-#include "qwaylandtextinputv4.h"
-#include "qwaylandtextinputv4_p.h"
+#include "qwaylandtextinputv3.h"
+#include "qwaylandtextinputv3_p.h"
 
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/private/qwaylandseat_p.h>
@@ -23,11 +23,11 @@ QT_BEGIN_NAMESPACE
 
 Q_DECLARE_LOGGING_CATEGORY(qLcWaylandCompositorTextInput)
 
-QWaylandTextInputV4ClientState::QWaylandTextInputV4ClientState()
+QWaylandTextInputV3ClientState::QWaylandTextInputV3ClientState()
 {
 }
 
-Qt::InputMethodQueries QWaylandTextInputV4ClientState::updatedQueries(const QWaylandTextInputV4ClientState &other) const
+Qt::InputMethodQueries QWaylandTextInputV3ClientState::updatedQueries(const QWaylandTextInputV3ClientState &other) const
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
 
@@ -47,7 +47,7 @@ Qt::InputMethodQueries QWaylandTextInputV4ClientState::updatedQueries(const QWay
     return queries;
 }
 
-Qt::InputMethodQueries QWaylandTextInputV4ClientState::mergeChanged(const QWaylandTextInputV4ClientState &other) {
+Qt::InputMethodQueries QWaylandTextInputV3ClientState::mergeChanged(const QWaylandTextInputV3ClientState &other) {
 
     Qt::InputMethodQueries queries;
 
@@ -79,16 +79,16 @@ Qt::InputMethodQueries QWaylandTextInputV4ClientState::mergeChanged(const QWayla
     return queries;
 }
 
-QWaylandTextInputV4Private::QWaylandTextInputV4Private(QWaylandCompositor *compositor)
+QWaylandTextInputV3Private::QWaylandTextInputV3Private(QWaylandCompositor *compositor)
     : compositor(compositor)
-    , currentState(new QWaylandTextInputV4ClientState)
-    , pendingState(new QWaylandTextInputV4ClientState)
+    , currentState(new QWaylandTextInputV3ClientState)
+    , pendingState(new QWaylandTextInputV3ClientState)
 {
 }
 
-void QWaylandTextInputV4Private::sendInputMethodEvent(QInputMethodEvent *event)
+void QWaylandTextInputV3Private::sendInputMethodEvent(QInputMethodEvent *event)
 {
-    Q_Q(QWaylandTextInputV4);
+    Q_Q(QWaylandTextInputV3);
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
 
     if (!focusResource || !focusResource->handle)
@@ -131,11 +131,11 @@ void QWaylandTextInputV4Private::sendInputMethodEvent(QInputMethodEvent *event)
 }
 
 
-void QWaylandTextInputV4Private::sendKeyEvent(QKeyEvent *event)
+void QWaylandTextInputV3Private::sendKeyEvent(QKeyEvent *event)
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
 
-    Q_Q(QWaylandTextInputV4);
+    Q_Q(QWaylandTextInputV3);
 
     if (!focusResource || !focusResource->handle)
         return;
@@ -145,7 +145,7 @@ void QWaylandTextInputV4Private::sendKeyEvent(QKeyEvent *event)
     send_done(focusResource->handle, serial);
 }
 
-QVariant QWaylandTextInputV4Private::inputMethodQuery(Qt::InputMethodQuery property, QVariant argument) const
+QVariant QWaylandTextInputV3Private::inputMethodQuery(Qt::InputMethodQuery property, QVariant argument) const
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO << property;
 
@@ -189,10 +189,10 @@ QVariant QWaylandTextInputV4Private::inputMethodQuery(Qt::InputMethodQuery prope
     }
 }
 
-void QWaylandTextInputV4Private::setFocus(QWaylandSurface *surface)
+void QWaylandTextInputV3Private::setFocus(QWaylandSurface *surface)
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
-    Q_Q(QWaylandTextInputV4);
+    Q_Q(QWaylandTextInputV3);
 
     if (focusResource && focus) {
         // sync before leave
@@ -225,14 +225,14 @@ void QWaylandTextInputV4Private::setFocus(QWaylandSurface *surface)
     focusResource = resource;
 }
 
-void QWaylandTextInputV4Private::zwp_text_input_v4_bind_resource(Resource *resource)
+void QWaylandTextInputV3Private::zwp_text_input_v3_bind_resource(Resource *resource)
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
 
     Q_UNUSED(resource);
 }
 
-void QWaylandTextInputV4Private::zwp_text_input_v4_destroy_resource(Resource *resource)
+void QWaylandTextInputV3Private::zwp_text_input_v3_destroy_resource(Resource *resource)
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
 
@@ -240,20 +240,20 @@ void QWaylandTextInputV4Private::zwp_text_input_v4_destroy_resource(Resource *re
         focusResource = nullptr;
 }
 
-void QWaylandTextInputV4Private::zwp_text_input_v4_destroy(Resource *resource)
+void QWaylandTextInputV3Private::zwp_text_input_v3_destroy(Resource *resource)
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
 
     wl_resource_destroy(resource->handle);
 }
 
-void QWaylandTextInputV4Private::zwp_text_input_v4_enable(Resource *resource)
+void QWaylandTextInputV3Private::zwp_text_input_v3_enable(Resource *resource)
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
 
-    Q_Q(QWaylandTextInputV4);
+    Q_Q(QWaylandTextInputV3);
 
-    pendingState.reset(new QWaylandTextInputV4ClientState);
+    pendingState.reset(new QWaylandTextInputV3ClientState);
 
     enabledSurfaces.insert(resource, focus);
     emit q->surfaceEnabled(focus);
@@ -263,11 +263,11 @@ void QWaylandTextInputV4Private::zwp_text_input_v4_enable(Resource *resource)
     qApp->inputMethod()->show();
 }
 
-void QWaylandTextInputV4Private::zwp_text_input_v4_disable(QtWaylandServer::zwp_text_input_v4::Resource *resource)
+void QWaylandTextInputV3Private::zwp_text_input_v3_disable(QtWaylandServer::zwp_text_input_v3::Resource *resource)
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
 
-    Q_Q(QWaylandTextInputV4);
+    Q_Q(QWaylandTextInputV3);
 
     QWaylandSurface *s = enabledSurfaces.take(resource);
     emit q->surfaceDisabled(s);
@@ -278,14 +278,14 @@ void QWaylandTextInputV4Private::zwp_text_input_v4_disable(QtWaylandServer::zwp_
         qApp->inputMethod()->commit();
     }
     qApp->inputMethod()->reset();
-    pendingState.reset(new QWaylandTextInputV4ClientState);
+    pendingState.reset(new QWaylandTextInputV3ClientState);
 }
 
-void QWaylandTextInputV4Private::zwp_text_input_v4_set_cursor_rectangle(Resource *resource, int32_t x, int32_t y, int32_t width, int32_t height)
+void QWaylandTextInputV3Private::zwp_text_input_v3_set_cursor_rectangle(Resource *resource, int32_t x, int32_t y, int32_t width, int32_t height)
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO << x << y << width << height;
 
-    Q_Q(QWaylandTextInputV4);
+    Q_Q(QWaylandTextInputV3);
 
     if (resource != focusResource)
         return;
@@ -295,11 +295,11 @@ void QWaylandTextInputV4Private::zwp_text_input_v4_set_cursor_rectangle(Resource
     pendingState->changedState |= Qt::ImCursorRectangle;
 }
 
-void QWaylandTextInputV4Private::zwp_text_input_v4_commit(Resource *resource)
+void QWaylandTextInputV3Private::zwp_text_input_v3_commit(Resource *resource)
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
 
-    Q_Q(QWaylandTextInputV4);
+    Q_Q(QWaylandTextInputV3);
 
     if (resource != focusResource) {
         qCDebug(qLcWaylandCompositorTextInput) << "OBS: Disabled surface!!";
@@ -327,7 +327,7 @@ void QWaylandTextInputV4Private::zwp_text_input_v4_commit(Resource *resource)
         qApp->inputMethod()->invokeAction(QInputMethod::Click, pendingState->cursorPosition);
 
     Qt::InputMethodQueries queries = currentState->mergeChanged(*pendingState.data());
-    pendingState.reset(new QWaylandTextInputV4ClientState);
+    pendingState.reset(new QWaylandTextInputV3ClientState);
 
     if (queries) {
         qCDebug(qLcWaylandCompositorTextInput) << "QInputMethod::update() after commit with" << queries;
@@ -336,7 +336,7 @@ void QWaylandTextInputV4Private::zwp_text_input_v4_commit(Resource *resource)
     }
 }
 
-void QWaylandTextInputV4Private::zwp_text_input_v4_set_content_type(Resource *resource, uint32_t hint, uint32_t purpose)
+void QWaylandTextInputV3Private::zwp_text_input_v3_set_content_type(Resource *resource, uint32_t hint, uint32_t purpose)
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO << hint << purpose;
 
@@ -405,7 +405,7 @@ void QWaylandTextInputV4Private::zwp_text_input_v4_set_content_type(Resource *re
     pendingState->changedState |= Qt::ImHints;
 }
 
-void QWaylandTextInputV4Private::zwp_text_input_v4_set_surrounding_text(Resource *resource, const QString &text, int32_t cursor, int32_t anchor)
+void QWaylandTextInputV3Private::zwp_text_input_v3_set_surrounding_text(Resource *resource, const QString &text, int32_t cursor, int32_t anchor)
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO << text << cursor << anchor;
 
@@ -419,7 +419,7 @@ void QWaylandTextInputV4Private::zwp_text_input_v4_set_surrounding_text(Resource
     pendingState->changedState |= Qt::ImSurroundingText | Qt::ImCursorPosition | Qt::ImAnchorPosition;
 }
 
-void QWaylandTextInputV4Private::zwp_text_input_v4_set_text_change_cause(Resource *resource, uint32_t cause)
+void QWaylandTextInputV3Private::zwp_text_input_v3_set_text_change_cause(Resource *resource, uint32_t cause)
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
 
@@ -427,57 +427,57 @@ void QWaylandTextInputV4Private::zwp_text_input_v4_set_text_change_cause(Resourc
     Q_UNUSED(cause);
 }
 
-QWaylandTextInputV4::QWaylandTextInputV4(QWaylandObject *container, QWaylandCompositor *compositor)
-    : QWaylandCompositorExtensionTemplate(container, *new QWaylandTextInputV4Private(compositor))
+QWaylandTextInputV3::QWaylandTextInputV3(QWaylandObject *container, QWaylandCompositor *compositor)
+    : QWaylandCompositorExtensionTemplate(container, *new QWaylandTextInputV3Private(compositor))
 {
     connect(&d_func()->focusDestroyListener, &QWaylandDestroyListener::fired,
-            this, &QWaylandTextInputV4::focusSurfaceDestroyed);
+            this, &QWaylandTextInputV3::focusSurfaceDestroyed);
 }
 
-QWaylandTextInputV4::~QWaylandTextInputV4()
+QWaylandTextInputV3::~QWaylandTextInputV3()
 {
 }
 
-void QWaylandTextInputV4::sendInputMethodEvent(QInputMethodEvent *event)
+void QWaylandTextInputV3::sendInputMethodEvent(QInputMethodEvent *event)
 {
-    Q_D(QWaylandTextInputV4);
+    Q_D(QWaylandTextInputV3);
 
     d->sendInputMethodEvent(event);
 }
 
-void QWaylandTextInputV4::sendKeyEvent(QKeyEvent *event)
+void QWaylandTextInputV3::sendKeyEvent(QKeyEvent *event)
 {
-    Q_D(QWaylandTextInputV4);
+    Q_D(QWaylandTextInputV3);
 
     d->sendKeyEvent(event);
 }
 
-QVariant QWaylandTextInputV4::inputMethodQuery(Qt::InputMethodQuery property, QVariant argument) const
+QVariant QWaylandTextInputV3::inputMethodQuery(Qt::InputMethodQuery property, QVariant argument) const
 {
-    const Q_D(QWaylandTextInputV4);
+    const Q_D(QWaylandTextInputV3);
 
     return d->inputMethodQuery(property, argument);
 }
 
-QWaylandSurface *QWaylandTextInputV4::focus() const
+QWaylandSurface *QWaylandTextInputV3::focus() const
 {
-    const Q_D(QWaylandTextInputV4);
+    const Q_D(QWaylandTextInputV3);
 
     return d->focus;
 }
 
-void QWaylandTextInputV4::setFocus(QWaylandSurface *surface)
+void QWaylandTextInputV3::setFocus(QWaylandSurface *surface)
 {
-    Q_D(QWaylandTextInputV4);
+    Q_D(QWaylandTextInputV3);
 
     d->setFocus(surface);
 }
 
-void QWaylandTextInputV4::focusSurfaceDestroyed(void *)
+void QWaylandTextInputV3::focusSurfaceDestroyed(void *)
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
 
-    Q_D(QWaylandTextInputV4);
+    Q_D(QWaylandTextInputV3);
 
     d->focusDestroyListener.reset();
 
@@ -485,32 +485,32 @@ void QWaylandTextInputV4::focusSurfaceDestroyed(void *)
     d->focusResource = nullptr;
 }
 
-bool QWaylandTextInputV4::isSurfaceEnabled(QWaylandSurface *surface) const
+bool QWaylandTextInputV3::isSurfaceEnabled(QWaylandSurface *surface) const
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
 
-    const Q_D(QWaylandTextInputV4);
+    const Q_D(QWaylandTextInputV3);
 
     return d->enabledSurfaces.values().contains(surface);
 }
 
-void QWaylandTextInputV4::add(::wl_client *client, uint32_t id, int version)
+void QWaylandTextInputV3::add(::wl_client *client, uint32_t id, int version)
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
 
-    Q_D(QWaylandTextInputV4);
+    Q_D(QWaylandTextInputV3);
 
     d->add(client, id, version);
 }
 
-const wl_interface *QWaylandTextInputV4::interface()
+const wl_interface *QWaylandTextInputV3::interface()
 {
-    return QWaylandTextInputV4Private::interface();
+    return QWaylandTextInputV3Private::interface();
 }
 
-QByteArray QWaylandTextInputV4::interfaceName()
+QByteArray QWaylandTextInputV3::interfaceName()
 {
-    return QWaylandTextInputV4Private::interfaceName();
+    return QWaylandTextInputV3Private::interfaceName();
 }
 
 QT_END_NAMESPACE

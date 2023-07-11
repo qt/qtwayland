@@ -4,6 +4,7 @@
 #include "qwaylandinputdevice_p.h"
 
 #include "qwaylandintegration_p.h"
+#include "qwaylandtextinputv3_p.h"
 #include "qwaylandwindow_p.h"
 #include "qwaylandsurface_p.h"
 #include "qwaylandbuffer_p.h"
@@ -25,9 +26,6 @@
 #include "qwaylandshmbackingstore_p.h"
 #include "qwaylandtextinputv1_p.h"
 #include "qwaylandtextinputv2_p.h"
-#if QT_WAYLAND_TEXT_INPUT_V4_WIP
-#include "qwaylandtextinputv4_p.h"
-#endif // QT_WAYLAND_TEXT_INPUT_V4_WIP
 #include "qwaylandtextinputinterface_p.h"
 #include "qwaylandinputcontext_p.h"
 #include "qwaylandinputmethodcontext_p.h"
@@ -408,10 +406,8 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, 
     if (mQDisplay->textInputManagerv2())
         mTextInput.reset(new QWaylandTextInputv2(mQDisplay, mQDisplay->textInputManagerv2()->get_text_input(wl_seat())));
 
-#if QT_WAYLAND_TEXT_INPUT_V4_WIP
-    if (mQDisplay->textInputManagerv4())
-        mTextInput.reset(new QWaylandTextInputv4(mQDisplay, mQDisplay->textInputManagerv4()->get_text_input(wl_seat())));
-#endif // QT_WAYLAND_TEXT_INPUT_V4_WIP
+    if (mQDisplay->textInputManagerv3())
+        mTextInput.reset(new QWaylandTextInputv3(mQDisplay, mQDisplay->textInputManagerv3()->get_text_input(wl_seat())));
 
     if (mQDisplay->textInputMethodManager())
         mTextInputMethod.reset(new QWaylandTextInputMethod(mQDisplay, mQDisplay->textInputMethodManager()->get_text_input_method(wl_seat())));

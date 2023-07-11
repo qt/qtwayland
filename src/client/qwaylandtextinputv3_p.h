@@ -1,8 +1,8 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 
-#ifndef QWAYLANDTEXTINPUTV4_P_H
-#define QWAYLANDTEXTINPUTV4_P_H
+#ifndef QWAYLANDTEXTINPUTV3_P_H
+#define QWAYLANDTEXTINPUTV3_P_H
 
 //
 //  W A R N I N G
@@ -16,7 +16,7 @@
 //
 
 #include "qwaylandtextinputinterface_p.h"
-#include <QtWaylandClient/private/qwayland-text-input-unstable-v4-wip.h>
+#include <QtWaylandClient/private/qwayland-text-input-unstable-v3.h>
 #include <qwaylandinputmethodeventbuilder_p.h>
 #include <QLoggingCategory>
 
@@ -31,11 +31,11 @@ namespace QtWaylandClient {
 
 class QWaylandDisplay;
 
-class QWaylandTextInputv4 : public QtWayland::zwp_text_input_v4, public QWaylandTextInputInterface
+class QWaylandTextInputv3 : public QtWayland::zwp_text_input_v3, public QWaylandTextInputInterface
 {
 public:
-    QWaylandTextInputv4(QWaylandDisplay *display, struct ::zwp_text_input_v4 *text_input);
-    ~QWaylandTextInputv4() override;
+    QWaylandTextInputv3(QWaylandDisplay *display, struct ::zwp_text_input_v3 *text_input);
+    ~QWaylandTextInputv3() override;
 
     void reset() override;
     void commit() override;
@@ -53,12 +53,12 @@ public:
     void disableSurface(::wl_surface *surface) override;
 
 protected:
-    void zwp_text_input_v4_enter(struct ::wl_surface *surface) override;
-    void zwp_text_input_v4_leave(struct ::wl_surface *surface) override;
-    void zwp_text_input_v4_preedit_string(const QString &text, int32_t cursor_begin, int32_t cursor_end) override;
-    void zwp_text_input_v4_commit_string(const QString &text) override;
-    void zwp_text_input_v4_delete_surrounding_text(uint32_t before_length, uint32_t after_length) override;
-    void zwp_text_input_v4_done(uint32_t serial) override;
+    void zwp_text_input_v3_enter(struct ::wl_surface *surface) override;
+    void zwp_text_input_v3_leave(struct ::wl_surface *surface) override;
+    void zwp_text_input_v3_preedit_string(const QString &text, int32_t cursor_begin, int32_t cursor_end) override;
+    void zwp_text_input_v3_commit_string(const QString &text) override;
+    void zwp_text_input_v3_delete_surrounding_text(uint32_t before_length, uint32_t after_length) override;
+    void zwp_text_input_v3_done(uint32_t serial) override;
 
 private:
     QWaylandDisplay *m_display;
@@ -101,4 +101,4 @@ private:
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDTEXTINPUTV4_P_H
+#endif // QWAYLANDTEXTINPUTV3_P_H

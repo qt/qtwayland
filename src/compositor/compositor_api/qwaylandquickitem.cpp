@@ -6,9 +6,7 @@
 #include "qwaylandquicksurface.h"
 #include "qwaylandinputmethodcontrol.h"
 #include "qwaylandtextinput.h"
-#if QT_WAYLAND_TEXT_INPUT_V4_WIP
-#include "qwaylandtextinputv4.h"
-#endif // QT_WAYLAND_TEXT_INPUT_V4_WIP
+#include "qwaylandtextinputv3.h"
 #include "qwaylandqttextinputmethod.h"
 #include "qwaylandquickoutput.h"
 #include <QtWaylandCompositor/qwaylandcompositor.h>
@@ -1119,13 +1117,11 @@ void QWaylandQuickItem::takeFocus(QWaylandSeat *device)
             textInput->setFocus(surface());
     }
 
-#if QT_WAYLAND_TEXT_INPUT_V4_WIP
-    if (surface()->client()->textInputProtocols().testFlag(QWaylandClient::TextInputProtocol::TextInputV4)) {
-        QWaylandTextInputV4 *textInputV4 = QWaylandTextInputV4::findIn(target);
-        if (textInputV4)
-            textInputV4->setFocus(surface());
+    if (surface()->client()->textInputProtocols().testFlag(QWaylandClient::TextInputProtocol::TextInputV3)) {
+        QWaylandTextInputV3 *textInputV3 = QWaylandTextInputV3::findIn(target);
+        if (textInputV3)
+            textInputV3->setFocus(surface());
     }
-#endif // QT_WAYLAND_TEXT_INPUT_V4_WIP
 
     if (surface()->client()->textInputProtocols().testFlag(QWaylandClient::TextInputProtocol::QtTextInputMethodV1)) {
         QWaylandQtTextInputMethod *textInputMethod = QWaylandQtTextInputMethod::findIn(target);

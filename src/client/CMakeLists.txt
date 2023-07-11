@@ -36,6 +36,7 @@ qt_internal_add_module(WaylandClient
         qwaylandinputcontext.cpp qwaylandinputcontext_p.h
         qwaylandtextinputv1.cpp qwaylandtextinputv1_p.h
         qwaylandtextinputv2.cpp qwaylandtextinputv2_p.h
+        qwaylandtextinputv3.cpp qwaylandtextinputv3_p.h
         qwaylandtextinputinterface.cpp qwaylandtextinputinterface_p.h
         qwaylandinputdevice.cpp qwaylandinputdevice_p.h
         qwaylandinputmethodcontext.cpp qwaylandinputmethodcontext_p.h
@@ -87,7 +88,7 @@ qt6_generate_wayland_protocol_client_sources(WaylandClient
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/tablet-unstable-v2.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input-unstable-v2.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input-unstable-v4-wip.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input-unstable-v3.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/wayland.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/wp-primary-selection-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-output-unstable-v1.xml
@@ -124,13 +125,6 @@ qt6_generate_wayland_protocol_client_sources(WaylandClient
 qt_internal_extend_target(WaylandClient CONDITION QT_FEATURE_tabletevent
     SOURCES
         qwaylandtabletv2.cpp qwaylandtabletv2_p.h
-)
-
-qt_internal_extend_target(WaylandClient CONDITION QT_FEATURE_wayland_text_input_v4_wip
-    SOURCES
-        qwaylandtextinputv4.cpp qwaylandtextinputv4_p.h
-    DEFINES
-        QT_WAYLAND_TEXT_INPUT_V4_WIP=1
 )
 
 qt_internal_extend_target(WaylandClient CONDITION QT_FEATURE_clipboard

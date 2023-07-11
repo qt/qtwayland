@@ -11,10 +11,10 @@
 
 #ifdef QT_BUILD_WAYLANDCOMPOSITOR_LIB
 #include <QtWaylandCompositor/private/qwayland-server-text-input-unstable-v2.h>
-#include <QtWaylandCompositor/private/qwayland-server-text-input-unstable-v4-wip.h>
+#include <QtWaylandCompositor/private/qwayland-server-text-input-unstable-v3.h>
 #else
 #include <QtWaylandClient/private/qwayland-text-input-unstable-v2.h>
-#include <QtWaylandClient/private/qwayland-text-input-unstable-v4-wip.h>
+#include <QtWaylandClient/private/qwayland-text-input-unstable-v3.h>
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -218,55 +218,55 @@ QWaylandInputMethodContentType QWaylandInputMethodContentType::convert(Qt::Input
     return QWaylandInputMethodContentType{hint, purpose};
 }
 
-QWaylandInputMethodContentType QWaylandInputMethodContentType::convertV4(Qt::InputMethodHints hints)
+QWaylandInputMethodContentType QWaylandInputMethodContentType::convertV3(Qt::InputMethodHints hints)
 {
-    uint32_t hint = ZWP_TEXT_INPUT_V4_CONTENT_HINT_NONE;
-    uint32_t purpose = ZWP_TEXT_INPUT_V4_CONTENT_PURPOSE_NORMAL;
+    uint32_t hint = ZWP_TEXT_INPUT_V3_CONTENT_HINT_NONE;
+    uint32_t purpose = ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_NORMAL;
 
     if (hints & Qt::ImhHiddenText)
-        hint |= ZWP_TEXT_INPUT_V4_CONTENT_HINT_HIDDEN_TEXT;
+        hint |= ZWP_TEXT_INPUT_V3_CONTENT_HINT_HIDDEN_TEXT;
     if (hints & Qt::ImhSensitiveData)
-        hint |= ZWP_TEXT_INPUT_V4_CONTENT_HINT_SENSITIVE_DATA;
+        hint |= ZWP_TEXT_INPUT_V3_CONTENT_HINT_SENSITIVE_DATA;
     if ((hints & Qt::ImhNoAutoUppercase) == 0)
-        hint |= ZWP_TEXT_INPUT_V4_CONTENT_HINT_AUTO_CAPITALIZATION;
+        hint |= ZWP_TEXT_INPUT_V3_CONTENT_HINT_AUTO_CAPITALIZATION;
     if (hints & Qt::ImhPreferNumbers) {
         // Nothing yet
     }
     if (hints & Qt::ImhPreferUppercase)
-        hint |= ZWP_TEXT_INPUT_V4_CONTENT_HINT_UPPERCASE;
+        hint |= ZWP_TEXT_INPUT_V3_CONTENT_HINT_UPPERCASE;
     if (hints & Qt::ImhPreferLowercase)
-        hint |= ZWP_TEXT_INPUT_V4_CONTENT_HINT_LOWERCASE;
+        hint |= ZWP_TEXT_INPUT_V3_CONTENT_HINT_LOWERCASE;
     if ((hints & Qt::ImhNoPredictiveText) == 0) {
-        hint |= (ZWP_TEXT_INPUT_V4_CONTENT_HINT_COMPLETION
-                | ZWP_TEXT_INPUT_V4_CONTENT_HINT_SPELLCHECK);
+        hint |= (ZWP_TEXT_INPUT_V3_CONTENT_HINT_COMPLETION
+                | ZWP_TEXT_INPUT_V3_CONTENT_HINT_SPELLCHECK);
     }
 
     if ((hints & Qt::ImhDate) && (hints & Qt::ImhTime) == 0)
-        purpose = ZWP_TEXT_INPUT_V4_CONTENT_PURPOSE_DATE;
+        purpose = ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_DATE;
     else if ((hints & Qt::ImhDate) && (hints & Qt::ImhTime))
-        purpose = ZWP_TEXT_INPUT_V4_CONTENT_PURPOSE_DATETIME;
+        purpose = ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_DATETIME;
     else if ((hints & Qt::ImhDate) == 0 && (hints & Qt::ImhTime))
-        purpose = ZWP_TEXT_INPUT_V4_CONTENT_PURPOSE_TIME;
+        purpose = ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_TIME;
     if (hints & Qt::ImhPreferLatin)
-        hint |= ZWP_TEXT_INPUT_V4_CONTENT_HINT_LATIN;
+        hint |= ZWP_TEXT_INPUT_V3_CONTENT_HINT_LATIN;
     if (hints & Qt::ImhMultiLine)
-        hint |= ZWP_TEXT_INPUT_V4_CONTENT_HINT_MULTILINE;
+        hint |= ZWP_TEXT_INPUT_V3_CONTENT_HINT_MULTILINE;
     if (hints & Qt::ImhDigitsOnly)
-        purpose = ZWP_TEXT_INPUT_V4_CONTENT_PURPOSE_DIGITS;
+        purpose = ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_DIGITS;
     if (hints & Qt::ImhFormattedNumbersOnly)
-        purpose = ZWP_TEXT_INPUT_V4_CONTENT_PURPOSE_NUMBER;
+        purpose = ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_NUMBER;
     if (hints & Qt::ImhUppercaseOnly)
-        hint |= ZWP_TEXT_INPUT_V4_CONTENT_HINT_UPPERCASE;
+        hint |= ZWP_TEXT_INPUT_V3_CONTENT_HINT_UPPERCASE;
     if (hints & Qt::ImhLowercaseOnly)
-        hint |= ZWP_TEXT_INPUT_V4_CONTENT_HINT_LOWERCASE;
+        hint |= ZWP_TEXT_INPUT_V3_CONTENT_HINT_LOWERCASE;
     if (hints & Qt::ImhDialableCharactersOnly)
-        purpose = ZWP_TEXT_INPUT_V4_CONTENT_PURPOSE_PHONE;
+        purpose = ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_PHONE;
     if (hints & Qt::ImhEmailCharactersOnly)
-       purpose = ZWP_TEXT_INPUT_V4_CONTENT_PURPOSE_EMAIL;
+       purpose = ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_EMAIL;
     if (hints & Qt::ImhUrlCharactersOnly)
-       purpose = ZWP_TEXT_INPUT_V4_CONTENT_PURPOSE_URL;
+       purpose = ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_URL;
     if (hints & Qt::ImhLatinOnly)
-        hint |= ZWP_TEXT_INPUT_V4_CONTENT_HINT_LATIN;
+        hint |= ZWP_TEXT_INPUT_V3_CONTENT_HINT_LATIN;
 
     return QWaylandInputMethodContentType{hint, purpose};
 }

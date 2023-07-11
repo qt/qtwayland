@@ -1,8 +1,8 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 
-#ifndef QWAYLANDTEXTINPUTV4_H
-#define QWAYLANDTEXTINPUTV4_H
+#ifndef QWAYLANDTEXTINPUTV3_H
+#define QWAYLANDTEXTINPUTV3_H
 
 #include <QtWaylandCompositor/QWaylandCompositorExtension>
 
@@ -10,19 +10,19 @@ struct wl_client;
 
 QT_BEGIN_NAMESPACE
 
-class QWaylandTextInputV4Private;
+class QWaylandTextInputV3Private;
 
 class QInputMethodEvent;
 class QKeyEvent;
 class QWaylandSurface;
 
-class QWaylandTextInputV4 : public QWaylandCompositorExtensionTemplate<QWaylandTextInputV4>
+class QWaylandTextInputV3 : public QWaylandCompositorExtensionTemplate<QWaylandTextInputV3>
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandTextInputV4)
+    Q_DECLARE_PRIVATE(QWaylandTextInputV3)
 public:
-    explicit QWaylandTextInputV4(QWaylandObject *container, QWaylandCompositor *compositor);
-    ~QWaylandTextInputV4() override;
+    explicit QWaylandTextInputV3(QWaylandObject *container, QWaylandCompositor *compositor);
+    ~QWaylandTextInputV3() override;
 
     void sendInputMethodEvent(QInputMethodEvent *event);
     void sendKeyEvent(QKeyEvent *event);
@@ -49,4 +49,4 @@ private:
 
 QT_END_NAMESPACE
 
-#endif // QWAYLANDTEXTINPUTV4_H
+#endif // QWAYLANDTEXTINPUTV3_H

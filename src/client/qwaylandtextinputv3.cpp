@@ -1,7 +1,7 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 
-#include "qwaylandtextinputv4_p.h"
+#include "qwaylandtextinputv3_p.h"
 
 #include "qwaylandwindow_p.h"
 #include "qwaylandinputmethodeventbuilder_p.h"
@@ -18,20 +18,20 @@ Q_LOGGING_CATEGORY(qLcQpaWaylandTextInput, "qt.qpa.wayland.textinput")
 
 namespace QtWaylandClient {
 
-QWaylandTextInputv4::QWaylandTextInputv4(QWaylandDisplay *display,
-                                         struct ::zwp_text_input_v4 *text_input)
-    : QtWayland::zwp_text_input_v4(text_input)
+QWaylandTextInputv3::QWaylandTextInputv3(QWaylandDisplay *display,
+                                         struct ::zwp_text_input_v3 *text_input)
+    : QtWayland::zwp_text_input_v3(text_input)
     , m_display(display)
 {
 
 }
 
-QWaylandTextInputv4::~QWaylandTextInputv4()
+QWaylandTextInputv3::~QWaylandTextInputv3()
 {
 }
 
 namespace {
-const Qt::InputMethodQueries supportedQueries4 = Qt::ImEnabled |
+const Qt::InputMethodQueries supportedQueries3 = Qt::ImEnabled |
                                                 Qt::ImSurroundingText |
                                                 Qt::ImCursorPosition |
                                                 Qt::ImAnchorPosition |
@@ -39,7 +39,7 @@ const Qt::InputMethodQueries supportedQueries4 = Qt::ImEnabled |
                                                 Qt::ImCursorRectangle;
 }
 
-void QWaylandTextInputv4::zwp_text_input_v4_enter(struct ::wl_surface *surface)
+void QWaylandTextInputv3::zwp_text_input_v3_enter(struct ::wl_surface *surface)
 {
     qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO;
 
@@ -51,10 +51,10 @@ void QWaylandTextInputv4::zwp_text_input_v4_enter(struct ::wl_surface *surface)
     m_pendingDeleteAfterText = 0;
 
     enable();
-    updateState(supportedQueries4, update_state_enter);
+    updateState(supportedQueries3, update_state_enter);
 }
 
-void QWaylandTextInputv4::zwp_text_input_v4_leave(struct ::wl_surface *surface)
+void QWaylandTextInputv3::zwp_text_input_v3_leave(struct ::wl_surface *surface)
 {
     qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO;
 
@@ -62,10 +62,6 @@ void QWaylandTextInputv4::zwp_text_input_v4_leave(struct ::wl_surface *surface)
         qCWarning(qLcQpaWaylandTextInput()) << Q_FUNC_INFO << "Got leave event for surface" << surface << "focused surface" << m_surface;
         return;
     }
-
-    // QTBUG-97248: check commit_mode
-    // Currently text-input-unstable-v4-wip is implemented with preedit_commit_mode
-    // 'commit'
 
     m_currentPreeditString.clear();
 
@@ -76,7 +72,7 @@ void QWaylandTextInputv4::zwp_text_input_v4_leave(struct ::wl_surface *surface)
     qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO << "Done";
 }
 
-void QWaylandTextInputv4::zwp_text_input_v4_preedit_string(const QString &text, int32_t cursorBegin, int32_t cursorEnd)
+void QWaylandTextInputv3::zwp_text_input_v3_preedit_string(const QString &text, int32_t cursorBegin, int32_t cursorEnd)
 {
     qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO << text << cursorBegin << cursorEnd;
 
@@ -88,7 +84,7 @@ void QWaylandTextInputv4::zwp_text_input_v4_preedit_string(const QString &text, 
     m_pendingPreeditString.cursorEnd = cursorEnd;
 }
 
-void QWaylandTextInputv4::zwp_text_input_v4_commit_string(const QString &text)
+void QWaylandTextInputv3::zwp_text_input_v3_commit_string(const QString &text)
 {
     qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO << text;
 
@@ -98,7 +94,7 @@ void QWaylandTextInputv4::zwp_text_input_v4_commit_string(const QString &text)
     m_pendingCommitString = text;
 }
 
-void QWaylandTextInputv4::zwp_text_input_v4_delete_surrounding_text(uint32_t beforeText, uint32_t afterText)
+void QWaylandTextInputv3::zwp_text_input_v3_delete_surrounding_text(uint32_t beforeText, uint32_t afterText)
 {
     qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO << beforeText << afterText;
 
@@ -109,12 +105,12 @@ void QWaylandTextInputv4::zwp_text_input_v4_delete_surrounding_text(uint32_t bef
     m_pendingDeleteAfterText = QWaylandInputMethodEventBuilder::indexFromWayland(m_surroundingText, afterText);
 }
 
-void QWaylandTextInputv4::zwp_text_input_v4_done(uint32_t serial)
+void QWaylandTextInputv3::zwp_text_input_v3_done(uint32_t serial)
 {
     qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO << "with serial" << serial << m_currentSerial;
 
     // This is a case of double click.
-    // text_input_v4 will ignore this done signal and just keep the selection of the clicked word.
+    // text_input_v3 will ignore this done signal and just keep the selection of the clicked word.
     if (m_cursorPos != m_anchorPos && (m_pendingDeleteBeforeText != 0 || m_pendingDeleteAfterText != 0)) {
         qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO << "Ignore done";
         m_pendingDeleteBeforeText = 0;
@@ -177,22 +173,22 @@ void QWaylandTextInputv4::zwp_text_input_v4_done(uint32_t serial)
     QCoreApplication::sendEvent(focusObject, &event);
 
     if (serial == m_currentSerial)
-        updateState(supportedQueries4, update_state_full);
+        updateState(supportedQueries3, update_state_full);
 }
 
-void QWaylandTextInputv4::reset()
+void QWaylandTextInputv3::reset()
 {
     qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO;
 
     m_pendingPreeditString.clear();
 }
 
-void QWaylandTextInputv4::enableSurface(::wl_surface *)
+void QWaylandTextInputv3::enableSurface(::wl_surface *)
 {
     qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO;
 }
 
-void QWaylandTextInputv4::disableSurface(::wl_surface *surface)
+void QWaylandTextInputv3::disableSurface(::wl_surface *surface)
 {
     qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO;
 
@@ -202,15 +198,15 @@ void QWaylandTextInputv4::disableSurface(::wl_surface *surface)
     }
 }
 
-void QWaylandTextInputv4::commit()
+void QWaylandTextInputv3::commit()
 {
     m_currentSerial = (m_currentSerial < UINT_MAX) ? m_currentSerial + 1U: 0U;
 
     qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO << "with serial" << m_currentSerial;
-    QtWayland::zwp_text_input_v4::commit();
+    QtWayland::zwp_text_input_v3::commit();
 }
 
-void QWaylandTextInputv4::updateState(Qt::InputMethodQueries queries, uint32_t flags)
+void QWaylandTextInputv3::updateState(Qt::InputMethodQueries queries, uint32_t flags)
 {
     qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO << queries << flags;
 
@@ -225,7 +221,7 @@ void QWaylandTextInputv4::updateState(Qt::InputMethodQueries queries, uint32_t f
     if (!surface || (surface != m_surface))
         return;
 
-    queries &= supportedQueries4;
+    queries &= supportedQueries3;
     bool needsCommit = false;
 
     QInputMethodQueryEvent event(queries);
@@ -319,7 +315,7 @@ void QWaylandTextInputv4::updateState(Qt::InputMethodQueries queries, uint32_t f
     }
 
     if (queries & Qt::ImHints) {
-        QWaylandInputMethodContentType contentType = QWaylandInputMethodContentType::convertV4(static_cast<Qt::InputMethodHints>(event.value(Qt::ImHints).toInt()));
+        QWaylandInputMethodContentType contentType = QWaylandInputMethodContentType::convertV3(static_cast<Qt::InputMethodHints>(event.value(Qt::ImHints).toInt()));
         qCDebug(qLcQpaWaylandTextInput) << m_contentHint << contentType.hint;
         qCDebug(qLcQpaWaylandTextInput) << m_contentPurpose << contentType.purpose;
 
@@ -338,33 +334,33 @@ void QWaylandTextInputv4::updateState(Qt::InputMethodQueries queries, uint32_t f
         commit();
 }
 
-void QWaylandTextInputv4::setCursorInsidePreedit(int cursor)
+void QWaylandTextInputv3::setCursorInsidePreedit(int cursor)
 {
     Q_UNUSED(cursor);
-    qCWarning(qLcQpaWaylandTextInput) << "QWaylandTextInputV4: Input protocol \"text-input-unstable-v4-wip\" does not support setting cursor inside preedit. Use qt-text-input-method-unstable-v1 instead for full support of Qt input method events.";
+    qCWarning(qLcQpaWaylandTextInput) << "QWaylandTextInputV3: Input protocol \"text-input-unstable-v3\" does not support setting cursor inside preedit. Use qt-text-input-method-unstable-v1 instead for full support of Qt input method events.";
 }
 
-bool QWaylandTextInputv4::isInputPanelVisible() const
+bool QWaylandTextInputv3::isInputPanelVisible() const
 {
-    qCWarning(qLcQpaWaylandTextInput) << "QWaylandTextInputV4: Input protocol \"text-input-unstable-v4-wip\" does not support querying input method visibility. Use qt-text-input-method-unstable-v1 instead for full support of Qt input method events.";
+    qCWarning(qLcQpaWaylandTextInput) << "QWaylandTextInputV3: Input protocol \"text-input-unstable-v3\" does not support querying input method visibility. Use qt-text-input-method-unstable-v1 instead for full support of Qt input method events.";
     return false;
 }
 
-QRectF QWaylandTextInputv4::keyboardRect() const
+QRectF QWaylandTextInputv3::keyboardRect() const
 {
     qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO;
     return m_cursorRect;
 }
 
-QLocale QWaylandTextInputv4::locale() const
+QLocale QWaylandTextInputv3::locale() const
 {
-    qCWarning(qLcQpaWaylandTextInput) << "QWaylandTextInputV4: Input protocol \"text-input-unstable-v4-wip\" does not support querying input language. Use qt-text-input-method-unstable-v1 instead for full support of Qt input method events.";
+    qCWarning(qLcQpaWaylandTextInput) << "QWaylandTextInputV3: Input protocol \"text-input-unstable-v3\" does not support querying input language. Use qt-text-input-method-unstable-v1 instead for full support of Qt input method events.";
     return QLocale();
 }
 
-Qt::LayoutDirection QWaylandTextInputv4::inputDirection() const
+Qt::LayoutDirection QWaylandTextInputv3::inputDirection() const
 {
-    qCWarning(qLcQpaWaylandTextInput) << "QWaylandTextInputV4: Input protocol \"text-input-unstable-v4-wip\" does not support querying input direction. Use qt-text-input-method-unstable-v1 instead for full support of Qt input method events.";
+    qCWarning(qLcQpaWaylandTextInput) << "QWaylandTextInputV3: Input protocol \"text-input-unstable-v3\" does not support querying input direction. Use qt-text-input-method-unstable-v1 instead for full support of Qt input method events.";
     return Qt::LeftToRight;
 }
 

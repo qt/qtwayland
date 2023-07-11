@@ -49,7 +49,7 @@ namespace QtWayland {
     class qt_surface_extension;
     class zwp_text_input_manager_v1;
     class zwp_text_input_manager_v2;
-    class zwp_text_input_manager_v4;
+    class zwp_text_input_manager_v3;
     class qt_text_input_method_manager_v1;
     class wp_cursor_shape_manager_v1;
     class wp_fractional_scale_manager_v1;
@@ -176,9 +176,9 @@ public:
     {
         return mGlobals.textInputManagerv2.get();
     }
-    QtWayland::zwp_text_input_manager_v4 *textInputManagerv4() const
+    QtWayland::zwp_text_input_manager_v3 *textInputManagerv3() const
     {
-        return mGlobals.textInputManagerv4.get();
+        return mGlobals.textInputManagerv3.get();
     }
     QWaylandHardwareIntegration *hardwareIntegration() const
     {
@@ -204,6 +204,7 @@ public:
     {
         return mGlobals.xdgToplevelDragManager.get();
     }
+
 
     struct RegistryGlobal {
         uint32_t id;
@@ -329,7 +330,7 @@ private:
         std::unique_ptr<QtWayland::qt_text_input_method_manager_v1> textInputMethodManager;
         std::unique_ptr<QtWayland::zwp_text_input_manager_v1> textInputManagerv1;
         std::unique_ptr<QtWayland::zwp_text_input_manager_v2> textInputManagerv2;
-        std::unique_ptr<QtWayland::zwp_text_input_manager_v4> textInputManagerv4;
+        std::unique_ptr<QtWayland::zwp_text_input_manager_v3> textInputManagerv3;
         std::unique_ptr<QWaylandHardwareIntegration> hardwareIntegration;
         std::unique_ptr<QWaylandXdgOutputManagerV1> xdgOutputManager;
         std::unique_ptr<QtWayland::wp_viewporter> viewporter;
@@ -337,7 +338,6 @@ private:
         std::unique_ptr<QtWayland::wp_cursor_shape_manager_v1> cursorShapeManager;
         std::unique_ptr<QtWayland::qt_toplevel_drag_manager_v1> xdgToplevelDragManager;
     } mGlobals;
-
     int mFd = -1;
     int mWritableNotificationFd = -1;
     QList<RegistryGlobal> mRegistryGlobals;

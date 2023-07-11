@@ -39,6 +39,8 @@ qt_internal_add_module(WaylandCompositor
         extensions/qwaylandshellsurface.cpp extensions/qwaylandshellsurface.h
         extensions/qwaylandtextinput.cpp extensions/qwaylandtextinput.h extensions/qwaylandtextinput_p.h
         extensions/qwaylandtextinputmanager.cpp extensions/qwaylandtextinputmanager.h extensions/qwaylandtextinputmanager_p.h
+        extensions/qwaylandtextinputv3.cpp extensions/qwaylandtextinputv3.h extensions/qwaylandtextinputv3_p.h
+        extensions/qwaylandtextinputmanagerv3.cpp extensions/qwaylandtextinputmanagerv3.h extensions/qwaylandtextinputmanagerv3_p.h
         extensions/qwaylandviewporter.cpp extensions/qwaylandviewporter.h extensions/qwaylandviewporter_p.h
         extensions/qwaylandwlshell.cpp extensions/qwaylandwlshell.h extensions/qwaylandwlshell_p.h
         extensions/qwaylandxdgdecorationv1.cpp extensions/qwaylandxdgdecorationv1.h extensions/qwaylandxdgdecorationv1_p.h
@@ -110,7 +112,7 @@ qt6_generate_wayland_protocol_server_sources(WaylandCompositor
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/presentation-time.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/scaler.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input-unstable-v2.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input-unstable-v4-wip.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input-unstable-v3.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/viewporter.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/wayland.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-decoration-unstable-v1.xml
@@ -130,14 +132,6 @@ qt6_generate_wayland_protocol_server_sources(WaylandCompositor
 
 ## Scopes:
 #####################################################################
-
-qt_internal_extend_target(WaylandCompositor CONDITION QT_FEATURE_wayland_text_input_v4_wip
-    SOURCES
-        extensions/qwaylandtextinputv4.cpp extensions/qwaylandtextinputv4.h extensions/qwaylandtextinputv4_p.h
-        extensions/qwaylandtextinputmanagerv4.cpp extensions/qwaylandtextinputmanagerv4.h extensions/qwaylandtextinputmanagerv4_p.h
-    DEFINES
-        QT_WAYLAND_TEXT_INPUT_V4_WIP=1
-)
 
 qt_internal_extend_target(WaylandCompositor CONDITION QT_FEATURE_opengl
     SOURCES

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<protocol name="text_input_unstable_v4_wip">
+<protocol name="text_input_unstable_v3">
   <copyright>
     Copyright © 2012, 2013 Intel Corporation
     Copyright © 2015, 2016 Jan Arne Petersen
@@ -47,9 +47,9 @@
     interface version number is reset.
   </description>
 
-  <interface name="zwp_text_input_v4" version="1">
+  <interface name="zwp_text_input_v3" version="1">
     <description summary="text input">
-      The zwp_text_input_v4 interface represents text input and input methods
+      The zwp_text_input_v3 interface represents text input and input methods
       associated with a seat. It provides enter/leave events to follow the
       text input focus for a seat.
 
@@ -64,9 +64,9 @@
       Lengths must be measured between two valid indices.
 
       Focus moving throughout surfaces will result in the emission of
-      zwp_text_input_v4.enter and zwp_text_input_v4.leave events. The focused
-      surface must commit zwp_text_input_v4.enable and
-      zwp_text_input_v4.disable requests as the keyboard focus moves across
+      zwp_text_input_v3.enter and zwp_text_input_v3.leave events. The focused
+      surface must commit zwp_text_input_v3.enable and
+      zwp_text_input_v3.disable requests as the keyboard focus moves across
       editable and non-editable elements of the UI. Those two requests are not
       expected to be paired with each other, the compositor must be able to
       handle consecutive series of the same request.
@@ -91,8 +91,14 @@
 
         This request must be issued every time the active text input changes
         to a new one, including within the current surface. Use
-        zwp_text_input_v4.disable when there is no longer any input focus on
+        zwp_text_input_v3.disable when there is no longer any input focus on
         the current surface.
+
+        Clients must not enable more than one text input on the single seat
+        and should disable the current text input before enabling the new one.
+        At most one instance of text input may be in enabled state per instance,
+        Requests to enable the another text input when some text input is active
+        must be ignored by compositor.
 
         This request resets all state associated with previous enable, disable,
         set_surrounding_text, set_text_change_cause, set_content_type, and
@@ -104,11 +110,11 @@
         functionality.
 
         State set with this request is double-buffered. It will get applied on
-        the next zwp_text_input_v4.commit request, and stay valid until the
+        the next zwp_text_input_v3.commit request, and stay valid until the
         next committed enable or disable request.
 
         The changes must be applied by the compositor after issuing a
-        zwp_text_input_v4.commit request.
+        zwp_text_input_v3.commit request.
       </description>
     </request>
 
@@ -118,7 +124,7 @@
         there is no focus on any text entry inside the surface).
 
         State set with this request is double-buffered. It will get applied on
-        the next zwp_text_input_v4.commit request.
+        the next zwp_text_input_v3.commit request.
       </description>
     </request>
 
@@ -149,7 +155,7 @@
         purpose of this event.
 
         Values set with this request are double-buffered. They will get applied
-        on the next zwp_text_input_v4.commit request, and stay valid until the
+        on the next zwp_text_input_v3.commit request, and stay valid until the
         next committed enable or disable request.
 
         The initial state for affected fields is empty, meaning that the text
@@ -182,7 +188,7 @@
         cause describes the source of the change.
 
         The value set with this request is double-buffered. It must be applied
-        and reset to initial at the next zwp_text_input_v4.commit request.
+        and reset to initial at the next zwp_text_input_v3.commit request.
 
         The initial value of cause is input_method.
       </description>
@@ -238,7 +244,7 @@
         the behavior.
 
         Values set with this request are double-buffered. They will get applied
-        on the next zwp_text_input_v4.commit request.
+        on the next zwp_text_input_v3.commit request.
         Subsequent attempts to update them may have no effect. The values
         remain valid until the next committed enable or disable request.
 
@@ -261,7 +267,7 @@
         issue this request, to signify lack of support to the compositor.
 
         Values set with this request are double-buffered. They will get applied
-        on the next zwp_text_input_v4.commit request, and stay valid until the
+        on the next zwp_text_input_v3.commit request, and stay valid until the
         next committed enable or disable request.
 
         The initial values describing a cursor rectangle are empty. That means
@@ -298,7 +304,7 @@
         Neither current nor pending state are modified unless noted otherwise.
 
         The compositor must count the number of commit requests coming from
-        each zwp_text_input_v4 object and use the count as the serial in done
+        each zwp_text_input_v3 object and use the count as the serial in done
         events.
       </description>
     </request>
@@ -306,6 +312,9 @@
     <event name="enter">
       <description summary="enter event">
         Notification that this seat's text-input focus is on a certain surface.
+
+        If client has created multiple text input objects, compositor must send
+        this event to all of them.
 
         When the seat has the keyboard capability the text-input focus follows
         the keyboard focus. This event sets the current surface for the
@@ -321,7 +330,9 @@
         set.
 
         The leave notification clears the current surface. It is sent before
-        the enter notification for the new focus.
+        the enter notification for the new focus. After leave event, compositor
+        must ignore requests from any text input instances until next enter
+        event.
 
         When the seat has the keyboard capability the text-input focus follows
         the keyboard focus.
@@ -345,7 +356,7 @@
         the same, or as a text highlight otherwise.
 
         Values set with this event are double-buffered. They must be applied
-        and reset to initial on the next zwp_text_input_v4.done event.
+        and reset to initial on the next zwp_text_input_v3.done event.
 
         The initial value of text is an empty string, and cursor_begin,
         cursor_end and cursor_hidden are all 0.
@@ -362,7 +373,7 @@
         result of some composing (pre-edit).
 
         Values set with this event are double-buffered. They must be applied
-        and reset to initial on the next zwp_text_input_v4.done event.
+        and reset to initial on the next zwp_text_input_v3.done event.
 
         The initial value of text is an empty string.
       </description>
@@ -382,7 +393,7 @@
         sequence).
 
         Values set with this event are double-buffered. They must be applied
-        and reset to initial on the next zwp_text_input_v4.done event.
+        and reset to initial on the next zwp_text_input_v3.done event.
 
         The initial values of both before_length and after_length are 0.
       </description>
@@ -408,44 +419,23 @@
         5. Insert new preedit text in cursor position.
         6. Place cursor inside preedit text.
 
-        The serial number reflects the last state of the zwp_text_input_v4
+        The serial number reflects the last state of the zwp_text_input_v3
         object known to the compositor. The value of the serial argument must
         be equal to the number of commit requests already issued on that object.
+
         When the client receives a done event with a serial different than the
-        number of past commit requests, it must proceed as normal, except it
-        should not change the current state of the zwp_text_input_v4 object.
+        number of past commit requests, it must proceed with evaluating and
+        applying the changes as normal, except it should not change the current
+        state of the zwp_text_input_v3 object. All pending state requests
+        (set_surrounding_text, set_content_type and set_cursor_rectangle) on
+        the zwp_text_input_v3 object should be sent and committed after
+        receiving a zwp_text_input_v3.done event with a matching serial.
       </description>
       <arg name="serial" type="uint"/>
     </event>
-
-    <enum name="commit_mode">
-      <description summary="focus commit mode">
-        Pre-edit commit mode when the focus widget or the cursor position
-        is changed.
-      </description>
-      <entry name="clear" value="0" summary="pre-edit text is cleared"/>
-      <entry name="commit" value="1" summary="pre-edit text is committed"/>
-    </enum>
-
-    <event name="preedit_commit_mode">
-      <description summary="pre-edit commit mode">
-        Specify how the visible preedit should be handled
-        when switching the focus widget or changing the cursor position,
-        whether to commit the preedit text or clear the preedit text.
-
-        This is usually used together with the preedit_string event.
-
-        The commit behavior is the same for focus switch and
-        cursor position change.
-
-        The parameter mode selects the desired behavior and
-        its value is one from the commit mode enum.
-      </description>
-      <arg name="mode" type="uint" enum="commit_mode"/>
-    </event>
   </interface>
 
-  <interface name="zwp_text_input_manager_v4" version="1">
+  <interface name="zwp_text_input_manager_v3" version="1">
     <description summary="text input manager">
       A factory for text-input objects. This object is a global singleton.
     </description>
@@ -460,7 +450,7 @@
       <description summary="create a new text input object">
         Creates a new text-input object for a given seat.
       </description>
-      <arg name="id" type="new_id" interface="zwp_text_input_v4"/>
+      <arg name="id" type="new_id" interface="zwp_text_input_v3"/>
       <arg name="seat" type="object" interface="wl_seat"/>
     </request>
   </interface>

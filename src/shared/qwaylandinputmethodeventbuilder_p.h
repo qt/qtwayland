@@ -47,7 +47,7 @@ struct QWaylandInputMethodContentType {
     uint32_t purpose = 0;
 
     static QWaylandInputMethodContentType convert(Qt::InputMethodHints hints);
-    static QWaylandInputMethodContentType convertV4(Qt::InputMethodHints hints);
+    static QWaylandInputMethodContentType convertV3(Qt::InputMethodHints hints);
 };
 
 

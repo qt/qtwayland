@@ -83,6 +83,7 @@ public:
     QWaylandInputDevice(QWaylandDisplay *display, int version, uint32_t id);
     ~QWaylandInputDevice() override;
 
+    uint32_t id() const { return mId; }
     uint32_t capabilities() const { return mCaps; }
     QString seatname()  const { return mSeatName; }
 
@@ -144,6 +145,7 @@ protected:
     QWaylandDisplay *mQDisplay = nullptr;
     struct wl_display *mDisplay = nullptr;
 
+    uint32_t mId = -1;
     uint32_t mCaps = 0;
     QString mSeatName;
 

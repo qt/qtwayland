@@ -385,6 +385,7 @@ QWaylandInputDevice::QWaylandInputDevice(QWaylandDisplay *display, int version, 
     : QtWayland::wl_seat(display->wl_registry(), id, qMin(version, 9))
     , mQDisplay(display)
     , mDisplay(display->wl_display())
+    , mId(id)
 {
 #if QT_CONFIG(wayland_datadevice)
     if (mQDisplay->dndSelectionHandler()) {

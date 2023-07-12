@@ -54,6 +54,8 @@ public:
 
     QWaylandInputDevice *seat() const { return m_seat; }
 
+    void toolRemoved(QWaylandTabletToolV2 *tool);
+
 protected:
     void zwp_tablet_seat_v2_tablet_added(struct ::zwp_tablet_v2 *id) override;
     void zwp_tablet_seat_v2_tool_added(struct ::zwp_tablet_tool_v2 *id) override;
@@ -63,24 +65,26 @@ private:
     QWaylandInputDevice *m_seat;
     QList<QWaylandTabletV2 *> m_tablets;
     QList<QWaylandTabletToolV2 *> m_tools;
+    QList<QWaylandTabletToolV2 *> m_deadTools;
     QList<QWaylandTabletPadV2 *> m_pads;
 };
 
-class Q_WAYLANDCLIENT_EXPORT QWaylandTabletV2 : public QObject, public QtWayland::zwp_tablet_v2
+class Q_WAYLANDCLIENT_EXPORT QWaylandTabletV2 : public QPointingDevice, public QtWayland::zwp_tablet_v2
 {
     Q_OBJECT
 public:
-    explicit QWaylandTabletV2(::zwp_tablet_v2 *tablet);
+    explicit QWaylandTabletV2(::zwp_tablet_v2 *tablet, const QString &seatName);
 
 protected:
-//    void zwp_tablet_v2_name(const QString &name) override;
-//    void zwp_tablet_v2_id(uint32_t vid, uint32_t pid) override;
-//    void zwp_tablet_v2_path(const QString &path) override;
-//    void zwp_tablet_v2_done() override;
+    // callbacks which act as setters
+    void zwp_tablet_v2_name(const QString &name) override;
+    void zwp_tablet_v2_id(uint32_t vid, uint32_t pid) override;
+    void zwp_tablet_v2_path(const QString &path) override;
+    void zwp_tablet_v2_done() override;
     void zwp_tablet_v2_removed() override;
 };
 
-class Q_WAYLANDCLIENT_EXPORT QWaylandTabletToolV2 : public QObject, public QtWayland::zwp_tablet_tool_v2
+class Q_WAYLANDCLIENT_EXPORT QWaylandTabletToolV2 : public QPointingDevice, public QtWayland::zwp_tablet_tool_v2
 {
     Q_OBJECT
 public:
@@ -89,7 +93,7 @@ public:
 protected:
     void zwp_tablet_tool_v2_type(uint32_t tool_type) override;
     void zwp_tablet_tool_v2_hardware_serial(uint32_t hardware_serial_hi, uint32_t hardware_serial_lo) override;
-//    void zwp_tablet_tool_v2_hardware_id_wacom(uint32_t hardware_id_hi, uint32_t hardware_id_lo) override;
+    void zwp_tablet_tool_v2_hardware_id_wacom(uint32_t hardware_id_hi, uint32_t hardware_id_lo) override;
     void zwp_tablet_tool_v2_capability(uint32_t capability) override;
     void zwp_tablet_tool_v2_done() override;
     void zwp_tablet_tool_v2_removed() override;
@@ -110,13 +114,6 @@ protected:
 private:
     QWaylandTabletSeatV2 *m_tabletSeat;
 
-    // Static state (sent before done event)
-    QPointingDevice::PointerType m_pointerType = QPointingDevice::PointerType::Unknown;
-    QInputDevice::DeviceType m_tabletDevice = QInputDevice::DeviceType::Unknown;
-    type m_toolType = type_pen;
-    bool m_hasRotation = false;
-    quint64 m_uid = 0;
-
     // Accumulated state (applied on frame event)
     struct State {
         bool down = false;
@@ -135,8 +132,7 @@ private:
     } m_pending, m_applied;
 };
 
-// We don't actually use this, but need to handle the "removed" event to comply with the protocol
-class Q_WAYLANDCLIENT_EXPORT QWaylandTabletPadV2 : public QObject, public QtWayland::zwp_tablet_pad_v2
+class Q_WAYLANDCLIENT_EXPORT QWaylandTabletPadV2 : public QPointingDevice, public QtWayland::zwp_tablet_pad_v2
 {
     Q_OBJECT
 public:
@@ -144,9 +140,9 @@ public:
 
 protected:
 //    void zwp_tablet_pad_v2_group(struct ::zwp_tablet_pad_group_v2 *pad_group) override;
-//    void zwp_tablet_pad_v2_path(const QString &path) override;
-//    void zwp_tablet_pad_v2_buttons(uint32_t buttons) override;
-//    void zwp_tablet_pad_v2_done() override;
+    void zwp_tablet_pad_v2_path(const QString &path) override;
+    void zwp_tablet_pad_v2_buttons(uint32_t buttons) override;
+    void zwp_tablet_pad_v2_done() override;
 //    void zwp_tablet_pad_v2_button(uint32_t time, uint32_t button, uint32_t state) override;
 //    void zwp_tablet_pad_v2_enter(uint32_t serial, struct ::zwp_tablet_v2 *tablet, struct ::wl_surface *surface) override;
 //    void zwp_tablet_pad_v2_leave(uint32_t serial, struct ::wl_surface *surface) override;

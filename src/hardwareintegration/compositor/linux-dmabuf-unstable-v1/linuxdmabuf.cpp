@@ -5,6 +5,7 @@
 #include "linuxdmabufclientbufferintegration.h"
 
 #include <QtWaylandCompositor/QWaylandCompositor>
+#include <QtWaylandCompositor/private/qwltextureorphanage_p.h>
 
 #include <drm_fourcc.h>
 #include <drm_mode.h>
@@ -262,7 +263,8 @@ void LinuxDmabufWlBuffer::buffer_destroy(Resource *resource)
 
     for (uint32_t i = 0; i < m_planesNumber; ++i) {
         if (m_textures[i] != nullptr) {
-            m_clientBufferIntegration->deleteGLTextureWhenPossible(m_textures[i], m_texturesContext[i]);
+            QtWayland::QWaylandTextureOrphanage::instance()->admitTexture(m_textures[i],
+                                                                          m_texturesContext[i]);
             m_textures[i] = nullptr;
             m_texturesContext[i] = nullptr;
             QObject::disconnect(m_texturesAboutToBeDestroyedConnection[i]);

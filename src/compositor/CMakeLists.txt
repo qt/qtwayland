@@ -150,6 +150,7 @@ qt_internal_extend_target(WaylandCompositor CONDITION QT_FEATURE_opengl
         hardware_integration/qwlserverbufferintegration.cpp hardware_integration/qwlserverbufferintegration_p.h
         hardware_integration/qwlserverbufferintegrationfactory.cpp hardware_integration/qwlserverbufferintegrationfactory_p.h
         hardware_integration/qwlserverbufferintegrationplugin.cpp hardware_integration/qwlserverbufferintegrationplugin_p.h
+        hardware_integration/qwltextureorphanage.cpp hardware_integration/qwltextureorphanage_p.h
     PUBLIC_LIBRARIES
         Qt::OpenGL
 )

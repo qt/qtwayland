@@ -421,9 +421,9 @@ void QWaylandDisplay::reconnect()
     qDeleteAll(mWaitingScreens);
     mWaitingScreens.clear();
 
-    const auto screens = std::exchange(mScreens, {});
-    ensureScreen();
-    for (QWaylandScreen *screen : screens) {
+    while (!mScreens.isEmpty()) {
+        auto screen = mScreens.takeLast();
+        ensureScreen();
         QWindowSystemInterface::handleScreenRemoved(screen);
     }
 

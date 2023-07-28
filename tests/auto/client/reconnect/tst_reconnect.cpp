@@ -101,7 +101,7 @@ private Q_SLOTS:
 //core
     void cleanup() { QTRY_VERIFY2(m_comp->isClean(), qPrintable(m_comp->dirtyMessage())); }
     void basicWindow();
-    void screens();
+    void multipleScreens();
 
 //input
     void keyFocus();
@@ -142,12 +142,25 @@ void tst_WaylandReconnect::basicWindow()
     QCOMPOSITOR_TRY_VERIFY(m_comp->xdgToplevel());
 }
 
-void tst_WaylandReconnect::screens()
+void tst_WaylandReconnect::multipleScreens()
 {
-    QRasterWindow window;
-    window.resize(64, 48);
-    window.show();
-    QCOMPOSITOR_TRY_VERIFY(m_comp->xdgToplevel());
+
+    exec([this] { m_comp->add<Output>(); });
+    QRasterWindow window1;
+    window1.resize(64, 48);
+    window1.show();
+    QRasterWindow window2;
+    window2.resize(64, 48);
+    window2.show();
+    QCOMPOSITOR_TRY_VERIFY(m_comp->xdgToplevel(0));
+    QCOMPOSITOR_TRY_VERIFY(m_comp->xdgToplevel(1));
+
+    // ensure they are on different outputs
+    exec([this] {
+        m_comp->surface(0)->sendEnter(m_comp->output(0));
+        m_comp->surface(1)->sendEnter(m_comp->output(1));
+    });
+    QTRY_VERIFY(window1.screen() != window2.screen());
 
     auto originalScreens = QGuiApplication::screens();
 
@@ -162,8 +175,13 @@ void tst_WaylandReconnect::screens()
         originalScreens.removeOne(screen[0].value<QScreen *>());
     }
     QVERIFY(originalScreens.isEmpty());
-    QVERIFY(window.screen());
-    QVERIFY(QGuiApplication::screens().contains(window.screen()));
+
+    QCOMPOSITOR_TRY_VERIFY(m_comp->xdgToplevel(0));
+    QCOMPOSITOR_TRY_VERIFY(m_comp->xdgToplevel(1));
+    QVERIFY(window1.screen());
+    QVERIFY(window2.screen());
+    QVERIFY(QGuiApplication::screens().contains(window1.screen()));
+    QVERIFY(QGuiApplication::screens().contains(window2.screen()));
 }
 
 void tst_WaylandReconnect::keyFocus()

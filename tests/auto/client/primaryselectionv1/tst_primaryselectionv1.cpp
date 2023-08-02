@@ -289,7 +289,7 @@ void tst_primaryselectionv1::createsPrimaryDevice()
 
 void tst_primaryselectionv1::createsPrimaryDeviceForNewSeats()
 {
-    exec([=] { add<Seat>(); });
+    exec([&] { add<Seat>(); });
     QCOMPOSITOR_TRY_VERIFY(primarySelectionDevice(1));
 }
 

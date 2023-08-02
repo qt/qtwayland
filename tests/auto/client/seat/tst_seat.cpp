@@ -70,7 +70,7 @@ void tst_seat::setsCursorOnEnter()
     window.show();
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
 
-    exec([=] {
+    exec([&] {
         auto *surface = xdgSurface()->m_surface;
         pointer()->sendEnter(surface, {0, 0});
         pointer()->sendFrame(surface->resource()->client());
@@ -81,13 +81,13 @@ void tst_seat::setsCursorOnEnter()
 
 void tst_seat::usesEnterSerial()
 {
-    QSignalSpy setCursorSpy(exec([=] { return pointer(); }), &Pointer::setCursor);
+    QSignalSpy setCursorSpy(exec([&] { return pointer(); }), &Pointer::setCursor);
     QRasterWindow window;
     window.resize(64, 64);
     window.show();
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
 
-    uint enterSerial = exec([=] {
+    uint enterSerial = exec([&] {
         return pointer()->sendEnter(xdgSurface()->m_surface, {0, 0});
     });
     QCOMPOSITOR_TRY_VERIFY(pointer()->cursorSurface());
@@ -164,7 +164,7 @@ void tst_seat::simpleAxis()
     WheelWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
 
-    exec([=] {
+    exec([&] {
         auto *p = pointer();
         p->sendEnter(xdgToplevel()->surface(), {32, 32});
         p->sendFrame(client());
@@ -196,7 +196,7 @@ void tst_seat::fingerScroll()
     WheelWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
 
-    exec([=] {
+    exec([&] {
         auto *p = pointer();
         auto *c = client();
         p->sendEnter(xdgToplevel()->surface(), {32, 32});
@@ -236,7 +236,7 @@ void tst_seat::fingerScroll()
     QTRY_VERIFY(window.m_events.empty());
 
     // Scroll horizontally as well
-    exec([=] {
+    exec([&] {
         pointer()->sendAxisSource(client(), Pointer::axis_source_finger);
         pointer()->sendAxis(client(), Pointer::axis_horizontal_scroll, 10);
         pointer()->sendFrame(client());
@@ -251,7 +251,7 @@ void tst_seat::fingerScroll()
     }
 
     // Scroll diagonally
-    exec([=] {
+    exec([&] {
         pointer()->sendAxisSource(client(), Pointer::axis_source_finger);
         pointer()->sendAxis(client(), Pointer::axis_horizontal_scroll, 10);
         pointer()->sendAxis(client(), Pointer::axis_vertical_scroll, 10);
@@ -275,7 +275,7 @@ void tst_seat::fingerScroll()
     QVERIFY(window.m_events.empty());
 
     // Sending axis_stop is mandatory when axis source == finger
-    exec([=] {
+    exec([&] {
         pointer()->sendAxisStop(client(), Pointer::axis_vertical_scroll);
         pointer()->sendFrame(client());
     });
@@ -293,7 +293,7 @@ void tst_seat::fingerScrollSlow()
     WheelWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
 
-    exec([=] {
+    exec([&] {
         auto *p = pointer();
         auto *c = client();
         p->sendEnter(xdgToplevel()->surface(), {32, 32});
@@ -323,7 +323,7 @@ void tst_seat::highResolutionScroll()
     WheelWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
 
-    exec([=] {
+    exec([&] {
         auto *p = pointer();
         auto *c = client();
         p->sendEnter(xdgToplevel()->surface(), {32, 32});
@@ -344,7 +344,7 @@ void tst_seat::highResolutionScroll()
         QCOMPARE(e.pixelDelta, QPoint(0, 0));
     }
 
-    exec([=] {
+    exec([&] {
         auto *p = pointer();
         auto *c = client();
         p->sendAxisSource(c, Pointer::axis_source_wheel);
@@ -369,7 +369,7 @@ void tst_seat::continuousScroll()
     WheelWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
 
-    exec([=] {
+    exec([&] {
         auto *p = pointer();
         auto *c = client();
         p->sendEnter(xdgToplevel()->surface(), {32, 32});
@@ -429,7 +429,7 @@ void tst_seat::singleTap()
     TouchWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
 
-    exec([=] {
+    exec([&] {
         auto *t = touch();
         auto *c = client();
         t->sendDown(xdgToplevel()->surface(), {32, 32}, 1);
@@ -460,7 +460,7 @@ void tst_seat::singleTapFloat()
     TouchWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
 
-    exec([=] {
+    exec([&] {
         auto *t = touch();
         auto *c = client();
         t->sendDown(xdgToplevel()->surface(), {32.75, 32.25}, 1);
@@ -491,7 +491,7 @@ void tst_seat::multiTouch()
     TouchWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
 
-    exec([=] {
+    exec([&] {
         auto *t = touch();
         auto *c = client();
 
@@ -563,7 +563,7 @@ void tst_seat::multiTouchUpAndMotionFrame()
     TouchWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
 
-    exec([=] {
+    exec([&] {
         auto *t = touch();
         auto *c = client();
 
@@ -612,7 +612,7 @@ void tst_seat::tapAndMoveInSameFrame()
     TouchWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
 
-    exec([=] {
+    exec([&] {
         auto *t = touch();
         auto *c = client();
 
@@ -644,7 +644,7 @@ void tst_seat::cancelTouch()
     TouchWindow window;
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
 
-    exec([=] {
+    exec([&] {
         auto *t = touch();
         auto *c = client();
         t->sendDown(xdgToplevel()->surface(), {32, 32}, 1);

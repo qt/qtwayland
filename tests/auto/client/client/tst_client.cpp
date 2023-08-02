@@ -172,21 +172,21 @@ void tst_WaylandClient::activeWindowFollowsKeyboardFocus()
 
     Surface *s = nullptr;
     QCOMPOSITOR_TRY_VERIFY(s = surface());
-    exec([=] {
+    exec([&] {
         sendShellSurfaceConfigure(s);
     });
 
     QCOMPOSITOR_TRY_VERIFY(window.isExposed());
 
     QCOMPARE(window.focusInEventCount, 0);
-    exec([=] {
+    exec([&] {
         keyboard()->sendEnter(s);
     });
     QTRY_COMPARE(window.focusInEventCount, 1);
     QCOMPARE(QGuiApplication::focusWindow(), &window);
 
     QCOMPARE(window.focusOutEventCount, 0);
-    exec([=] {
+    exec([&] {
         keyboard()->sendLeave(s); // or implement setFocus in Keyboard
     });
     QTRY_COMPARE(window.focusOutEventCount, 1);
@@ -200,7 +200,7 @@ void tst_WaylandClient::events()
 
     Surface *s = nullptr;
     QCOMPOSITOR_TRY_VERIFY(s = surface());
-    exec([=] {
+    exec([&] {
         sendShellSurfaceConfigure(s);
     });
 
@@ -208,7 +208,7 @@ void tst_WaylandClient::events()
 
     QCOMPARE(window.focusInEventCount, 0);
 
-    exec([=] {
+    exec([&] {
         keyboard()->sendEnter(s);
     });
     QTRY_COMPARE(window.focusInEventCount, 1);
@@ -222,14 +222,14 @@ void tst_WaylandClient::events()
     // xkb_v1 1 libxkbcommon compatible; to determine the xkb keycode, clients must add 8 to the key event keycode
     uint keyCode = 80; // arbitrarily chosen
     QCOMPARE(window.keyPressEventCount, 0);
-    exec([=] {
+    exec([&] {
         keyboard()->sendKey(client(), keyCode - 8, Keyboard::key_state_pressed); // related with native scan code
     });
     QTRY_COMPARE(window.keyPressEventCount, 1);
     QCOMPARE(window.keyCode, keyCode);
 
     QCOMPARE(window.keyReleaseEventCount, 0);
-    exec([=] {
+    exec([&] {
         keyboard()->sendKey(client(), keyCode - 8, Keyboard::key_state_released); // related with native scan code
     });
     QTRY_COMPARE(window.keyReleaseEventCount, 1);
@@ -241,12 +241,12 @@ void tst_WaylandClient::events()
     });
     // Note: wl_touch.frame should not be the last event in a test until QTBUG-66563 is fixed.
     // See also: QTBUG-66537
-    exec([=] {
+    exec([&] {
         touch()->sendFrame(client());
     });
     QTRY_COMPARE(window.touchEventCount, 1);
 
-    exec([=] {
+    exec([&] {
         touch()->sendUp(client(), touchId);
         touch()->sendFrame(client());
     });
@@ -266,7 +266,7 @@ void tst_WaylandClient::events()
     QTRY_COMPARE(window.mousePressPos, mousePressPos);
 
     QCOMPARE(window.mouseReleaseEventCount, 0);
-    exec([=] {
+    exec([&] {
         pointer()->sendButton(client(), BTN_LEFT, Pointer::button_state_released);
         pointer()->sendFrame(client());
     });
@@ -280,7 +280,7 @@ void tst_WaylandClient::backingStore()
 
     Surface *s = nullptr;
     QCOMPOSITOR_TRY_VERIFY(s = surface());
-    exec([=] {
+    exec([&] {
         sendShellSurfaceConfigure(s);
     });
 
@@ -391,7 +391,7 @@ void tst_WaylandClient::touchDrag()
 
     Surface *s = nullptr;
     QCOMPOSITOR_TRY_VERIFY(s = surface());
-    exec([=] {
+    exec([&] {
         sendShellSurfaceConfigure(s);
     });
 
@@ -405,7 +405,7 @@ void tst_WaylandClient::touchDrag()
                          &test, &DNDTest::touchDrag);
     });
 
-    exec([=] {
+    exec([&] {
         keyboard()->sendEnter(s);
     });
     QTRY_COMPARE(QGuiApplication::focusWindow(), &window);
@@ -428,7 +428,7 @@ void tst_WaylandClient::mouseDrag()
 
     Surface *s = nullptr;
     QCOMPOSITOR_TRY_VERIFY(s = surface());
-    exec([=] {
+    exec([&] {
         sendShellSurfaceConfigure(s);
     });
 
@@ -441,7 +441,7 @@ void tst_WaylandClient::mouseDrag()
                          &test, &DNDTest::finishMouseDrag);
     });
 
-    exec([=] {
+    exec([&] {
         keyboard()->sendEnter(s);
     });
     QTRY_COMPARE(QGuiApplication::focusWindow(), &window);
@@ -516,7 +516,7 @@ void tst_WaylandClient::hiddenPopupParent()
     // with the set_popup request.
     Surface *s = nullptr;
     QCOMPOSITOR_TRY_VERIFY(s = surface());
-    exec([=] {
+    exec([&] {
         sendShellSurfaceConfigure(s);
     });
     QCOMPOSITOR_TRY_VERIFY(toplevel.isExposed());
@@ -553,7 +553,7 @@ void tst_WaylandClient::glWindow()
     testWindow->show();
     Surface *s = nullptr;
     QCOMPOSITOR_TRY_VERIFY(s = surface());
-    exec([=] {
+    exec([&] {
         sendShellSurfaceConfigure(s);
     });
 

@@ -41,7 +41,7 @@ void tst_nooutput::noScreens()
     // The window should not be exposed before the first xdg_surface configure event
     QTRY_VERIFY(!window.isExposed());
 
-    exec([=] {
+    exec([&] {
         xdgToplevel()->sendConfigure({0, 0}, {}); // Let the window decide the size
         xdgSurface()->sendConfigure(nextSerial());
     });

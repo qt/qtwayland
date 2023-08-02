@@ -201,7 +201,11 @@ public:
     QVariant property(const QString &name);
     QVariant property(const QString &name, const QVariant &defaultValue);
 
+#ifdef QT_PLATFORM_WINDOW_HAS_VIRTUAL_SET_BACKING_STORE
+    void setBackingStore(QPlatformBackingStore *store) override;
+#else
     void setBackingStore(QWaylandShmBackingStore *backingStore) { mBackingStore = backingStore; }
+#endif
     QWaylandShmBackingStore *backingStore() const { return mBackingStore; }
 
     void setShellIntegration(QWaylandShellIntegration *shellIntegration);

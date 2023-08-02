@@ -37,7 +37,7 @@ public:
     virtual QSize size() const = 0;
     virtual int scale() const { return 1; }
 
-    void setBusy() { mBusy = true; }
+    void setBusy(bool busy) { mBusy = busy; }
     bool busy() const { return mBusy; }
 
     void setCommitted() { mCommitted = true; }

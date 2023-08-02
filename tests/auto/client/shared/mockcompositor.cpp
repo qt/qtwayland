@@ -46,8 +46,8 @@ DefaultCompositor::DefaultCompositor()
         add<Shm>();
         // TODO: other shells, viewporter, xdgoutput etc
 
-        QObject::connect(get<WlCompositor>(), &WlCompositor::surfaceCreated, [&] (Surface *surface){
-            QObject::connect(surface, &Surface::bufferCommitted, [=] {
+        QObject::connect(get<WlCompositor>(), &WlCompositor::surfaceCreated, [this] (Surface *surface){
+            QObject::connect(surface, &Surface::bufferCommitted, [this, surface] {
                 if (m_config.autoRelease) {
                     // Pretend we made a copy of the buffer and just release it immediately
                     surface->m_committed.buffer->send_release();
@@ -58,7 +58,7 @@ DefaultCompositor::DefaultCompositor()
             });
         });
 
-        QObject::connect(get<XdgWmBase>(), &XdgWmBase::toplevelCreated, get<XdgWmBase>(), [&] (XdgToplevel *toplevel) {
+        QObject::connect(get<XdgWmBase>(), &XdgWmBase::toplevelCreated, get<XdgWmBase>(), [this] (XdgToplevel *toplevel) {
             if (m_config.autoConfigure)
                 toplevel->sendCompleteConfigure();
         }, Qt::DirectConnection);

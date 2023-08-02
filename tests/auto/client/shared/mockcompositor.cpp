@@ -93,8 +93,8 @@ uint DefaultCompositor::sendXdgShellPing()
 
 void DefaultCompositor::xdgPingAndWaitForPong()
 {
-    QSignalSpy pongSpy(exec([=] { return get<XdgWmBase>(); }), &XdgWmBase::pong);
-    uint serial = exec([=] { return sendXdgShellPing(); });
+    QSignalSpy pongSpy(exec([&] { return get<XdgWmBase>(); }), &XdgWmBase::pong);
+    uint serial = exec([&] { return sendXdgShellPing(); });
     QTRY_COMPARE(pongSpy.size(), 1);
     QTRY_COMPARE(pongSpy.first().at(0).toUInt(), serial);
 }

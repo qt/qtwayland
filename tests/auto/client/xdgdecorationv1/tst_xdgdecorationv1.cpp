@@ -151,7 +151,7 @@ void tst_xdgdecorationv1::clientSidePreferredByCompositor()
     QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
     QCOMPOSITOR_TRY_VERIFY(toplevelDecoration()->m_unsetModeRequested);
     QVERIFY(window.frameMargins().isNull()); // We're still waiting for a configure
-    exec([=] {
+    exec([&] {
         toplevelDecoration()->sendConfigure(XdgToplevelDecorationV1::mode_client_side);
         xdgToplevel()->sendCompleteConfigure();
     });
@@ -165,7 +165,7 @@ void tst_xdgdecorationv1::initialFramelessWindowHint()
     window.show();
     QCOMPOSITOR_TRY_COMPARE(get<XdgDecorationManagerV1>()->resourceMap().size(), 1);
     QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
-    exec([=]{
+    exec([&]{
         xdgToplevel()->sendCompleteConfigure();
     });
     QCOMPOSITOR_TRY_VERIFY(xdgSurface()->m_committedConfigureSerial);
@@ -181,7 +181,7 @@ void tst_xdgdecorationv1::delayedFramelessWindowHint()
     window.show();
     QCOMPOSITOR_TRY_COMPARE(get<XdgDecorationManagerV1>()->resourceMap().size(), 1);
     QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
-    exec([=]{
+    exec([&]{
         xdgToplevel()->sendCompleteConfigure();
     });
     QCOMPOSITOR_TRY_VERIFY(xdgSurface()->m_committedConfigureSerial);

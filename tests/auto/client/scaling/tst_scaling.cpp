@@ -33,12 +33,12 @@ void tst_scaling::scaledWindow()
     window.show();
     QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
 
-    QSignalSpy configureSpy(exec([=] { return xdgSurface(); }), &XdgSurface::configureCommitted);
-    QSignalSpy surfaceCommitSpy(exec([=] { return surface(); }), &Surface::commit);
+    QSignalSpy configureSpy(exec([&] { return xdgSurface(); }), &XdgSurface::configureCommitted);
+    QSignalSpy surfaceCommitSpy(exec([&] { return surface(); }), &Surface::commit);
 
     const QSize configureSize(100, 100);
 
-    exec([=] {
+    exec([&] {
         QVERIFY(fractionalScale());
         fractionalScale()->send_preferred_scale(1.5 * 120);
         xdgToplevel()->sendCompleteConfigure(configureSize);
@@ -47,7 +47,7 @@ void tst_scaling::scaledWindow()
     QTRY_COMPARE(configureSpy.count(), 1);
     QCOMPARE(window.devicePixelRatio(), 1.5);
 
-    exec([=] {
+    exec([&] {
         Buffer *buffer = xdgToplevel()->surface()->m_committed.buffer;
         QVERIFY(buffer);
         QCOMPARE(buffer->size(), QSize(150, 150));
@@ -61,7 +61,7 @@ void tst_scaling::scaledWindow()
     QCOMPARE(window.size(), QSize(200,200));
 
     QVERIFY(surfaceCommitSpy.wait());
-    exec([=] {
+    exec([&] {
         Buffer *buffer = xdgToplevel()->surface()->m_committed.buffer;
         QVERIFY(buffer);
         QCOMPARE(buffer->size(), QSize(300, 300));
@@ -71,7 +71,7 @@ void tst_scaling::scaledWindow()
     });
 
     // dynamic scale change
-    exec([=] {
+    exec([&] {
         QVERIFY(fractionalScale());
         fractionalScale()->send_preferred_scale(2.5 * 120);
     });
@@ -79,7 +79,7 @@ void tst_scaling::scaledWindow()
     QCOMPARE(window.size(), QSize(200,200));
 
     QVERIFY(surfaceCommitSpy.wait());
-    exec([=] {
+    exec([&] {
         Buffer *buffer = xdgToplevel()->surface()->m_committed.buffer;
         QVERIFY(buffer);
         QCOMPARE(buffer->size(), QSize(500, 500));
@@ -112,9 +112,9 @@ void tst_scaling::roundingPolicy()
     window.show();
     QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
 
-    QSignalSpy surfaceCommitSpy(exec([=] { return surface(); }), &Surface::commit);
+    QSignalSpy surfaceCommitSpy(exec([&] { return surface(); }), &Surface::commit);
 
-    exec([=] {
+    exec([&] {
         QVERIFY(fractionalScale());
         fractionalScale()->send_preferred_scale(scale * 120);
         xdgToplevel()->sendCompleteConfigure();
@@ -122,7 +122,7 @@ void tst_scaling::roundingPolicy()
 
     QVERIFY(surfaceCommitSpy.wait());
 
-    exec([=] {
+    exec([&] {
         Buffer *buffer = xdgToplevel()->surface()->m_committed.buffer;
         QVERIFY(buffer);
         QCOMPARE(buffer->size(), expectedBufferSize);

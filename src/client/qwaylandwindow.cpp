@@ -681,7 +681,7 @@ void QWaylandWindow::attach(QWaylandBuffer *buffer, int x, int y)
     if (buffer) {
         Q_ASSERT(!buffer->committed());
         handleUpdate();
-        buffer->setBusy();
+        buffer->setBusy(true);
 
         mSurface->attach(buffer->buffer(), x, y);
     } else {
@@ -713,7 +713,11 @@ void QWaylandWindow::safeCommit(QWaylandBuffer *buffer, const QRegion &damage)
     if (isExposed()) {
         commit(buffer, damage);
     } else {
+        if (mQueuedBuffer) {
+            mQueuedBuffer->setBusy(false);
+        }
         mQueuedBuffer = buffer;
+        mQueuedBuffer->setBusy(true);
         mQueuedBufferDamage = damage;
     }
 }

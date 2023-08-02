@@ -100,7 +100,7 @@ void tst_seatv7::wheelDiscreteScroll()
 
     QFETCH(uint, source);
 
-    exec([=] {
+    exec([&] {
         auto *p = pointer();
         auto *c = client();
         p->sendEnter(xdgToplevel()->surface(), {32, 32});

@@ -51,8 +51,8 @@ void tst_surface::waitForFrameCallbackRaster()
     TestWindow window;
     window.show();
     QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
-    QSignalSpy bufferSpy(exec([=] { return xdgSurface()->m_surface; }), &Surface::bufferCommitted);
-    exec([=] { xdgToplevel()->sendCompleteConfigure(); });
+    QSignalSpy bufferSpy(exec([&] { return xdgSurface()->m_surface; }), &Surface::bufferCommitted);
+    exec([&] { xdgToplevel()->sendCompleteConfigure(); });
 
     // We should get the first buffer without waiting for a frame callback
     QTRY_COMPARE(bufferSpy.size(), 1);
@@ -92,8 +92,8 @@ void tst_surface::waitForFrameCallbackGl()
     TestWindow window;
     window.show();
     QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
-    QSignalSpy bufferSpy(exec([=] { return xdgSurface()->m_surface; }), &Surface::bufferCommitted);
-    exec([=] { xdgToplevel()->sendCompleteConfigure(); });
+    QSignalSpy bufferSpy(exec([&] { return xdgSurface()->m_surface; }), &Surface::bufferCommitted);
+    exec([&] { xdgToplevel()->sendCompleteConfigure(); });
 
     // We should get the first buffer without waiting for a frame callback
     QTRY_COMPARE(bufferSpy.size(), 1);
@@ -128,8 +128,8 @@ void tst_surface::negotiateShmFormat()
     window.resize(64, 48);
     window.show();
     QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
-    QSignalSpy bufferSpy(exec([=] { return xdgSurface()->m_surface; }), &Surface::bufferCommitted);
-    const uint serial = exec([=] { return xdgToplevel()->sendCompleteConfigure(); });
+    QSignalSpy bufferSpy(exec([&] { return xdgSurface()->m_surface; }), &Surface::bufferCommitted);
+    const uint serial = exec([&] { return xdgToplevel()->sendCompleteConfigure(); });
     QCOMPOSITOR_TRY_COMPARE(xdgSurface()->m_committedConfigureSerial, serial);
     exec([&] {
         Buffer *buffer = xdgToplevel()->surface()->m_committed.buffer;
@@ -157,11 +157,11 @@ void tst_surface::createSubsurface()
 
     QCOMPOSITOR_TRY_VERIFY(subSurface());
     QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
-    exec([=] { xdgToplevel()->sendCompleteConfigure(); });
+    exec([&] { xdgToplevel()->sendCompleteConfigure(); });
     QCOMPOSITOR_TRY_VERIFY(xdgSurface()->m_committedConfigureSerial);
 
-    const Surface *mainSurface = exec([=] {return surface(0);});
-    const Surface *childSurface = exec([=] {return surface(1);});
+    const Surface *mainSurface = exec([&] {return surface(0);});
+    const Surface *childSurface = exec([&] {return surface(1);});
     QSignalSpy  mainSurfaceCommitSpy(mainSurface, &Surface::commit);
     QSignalSpy childSurfaceCommitSpy(childSurface, &Surface::commit);
 
@@ -187,7 +187,7 @@ void tst_surface::createSubsurfaceForHiddenParent()
     window.resize(64, 64);
     window.show();
     QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
-    exec([=] { xdgToplevel()->sendCompleteConfigure(); });
+    exec([&] { xdgToplevel()->sendCompleteConfigure(); });
     QCOMPOSITOR_TRY_VERIFY(xdgSurface()->m_committedConfigureSerial);
 
     window.hide();
@@ -201,7 +201,7 @@ void tst_surface::createSubsurfaceForHiddenParent()
     xdgPingAndWaitForPong();
 
     // Make sure the subsurface was actually created
-    const Subsurface *subsurface = exec([=] {return subSurface(0);});
+    const Subsurface *subsurface = exec([&] {return subSurface(0);});
     QVERIFY(subsurface);
 }
 

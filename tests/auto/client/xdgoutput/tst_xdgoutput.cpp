@@ -43,7 +43,7 @@ void tst_xdgoutput::primaryScreen()
 {
     // Verify that the client has bound to the global
     QCOMPOSITOR_TRY_COMPARE(get<XdgOutputManagerV1>()->resourceMap().size(), 1);
-    exec([=] {
+    exec([&] {
         auto *resource = xdgOutput()->resourceMap().value(client());
         QCOMPARE(resource->version(), 3);
         QCOMPARE(xdgOutput()->m_logicalGeometry.size(), QSize(1920, 1080));
@@ -56,7 +56,7 @@ void tst_xdgoutput::primaryScreen()
 
 void tst_xdgoutput::overrideGeometry()
 {
-    exec([=] {
+    exec([&] {
         auto *output = add<Output>();
         auto *xdgOutput = get<XdgOutputManagerV1>()->getXdgOutput(output);
         xdgOutput->m_logicalGeometry = QRect(10, 20, 800, 1200);
@@ -68,12 +68,12 @@ void tst_xdgoutput::overrideGeometry()
     QTRY_COMPARE(s->size(), QSize(800, 1200));
     QTRY_COMPARE(s->geometry().topLeft(), QPoint(10, 20));
 
-    exec([=] { remove(output(1)); });
+    exec([&] { remove(output(1)); });
 }
 
 void tst_xdgoutput::changeGeometry()
 {
-    auto *xdgOutput = exec([=] {
+    auto *xdgOutput = exec([&] {
         auto *output = add<Output>();
         auto *xdgOutput = get<XdgOutputManagerV1>()->getXdgOutput(output);
         xdgOutput->m_logicalGeometry = QRect(10, 20, 800, 1200);
@@ -84,7 +84,7 @@ void tst_xdgoutput::changeGeometry()
     auto *screen = QGuiApplication::screens()[1];
     QTRY_COMPARE(screen->size(), QSize(800, 1200));
 
-    exec([=] {
+    exec([&] {
         xdgOutput->sendLogicalSize(QSize(1024, 768));
     });
 
@@ -92,21 +92,21 @@ void tst_xdgoutput::changeGeometry()
     // done event. If we TRY_COMPARE immediately, we risk that the client just hasn't handled the
     // logical_size request yet, so we add a screen and verify it on the client side just to give
     // the client a chance to mess up.
-    exec([=] { add<Output>(); });
+    exec([&] { add<Output>(); });
     QTRY_COMPARE(QGuiApplication::screens().size(), 3);
-    exec([=] { remove(output(2)); });
+    exec([&] { remove(output(2)); });
 
     // The logical_size event should have been handled by now, but state should not have been applied yet.
     QTRY_COMPARE(screen->size(), QSize(800, 1200));
 
-    exec([=] {
+    exec([&] {
         xdgOutput->m_output->sendDone();
     });
 
     // Finally, the size should change
     QTRY_COMPARE(screen->size(), QSize(1024, 768));
 
-    exec([=] { remove(output(1)); });
+    exec([&] { remove(output(1)); });
 }
 
 void tst_xdgoutput::outputCreateEnterRace()
@@ -118,13 +118,13 @@ void tst_xdgoutput::outputCreateEnterRace()
     window.resize(400, 320);
     window.show();
     QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
-    exec([=] { xdgToplevel()->surface()->sendEnter(output(0));});
+    exec([&] { xdgToplevel()->surface()->sendEnter(output(0));});
 
     QTRY_COMPARE(QGuiApplication::screens().size(), 1);
     QScreen *primaryScreen = QGuiApplication::screens().first();
     QCOMPARE(window.screen(), primaryScreen);
 
-     auto *out = exec([=] {
+     auto *out = exec([&] {
         return add<Output>();
      });
 
@@ -138,7 +138,7 @@ void tst_xdgoutput::outputCreateEnterRace()
     QTRY_COMPARE(QGuiApplication::screens().size(), 2);
     QTRY_COMPARE(window.screen(), QGuiApplication::screens()[1]);
 
-    exec([=] { remove(out); });
+    exec([&] { remove(out); });
     m_config.autoConfigure = false;
     m_config.autoEnter = true;
 }

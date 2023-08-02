@@ -192,14 +192,14 @@ void tst_WaylandReconnect::keyFocus()
 
     configureWindow();
     QTRY_VERIFY(window.isExposed());
-    exec([=] {
+    exec([&] {
         m_comp->keyboard()->sendEnter(m_comp->surface());
     });
     QTRY_COMPARE(window.focusInEventCount, 1);
 
     uint keyCode = 80;
     QCOMPARE(window.keyPressEventCount, 0);
-    exec([=] {
+    exec([&] {
         m_comp->keyboard()->sendKey(m_comp->client(), keyCode - 8, Keyboard::key_state_pressed);
     });
     QTRY_COMPARE(window.keyPressEventCount, 1);
@@ -213,10 +213,10 @@ void tst_WaylandReconnect::keyFocus()
     QTRY_COMPARE(window.focusOutEventCount, 1);
 
     // fake the user explicitly focussing this window afterwards
-    exec([=] {
+    exec([&] {
         m_comp->keyboard()->sendEnter(m_comp->surface());
     });
-    exec([=] {
+    exec([&] {
         m_comp->keyboard()->sendKey(m_comp->client(), keyCode - 8, Keyboard::key_state_pressed);
     });
     QTRY_COMPARE(window.focusInEventCount, 2);
@@ -227,7 +227,7 @@ void tst_WaylandReconnect::keyFocus()
 void tst_WaylandReconnect::configureWindow()
 {
     QCOMPOSITOR_TRY_VERIFY(m_comp->xdgToplevel());
-    m_comp->exec([=] {
+    m_comp->exec([&] {
         m_comp->xdgToplevel()->sendConfigure({0, 0}, {});
         const uint serial = m_comp->nextSerial(); // Let the window decide the size
         m_comp->xdgSurface()->sendConfigure(serial);

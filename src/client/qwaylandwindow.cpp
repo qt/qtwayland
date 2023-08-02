@@ -1500,6 +1500,13 @@ QVariant QWaylandWindow::property(const QString &name, const QVariant &defaultVa
     return m_properties.value(name, defaultValue);
 }
 
+#ifdef QT_PLATFORM_WINDOW_HAS_VIRTUAL_SET_BACKING_STORE
+void QWaylandWindow::setBackingStore(QPlatformBackingStore *store)
+{
+    mBackingStore = dynamic_cast<QWaylandShmBackingStore *>(store);
+}
+#endif
+
 void QWaylandWindow::timerEvent(QTimerEvent *event)
 {
     if (event->timerId() != mFrameCallbackCheckIntervalTimerId)

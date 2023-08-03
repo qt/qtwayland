@@ -702,10 +702,15 @@ void QWaylandWindow::damage(const QRect &rect)
         return;
 
     const qreal s = scale();
-    if (mSurface->version() >= 4)
-        mSurface->damage_buffer(qFloor(s * rect.x()), qFloor(s * rect.y()), qCeil(s * rect.width()), qCeil(s * rect.height()));
-    else
+    if (mSurface->version() >= 4) {
+        const QRect bufferRect =
+                QRectF(s * rect.x(), s * rect.y(), s * rect.width(), s * rect.height())
+                        .toAlignedRect();
+        mSurface->damage_buffer(bufferRect.x(), bufferRect.y(), bufferRect.width(),
+                                bufferRect.height());
+    } else {
         mSurface->damage(rect.x(), rect.y(), rect.width(), rect.height());
+    }
 }
 
 void QWaylandWindow::safeCommit(QWaylandBuffer *buffer, const QRegion &damage)
@@ -747,8 +752,13 @@ void QWaylandWindow::commit(QWaylandBuffer *buffer, const QRegion &damage)
     attachOffset(buffer);
     if (mSurface->version() >= 4) {
         const qreal s = scale();
-        for (const QRect &rect: damage)
-            mSurface->damage_buffer(qFloor(s * rect.x()), qFloor(s * rect.y()), qCeil(s * rect.width()), qCeil(s * rect.height()));
+        for (const QRect &rect : damage) {
+            const QRect bufferRect =
+                    QRectF(s * rect.x(), s * rect.y(), s * rect.width(), s * rect.height())
+                            .toAlignedRect();
+            mSurface->damage_buffer(bufferRect.x(), bufferRect.y(), bufferRect.width(),
+                                    bufferRect.height());
+        }
     } else {
         for (const QRect &rect: damage)
             mSurface->damage(rect.x(), rect.y(), rect.width(), rect.height());

@@ -312,6 +312,11 @@ protected:
 
     Qt::WindowFlags mFlags;
     QRegion mMask;
+
+    // Empty QRegion maps to "infinite" input region, needs a dedicated "deliberately empty" state.
+    QRegion mInputRegion;
+    bool mTransparentInputRegion = false;
+
     QRegion mOpaqueArea;
     Qt::WindowStates mLastReportedWindowStates = Qt::WindowNoState;
     ToplevelWindowTilingStates mLastReportedToplevelWindowTilingStates = WindowNoState;
@@ -337,6 +342,7 @@ private:
     QPlatformScreen *calculateScreenFromSurfaceEvents() const;
     void setOpaqueArea(const QRegion &opaqueArea);
     bool isOpaque() const;
+    void updateInputRegion();
     void updateViewport();
 
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);

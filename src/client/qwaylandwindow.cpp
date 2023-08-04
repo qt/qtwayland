@@ -451,6 +451,32 @@ void QWaylandWindow::setGeometry(const QRect &r)
         setOpaqueArea(QRect(QPoint(0, 0), rect.size()));
 }
 
+void QWaylandWindow::updateInputRegion()
+{
+    if (!mSurface)
+        return;
+
+    const bool transparentInputRegion = mFlags.testFlag(Qt::WindowTransparentForInput);
+
+    QRegion inputRegion;
+    if (!transparentInputRegion)
+        inputRegion = mMask;
+
+    if (mInputRegion == inputRegion && mTransparentInputRegion == transparentInputRegion)
+        return;
+
+    mInputRegion = inputRegion;
+    mTransparentInputRegion = transparentInputRegion;
+
+    if (mInputRegion.isEmpty() && !mTransparentInputRegion) {
+        mSurface->set_input_region(nullptr);
+    } else {
+        struct ::wl_region *region = mDisplay->createRegion(mInputRegion);
+        mSurface->set_input_region(region);
+        wl_region_destroy(region);
+    }
+}
+
 void QWaylandWindow::updateViewport()
 {
     if (!surfaceSize().isEmpty())
@@ -561,17 +587,12 @@ void QWaylandWindow::setMask(const QRegion &mask)
 
     mMask = mask;
 
-    if (mMask.isEmpty()) {
-        mSurface->set_input_region(nullptr);
+    updateInputRegion();
 
-        if (isOpaque())
+    if (isOpaque()) {
+        if (mMask.isEmpty())
             setOpaqueArea(QRect(QPoint(0, 0), geometry().size()));
-    } else {
-        struct ::wl_region *region = mDisplay->createRegion(mMask);
-        mSurface->set_input_region(region);
-        wl_region_destroy(region);
-
-        if (isOpaque())
+        } else {
             setOpaqueArea(mMask);
     }
 
@@ -986,6 +1007,9 @@ void QWaylandWindow::setWindowFlags(Qt::WindowFlags flags)
 
     mFlags = flags;
     createDecoration();
+
+    QReadLocker locker(&mSurfaceLock);
+    updateInputRegion();
 }
 
 bool QWaylandWindow::createDecoration()

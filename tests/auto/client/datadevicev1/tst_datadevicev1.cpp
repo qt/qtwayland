@@ -31,6 +31,7 @@ private slots:
     void initTestCase();
     void pasteAscii();
     void pasteUtf8();
+    void pasteMozUrl();
     void destroysPreviousSelection();
     void destroysSelectionWithSurface();
     void destroysSelectionOnLeave();
@@ -121,6 +122,49 @@ void tst_datadevicev1::pasteUtf8()
         pointer()->sendFrame(client);
     });
     QTRY_COMPARE(window.m_text, "face with tears of joy: 😂");
+}
+
+void tst_datadevicev1::pasteMozUrl()
+{
+    class Window : public QRasterWindow {
+    public:
+        void mousePressEvent(QMouseEvent *) override { m_urls = QGuiApplication::clipboard()->mimeData()->urls(); }
+        QList<QUrl> m_urls;
+    };
+
+    Window window;
+    window.resize(64, 64);
+    window.show();
+
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+    exec([&] {
+        auto *client = xdgSurface()->resource()->client();
+        auto *offer = dataDevice()->sendDataOffer(client, {"text/x-moz-url"});
+        connect(offer, &DataOffer::receive, [](QString mimeType, int fd) {
+            QFile file;
+            file.open(fd, QIODevice::WriteOnly, QFile::FileHandleFlag::AutoCloseHandle);
+            QCOMPARE(mimeType, "text/x-moz-url");
+            const QString content("https://www.qt.io/\nQt\nhttps://www.example.com/\nExample Website");
+            // Need UTF-16.
+            file.write(reinterpret_cast<const char *>(content.data()), content.size() * 2);
+            file.close();
+        });
+        dataDevice()->sendSelection(offer);
+
+        auto *surface = xdgSurface()->m_surface;
+        keyboard()->sendEnter(surface); // Need to set keyboard focus according to protocol
+
+        pointer()->sendEnter(surface, {32, 32});
+        pointer()->sendFrame(client);
+        pointer()->sendButton(client, BTN_LEFT, 1);
+        pointer()->sendFrame(client);
+        pointer()->sendButton(client, BTN_LEFT, 0);
+        pointer()->sendFrame(client);
+    });
+
+    QTRY_COMPARE(window.m_urls.count(), 2);
+    QCOMPARE(window.m_urls.at(0), QUrl("https://www.qt.io/"));
+    QCOMPARE(window.m_urls.at(1), QUrl("https://www.example.com/"));
 }
 
 void tst_datadevicev1::destroysPreviousSelection()

@@ -20,6 +20,47 @@ static QString utf8Text()
     return QStringLiteral("text/plain;charset=utf-8");
 }
 
+static QString uriList()
+{
+    return QStringLiteral("text/uri-list");
+}
+
+static QString mozUrl()
+{
+    return QStringLiteral("text/x-moz-url");
+}
+
+static QByteArray convertData(const QString &originalMime, const QString &newMime, const QByteArray &data)
+{
+    if (originalMime == newMime)
+        return data;
+
+    // Convert text/x-moz-url, which is an UTF-16 string of
+    // URL and page title pairs, all separated by line breaks, to text/uri-list.
+    // see also qtbase/src/plugins/platforms/xcb/qxcbmime.cpp
+    if (originalMime == uriList() && newMime == mozUrl()) {
+        if (data.size() > 1) {
+            const QString str = QString::fromUtf16(
+                  reinterpret_cast<const char16_t *>(data.constData()), data.size() / 2);
+            if (!str.isNull()) {
+                QByteArray converted;
+                const auto urls = QStringView{str}.split(u'\n');
+                // Only the URL is interesting, skip the page title.
+                for (int i = 0; i < urls.size(); i += 2) {
+                    const QUrl url(urls.at(i).trimmed().toString());
+                    if (url.isValid()) {
+                        converted += url.toEncoded();
+                        converted += "\r\n";
+                    }
+                }
+                return converted;
+            }
+        }
+    }
+
+    return data;
+}
+
 QWaylandDataOffer::QWaylandDataOffer(QWaylandDisplay *display, struct ::wl_data_offer *offer)
     : QtWayland::wl_data_offer(offer)
     , m_display(display)
@@ -105,6 +146,9 @@ bool QWaylandMimeData::hasFormat_sys(const QString &mimeType) const
     if (mimeType == QStringLiteral("text/plain") && m_types.contains(utf8Text()))
         return true;
 
+    if (mimeType == uriList() && m_types.contains(mozUrl()))
+        return true;
+
     return false;
 }
 
@@ -126,6 +170,8 @@ QVariant QWaylandMimeData::retrieveData_sys(const QString &mimeType, QMetaType t
     if (!m_types.contains(mimeType)) {
         if (mimeType == QStringLiteral("text/plain") && m_types.contains(utf8Text()))
             mime = utf8Text();
+        else if (mimeType == uriList() && m_types.contains(mozUrl()))
+            mime = mozUrl();
         else
             return QVariant();
     }
@@ -147,6 +193,9 @@ QVariant QWaylandMimeData::retrieveData_sys(const QString &mimeType, QMetaType t
     }
 
     close(pipefd[0]);
+
+    content = convertData(mimeType, mime, content);
+
     m_data.insert(mimeType, content);
     return content;
 }

@@ -59,10 +59,7 @@ void QWaylandDrag::move(const QPoint &globalPos, Qt::MouseButtons b, Qt::Keyboar
 
 void QWaylandDrag::drop(const QPoint &globalPos, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
 {
-    Q_UNUSED(globalPos);
-    Q_UNUSED(b);
-    Q_UNUSED(mods);
-    // Do nothing
+    QBasicDrag::drop(globalPos, b, mods);
 }
 
 void QWaylandDrag::endDrag()

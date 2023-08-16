@@ -223,7 +223,7 @@ public:
     void keyboard_repeat_info(int32_t rate, int32_t delay) override;
 
     QWaylandInputDevice *mParent = nullptr;
-    ::wl_surface *mFocus = nullptr;
+    QPointer<QWaylandSurface> mFocus;
 
     uint32_t mNativeModifiers = 0;
 

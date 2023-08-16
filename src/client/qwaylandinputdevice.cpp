@@ -119,7 +119,7 @@ QWaylandInputDevice::Keyboard::~Keyboard()
 
 QWaylandWindow *QWaylandInputDevice::Keyboard::focusWindow() const
 {
-    return mFocus ? QWaylandWindow::fromWlSurface(mFocus) : nullptr;
+    return mFocus ? mFocus->waylandWindow() : nullptr;
 }
 
 QWaylandInputDevice::Pointer::Pointer(QWaylandInputDevice *seat)
@@ -1224,13 +1224,17 @@ void QWaylandInputDevice::Keyboard::keyboard_enter(uint32_t time, struct wl_surf
         return;
     }
 
+    QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
+    if (!window)
+        return;
+
     if (mFocus) {
         qCWarning(lcQpaWayland()) << "Unexpected wl_keyboard.enter event. Keyboard already has focus";
-        disconnect(focusWindow(), &QWaylandWindow::wlSurfaceDestroyed, this, &Keyboard::handleFocusDestroyed);
+        disconnect(mFocus, &QWaylandSurface::destroyed, this, &Keyboard::handleFocusDestroyed);
     }
 
-    mFocus = surface;
-    connect(focusWindow(), &QWaylandWindow::wlSurfaceDestroyed, this, &Keyboard::handleFocusDestroyed);
+    mFocus = window->waylandSurface();
+    connect(mFocus, &QWaylandSurface::destroyed, this, &Keyboard::handleFocusDestroyed);
 
     mParent->mQDisplay->handleKeyboardFocusChanged(mParent);
 }
@@ -1244,13 +1248,17 @@ void QWaylandInputDevice::Keyboard::keyboard_leave(uint32_t time, struct wl_surf
         return;
     }
 
-    if (surface != mFocus) {
+    QWaylandWindow *window = QWaylandWindow::fromWlSurface(surface);
+    if (!window)
+        return;
+
+    if (window->waylandSurface() != mFocus) {
         qCWarning(lcQpaWayland) << "Ignoring unexpected wl_keyboard.leave event."
                                 << "wl_surface argument does not match the current focus"
                                 << "This is most likely a compositor bug";
         return;
     }
-    disconnect(focusWindow(), &QWaylandWindow::wlSurfaceDestroyed, this, &Keyboard::handleFocusDestroyed);
+    disconnect(mFocus, &QWaylandSurface::destroyed, this, &Keyboard::handleFocusDestroyed);
     handleFocusLost();
 }
 
@@ -1350,11 +1358,6 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
 
 void QWaylandInputDevice::Keyboard::handleFocusDestroyed()
 {
-    // The signal is emitted by QWaylandWindow, which is not necessarily destroyed along with the
-    // surface, so we still need to disconnect the signal
-    auto *window = qobject_cast<QWaylandWindow *>(sender());
-    disconnect(window, &QWaylandWindow::wlSurfaceDestroyed, this, &Keyboard::handleFocusDestroyed);
-    Q_ASSERT(window->wlSurface() == mFocus);
     handleFocusLost();
 }
 

@@ -65,13 +65,13 @@ void tst_datadevicev1::pasteAscii()
     exec([&] {
         auto *client = xdgSurface()->resource()->client();
         auto *offer = dataDevice()->sendDataOffer(client, {"text/plain"});
-        connect(offer, &DataOffer::receive, [](QString mimeType, int fd) {
+        connect(offer, &DataOffer::receive, offer, [](QString mimeType, int fd) {
             QFile file;
             file.open(fd, QIODevice::WriteOnly, QFile::FileHandleFlag::AutoCloseHandle);
             QCOMPARE(mimeType, "text/plain");
             file.write(QByteArray("normal ascii"));
             file.close();
-        });
+        }, Qt::DirectConnection);
         dataDevice()->sendSelection(offer);
 
         auto *surface = xdgSurface()->m_surface;
@@ -103,13 +103,13 @@ void tst_datadevicev1::pasteUtf8()
     exec([&] {
         auto *client = xdgSurface()->resource()->client();
         auto *offer = dataDevice()->sendDataOffer(client, {"text/plain", "text/plain;charset=utf-8"});
-        connect(offer, &DataOffer::receive, [](QString mimeType, int fd) {
+        connect(offer, &DataOffer::receive, offer, [](QString mimeType, int fd) {
             QFile file;
             file.open(fd, QIODevice::WriteOnly, QFile::FileHandleFlag::AutoCloseHandle);
             QCOMPARE(mimeType, "text/plain;charset=utf-8");
             file.write(QByteArray("face with tears of joy: 😂"));
             file.close();
-        });
+        }, Qt::DirectConnection);
         dataDevice()->sendSelection(offer);
 
         auto *surface = xdgSurface()->m_surface;
@@ -141,7 +141,7 @@ void tst_datadevicev1::pasteMozUrl()
     exec([&] {
         auto *client = xdgSurface()->resource()->client();
         auto *offer = dataDevice()->sendDataOffer(client, {"text/x-moz-url"});
-        connect(offer, &DataOffer::receive, [](QString mimeType, int fd) {
+        connect(offer, &DataOffer::receive, offer, [](QString mimeType, int fd) {
             QFile file;
             file.open(fd, QIODevice::WriteOnly, QFile::FileHandleFlag::AutoCloseHandle);
             QCOMPARE(mimeType, "text/x-moz-url");
@@ -149,7 +149,7 @@ void tst_datadevicev1::pasteMozUrl()
             // Need UTF-16.
             file.write(reinterpret_cast<const char *>(content.data()), content.size() * 2);
             file.close();
-        });
+        }, Qt::DirectConnection);
         dataDevice()->sendSelection(offer);
 
         auto *surface = xdgSurface()->m_surface;
@@ -184,14 +184,14 @@ void tst_datadevicev1::pasteSingleUtf8MozUrl()
     exec([&] {
         auto *client = xdgSurface()->resource()->client();
         auto *offer = dataDevice()->sendDataOffer(client, {"text/x-moz-url"});
-        connect(offer, &DataOffer::receive, [](QString mimeType, int fd) {
+        connect(offer, &DataOffer::receive, offer, [](QString mimeType, int fd) {
             QFile file;
             file.open(fd, QIODevice::WriteOnly, QFile::FileHandleFlag::AutoCloseHandle);
             QCOMPARE(mimeType, "text/x-moz-url");
             const QString content("https://www.qt.io/");
             file.write(content.toUtf8());
             file.close();
-        });
+        }, Qt::DirectConnection);
         dataDevice()->sendSelection(offer);
 
         auto *surface = xdgSurface()->m_surface;

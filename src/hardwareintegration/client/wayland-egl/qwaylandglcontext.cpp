@@ -195,9 +195,8 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *dis
                                      const QSurfaceFormat &fmt, QPlatformOpenGLContext *share)
     : QEGLPlatformContext(fmt, share, eglDisplay), m_display(display)
 {
-    m_reconnectionWatcher = QObject::connect(m_display, &QWaylandDisplay::connected, [this]() {
-        invalidateContext();
-    });
+    m_reconnectionWatcher = QObject::connect(m_display, &QWaylandDisplay::connected,
+                                             m_display, [this] { invalidateContext(); });
 
     switch (format().renderableType()) {
     case QSurfaceFormat::OpenVG:

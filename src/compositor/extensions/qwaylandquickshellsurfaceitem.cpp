@@ -18,9 +18,8 @@ QWaylandQuickShellSurfaceItem *QWaylandQuickShellSurfaceItemPrivate::maybeCreate
     auto *popupItem = new QWaylandQuickShellSurfaceItem(q);
     popupItem->setShellSurface(shellSurface);
     popupItem->setAutoCreatePopupItems(true);
-    QObject::connect(popupItem, &QWaylandQuickShellSurfaceItem::surfaceDestroyed, [popupItem](){
-        popupItem->deleteLater();
-    });
+    QObject::connect(popupItem, &QWaylandQuickShellSurfaceItem::surfaceDestroyed,
+                     popupItem, &QObject::deleteLater);
     return popupItem;
 }
 

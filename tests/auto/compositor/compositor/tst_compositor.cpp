@@ -505,25 +505,30 @@ void tst_WaylandCompositor::mapSurfaceHiDpi()
         QCOMPARE(waylandSurface->hasContent(), true);
     };
 
-    QObject::connect(waylandSurface, &QWaylandSurface::damaged, [=] (const QRegion &damage) {
+    QObject::connect(waylandSurface, &QWaylandSurface::damaged, this, [=] (const QRegion &damage) {
         QCOMPARE(damage, QRect(QPoint(), surfaceSize));
         verifyComittedState();
     });
     QSignalSpy damagedSpy(waylandSurface, SIGNAL(damaged(const QRegion &)));
 
-    QObject::connect(waylandSurface, &QWaylandSurface::hasContentChanged, verifyComittedState);
+    QObject::connect(waylandSurface, &QWaylandSurface::hasContentChanged,
+                     this, verifyComittedState);
     QSignalSpy hasContentSpy(waylandSurface, SIGNAL(hasContentChanged()));
 
-    QObject::connect(waylandSurface, &QWaylandSurface::bufferSizeChanged, verifyComittedState);
+    QObject::connect(waylandSurface, &QWaylandSurface::bufferSizeChanged,
+                     this, verifyComittedState);
     QSignalSpy bufferSizeSpy(waylandSurface, SIGNAL(bufferSizeChanged()));
 
-    QObject::connect(waylandSurface, &QWaylandSurface::destinationSizeChanged, verifyComittedState);
+    QObject::connect(waylandSurface, &QWaylandSurface::destinationSizeChanged,
+                     this, verifyComittedState);
     QSignalSpy destinationSizeSpy(waylandSurface, SIGNAL(destinationSizeChanged()));
 
-    QObject::connect(waylandSurface, &QWaylandSurface::bufferScaleChanged, verifyComittedState);
+    QObject::connect(waylandSurface, &QWaylandSurface::bufferScaleChanged,
+                     this, verifyComittedState);
     QSignalSpy bufferScaleSpy(waylandSurface, SIGNAL(bufferScaleChanged()));
 
-    QObject::connect(waylandSurface, &QWaylandSurface::offsetForNextFrame, [=](const QPoint &offset) {
+    QObject::connect(waylandSurface, &QWaylandSurface::offsetForNextFrame,
+                     this, [=](const QPoint &offset) {
         QCOMPARE(offset, attachOffset);
         verifyComittedState();
     });
@@ -960,9 +965,8 @@ void tst_WaylandCompositor::createsXdgSurfaces()
 
     QSignalSpy xdgSurfaceCreatedSpy(&compositor.xdgShell, &QWaylandXdgShell::xdgSurfaceCreated);
     QWaylandXdgSurface *xdgSurface = nullptr;
-    QObject::connect(&compositor.xdgShell, &QWaylandXdgShell::xdgSurfaceCreated, [&](QWaylandXdgSurface *s) {
-        xdgSurface = s;
-    });
+    QObject::connect(&compositor.xdgShell, &QWaylandXdgShell::xdgSurfaceCreated,
+                     this, [&](QWaylandXdgSurface *s) { xdgSurface = s; });
 
     wl_surface *surface = client.createSurface();
     xdg_surface *clientXdgSurface = client.createXdgSurface(surface);
@@ -980,9 +984,8 @@ void tst_WaylandCompositor::reportsXdgSurfaceWindowGeometry()
     compositor.create();
 
     QWaylandXdgSurface *xdgSurface = nullptr;
-    QObject::connect(&compositor.xdgShell, &QWaylandXdgShell::xdgSurfaceCreated, [&](QWaylandXdgSurface *s) {
-        xdgSurface = s;
-    });
+    QObject::connect(&compositor.xdgShell, &QWaylandXdgShell::xdgSurfaceCreated,
+                     this, [&](QWaylandXdgSurface *s) { xdgSurface = s; });
 
     MockClient client;
     wl_surface *surface = client.createSurface();
@@ -1017,9 +1020,8 @@ void tst_WaylandCompositor::setsXdgAppId()
     compositor.create();
 
     QWaylandXdgToplevel *toplevel = nullptr;
-    QObject::connect(&compositor.xdgShell, &QWaylandXdgShell::toplevelCreated, [&](QWaylandXdgToplevel *t) {
-        toplevel = t;
-    });
+    QObject::connect(&compositor.xdgShell, &QWaylandXdgShell::toplevelCreated,
+                     this, [&](QWaylandXdgToplevel *t) { toplevel = t; });
 
     MockClient client;
     wl_surface *surface = client.createSurface();
@@ -1063,9 +1065,8 @@ void tst_WaylandCompositor::sendsXdgConfigure()
     compositor.create();
 
     QWaylandXdgToplevel *toplevel = nullptr;
-    QObject::connect(&compositor.xdgShell, &QWaylandXdgShell::toplevelCreated, [&](QWaylandXdgToplevel *t) {
-        toplevel = t;
-    });
+    QObject::connect(&compositor.xdgShell, &QWaylandXdgShell::toplevelCreated,
+                     this, [&](QWaylandXdgToplevel *t) { toplevel = t; });
 
     MockClient client;
     wl_surface *surface = client.createSurface();
@@ -1177,9 +1178,8 @@ void tst_WaylandCompositor::createsIviSurfaces()
 
     QSignalSpy iviSurfaceCreatedSpy(&compositor.iviApplication, &QWaylandIviApplication::iviSurfaceRequested);
     QWaylandIviSurface *iviSurface = nullptr;
-    QObject::connect(&compositor.iviApplication, &QWaylandIviApplication::iviSurfaceCreated, [&](QWaylandIviSurface *s) {
-        iviSurface = s;
-    });
+    QObject::connect(&compositor.iviApplication, &QWaylandIviApplication::iviSurfaceCreated,
+                     this, [&](QWaylandIviSurface *s) { iviSurface = s; });
 
     wl_surface *surface = client.createSurface();
     client.createIviSurface(surface, 123);
@@ -1201,6 +1201,7 @@ void tst_WaylandCompositor::emitsErrorOnSameIviId()
         QWaylandIviSurface *firstIviSurface = nullptr;
         auto connection = QObject::connect(&compositor.iviApplication,
                                            &QWaylandIviApplication::iviSurfaceCreated,
+                                           this,
                                            [&](QWaylandIviSurface *s) { firstIviSurface = s; });
 
         firstClient.createIviSurface(firstClient.createSurface(), 123);
@@ -1229,9 +1230,8 @@ void tst_WaylandCompositor::emitsErrorOnSameIviId()
     QTRY_VERIFY(&thirdClient.iviApplication);
 
     QWaylandIviSurface *thirdIviSurface = nullptr;
-    QObject::connect(&compositor.iviApplication, &QWaylandIviApplication::iviSurfaceCreated, [&](QWaylandIviSurface *s) {
-        thirdIviSurface = s;
-    });
+    QObject::connect(&compositor.iviApplication, &QWaylandIviApplication::iviSurfaceCreated,
+                     this, [&](QWaylandIviSurface *s) { thirdIviSurface = s; });
     thirdClient.createIviSurface(thirdClient.createSurface(), 123);
     compositor.flushClients();
 
@@ -1260,9 +1260,8 @@ void tst_WaylandCompositor::sendsIviConfigure()
     QTRY_VERIFY(client.iviApplication);
 
     QWaylandIviSurface *iviSurface = nullptr;
-    QObject::connect(&compositor.iviApplication, &QWaylandIviApplication::iviSurfaceCreated, [&](QWaylandIviSurface *s) {
-        iviSurface = s;
-    });
+    QObject::connect(&compositor.iviApplication, &QWaylandIviApplication::iviSurfaceCreated,
+                     this, [&](QWaylandIviSurface *s) { iviSurface = s; });
 
     wl_surface *surface = client.createSurface();
     ivi_surface *clientIviSurface = client.createIviSurface(surface, 123);
@@ -1284,9 +1283,8 @@ void tst_WaylandCompositor::destroysIviSurfaces()
     QTRY_VERIFY(client.iviApplication);
 
     QWaylandIviSurface *iviSurface = nullptr;
-    QObject::connect(&compositor.iviApplication, &QWaylandIviApplication::iviSurfaceCreated, [&](QWaylandIviSurface *s) {
-        iviSurface = s;
-    });
+    QObject::connect(&compositor.iviApplication, &QWaylandIviApplication::iviSurfaceCreated,
+                     this, [&](QWaylandIviSurface *s) { iviSurface = s; });
 
     QtWayland::ivi_surface mockIviSurface(client.createIviSurface(client.createSurface(), 123));
     QTRY_VERIFY(iviSurface);

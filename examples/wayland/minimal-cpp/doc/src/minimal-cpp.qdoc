@@ -4,6 +4,7 @@
 /*!
   \title Minimal CPP
   \example minimal-cpp
+  \examplecategory {Embedded}
   \brief Minimal CPP is an example that demonstrates how to write a Wayland compositor in C++.
   \ingroup qtwaylandcompositor-examples
 

@@ -17,17 +17,12 @@ QWaylandFractionalScale::~QWaylandFractionalScale()
     destroy();
 }
 
-qreal QWaylandFractionalScale::preferredScale() const
-{
-    return mPreferredScale;
-}
-
 void QWaylandFractionalScale::wp_fractional_scale_v1_preferred_scale(uint scale)
 {
     qreal preferredScale = scale / 120.0; // hardcoded denominator determined in the spec
     if (preferredScale != mPreferredScale) {
         mPreferredScale = preferredScale;
-        Q_EMIT preferredScaleChanged();
+        Q_EMIT preferredScaleChanged(preferredScale);
     }
 }
 

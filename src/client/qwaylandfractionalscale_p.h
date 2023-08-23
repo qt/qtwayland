@@ -20,6 +20,8 @@
 
 #include <QObject>
 
+#include <optional>
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -31,16 +33,14 @@ public:
     explicit QWaylandFractionalScale(struct ::wp_fractional_scale_v1 *object);
     ~QWaylandFractionalScale();
 
-    qreal preferredScale() const;
-
 Q_SIGNALS:
-    void preferredScaleChanged();
+    void preferredScaleChanged(qreal preferredScale);
 
 protected:
     void wp_fractional_scale_v1_preferred_scale(uint scale) override;
 
 private:
-    qreal mPreferredScale = 1.0;
+    std::optional<qreal> mPreferredScale;
 };
 
 }

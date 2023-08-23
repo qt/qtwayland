@@ -4,6 +4,7 @@
 /*!
  * \title Custom Extension
  * \example custom-extension
+ * \examplecategory {Embedded}
  * \brief Custom Extension shows how to implement a custom Wayland extension.
  * \ingroup qtwaylandcompositor-examples
  *

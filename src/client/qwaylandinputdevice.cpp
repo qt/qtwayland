@@ -185,12 +185,18 @@ public:
                 m_pointer, &QWaylandInputDevice::Pointer::updateCursor);
     }
 
+    void reset()
+    {
+        m_setSerial = 0;
+        m_hotspot = QPoint();
+    }
+
     void hide()
     {
         uint serial = m_pointer->mEnterSerial;
         Q_ASSERT(serial);
         m_pointer->set_cursor(serial, nullptr, 0, 0);
-        m_setSerial = 0;
+        reset();
     }
 
     // Size and hotspot are in surface coordinates
@@ -308,6 +314,9 @@ void QWaylandInputDevice::Pointer::updateCursor()
     }
 
     if (mCursor.shape) {
+        if (mCursor.surface) {
+            mCursor.surface->reset();
+        }
         mCursor.shape->setShape(mEnterSerial, shape);
         return;
     }

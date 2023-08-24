@@ -66,7 +66,8 @@ void tst_cursor::setCursor()
 
     // client sets a different shape
     window.setCursor(QCursor(Qt::BusyCursor));
-    QCOMPOSITOR_TRY_COMPARE(cursorShape()->m_currentShape, CursorShapeDevice::shape_wait);
+    QVERIFY(setCursorShapeSpy.wait());
+    QCOMPOSITOR_COMPARE(cursorShape()->m_currentShape, CursorShapeDevice::shape_wait);
 
     setCursorShapeSpy.clear();
 
@@ -80,6 +81,19 @@ void tst_cursor::setCursor()
     // same for bitmaps
     QPixmap myCustomPixmap(10, 10);
     myCustomPixmap.fill(Qt::red);
+    window.setCursor(QCursor(myCustomPixmap));
+    QVERIFY(setCursorSpy.wait());
+    QVERIFY(setCursorShapeSpy.isEmpty());
+
+    // set a shape again
+    window.setCursor(QCursor(Qt::BusyCursor));
+    QVERIFY(setCursorShapeSpy.wait());
+    QCOMPOSITOR_COMPARE(cursorShape()->m_currentShape, CursorShapeDevice::shape_wait);
+
+    setCursorShapeSpy.clear();
+
+    // set the same bitmap again, make sure switching from new to old path works
+    // even if the bitmap cursor's properties haven't changed
     window.setCursor(QCursor(myCustomPixmap));
     QVERIFY(setCursorSpy.wait());
     QVERIFY(setCursorShapeSpy.isEmpty());

@@ -21,4 +21,4 @@ instructions:
             in_values: ["Windows", "MacOS"]
           - condition: property
             property: target.os
-            in_values: ["IOS", "Android", "WebAssembly"]
+            in_values: ["QNX", "IOS", "Android", "WebAssembly"]

@@ -586,7 +586,7 @@ void QWaylandWindow::setMask(const QRegion &mask)
     if (isOpaque()) {
         if (mMask.isEmpty())
             setOpaqueArea(QRect(QPoint(0, 0), geometry().size()));
-        } else {
+        else
             setOpaqueArea(mMask);
     }
 

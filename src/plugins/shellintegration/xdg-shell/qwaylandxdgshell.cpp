@@ -395,9 +395,6 @@ bool QWaylandXdgSurface::wantsDecorations() const
 void QWaylandXdgSurface::propagateSizeHints()
 {
     setSizeHints();
-
-    if (m_toplevel && m_window)
-        m_window->commit();
 }
 
 void QWaylandXdgSurface::setWindowGeometry(const QRect &rect)

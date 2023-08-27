@@ -191,14 +191,6 @@ public:
         m_hotspot = QPoint();
     }
 
-    void hide()
-    {
-        uint serial = m_pointer->mEnterSerial;
-        Q_ASSERT(serial);
-        m_pointer->set_cursor(serial, nullptr, 0, 0);
-        reset();
-    }
-
     // Size and hotspot are in surface coordinates
     void update(wl_buffer *buffer, const QPoint &hotspot, const QSize &size, int bufferScale, bool animated = false)
     {
@@ -297,7 +289,9 @@ void QWaylandInputDevice::Pointer::updateCursor()
     auto shape = seat()->mCursor.shape;
 
     if (shape == Qt::BlankCursor) {
-        getOrCreateCursorSurface()->hide();
+        if (mCursor.surface)
+            mCursor.surface->reset();
+        set_cursor(mEnterSerial, nullptr, 0, 0);
         return;
     }
 

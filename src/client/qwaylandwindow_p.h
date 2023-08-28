@@ -187,7 +187,6 @@ public:
 
     QWaylandWindow *transientParent() const;
 
-    QMutex *resizeMutex() { return &mResizeLock; }
     void doApplyConfigure();
     void setCanResize(bool canResize);
 
@@ -295,7 +294,7 @@ protected:
     // True when we have called deliverRequestUpdate, but the client has not yet attached a new buffer
     bool mWaitingForUpdate = false;
 
-    QMutex mResizeLock;
+    QRecursiveMutex mResizeLock;
     bool mWaitingToApplyConfigure = false;
     bool mCanResize = true;
     bool mResizeDirty = false;

@@ -546,7 +546,7 @@ void QWaylandSeat::sendKeyEvent(int qtKey, bool pressed)
  * \since 6.7
  *
  * Sends a key press (if \a pressed is \c true) or release (if \a pressed is \c false)
- * event of a UCS4 unicode through a text-input protocol.
+ * event of a UCS4 \a unicode through a text-input protocol.
  *
  * \note This function will not work properly if the client does not support the
  * text-input protocol that the compositor supports.
@@ -554,7 +554,7 @@ void QWaylandSeat::sendKeyEvent(int qtKey, bool pressed)
 
 /*!
  * Sends a key press (if \a pressed is \c true) or release (if \a pressed is \c false)
- * event of a UCS4 unicode through a text-input protocol.
+ * event of a UCS4 \a unicode through a text-input protocol.
  *
  * \note This function will not work properly if the client does not support the
  * text-input protocol that the compositor supports.

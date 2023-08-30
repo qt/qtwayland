@@ -58,3 +58,6 @@ manifestmeta.thumbnail.names = *
 navigation.landingpage    = "Qt Wayland Compositor"
 navigation.qmltypespage   = "Qt Wayland Compositor QML Types"
 navigation.cppclassespage = "Qt Wayland Compositor C++ Classes"
+
+# Enforce zero documentation warnings
+warninglimit = 0

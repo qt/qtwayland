@@ -707,8 +707,8 @@ public:
 
 void QWaylandInputDevice::Pointer::pointer_leave(uint32_t time, struct wl_surface *surface)
 {
-    releaseButtons();
     invalidateFocus();
+    mButtons = Qt::NoButton;
 
     mParent->mTime = time;
 
@@ -823,8 +823,6 @@ void QWaylandInputDevice::Pointer::pointer_button(uint32_t serial, uint32_t time
     default: return; // invalid button number (as far as Qt is concerned)
     }
 
-    mLastButton = qt_button;
-
     if (state)
         mButtons |= qt_button;
     else
@@ -863,13 +861,10 @@ void QWaylandInputDevice::Pointer::invalidateFocus()
 
 void QWaylandInputDevice::Pointer::releaseButtons()
 {
-    if (mButtons == Qt::NoButton)
-        return;
-
     mButtons = Qt::NoButton;
 
     if (auto *window = focusWindow()) {
-        ReleaseEvent e(focusWindow(), mParent->mTime, mSurfacePos, mGlobalPos, mButtons, mLastButton, mParent->modifiers());
+        ReleaseEvent e(focusWindow(), mParent->mTime, mSurfacePos, mGlobalPos, mButtons, Qt::NoButton, mParent->modifiers());
         window->handleMouse(mParent, e);
     }
 }

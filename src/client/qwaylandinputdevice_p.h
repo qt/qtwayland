@@ -336,7 +336,6 @@ public:
     QPointF mSurfacePos;
     QPointF mGlobalPos;
     Qt::MouseButtons mButtons = Qt::NoButton;
-    Qt::MouseButton mLastButton = Qt::NoButton;
 #if QT_CONFIG(cursor)
     wl_buffer *mCursorBuffer = nullptr;
     Qt::CursorShape mCursorShape = Qt::BitmapCursor;

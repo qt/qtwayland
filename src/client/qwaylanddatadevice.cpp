@@ -214,6 +214,7 @@ void QWaylandDataDevice::data_device_enter(uint32_t serial, wl_surface *surface,
     QDrag *drag = static_cast<QWaylandDrag *>(QGuiApplicationPrivate::platformIntegration()->drag())->currentDrag();
     if (drag) {
         dragData = drag->mimeData();
+        supportedActions = drag->supportedActions();
     } else if (m_dragOffer) {
         dragData = m_dragOffer->mimeData();
         supportedActions = m_dragOffer->supportedActions();

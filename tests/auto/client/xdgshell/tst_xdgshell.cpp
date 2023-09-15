@@ -623,9 +623,11 @@ void tst_xdgshell::minMaxSize()
     QCOMPOSITOR_TRY_COMPARE(xdgToplevel()->m_committed.maxSize, QSize(1000, 1000));
 
     window.setMaximumSize(QSize(500, 400));
+    window.update();
     QCOMPOSITOR_TRY_COMPARE(xdgToplevel()->m_committed.maxSize, QSize(500, 400));
 
     window.setMinimumSize(QSize(50, 40));
+    window.update();
     QCOMPOSITOR_TRY_COMPARE(xdgToplevel()->m_committed.minSize, QSize(50, 40));
 }
 

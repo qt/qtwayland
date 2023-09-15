@@ -1199,9 +1199,9 @@ void tst_WaylandCompositor::emitsErrorOnSameIviId()
         QTRY_VERIFY(&firstClient.iviApplication);
 
         QWaylandIviSurface *firstIviSurface = nullptr;
-        QObject::connect(&compositor.iviApplication, &QWaylandIviApplication::iviSurfaceCreated, [&](QWaylandIviSurface *s) {
-            firstIviSurface = s;
-        });
+        auto connection = QObject::connect(&compositor.iviApplication,
+                                           &QWaylandIviApplication::iviSurfaceCreated,
+                                           [&](QWaylandIviSurface *s) { firstIviSurface = s; });
 
         firstClient.createIviSurface(firstClient.createSurface(), 123);
         QTRY_VERIFY(firstIviSurface);
@@ -1220,6 +1220,7 @@ void tst_WaylandCompositor::emitsErrorOnSameIviId()
             QTRY_COMPARE(static_cast<ivi_application_error>(secondClient.protocolError.code), IVI_APPLICATION_ERROR_IVI_ID);
             QTRY_COMPARE(compositor.clients().size(), 1);
         }
+        QObject::disconnect(connection);
     }
 
     // The other clients have passed out of scope and have been destroyed,

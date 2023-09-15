@@ -129,11 +129,6 @@ protected:
     {
         wl_resource_destroy(resource->handle);
     }
-    void zwp_primary_selection_device_v1_destroy_resource(Resource *resource) override
-    {
-        Q_UNUSED(resource);
-        delete this;
-    }
 };
 
 class PrimarySelectionDeviceManagerV1 : public Global, public QtWaylandServer::zwp_primary_selection_device_manager_v1
@@ -144,6 +139,10 @@ public:
         : QtWaylandServer::zwp_primary_selection_device_manager_v1(compositor->m_display, version)
         , m_version(version)
     {}
+    ~PrimarySelectionDeviceManagerV1() override
+    {
+        qDeleteAll(m_devices);
+    }
     bool isClean() override
     {
         for (auto *device : std::as_const(m_devices)) {

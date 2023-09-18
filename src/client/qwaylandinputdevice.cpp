@@ -149,23 +149,16 @@ QWaylandWindow *QWaylandInputDevice::Pointer::focusWindow() const
 
 class WlCallback : public QtWayland::wl_callback {
 public:
-    explicit WlCallback(::wl_callback *callback, std::function<void(uint32_t)> fn, bool autoDelete = false)
+    explicit WlCallback(::wl_callback *callback, std::function<void(uint32_t)> fn)
         : QtWayland::wl_callback(callback)
         , m_fn(fn)
-        , m_autoDelete(autoDelete)
     {}
     ~WlCallback() override { wl_callback_destroy(object()); }
-    bool done() const { return m_done; }
     void callback_done(uint32_t callback_data) override {
-        m_done = true;
         m_fn(callback_data);
-        if (m_autoDelete)
-            delete this;
     }
 private:
-    bool m_done = false;
     std::function<void(uint32_t)> m_fn;
-    bool m_autoDelete = false;
 };
 
 class CursorSurface : public QWaylandSurface

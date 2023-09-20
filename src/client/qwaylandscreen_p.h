@@ -82,6 +82,9 @@ public:
     static QWaylandScreen *waylandScreenFromWindow(QWindow *window);
     static QWaylandScreen *fromWlOutput(::wl_output *output);
 
+    Qt::ScreenOrientation toScreenOrientation(int wlTransform,
+                                              Qt::ScreenOrientation fallback) const;
+
 protected:
     enum Event : uint {
         XdgOutputDoneEvent = 0x1,

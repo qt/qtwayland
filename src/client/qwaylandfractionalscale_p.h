@@ -33,8 +33,10 @@ public:
     explicit QWaylandFractionalScale(struct ::wp_fractional_scale_v1 *object);
     ~QWaylandFractionalScale();
 
+    std::optional<qreal> preferredScale() const { return mPreferredScale; }
+
 Q_SIGNALS:
-    void preferredScaleChanged(qreal preferredScale);
+    void preferredScaleChanged();
 
 protected:
     void wp_fractional_scale_v1_preferred_scale(uint scale) override;

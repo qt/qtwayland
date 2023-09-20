@@ -105,11 +105,8 @@ void QWaylandWindow::initWindow()
     if (mDisplay->fractionalScaleManager() && qApp->highDpiScaleFactorRoundingPolicy() == Qt::HighDpiScaleFactorRoundingPolicy::PassThrough) {
         mFractionalScale.reset(new QWaylandFractionalScale(mDisplay->fractionalScaleManager()->get_fractional_scale(mSurface->object())));
 
-        connect(mFractionalScale.data(), &QWaylandFractionalScale::preferredScaleChanged, this, [this](qreal preferredScale) {
-            preferredScale = std::max(1.0, preferredScale);
-            Q_ASSERT(mViewport);
-            setScale(preferredScale);
-        });
+        connect(mFractionalScale.data(), &QWaylandFractionalScale::preferredScaleChanged,
+                this, &QWaylandWindow::updateScale);
     }
 
     if (shouldCreateSubSurface()) {
@@ -209,6 +206,10 @@ void QWaylandWindow::initializeWlSurface()
         mSurface.reset(new QWaylandSurface(mDisplay));
         connect(mSurface.data(), &QWaylandSurface::screensChanged,
                 this, &QWaylandWindow::handleScreensChanged);
+        connect(mSurface.data(), &QWaylandSurface::preferredBufferScaleChanged,
+                this, &QWaylandWindow::updateScale);
+        connect(mSurface.data(), &QWaylandSurface::preferredBufferTransformChanged,
+                this, &QWaylandWindow::updateBufferTransform);
         mSurface->m_window = this;
     }
     emit wlSurfaceCreated();
@@ -942,30 +943,48 @@ QWaylandScreen *QWaylandWindow::waylandScreen() const
 
 void QWaylandWindow::handleContentOrientationChange(Qt::ScreenOrientation orientation)
 {
+    mLastReportedContentOrientation = orientation;
+    updateBufferTransform();
+}
+
+void QWaylandWindow::updateBufferTransform()
+{
     QReadLocker locker(&mSurfaceLock);
     if (mSurface == nullptr || mSurface->version() < 2)
         return;
 
     wl_output_transform transform;
-    bool isPortrait = window()->screen() && window()->screen()->primaryOrientation() == Qt::PortraitOrientation;
-    switch (orientation) {
-        case Qt::PrimaryOrientation:
-            transform = WL_OUTPUT_TRANSFORM_NORMAL;
-            break;
-        case Qt::LandscapeOrientation:
-            transform = isPortrait ? WL_OUTPUT_TRANSFORM_270 : WL_OUTPUT_TRANSFORM_NORMAL;
-            break;
-        case Qt::PortraitOrientation:
-            transform = isPortrait ? WL_OUTPUT_TRANSFORM_NORMAL : WL_OUTPUT_TRANSFORM_90;
-            break;
-        case Qt::InvertedLandscapeOrientation:
-            transform = isPortrait ? WL_OUTPUT_TRANSFORM_90 : WL_OUTPUT_TRANSFORM_180;
-            break;
-        case Qt::InvertedPortraitOrientation:
-            transform = isPortrait ? WL_OUTPUT_TRANSFORM_180 : WL_OUTPUT_TRANSFORM_270;
-            break;
-        default:
-            Q_UNREACHABLE();
+    Qt::ScreenOrientation screenOrientation = Qt::PrimaryOrientation;
+
+    if (mSurface->version() >= 6) {
+        const auto transform = mSurface->preferredBufferTransform().value_or(WL_OUTPUT_TRANSFORM_NORMAL);
+        if (auto screen = waylandScreen())
+            screenOrientation = screen->toScreenOrientation(transform, Qt::PrimaryOrientation);
+    } else {
+        if (auto screen = window()->screen())
+            screenOrientation = screen->primaryOrientation();
+    }
+
+    const bool isPortrait = (screenOrientation == Qt::PortraitOrientation);
+
+    switch (mLastReportedContentOrientation) {
+    case Qt::PrimaryOrientation:
+        transform = WL_OUTPUT_TRANSFORM_NORMAL;
+        break;
+    case Qt::LandscapeOrientation:
+        transform = isPortrait ? WL_OUTPUT_TRANSFORM_270 : WL_OUTPUT_TRANSFORM_NORMAL;
+        break;
+    case Qt::PortraitOrientation:
+        transform = isPortrait ? WL_OUTPUT_TRANSFORM_NORMAL : WL_OUTPUT_TRANSFORM_90;
+        break;
+    case Qt::InvertedLandscapeOrientation:
+        transform = isPortrait ? WL_OUTPUT_TRANSFORM_90 : WL_OUTPUT_TRANSFORM_180;
+        break;
+    case Qt::InvertedPortraitOrientation:
+        transform = isPortrait ? WL_OUTPUT_TRANSFORM_180 : WL_OUTPUT_TRANSFORM_270;
+        break;
+    default:
+        Q_UNREACHABLE();
     }
     mSurface->set_buffer_transform(transform);
 }
@@ -1379,8 +1398,26 @@ void QWaylandWindow::handleScreensChanged()
         setGeometry(geometry);
     }
 
-    if (mFractionalScale)
+    updateScale();
+    updateBufferTransform();
+}
+
+void QWaylandWindow::updateScale()
+{
+    if (mFractionalScale) {
+        auto preferredScale = mFractionalScale->preferredScale().value_or(1.0);
+        preferredScale = std::max(1.0, preferredScale);
+        Q_ASSERT(mViewport);
+        setScale(preferredScale);
         return;
+    }
+
+    if (mSurface && mSurface->version() >= 6) {
+        auto preferredScale = mSurface->preferredBufferScale().value_or(1);
+        preferredScale = std::max(1, preferredScale);
+        setScale(preferredScale);
+        return;
+    }
 
     int scale = mLastReportedScreen->isPlaceholder() ? 1 : static_cast<QWaylandScreen *>(mLastReportedScreen)->scale();
     setScale(scale);

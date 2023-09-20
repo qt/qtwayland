@@ -142,6 +142,7 @@ public:
     QWaylandScreen *waylandScreen() const;
 
     void handleContentOrientationChange(Qt::ScreenOrientation orientation) override;
+    void updateBufferTransform();
     void setOrientationMask(Qt::ScreenOrientations mask);
 
     ToplevelWindowTilingStates toplevelWindowTilingStates() const;
@@ -331,6 +332,8 @@ protected:
     QPointer<QWaylandWindow> mTransientParent;
     QList<QPointer<QWaylandWindow>> mChildPopups;
 
+    Qt::ScreenOrientation mLastReportedContentOrientation = Qt::PrimaryOrientation;
+
 private slots:
     void doApplyConfigureFromOtherThread();
 
@@ -348,6 +351,7 @@ private:
 
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
     void handleScreensChanged();
+    void updateScale();
     void setScale(qreal newScale);
     void sendRecursiveExposeEvent();
 

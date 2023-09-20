@@ -618,7 +618,7 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
     if (interface == QLatin1String(QtWayland::wl_output::interface()->name)) {
         mWaitingScreens << mWaylandIntegration->createPlatformScreen(this, version, id);
     } else if (interface == QLatin1String(QtWayland::wl_compositor::interface()->name)) {
-        mCompositor.init(registry, id, qMin((int)version, 4));
+        mCompositor.init(registry, id, qMin((int)version, 6));
     } else if (interface == QLatin1String(QWaylandShm::interface()->name)) {
         mShm.reset(new QWaylandShm(this, version, id));
     } else if (interface == QLatin1String(QWaylandInputDevice::interface()->name)) {

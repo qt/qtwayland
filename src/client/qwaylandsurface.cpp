@@ -85,6 +85,22 @@ void QWaylandSurface::surface_leave(wl_output *output)
     emit screensChanged();
 }
 
+void QWaylandSurface::surface_preferred_buffer_scale(int32_t scale)
+{
+    if (m_preferredBufferScale == scale)
+        return;
+    m_preferredBufferScale = scale;
+    Q_EMIT preferredBufferScaleChanged();
+}
+
+void QWaylandSurface::surface_preferred_buffer_transform(uint32_t transform)
+{
+    if (m_preferredBufferTransform == transform)
+        return;
+    m_preferredBufferTransform = static_cast<wl_output_transform>(transform);
+    Q_EMIT preferredBufferTransformChanged();
+}
+
 } // namespace QtWaylandClient
 
 QT_END_NAMESPACE

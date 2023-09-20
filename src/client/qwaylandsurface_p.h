@@ -36,11 +36,15 @@ public:
     ~QWaylandSurface() override;
     QWaylandScreen *oldestEnteredScreen();
     QWaylandWindow *waylandWindow() const { return m_window; }
+    std::optional<int32_t> preferredBufferScale() const { return m_preferredBufferScale; }
+    std::optional<wl_output_transform> preferredBufferTransform() const { return m_preferredBufferTransform; }
 
     static QWaylandSurface *fromWlSurface(::wl_surface *surface);
 
 signals:
     void screensChanged();
+    void preferredBufferScaleChanged();
+    void preferredBufferTransformChanged();
 
 private slots:
     void handleScreenRemoved(QScreen *qScreen);
@@ -48,9 +52,13 @@ private slots:
 protected:
     void surface_enter(struct ::wl_output *output) override;
     void surface_leave(struct ::wl_output *output) override;
+    void surface_preferred_buffer_scale(int32_t scale) override;
+    void surface_preferred_buffer_transform(uint32_t transform) override;
 
     QList<QWaylandScreen *> m_screens; //As seen by wl_surface.enter/leave events. Chronological order.
     QWaylandWindow *m_window = nullptr;
+    std::optional<int32_t> m_preferredBufferScale;
+    std::optional<wl_output_transform> m_preferredBufferTransform;
 
     friend class QWaylandWindow; // TODO: shouldn't need to be friends
 };

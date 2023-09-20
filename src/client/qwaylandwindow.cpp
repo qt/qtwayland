@@ -107,19 +107,8 @@ void QWaylandWindow::initWindow()
 
         connect(mFractionalScale.data(), &QWaylandFractionalScale::preferredScaleChanged, this, [this](qreal preferredScale) {
             preferredScale = std::max(1.0, preferredScale);
-            if (mScale == preferredScale) {
-                return;
-            }
-            mScale = preferredScale;
-            QWindowSystemInterface::handleWindowDevicePixelRatioChanged(window());
-            ensureSize();
-            if (mViewport)
-                updateViewport();
-            if (isExposed()) {
-                // redraw at the new DPR
-                window()->requestUpdate();
-                sendExposeEvent(QRect(QPoint(), geometry().size()));
-            }
+            Q_ASSERT(mViewport);
+            setScale(preferredScale);
         });
     }
 
@@ -1394,17 +1383,28 @@ void QWaylandWindow::handleScreensChanged()
         return;
 
     int scale = mLastReportedScreen->isPlaceholder() ? 1 : static_cast<QWaylandScreen *>(mLastReportedScreen)->scale();
+    setScale(scale);
+}
 
-    if (scale != mScale) {
-        mScale = scale;
-        QWindowSystemInterface::handleWindowDevicePixelRatioChanged(window());
-        if (mSurface) {
-            if (mViewport)
-                updateViewport();
-            else if (mSurface->version() >= 3)
-                mSurface->set_buffer_scale(std::ceil(mScale));
-        }
-        ensureSize();
+void QWaylandWindow::setScale(qreal newScale)
+{
+    if (qFuzzyCompare(mScale, newScale))
+        return;
+    mScale = newScale;
+
+    QWindowSystemInterface::handleWindowDevicePixelRatioChanged(window());
+    if (mSurface) {
+        if (mViewport)
+            updateViewport();
+        else if (mSurface->version() >= 3)
+            mSurface->set_buffer_scale(std::ceil(mScale));
+    }
+    ensureSize();
+
+    if (isExposed()) {
+        // redraw at the new DPR
+        window()->requestUpdate();
+        sendExposeEvent(QRect(QPoint(), geometry().size()));
     }
 }
 

@@ -346,6 +346,7 @@ private:
 
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
     void handleScreensChanged();
+    void setScale(qreal newScale);
     void sendRecursiveExposeEvent();
 
     QWaylandWindow *closestTransientParent() const;

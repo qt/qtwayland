@@ -55,6 +55,10 @@ examplesinstallpath = wayland
 # Add generic thumbnail for all examples
 manifestmeta.thumbnail.names = *
 
+manifestmeta.highlighted.names = \
+        "QtWaylandCompositor/Minimal QML" \
+        "QtWaylandCompositor/IVI Compositor"
+
 navigation.landingpage    = "Qt Wayland Compositor"
 navigation.qmltypespage   = "Qt Wayland Compositor QML Types"
 navigation.cppclassespage = "Qt Wayland Compositor C++ Classes"

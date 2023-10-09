@@ -42,8 +42,8 @@ void QWaylandTextureOrphanage::admitTexture(QOpenGLTexture *tex, QOpenGLContext 
     }
 
     connect(ctx, &QOpenGLContext::aboutToBeDestroyed, this,
-            &QWaylandTextureOrphanage::onContextAboutToBeDestroyed,
-            Qt::ConnectionType(Qt::DirectConnection | Qt::UniqueConnection));
+            [this, ctx]() { this->onContextAboutToBeDestroyed(ctx); },
+            Qt::ConnectionType(Qt::DirectConnection));
 }
 
 void QWaylandTextureOrphanage::deleteTextures()
@@ -71,9 +71,8 @@ void QWaylandTextureOrphanage::deleteTextures()
     }
 }
 
-void QWaylandTextureOrphanage::onContextAboutToBeDestroyed()
+void QWaylandTextureOrphanage::onContextAboutToBeDestroyed(QOpenGLContext *ctx)
 {
-    QOpenGLContext *ctx = qobject_cast<QOpenGLContext *>(sender());
     Q_ASSERT(ctx != nullptr);
 
     qCDebug(qLcWTO) << Q_FUNC_INFO << " ctx (" << ctx
@@ -89,7 +88,8 @@ void QWaylandTextureOrphanage::deleteTexturesByContext(QOpenGLContext *ctx)
 {
     // NOTE: We are (by class-internal design) locked (m_containerLock)
     // when we enter this function!
-    // So in a debug-build we will fail below:
+    // If not (e.g.: someone changes something in/around this class),
+    // then in a debug-build we will fail below:
     Q_ASSERT(!m_containerLock.tryLock());
 
     QList<QOpenGLTexture *> texturesToDelete = m_orphanedTextures.values(ctx);

@@ -47,7 +47,7 @@ public:
 
 public slots:
     // uses sender() to call deleteTexturesByContext
-    void onContextAboutToBeDestroyed();
+    void onContextAboutToBeDestroyed(QOpenGLContext *ctx);
 
 private:
     void deleteTexturesByContext(QOpenGLContext *ctx);

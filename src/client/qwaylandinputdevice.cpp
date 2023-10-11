@@ -473,6 +473,11 @@ void QWaylandInputDevice::seat_capabilities(uint32_t caps)
     }
 }
 
+void QWaylandInputDevice::seat_name(const QString &name)
+{
+    mSeatName = name;
+}
+
 QWaylandInputDevice::Keyboard *QWaylandInputDevice::createKeyboard(QWaylandInputDevice *device)
 {
     return new Keyboard(device);

@@ -84,6 +84,7 @@ public:
     ~QWaylandInputDevice() override;
 
     uint32_t capabilities() const { return mCaps; }
+    QString seatname()  const { return mSeatName; }
 
     QWaylandDisplay *display() const { return mQDisplay; }
     struct ::wl_seat *wl_seat() { return QtWayland::wl_seat::object(); }
@@ -143,6 +144,7 @@ protected:
     struct wl_display *mDisplay = nullptr;
 
     uint32_t mCaps = 0;
+    QString mSeatName;
 
 #if QT_CONFIG(cursor)
     struct CursorState {
@@ -179,6 +181,7 @@ protected:
     uint32_t mSerial = 0;
 
     void seat_capabilities(uint32_t caps) override;
+    void seat_name(const QString &name) override;
     void handleTouchPoint(int id, QEventPoint::State state, const QPointF &surfacePosition = QPoint());
 
     QPointingDevice *mTouchDevice = nullptr;

@@ -1548,7 +1548,12 @@ void QWaylandInputDevice::Touch::touch_frame()
     QWindow *window = mFocus ? mFocus->window() : nullptr;
 
     if (mFocus) {
-        const QWindowSystemInterface::TouchPoint &tp = mPendingTouchPoints.last();
+        // Returns a reference to the last item in the list. The list must not be empty.
+        // If the list can be empty, call isEmpty() before calling this function.
+        // See: https://doc.qt.io/qt-5.15/qlist.html#last
+        if (mPendingTouchPoints.empty())
+            return;
+        const QWindowSystemInterface::TouchPoint &tp = mPendingTouchPoints.constLast();
         // When the touch event is received, the global pos is calculated with the margins
         // in mind. Now we need to adjust again to get the correct local pos back.
         QMargins margins = window->frameMargins();

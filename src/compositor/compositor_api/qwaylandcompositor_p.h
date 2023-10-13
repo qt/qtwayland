@@ -24,6 +24,8 @@
 
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 
+#include <QtCore/qpointer.h>
+
 #include <vector>
 
 #if QT_CONFIG(xkbcommon)

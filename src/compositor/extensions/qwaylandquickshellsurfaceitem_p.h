@@ -7,7 +7,9 @@
 #include <QtWaylandCompositor/QWaylandQuickShellSurfaceItem>
 #include <QtWaylandCompositor/QWaylandQuickShellIntegration>
 #include <QtWaylandCompositor/private/qwaylandquickitem_p.h>
+
 #include <QtCore/QBasicTimer>
+#include <QtCore/qpointer.h>
 
 #include <functional>
 

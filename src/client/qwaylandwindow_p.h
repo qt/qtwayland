@@ -35,6 +35,8 @@
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 #include <QtWaylandClient/private/qwaylandshellsurface_p.h>
 
+#include <QtCore/qpointer.h>
+
 struct wl_egl_window;
 
 QT_BEGIN_NAMESPACE

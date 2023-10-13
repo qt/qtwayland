@@ -8,6 +8,8 @@
 
 #include <QtWaylandCompositor/QWaylandWlShellSurface>
 
+#include <QtCore/qpointer.h>
+
 QT_BEGIN_NAMESPACE
 
 //

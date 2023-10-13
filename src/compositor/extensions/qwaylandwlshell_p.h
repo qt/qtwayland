@@ -18,6 +18,8 @@
 
 #include <QtWaylandCompositor/private/qwayland-server-wayland.h>
 
+#include <QtCore/qpointer.h>
+
 //
 //  W A R N I N G
 //  -------------

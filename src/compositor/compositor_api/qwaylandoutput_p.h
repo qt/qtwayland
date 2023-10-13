@@ -29,6 +29,7 @@
 #include <QtCore/QRect>
 
 #include <QtCore/private/qobject_p.h>
+#include <QtCore/qpointer.h>
 
 QT_BEGIN_NAMESPACE
 

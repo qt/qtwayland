@@ -6,6 +6,8 @@
 
 #include "corecompositor.h"
 
+#include <QtCore/qpointer.h>
+
 #include <qwayland-server-wayland.h>
 
 namespace MockCompositor {

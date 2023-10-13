@@ -9,6 +9,8 @@
 #include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
 #include <QtWaylandCompositor/private/qwayland-server-idle-inhibit-unstable-v1.h>
 
+#include <QtCore/qpointer.h>
+
 //
 //  W A R N I N G
 //  -------------

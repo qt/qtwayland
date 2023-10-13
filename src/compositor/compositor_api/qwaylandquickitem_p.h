@@ -22,6 +22,8 @@
 #include <QtWaylandCompositor/QWaylandQuickItem>
 #include <QtWaylandCompositor/QWaylandOutput>
 
+#include <QtCore/qpointer.h>
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandSurfaceTextureProvider;

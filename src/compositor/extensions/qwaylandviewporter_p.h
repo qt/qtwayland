@@ -9,6 +9,8 @@
 #include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
 #include <QtWaylandCompositor/private/qwayland-server-viewporter.h>
 
+#include <QtCore/qpointer.h>
+
 //
 //  W A R N I N G
 //  -------------

@@ -40,6 +40,8 @@
 #include <QtWaylandCompositor/private/qwaylandviewporter_p.h>
 #include <QtWaylandCompositor/private/qwaylandidleinhibitv1_p.h>
 
+#include <QtCore/qpointer.h>
+
 QT_BEGIN_NAMESPACE
 
 class QWaylandCompositor;

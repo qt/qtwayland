@@ -11,6 +11,7 @@
 #include <QtWaylandCompositor/private/qwaylandoutput_p.h>
 
 #include <QtCore/QMutex>
+#include <QtCore/qpointer.h>
 
 QT_BEGIN_NAMESPACE
 

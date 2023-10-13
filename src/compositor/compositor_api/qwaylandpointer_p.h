@@ -30,6 +30,8 @@
 #include <QtWaylandCompositor/QWaylandSurface>
 #include <QtWaylandCompositor/QWaylandSeat>
 
+#include <QtCore/qpointer.h>
+
 #include <stdint.h>
 
 QT_BEGIN_NAMESPACE

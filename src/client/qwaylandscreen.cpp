@@ -190,6 +190,32 @@ QPlatformCursor *QWaylandScreen::cursor() const
 }
 #endif // QT_CONFIG(cursor)
 
+QPlatformScreen::SubpixelAntialiasingType QWaylandScreen::subpixelAntialiasingTypeHint() const
+{
+    QPlatformScreen::SubpixelAntialiasingType type = QPlatformScreen::subpixelAntialiasingTypeHint();
+    if (type == QPlatformScreen::Subpixel_None) {
+        switch (mSubpixel) {
+        case wl_output::subpixel_unknown:
+        case wl_output::subpixel_none:
+            type = QPlatformScreen::Subpixel_None;
+            break;
+        case wl_output::subpixel_horizontal_rgb:
+            type = QPlatformScreen::Subpixel_RGB;
+            break;
+        case wl_output::subpixel_horizontal_bgr:
+            type = QPlatformScreen::Subpixel_BGR;
+            break;
+        case wl_output::subpixel_vertical_rgb:
+            type = QPlatformScreen::Subpixel_VRGB;
+            break;
+        case wl_output::subpixel_vertical_bgr:
+            type = QPlatformScreen::Subpixel_VBGR;
+            break;
+        }
+    }
+    return type;
+}
+
 QWaylandScreen *QWaylandScreen::waylandScreenFromWindow(QWindow *window)
 {
     QPlatformScreen *platformScreen = QPlatformScreen::platformScreenForWindow(window);
@@ -225,11 +251,10 @@ void QWaylandScreen::output_geometry(int32_t x, int32_t y,
                                      const QString &model,
                                      int32_t transform)
 {
-    Q_UNUSED(subpixel);
-
     mManufacturer = make;
     mModel = model;
 
+    mSubpixel = subpixel;
     mTransform = transform;
 
     mPhysicalSize = QSize(width, height);

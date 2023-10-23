@@ -15,5 +15,5 @@ if(TARGET Qt::WaylandCompositor)
 endif()
 
 if(QT_FEATURE_opengl AND TARGET Qt::Quick AND TARGET Qt::WaylandClient)
-    qt_internal_add_example(server-buffer)
+    add_subdirectory(server-buffer)
 endif()

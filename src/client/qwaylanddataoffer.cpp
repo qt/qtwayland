@@ -11,6 +11,8 @@
 
 #include <QtCore/QDebug>
 
+using namespace std::chrono;
+
 QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
@@ -205,13 +207,9 @@ int QWaylandMimeData::readData(int fd, QByteArray &data) const
     struct pollfd readset;
     readset.fd = fd;
     readset.events = POLLIN;
-    struct timespec timeout;
-    timeout.tv_sec = 1;
-    timeout.tv_nsec = 0;
-
 
     Q_FOREVER {
-        int ready = qt_safe_poll(&readset, 1, &timeout);
+        int ready = qt_safe_poll(&readset, 1, QDeadlineTimer(1s));
         if (ready < 0) {
             qWarning() << "QWaylandDataOffer: qt_safe_poll() failed";
             return -1;

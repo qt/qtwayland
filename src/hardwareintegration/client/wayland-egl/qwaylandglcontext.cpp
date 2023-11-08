@@ -274,13 +274,15 @@ QWaylandGLContext::~QWaylandGLContext()
 void QWaylandGLContext::beginFrame()
 {
     Q_ASSERT(m_currentWindow != nullptr);
-    m_currentWindow->beginFrame();
+    if (m_supportNonBlockingSwap)
+        m_currentWindow->beginFrame();
 }
 
 void QWaylandGLContext::endFrame()
 {
     Q_ASSERT(m_currentWindow != nullptr);
-    m_currentWindow->endFrame();
+    if (m_supportNonBlockingSwap)
+        m_currentWindow->endFrame();
 }
 
 bool QWaylandGLContext::makeCurrent(QPlatformSurface *surface)

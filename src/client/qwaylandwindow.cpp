@@ -300,6 +300,9 @@ void QWaylandWindow::reset()
     mOpaqueArea = QRegion();
     mMask = QRegion();
 
+    if (mQueuedBuffer) {
+        mQueuedBuffer->setBusy(false);
+    }
     mQueuedBuffer = nullptr;
     mQueuedBufferDamage = QRegion();
 

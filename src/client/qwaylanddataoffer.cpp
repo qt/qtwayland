@@ -149,8 +149,11 @@ QWaylandMimeData::~QWaylandMimeData()
 
 void QWaylandMimeData::appendFormat(const QString &mimeType)
 {
-    m_types << mimeType;
-    m_data.remove(mimeType); // Clear previous contents
+    // "DELETE" is a potential leftover from XdndActionMode sent by e.g. Firefox, ignore it.
+    if (mimeType != QLatin1String("DELETE")) {
+        m_types << mimeType;
+        m_data.remove(mimeType); // Clear previous contents
+    }
 }
 
 bool QWaylandMimeData::hasFormat_sys(const QString &mimeType) const

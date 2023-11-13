@@ -32,6 +32,7 @@ private slots:
     void pasteAscii();
     void pasteUtf8();
     void pasteMozUrl();
+    void pasteSingleUtf8MozUrl();
     void destroysPreviousSelection();
     void destroysSelectionWithSurface();
     void destroysSelectionOnLeave();
@@ -165,6 +166,47 @@ void tst_datadevicev1::pasteMozUrl()
     QTRY_COMPARE(window.m_urls.count(), 2);
     QCOMPARE(window.m_urls.at(0), QUrl("https://www.qt.io/"));
     QCOMPARE(window.m_urls.at(1), QUrl("https://www.example.com/"));
+}
+
+void tst_datadevicev1::pasteSingleUtf8MozUrl()
+{
+    class Window : public QRasterWindow {
+    public:
+        void mousePressEvent(QMouseEvent *) override { m_urls = QGuiApplication::clipboard()->mimeData()->urls(); }
+        QList<QUrl> m_urls;
+    };
+
+    Window window;
+    window.resize(64, 64);
+    window.show();
+
+    QCOMPOSITOR_TRY_VERIFY(xdgSurface() && xdgSurface()->m_committedConfigureSerial);
+    exec([&] {
+        auto *client = xdgSurface()->resource()->client();
+        auto *offer = dataDevice()->sendDataOffer(client, {"text/x-moz-url"});
+        connect(offer, &DataOffer::receive, [](QString mimeType, int fd) {
+            QFile file;
+            file.open(fd, QIODevice::WriteOnly, QFile::FileHandleFlag::AutoCloseHandle);
+            QCOMPARE(mimeType, "text/x-moz-url");
+            const QString content("https://www.qt.io/");
+            file.write(content.toUtf8());
+            file.close();
+        });
+        dataDevice()->sendSelection(offer);
+
+        auto *surface = xdgSurface()->m_surface;
+        keyboard()->sendEnter(surface); // Need to set keyboard focus according to protocol
+
+        pointer()->sendEnter(surface, {32, 32});
+        pointer()->sendFrame(client);
+        pointer()->sendButton(client, BTN_LEFT, 1);
+        pointer()->sendFrame(client);
+        pointer()->sendButton(client, BTN_LEFT, 0);
+        pointer()->sendFrame(client);
+    });
+
+    QTRY_COMPARE(window.m_urls.count(), 1);
+    QCOMPARE(window.m_urls.at(0), QUrl("https://www.qt.io/"));
 }
 
 void tst_datadevicev1::destroysPreviousSelection()

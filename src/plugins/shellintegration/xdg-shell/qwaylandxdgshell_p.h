@@ -171,7 +171,6 @@ private:
     QScopedPointer<QWaylandXdgDecorationManagerV1> m_xdgDecorationManager;
     QScopedPointer<QWaylandXdgActivationV1> m_xdgActivation;
     QScopedPointer<QWaylandXdgExporterV2> m_xdgExporter;
-    QWaylandXdgSurface::Popup *m_topmostGrabbingPopup = nullptr;
 
     friend class QWaylandXdgSurface;
 };

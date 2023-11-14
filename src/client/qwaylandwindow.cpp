@@ -41,6 +41,7 @@ namespace QtWaylandClient {
 Q_LOGGING_CATEGORY(lcWaylandBackingstore, "qt.qpa.wayland.backingstore")
 
 QWaylandWindow *QWaylandWindow::mMouseGrab = nullptr;
+QWaylandWindow *QWaylandWindow::mTopPopup = nullptr;
 
 QWaylandWindow::QWaylandWindow(QWindow *window, QWaylandDisplay *display)
     : QPlatformWindow(window)
@@ -136,7 +137,22 @@ void QWaylandWindow::initWindow()
     } else if (shouldCreateShellSurface()) {
         Q_ASSERT(!mShellSurface);
         Q_ASSERT(mShellIntegration);
-        mTransientParent = closestTransientParent();
+        mTransientParent = guessTransientParent();
+        if (mTransientParent) {
+            if (window()->type() == Qt::Popup) {
+                if (mTopPopup && mTopPopup != mTransientParent) {
+                    qCWarning(lcQpaWayland) << "Creating a popup with a parent," << mTransientParent->window()
+                                            << "which does not match the current topmost grabbing popup,"
+                                            << mTopPopup->window() << "With some shell surface protocols, this"
+                                            << "is not allowed. The wayland QPA plugin is currently handling"
+                                            << "it by setting the parent to the topmost grabbing popup."
+                                            << "Note, however, that this may cause positioning errors and"
+                                            << "popups closing unxpectedly. Please fix the transient parent of the popup.";
+                    mTransientParent = mTopPopup;
+                }
+                mTopPopup = this;
+            }
+        }
 
         mShellSurface = mShellIntegration->createShellSurface(this);
         if (mShellSurface) {
@@ -270,6 +286,9 @@ void QWaylandWindow::endFrame()
 void QWaylandWindow::reset()
 {
     closeChildPopups();
+
+    if (mTopPopup == this)
+        mTopPopup = mTransientParent && (mTransientParent->window()->type() == Qt::Popup) ? mTransientParent : nullptr;
 
     if (mSurface) {
         emit wlSurfaceDestroyed();
@@ -1120,7 +1139,7 @@ QWaylandWindow *QWaylandWindow::transientParent() const
     return mTransientParent;
 }
 
-QWaylandWindow *QWaylandWindow::closestTransientParent() const
+QWaylandWindow *QWaylandWindow::guessTransientParent() const
 {
     // Take the closest window with a shell surface, since the transient parent may be a
     // QWidgetWindow or some other window without a shell surface, which is then not able to

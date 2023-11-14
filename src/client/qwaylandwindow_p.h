@@ -349,7 +349,7 @@ private:
     void handleScreensChanged();
     void sendRecursiveExposeEvent();
 
-    QWaylandWindow *closestTransientParent() const;
+    QWaylandWindow *guessTransientParent() const;
     void addChildPopup(QWaylandWindow *child);
     void removeChildPopup(QWaylandWindow *child);
 
@@ -361,6 +361,7 @@ private:
     void handleFrameCallback(struct ::wl_callback* callback);
 
     static QWaylandWindow *mMouseGrab;
+    static QWaylandWindow *mTopPopup;
 
     friend class QWaylandSubSurface;
 };

@@ -858,16 +858,6 @@ void QWaylandDisplay::removeListener(RegistryListener listener, void *data)
     mRegistryListeners.erase(iter, mRegistryListeners.end());
 }
 
-uint32_t QWaylandDisplay::currentTimeMillisec()
-{
-    //### we throw away the time information
-    struct timeval tv;
-    int ret = gettimeofday(&tv, nullptr);
-    if (ret == 0)
-        return tv.tv_sec*1000 + tv.tv_usec/1000;
-    return 0;
-}
-
 void QWaylandDisplay::forceRoundTrip()
 {
      wl_display_roundtrip(mDisplay);

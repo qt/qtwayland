@@ -226,8 +226,6 @@ public:
 
     QWaylandShm *shm() const { return mShm.data(); }
 
-    static uint32_t currentTimeMillisec();
-
     void forceRoundTrip();
 
     bool supportsWindowDecoration() const;

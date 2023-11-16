@@ -178,6 +178,15 @@ void QWaylandXdgSurface::Toplevel::requestWindowStates(Qt::WindowStates states)
     // Re-send what's different from the applied state
     Qt::WindowStates changedStates = m_applied.states ^ states;
 
+    // Minimized state is not reported by the protocol, so always send it
+    if (states & Qt::WindowMinimized) {
+        set_minimized();
+        m_xdgSurface->window()->handleWindowStatesChanged(states & ~Qt::WindowMinimized);
+        // The internal window state whilst minimized is not maximised or fullscreen, but we don't want to
+        // update the compositors cached version of this state
+        return;
+    }
+
     if (changedStates & Qt::WindowMaximized) {
         if (states & Qt::WindowMaximized)
             set_maximized();
@@ -195,11 +204,7 @@ void QWaylandXdgSurface::Toplevel::requestWindowStates(Qt::WindowStates states)
             unset_fullscreen();
     }
 
-    // Minimized state is not reported by the protocol, so always send it
-    if (states & Qt::WindowMinimized) {
-        set_minimized();
-        m_xdgSurface->window()->handleWindowStatesChanged(states & ~Qt::WindowMinimized);
-    }
+
 }
 
 QtWayland::xdg_toplevel::resize_edge QWaylandXdgSurface::Toplevel::convertToResizeEdges(Qt::Edges edges)

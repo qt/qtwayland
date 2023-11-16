@@ -710,8 +710,12 @@ void QWaylandWindow::attach(QWaylandBuffer *buffer, int x, int y)
         Q_ASSERT(!buffer->committed());
         handleUpdate();
         buffer->setBusy(true);
-
-        mSurface->attach(buffer->buffer(), x, y);
+        if (mSurface->version() >= WL_SURFACE_OFFSET_SINCE_VERSION) {
+            mSurface->offset(x, y);
+            mSurface->attach(buffer->buffer(), 0, 0);
+        } else {
+            mSurface->attach(buffer->buffer(), x, y);
+        }
     } else {
         mSurface->attach(nullptr, 0, 0);
     }

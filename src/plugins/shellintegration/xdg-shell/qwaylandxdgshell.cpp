@@ -401,10 +401,13 @@ void QWaylandXdgSurface::setWindowGeometry(const QRect &rect)
 void QWaylandXdgSurface::setSizeHints()
 {
     if (m_toplevel && m_window) {
-        const int minWidth = qMax(0, m_window->windowMinimumSize().width());
-        const int minHeight = qMax(0, m_window->windowMinimumSize().height());
-        int maxWidth = qMax(0, m_window->windowMaximumSize().width());
-        int maxHeight = qMax(0, m_window->windowMaximumSize().height());
+        const QMargins margins = m_window->windowContentMargins() - m_window->clientSideMargins();
+        const QSize minSize = m_window->windowMinimumSize().shrunkBy(margins);
+        const QSize maxSize = m_window->windowMaximumSize().shrunkBy(margins);
+        const int minWidth = qMax(0, minSize.width());
+        const int minHeight = qMax(0, minSize.height());
+        int maxWidth = qMax(0, maxSize.width());
+        int maxHeight = qMax(0, maxSize.height());
         if (maxWidth == QWINDOWSIZE_MAX)
             maxWidth = 0;
         if (maxHeight == QWINDOWSIZE_MAX)

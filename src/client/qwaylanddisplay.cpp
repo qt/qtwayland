@@ -958,7 +958,7 @@ void QWaylandDisplay::handleWaylandSync()
     // handleWindowActivated() calls immediately.
     QWindow *activeWindow = mActiveWindows.empty() ? nullptr : mActiveWindows.last()->window();
     if (activeWindow != QGuiApplication::focusWindow())
-        QWindowSystemInterface::handleWindowActivated(activeWindow);
+        QWindowSystemInterface::handleFocusWindowChanged(activeWindow);
 
     if (!activeWindow) {
         if (lastInputDevice()) {

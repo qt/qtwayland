@@ -110,7 +110,7 @@ bool QWaylandInputDevice::Keyboard::createDefaultKeymap()
 QWaylandInputDevice::Keyboard::~Keyboard()
 {
     if (mFocus)
-        QWindowSystemInterface::handleWindowActivated(nullptr);
+        QWindowSystemInterface::handleFocusWindowChanged(nullptr);
     if (version() >= 3)
         wl_keyboard_release(object());
     else

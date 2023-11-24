@@ -372,7 +372,8 @@ void QWaylandGLContext::swapBuffers(QPlatformSurface *surface)
         window->waitForFrameSync(100);
     }
     window->handleUpdate();
-    eglSwapBuffers(eglDisplay(), eglSurface);
+    if (!eglSwapBuffers(eglDisplay(), eglSurface))
+        qCWarning(lcQpaWayland, "eglSwapBuffers failed with %#x, surface: %p", eglGetError(), eglSurface);
 
     window->setCanResize(true);
 }

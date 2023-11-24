@@ -844,4 +844,4 @@ void QWaylandQtShellSurfacePrivate::zqt_shell_surface_v1_lower(Resource *resourc
 
 QT_END_NAMESPACE
 
-#include "moc_qwaylandqtshell.cpp"
+#include "moc_qwaylandqtshell_p.cpp"

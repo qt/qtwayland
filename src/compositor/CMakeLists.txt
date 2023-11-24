@@ -80,6 +80,12 @@ qt_internal_add_module(WaylandCompositor
         "^qwayland-.*\.h|^wayland-.*-protocol\.h"
 )
 
+# all those macros define structs with Q_OBJECT macros, and should be picked up by moc
+set_target_properties(WaylandCompositor WaylandCompositorPrivate
+    PROPERTIES
+        INTERFACE_AUTOMOC_MACRO_NAMES  "Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_ELEMENT;Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_CLASS;Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS;Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CONTAINER_CLASS"
+)
+
 set(compositor_no_pch_sources
     compat/removed_api.cpp
 )

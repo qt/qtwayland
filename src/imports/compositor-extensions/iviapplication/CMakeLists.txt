@@ -10,19 +10,14 @@
 qt_internal_add_qml_module(WaylandCompositorIviapplication
     URI "QtWayland.Compositor.IviApplication"
     VERSION "${PROJECT_VERSION}"
-    CLASS_NAME QWaylandCompositorIviApplicationPlugin
-    PLUGIN_TARGET WaylandCompositorIviapplication
-    NO_PLUGIN_OPTIONAL
-    NO_GENERATE_PLUGIN_SOURCE
-    NO_GENERATE_QMLTYPES
-    INSTALL_SOURCE_QMLTYPES "plugins.qmltypes"
     SOURCES
-        qwaylandcompositoriviapplicationplugin.cpp
+        qwaylandcompositoriviapplicationforeign.cpp qwaylandcompositoriviapplicationforeign_p.h
     LIBRARIES
         Qt::Core
         Qt::Gui
         Qt::WaylandCompositor
     NO_GENERATE_CPP_EXPORTS
+    PAST_MAJOR_VERSIONS 1
 )
 
 qt_internal_add_autogen_sync_header_dependencies(WaylandCompositorIviapplication WaylandCompositor)

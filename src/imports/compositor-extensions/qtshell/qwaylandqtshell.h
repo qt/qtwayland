@@ -11,6 +11,7 @@
 
 #include <QtWaylandCompositor/QWaylandShellSurface>
 #include <QtWaylandCompositor/qwaylandquickchildren.h>
+#include <QtWaylandCompositor/qwaylandquickextension.h>
 
 struct wl_resource;
 struct wl_interface;
@@ -50,6 +51,8 @@ private:
     bool moveChromeToFront(QWaylandQtShellChrome *chrome);
 };
 
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_ELEMENT(QWaylandQtShell, QtShell, 1, 0)
+
 
 class QWaylandQtShellSurfacePrivate;
 class QWaylandSurfaceRole;
@@ -58,6 +61,8 @@ class QWaylandResource;
 class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQtShellSurface : public QWaylandShellSurfaceTemplate<QWaylandQtShellSurface>
 {
     Q_OBJECT
+    QML_NAMED_ELEMENT(QtShellSurface)
+    QML_ADDED_IN_VERSION(1, 0)
     Q_DECLARE_PRIVATE(QWaylandQtShellSurface)
     Q_WAYLAND_COMPOSITOR_DECLARE_QUICK_CHILDREN(QWaylandQtShellSurface)
     Q_PROPERTY(QWaylandSurface *surface READ surface NOTIFY surfaceChanged)

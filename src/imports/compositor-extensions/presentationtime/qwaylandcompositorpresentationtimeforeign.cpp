@@ -1,15 +1,9 @@
 // Copyright (C) 2021 LG Electronics Inc.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
 
-#include <QtQml/qqmlextensionplugin.h>
-#include <QtQml/qqml.h>
-
-#include <QtWaylandCompositor/qwaylandquickextension.h>
-#include <QtWaylandCompositor/private/qwaylandpresentationtime_p.h>
+#include "qwaylandcompositorpresentationtimeforeign_p.h"
 
 QT_BEGIN_NAMESPACE
-
-Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandPresentationTime)
 
 /*!
     \qmlmodule QtWayland.Compositor.PresentationTime
@@ -33,23 +27,6 @@ Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS(QWaylandPresentationTime)
     \endqml
 */
 
-class QWaylandCompositorPresentationTimePlugin : public QQmlExtensionPlugin
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID QQmlExtensionInterface_iid)
-public:
-    void registerTypes(const char *uri) override
-    {
-        Q_ASSERT(QLatin1String(uri) == QLatin1String("QtWayland.Compositor.PresentationTime"));
-        defineModule(uri);
-    }
-
-    static void defineModule(const char *uri)
-    {
-        qmlRegisterModule(uri, QT_VERSION_MAJOR, QT_VERSION_MINOR);
-        qmlRegisterType<QWaylandPresentationTime>(uri, 1, 0, "PresentationTime");
-    }
-};
 QT_END_NAMESPACE
 
-#include "qwaylandcompositorpresentationtimeplugin.moc"
+#include "moc_qwaylandcompositorpresentationtimeforeign_p.cpp"

@@ -13,6 +13,8 @@ class QWaylandQtShellChromePrivate;
 class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQtShellChrome : public QQuickItem
 {
     Q_OBJECT
+    QML_NAMED_ELEMENT(QtShellChrome)
+    QML_ADDED_IN_VERSION(1, 0)
     Q_DECLARE_PRIVATE(QWaylandQtShellChrome)
     Q_PROPERTY(bool hasDecorations READ hasDecorations NOTIFY windowMetaInfoChanged)
     Q_PROPERTY(uint windowState READ currentWindowState NOTIFY currentWindowStateChanged)

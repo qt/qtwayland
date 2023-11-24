@@ -27,7 +27,7 @@
  * \l{QWaylandCompositorExtension::initialize()} will be called automatically. The type must be
  * manually registered in Qt Quick using \l{qmlRegisterType()}.
  *
- * \sa Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_CLASS
+ * \sa Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_ELEMENT
  */
 
 /*!
@@ -48,10 +48,38 @@
 /*!
  * \macro Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_CLASS(className, QmlType)
  * \relates <QWaylandQuickExtension>
+ * \deprecated [6.8] Use Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_ELEMENT instead.
  *
  * This macro can be used to define a Qt Quick class based on a Wayland extension. It defines
  * a new class which inherits from \a className and which suffixes the name with "QuickExtension".
  *
  * The macro works the same as \l{Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS}, but will also
- * automatically register the new type as \a QmlType in Qt Quick.
+ * automatically register the new type as \a QmlType in the current QML module with \l
+ * QML_ADDED_IN_VERSION set to 1.0.
+ */
+
+/*!
+\macro Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_ELEMENT(className, QmlType)
+\relates <QWaylandQuickExtension>
+\since 6.8
+
+This macro can be used to define a Qt Quick class based on a Wayland extension. It defines
+a new class which inherits from \a className and which suffixes the name with "QuickExtension".
+
+The macro works the same as \l{Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS}, but will also
+automatically register the new type as \a QmlType in the current QML module.
+*/
+
+/*!
+\macro Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_ELEMENT(className, QmlType, versionMajor, versionMinor)
+\relates <QWaylandQuickExtension>
+\internal
+\since 6.8
+
+This macro can be used to define a Qt Quick class based on a Wayland extension. It defines
+a new class which inherits from \a className and which suffixes the name with "QuickExtension".
+
+The macro works the same as \l{Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_CLASS}, but will also
+automatically register the new type as \a QmlType in the current QML module with
+\l QML_ADDED_IN_VERSION set to the version passed via \a versionMajor and \a versionMinor.
  */

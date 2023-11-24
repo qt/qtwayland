@@ -78,24 +78,63 @@ QT_BEGIN_NAMESPACE
     };
 
 #define Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_CLASS(className, QmlType) \
-    class Q_WAYLANDCOMPOSITOR_EXPORT className##QuickExtension : public className, public QQmlParserStatus \
-    { \
-/* qmake ignore Q_OBJECT */ \
-        Q_OBJECT \
-        Q_PROPERTY(QQmlListProperty<QObject> data READ data DESIGNABLE false) \
-        Q_CLASSINFO("DefaultProperty", "data") \
-        Q_INTERFACES(QQmlParserStatus) \
-        QML_NAMED_ELEMENT(QmlType) \
-        QML_ADDED_IN_VERSION(1, 0) \
-    public: \
-        QQmlListProperty<QObject> data() \
-        { \
-            return QQmlListProperty<QObject>(this, &m_objects); \
-        } \
-        void classBegin() override {} \
-        void componentComplete() override { if (!isInitialized()) initialize(); } \
-    private: \
-        QList<QObject *> m_objects; \
+    Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_ELEMENT(className, QmlType, 1, 0)
+
+#define Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_ELEMENT(...) \
+    QT_OVERLOADED_MACRO(Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_ELEMENT, __VA_ARGS__)
+
+#define Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_ELEMENT_4(className, QmlType, versionMajor, \
+                                                             versionMinor)                     \
+    class Q_WAYLANDCOMPOSITOR_EXPORT className##QuickExtension : public className,             \
+                                                                 public QQmlParserStatus       \
+    {                                                                                          \
+        /* qmake ignore Q_OBJECT */                                                            \
+        Q_OBJECT                                                                               \
+        Q_PROPERTY(QQmlListProperty<QObject> data READ data DESIGNABLE false)                  \
+        Q_CLASSINFO("DefaultProperty", "data")                                                 \
+        Q_INTERFACES(QQmlParserStatus)                                                         \
+        QML_NAMED_ELEMENT(QmlType)                                                             \
+        QML_ADDED_IN_VERSION(versionMajor, versionMinor)                                       \
+    public:                                                                                    \
+        QQmlListProperty<QObject> data()                                                       \
+        {                                                                                      \
+            return QQmlListProperty<QObject>(this, &m_objects);                                \
+        }                                                                                      \
+        void classBegin() override { }                                                         \
+        void componentComplete() override                                                      \
+        {                                                                                      \
+            if (!isInitialized())                                                              \
+                initialize();                                                                  \
+        }                                                                                      \
+                                                                                               \
+    private:                                                                                   \
+        QList<QObject *> m_objects;                                                            \
+    };
+
+#define Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_ELEMENT_2(className, QmlType)         \
+    class Q_WAYLANDCOMPOSITOR_EXPORT className##QuickExtension : public className,       \
+                                                                 public QQmlParserStatus \
+    {                                                                                    \
+        /* qmake ignore Q_OBJECT */                                                      \
+        Q_OBJECT                                                                         \
+        Q_PROPERTY(QQmlListProperty<QObject> data READ data DESIGNABLE false)            \
+        Q_CLASSINFO("DefaultProperty", "data")                                           \
+        Q_INTERFACES(QQmlParserStatus)                                                   \
+        QML_NAMED_ELEMENT(QmlType)                                                       \
+    public:                                                                              \
+        QQmlListProperty<QObject> data()                                                 \
+        {                                                                                \
+            return QQmlListProperty<QObject>(this, &m_objects);                          \
+        }                                                                                \
+        void classBegin() override { }                                                   \
+        void componentComplete() override                                                \
+        {                                                                                \
+            if (!isInitialized())                                                        \
+                initialize();                                                            \
+        }                                                                                \
+                                                                                         \
+    private:                                                                             \
+        QList<QObject *> m_objects;                                                      \
     };
 
 QT_END_NAMESPACE

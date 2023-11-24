@@ -80,11 +80,14 @@ private:
 
 
 // Note: These have to be in a header with a Q_OBJECT macro, otherwise we won't run moc on it
-Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_CLASS(QWaylandQtWindowManager, QtWindowManager)
-Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_CLASS(QWaylandIdleInhibitManagerV1, IdleInhibitManagerV1)
-Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_CLASS(QWaylandTextInputManager, TextInputManager)
-Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_CLASS(QWaylandTextInputManagerV3, TextInputManagerV3)
-Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_CLASS(QWaylandQtTextInputMethodManager, QtTextInputMethodManager)
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_ELEMENT(QWaylandQtWindowManager, QtWindowManager, 1, 0)
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_ELEMENT(QWaylandIdleInhibitManagerV1,
+                                                   IdleInhibitManagerV1, 1, 0)
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_ELEMENT(QWaylandTextInputManager, TextInputManager, 1, 0)
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_ELEMENT(QWaylandTextInputManagerV3, TextInputManagerV3,
+                                                   1, 0)
+Q_COMPOSITOR_DECLARE_QUICK_EXTENSION_NAMED_ELEMENT(QWaylandQtTextInputMethodManager,
+                                                   QtTextInputMethodManager, 1, 0)
 
 QT_END_NAMESPACE
 

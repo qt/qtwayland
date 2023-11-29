@@ -27,6 +27,7 @@ qt_internal_add_qml_module(WaylandCompositorQtShell
         Qt::QuickPrivate
         Qt::WaylandCompositor
         Qt::WaylandCompositorPrivate
+    NO_GENERATE_CPP_EXPORTS
 )
 
 qt6_generate_wayland_protocol_server_sources(WaylandCompositorQtShell

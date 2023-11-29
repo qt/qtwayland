@@ -21,6 +21,7 @@ qt_internal_add_module(WaylandEglCompositorHwIntegrationPrivate
         Qt::Core
         Qt::Gui
         Qt::WaylandCompositorPrivate
+    NO_GENERATE_CPP_EXPORTS
 )
 
 qt_internal_extend_target(WaylandEglCompositorHwIntegrationPrivate CONDITION NOT QT_FEATURE_egl_x11

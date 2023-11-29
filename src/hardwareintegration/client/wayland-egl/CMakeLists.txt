@@ -27,6 +27,7 @@ qt_internal_add_module(WaylandEglClientHwIntegrationPrivate
         Qt::WaylandClientPrivate
         Wayland::Client
         Wayland::Egl
+    NO_GENERATE_CPP_EXPORTS
 )
 
 #### Keys ignored in scope 1:.:.:wayland-egl.pro:<TRUE>:

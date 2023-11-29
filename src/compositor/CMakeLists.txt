@@ -222,6 +222,7 @@ if (TARGET Qt::Qml)
             qmlfiles/WaylandOutputWindow.qml
         DEPENDENCIES
             QtQuick
+        NO_GENERATE_CPP_EXPORTS
     )
 endif()
 

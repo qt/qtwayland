@@ -22,6 +22,7 @@ qt_internal_add_qml_module(WaylandCompositorWLShell
         Qt::Core
         Qt::Gui
         Qt::WaylandCompositor
+    NO_GENERATE_CPP_EXPORTS
 )
 
 qt_internal_add_autogen_sync_header_dependencies(WaylandCompositorWLShell WaylandCompositor)

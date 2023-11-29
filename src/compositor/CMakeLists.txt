@@ -63,7 +63,6 @@ qt_internal_add_module(WaylandCompositor
         extensions
         global
         wayland_wrapper
-    GENERATE_CPP_EXPORTS
     LIBRARIES
         Qt::CorePrivate
         Qt::GuiPrivate

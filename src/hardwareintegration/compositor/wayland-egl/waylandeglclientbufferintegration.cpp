@@ -525,7 +525,9 @@ WaylandEglClientBuffer::~WaylandEglClientBuffer()
         if (d->egl_stream)
             p->funcs->destroy_stream(p->egl_display, d->egl_stream);
 
+    }
 
+    {
         QMutexLocker locker(&d->texturesLock);
 
         for (int i=0; i<3; i++) {

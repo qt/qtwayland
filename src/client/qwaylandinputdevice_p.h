@@ -258,7 +258,7 @@ public:
     }
 #endif
 
-private slots:
+private Q_SLOTS:
     void handleFocusDestroyed();
     void handleFocusLost();
 
@@ -314,7 +314,7 @@ protected:
     void pointer_axis_value120(uint32_t axis, int32_t value120) override;
     void pointer_axis_relative_direction(uint32_t axis, uint32_t direction) override;
 
-private slots:
+private Q_SLOTS:
     void handleFocusDestroyed() { invalidateFocus(); }
 
 private:

@@ -41,12 +41,12 @@ public:
 
     static QWaylandSurface *fromWlSurface(::wl_surface *surface);
 
-signals:
+Q_SIGNALS:
     void screensChanged();
     void preferredBufferScaleChanged();
     void preferredBufferTransformChanged();
 
-private slots:
+private Q_SLOTS:
     void handleScreenRemoved(QScreen *qScreen);
 
 protected:

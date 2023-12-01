@@ -40,7 +40,7 @@ public:
     static const struct wl_interface *interface();
     static QByteArray interfaceName();
 
-signals:
+Q_SIGNALS:
     void presented(quint64 sequence, quint64 tv_sec, quint32 tv_nsec, quint32 refresh_nsec);
 };
 

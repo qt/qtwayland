@@ -71,13 +71,13 @@ public:
 
     static QWaylandTextureSharingExtension *self() { return s_self; }
 
-public slots:
+public Q_SLOTS:
     void requestBuffer(const QString &key);
 
-signals:
+Q_SIGNALS:
      void bufferResult(const QString &key, QtWayland::ServerBuffer *buffer);
 
-protected slots:
+protected Q_SLOTS:
     void cleanupBuffers();
 
 protected:

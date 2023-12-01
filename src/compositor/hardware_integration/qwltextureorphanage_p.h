@@ -45,7 +45,7 @@ public:
     // uses QOpenGLContext::currentContext to call deleteTexturesByContext on all shared ctx
     void deleteTextures();
 
-public slots:
+public Q_SLOTS:
     // uses sender() to call deleteTexturesByContext
     void onContextAboutToBeDestroyed(QOpenGLContext *ctx);
 

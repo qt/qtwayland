@@ -64,7 +64,7 @@ public:
     bool isEnabled() { return m_layerIndex != -1; }
     QWaylandQuickHardwareLayer *hwLayer() const { return m_hwLayer; }
 
-public slots:
+public Q_SLOTS:
     void handleBufferCommitted();
     void handleSurfaceChanged();
     void updatePosition();

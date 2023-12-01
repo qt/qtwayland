@@ -44,7 +44,7 @@ public:
     bool windowSystemCursorEnabled() const;
     bool hovered() const;
 
-signals:
+Q_SIGNALS:
     void mouseXChanged();
     void mouseYChanged();
     void windowSystemCursorEnabledChanged();

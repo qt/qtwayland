@@ -207,7 +207,7 @@ public:
     }
 
 
-public slots:
+public Q_SLOTS:
     void doResponse(const QString &key) {
         if (key != m_id)
             return; // not our buffer

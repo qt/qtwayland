@@ -40,13 +40,13 @@ public:
 
     static bool preinitialize();
 
-public slots:
+public Q_SLOTS:
     void receiveBuffer(QtWaylandClient::QWaylandServerBuffer *buffer, const QString &id);
 
-signals:
+Q_SIGNALS:
     void replyReceived(const QString &id);
 
-private slots:
+private Q_SLOTS:
     void handleExtensionActive();
 
 private:

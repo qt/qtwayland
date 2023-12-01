@@ -237,10 +237,10 @@ public:
     virtual void reinit();
     void reset();
 
-public slots:
+public Q_SLOTS:
     void applyConfigure();
 
-signals:
+Q_SIGNALS:
     void wlSurfaceCreated();
     void wlSurfaceDestroyed();
 
@@ -335,7 +335,7 @@ protected:
 
     Qt::ScreenOrientation mLastReportedContentOrientation = Qt::PrimaryOrientation;
 
-private slots:
+private Q_SLOTS:
     void doApplyConfigureFromOtherThread();
 
 private:

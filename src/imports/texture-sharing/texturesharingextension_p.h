@@ -35,11 +35,11 @@ class TextureSharingExtension : public QWaylandClientExtensionTemplate<TextureSh
 public:
     TextureSharingExtension();
 
-public slots:
+public Q_SLOTS:
     void requestImage(const QString &key);
     void abandonImage(const QString &key);
 
-signals:
+Q_SIGNALS:
     void bufferReceived(QtWaylandClient::QWaylandServerBuffer *buffer, const QString &key);
 
 private:

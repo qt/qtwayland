@@ -69,7 +69,7 @@ public:
 
     QMimeData *mimeData() const { return m_mimeData; }
 
-signals:
+Q_SIGNALS:
     void cancelled();
 
 protected:

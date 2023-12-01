@@ -249,11 +249,11 @@ public:
 
     void initEventThread();
 
-public slots:
+public Q_SLOTS:
     void blockingReadEvents();
     void flushRequests();
 
-signals:
+Q_SIGNALS:
     void reconnected();
     void globalAdded(const RegistryGlobal &global);
     void globalRemoved(const RegistryGlobal &global);

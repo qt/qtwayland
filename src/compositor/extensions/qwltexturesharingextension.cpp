@@ -99,7 +99,7 @@ public:
         return m_errorString;
     }
 
-public slots:
+public Q_SLOTS:
     void doResponse(const QString &key, QtWayland::ServerBuffer *buffer)
     {
         if (key != m_id)

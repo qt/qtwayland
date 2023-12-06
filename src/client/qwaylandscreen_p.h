@@ -16,7 +16,7 @@
 //
 
 #include <qpa/qplatformscreen.h>
-#include <qpa/qplatformscreen_p.h>
+#include <QtGui/qscreen_platform.h>
 #include <QtWaylandClient/qtwaylandclientglobal.h>
 
 #include <QtWaylandClient/private/qwayland-wayland.h>
@@ -38,7 +38,7 @@ public:
 class Q_WAYLANDCLIENT_EXPORT QWaylandScreen : public QPlatformScreen,
                                               QtWayland::wl_output,
                                               QtWayland::zxdg_output_v1,
-                                              public QNativeInterface::Private::QWaylandScreen
+                                              public QNativeInterface::QWaylandScreen
 {
 public:
     QWaylandScreen(QWaylandDisplay *waylandDisplay, int version, uint32_t id);

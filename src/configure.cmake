@@ -265,3 +265,9 @@ qt_configure_add_summary_entry(ARGS "wayland-dmabuf-server-buffer")
 qt_configure_add_summary_entry(ARGS "wayland-shm-emulation-server-buffer")
 qt_configure_add_summary_entry(ARGS "wayland-vulkan-server-buffer")
 qt_configure_end_summary_section() # end of "Qt Wayland Drivers" section
+
+qt_configure_add_report_entry(
+    TYPE ERROR
+    MESSAGE "Qt Wayland Client requires QtGui to be build with support for wayland"
+    CONDITION NOT QT_FEATURE_wayland AND QT_FEATURE_wayland_client
+)

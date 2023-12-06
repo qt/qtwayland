@@ -933,7 +933,7 @@ QPointF QWaylandWindow::mapFromWlSurface(const QPointF &surfacePosition) const
     return QPointF(surfacePosition.x() - margins.left(), surfacePosition.y() - margins.top());
 }
 
-wl_surface *QWaylandWindow::wlSurface()
+wl_surface *QWaylandWindow::wlSurface() const
 {
     QReadLocker locker(&mSurfaceLock);
     return mSurface ? mSurface->object() : nullptr;

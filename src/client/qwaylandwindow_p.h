@@ -129,10 +129,10 @@ public:
     QPointF mapFromWlSurface(const QPointF &surfacePosition) const;
 
     QWaylandSurface *waylandSurface() const { return mSurface.data(); }
-    ::wl_surface *wlSurface();
+    ::wl_surface *wlSurface() const;
     ::wl_surface *surface() const override
     {
-        return const_cast<QWaylandWindow *>(this)->wlSurface();
+        return wlSurface();
     }
     static QWaylandWindow *fromWlSurface(::wl_surface *surface);
 

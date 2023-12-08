@@ -232,6 +232,7 @@ public:
     void endFrame();
 
     void closeChildPopups();
+    void sendRecursiveExposeEvent();
 
     virtual void reinit();
     void reset();
@@ -353,7 +354,6 @@ private:
     void handleScreensChanged();
     void updateScale();
     void setScale(qreal newScale);
-    void sendRecursiveExposeEvent();
 
     QWaylandWindow *guessTransientParent() const;
     void addChildPopup(QWaylandWindow *child);

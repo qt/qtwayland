@@ -106,6 +106,8 @@ public:
     QPoint pos() const override;
     void setPos(const QPoint &pos) override;
 
+    QSize size() const override;
+
     static QSharedPointer<QWaylandBuffer> cursorBitmapBuffer(QWaylandDisplay *display, const QCursor *cursor);
 
 protected:

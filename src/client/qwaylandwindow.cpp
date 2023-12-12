@@ -26,6 +26,7 @@
 
 #include <QGuiApplication>
 #include <qpa/qwindowsysteminterface.h>
+#include <QtGui/private/qguiapplication_p.h>
 #include <QtGui/private/qwindow_p.h>
 
 #include <QtCore/QDebug>
@@ -35,6 +36,8 @@
 #include <QtWaylandClient/private/qwayland-fractional-scale-v1.h>
 
 QT_BEGIN_NAMESPACE
+
+using namespace Qt::StringLiterals;
 
 namespace QtWaylandClient {
 
@@ -1089,6 +1092,22 @@ bool QWaylandWindow::createDecoration()
                 if (!decorations.contains(targetKey)) {
                     qWarning() << "Requested decoration " << targetKey << " not found, falling back to default";
                     targetKey = QString(); // fallthrough
+                }
+            }
+
+            if (targetKey.isEmpty()) {
+                auto unixServices = dynamic_cast<QGenericUnixServices *>(
+                    QGuiApplicationPrivate::platformIntegration()->services());
+                const QByteArray currentDesktop = unixServices->desktopEnvironment();
+                if (currentDesktop == "GNOME") {
+                    if (decorations.contains("adwaita"_L1))
+                        targetKey = "adwaita"_L1;
+                    else if (decorations.contains("gnome"_L1))
+                        targetKey = "gnome"_L1;
+                } else {
+                    // Do not use Adwaita/GNOME decorations on other DEs
+                    decorations.removeAll("adwaita"_L1);
+                    decorations.removeAll("gnome"_L1);
                 }
             }
 

@@ -28,9 +28,11 @@ find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS
 )
 
 find_package(Qt6 ${PROJECT_VERSION} QUIET CONFIG OPTIONAL_COMPONENTS
+    DBus
     Gui
     OpenGL
     Quick
+    Svg
 )
 
 # special case begin

@@ -245,6 +245,11 @@ qt_feature("wayland-vulkan-server-buffer" PRIVATE
 qt_feature("wayland-datadevice" PRIVATE
     CONDITION QT_FEATURE_draganddrop OR QT_FEATURE_clipboard
 )
+qt_feature("wayland-decoration-adwaita" PRIVATE
+    LABEL "GNOME-like client-side decorations"
+    CONDITION NOT WIN32 AND QT_FEATURE_wayland_client AND TARGET Qt::DBus AND TARGET Qt::Svg
+)
+
 
 qt_configure_add_summary_entry(ARGS "wayland-client")
 qt_configure_add_summary_entry(ARGS "wayland-server")
@@ -257,6 +262,9 @@ qt_configure_add_summary_entry(ARGS "wayland-dmabuf-server-buffer")
 qt_configure_add_summary_entry(ARGS "wayland-shm-emulation-server-buffer")
 qt_configure_add_summary_entry(ARGS "wayland-vulkan-server-buffer")
 qt_configure_end_summary_section() # end of "Qt Wayland Drivers" section
+qt_configure_add_summary_section(NAME "Qt Wayland Decoration Plugins")
+qt_configure_add_summary_entry(ARGS "wayland-decoration-adwaita")
+qt_configure_end_summary_section() # end of "Qt Wayland Decoration Plugins" section
 
 qt_configure_add_report_entry(
     TYPE ERROR

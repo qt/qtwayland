@@ -424,14 +424,15 @@ void QWaylandXdgSurface::setSizeHints()
         const int minHeight = qMax(0, minSize.height());
         int maxWidth = qMax(0, maxSize.width());
         int maxHeight = qMax(0, maxSize.height());
-        if (maxWidth == QWINDOWSIZE_MAX)
-            maxWidth = 0;
-        if (maxHeight == QWINDOWSIZE_MAX)
-            maxHeight = 0;
 
         // It will not change min/max sizes if invalid.
         if (minWidth > maxWidth || minHeight > maxHeight)
             return;
+
+        if (maxWidth == QWINDOWSIZE_MAX)
+            maxWidth = 0;
+        if (maxHeight == QWINDOWSIZE_MAX)
+            maxHeight = 0;
 
         m_toplevel->set_min_size(minWidth, minHeight);
         m_toplevel->set_max_size(maxWidth, maxHeight);

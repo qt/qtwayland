@@ -27,6 +27,7 @@ private slots:
     void switchPopups();
     void hidePopupParent();
     void pongs();
+    void minMaxSize_data();
     void minMaxSize();
     void windowGeometry();
     void foreignSurface();
@@ -609,12 +610,47 @@ void tst_xdgshell::pongs()
     QCOMPARE(pongSpy.first().at(0).toUInt(), serial);
 }
 
+void tst_xdgshell::minMaxSize_data()
+{
+    QTest::addColumn<QSize>("initialMinSize");
+    QTest::addColumn<QSize>("initialMaxSize");
+    QTest::addColumn<QSize>("nextMinSize");
+    QTest::addColumn<QSize>("nextMaxSize");
+    QTest::addColumn<QSize>("expectedInitialMinSize");
+    QTest::addColumn<QSize>("expectedInitialMaxSize");
+    QTest::addColumn<QSize>("expectedNextMinSize");
+    QTest::addColumn<QSize>("expectedNextMaxSize");
+
+    QTest::newRow("onlyMinSize") << QSize(50, 60) << QSize() << QSize(500, 600) << QSize()
+                                 << QSize(50, 60) << QSize(0, 0) << QSize(500, 600) << QSize(0, 0);
+
+    QTest::newRow("onlyMaxSize") << QSize() << QSize(70, 80) << QSize() << QSize(700, 800)
+                                 << QSize(0,0 ) << QSize(70, 80) << QSize(0, 0) << QSize(700, 800);
+
+    QTest::newRow("maxIsSentAsZero") << QSize() << QSize(QWINDOWSIZE_MAX, QWINDOWSIZE_MAX) << QSize() << QSize()
+                                 << QSize(0,0 ) << QSize(0, 0) << QSize(0, 0) << QSize(0, 0);
+
+
+    QTest::newRow("fullHints") << QSize(50, 60) << QSize(700, 800) << QSize(500, 600) << QSize(710, 810)
+                               << QSize(50, 60) << QSize(700, 800) << QSize(500, 600) << QSize(710, 810);
+
+    // setting a minimum above the maximum is not allowed, we should no-op
+    QTest::newRow("invalidResize") << QSize(50, 60) << QSize(100, 100) << QSize(500, 600) << QSize(100, 100)
+                                   << QSize(50, 60) << QSize(100, 100) << QSize(50, 60) << QSize(100, 100);}
+
 void tst_xdgshell::minMaxSize()
 {
+    QFETCH(QSize, initialMinSize);
+    QFETCH(QSize, initialMaxSize);
+
+    QFETCH(QSize, expectedInitialMinSize);
+    QFETCH(QSize, expectedInitialMaxSize);
+
     QRasterWindow window;
-    window.setMinimumSize(QSize(100, 100));
-    window.setMaximumSize(QSize(1000, 1000));
-    window.resize(400, 320);
+    if (initialMinSize.isValid())
+        window.setMinimumSize(initialMinSize);
+    if (initialMaxSize.isValid())
+        window.setMaximumSize(initialMaxSize);
     window.show();
     QCOMPOSITOR_TRY_VERIFY(xdgToplevel());
 
@@ -622,16 +658,21 @@ void tst_xdgshell::minMaxSize()
 
     // we don't roundtrip with our configuration the initial commit should be correct
 
-    QCOMPOSITOR_TRY_COMPARE(xdgToplevel()->m_committed.minSize, QSize(100, 100));
-    QCOMPOSITOR_TRY_COMPARE(xdgToplevel()->m_committed.maxSize, QSize(1000, 1000));
+    QCOMPOSITOR_TRY_COMPARE(xdgToplevel()->m_committed.minSize, expectedInitialMinSize);
+    QCOMPOSITOR_TRY_COMPARE(xdgToplevel()->m_committed.maxSize, expectedInitialMaxSize);
 
-    window.setMaximumSize(QSize(500, 400));
+    QFETCH(QSize, nextMinSize);
+    QFETCH(QSize, expectedNextMinSize);
+    window.setMinimumSize(nextMinSize);
     window.update();
-    QCOMPOSITOR_TRY_COMPARE(xdgToplevel()->m_committed.maxSize, QSize(500, 400));
+    QCOMPOSITOR_TRY_COMPARE(xdgToplevel()->m_committed.minSize, expectedNextMinSize);
 
-    window.setMinimumSize(QSize(50, 40));
+    QFETCH(QSize, nextMaxSize);
+    QFETCH(QSize, expectedNextMaxSize);
+
+    window.setMaximumSize(nextMaxSize);
     window.update();
-    QCOMPOSITOR_TRY_COMPARE(xdgToplevel()->m_committed.minSize, QSize(50, 40));
+    QCOMPOSITOR_TRY_COMPARE(xdgToplevel()->m_committed.maxSize, expectedNextMaxSize);
 }
 
 void tst_xdgshell::windowGeometry()

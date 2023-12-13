@@ -398,17 +398,7 @@ QRect QWaylandWindow::defaultGeometry() const
 
 void QWaylandWindow::setGeometry_helper(const QRect &rect)
 {
-    QSize minimum = windowMinimumSize();
-    QSize maximum = windowMaximumSize();
-    int width = windowGeometry().width();
-    int height = windowGeometry().height();
-    if (minimum.width() <= maximum.width()
-            && minimum.height() <= maximum.height()) {
-        width = qBound(minimum.width(), rect.width(), maximum.width());
-        height = qBound(minimum.height(), rect.height(), maximum.height());
-    }
-
-    QPlatformWindow::setGeometry(QRect(rect.x(), rect.y(), width, height));
+    QPlatformWindow::setGeometry(rect);
     if (mViewport)
         updateViewport();
 

@@ -267,11 +267,11 @@ static QtWayland::wp_cursor_shape_device_v1::shape qtCursorShapeToWaylandShape(Q
     case Qt::ClosedHandCursor:
         return wp_cursor_shape_device_v1::shape_grabbing;
     case Qt::DragMoveCursor:
+        return wp_cursor_shape_device_v1::shape_move;
     case Qt::DragCopyCursor:
+        return wp_cursor_shape_device_v1::shape_copy;
     case Qt::DragLinkCursor:
-        // drags on wayland are different, the compositor knows
-        // the drag type and can do something custom
-        return wp_cursor_shape_device_v1::shape_grab;
+        return wp_cursor_shape_device_v1::shape_alias;
     }
     return wp_cursor_shape_device_v1::shape_default;
 }

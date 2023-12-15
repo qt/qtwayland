@@ -46,6 +46,7 @@ QWaylandTextInputv2::~QWaylandTextInputv2()
 {
     if (m_resetCallback)
         wl_callback_destroy(m_resetCallback);
+    destroy();
 }
 
 void QWaylandTextInputv2::reset()

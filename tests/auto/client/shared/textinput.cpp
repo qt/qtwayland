@@ -12,9 +12,8 @@ TextInputManager::TextInputManager(CoreCompositor *compositor)
 
 void TextInputManager::zwp_text_input_manager_v2_get_text_input(Resource *resource, uint32_t id, wl_resource *seatResource)
 {
-    Q_UNUSED(resource);
-    Q_UNUSED(id);
     Q_UNUSED(seatResource);
+    add(resource->client(), id, resource->version());
 }
 
 } // namespace MockCompositor

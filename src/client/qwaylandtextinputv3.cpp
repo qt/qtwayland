@@ -28,6 +28,7 @@ QWaylandTextInputv3::QWaylandTextInputv3(QWaylandDisplay *display,
 
 QWaylandTextInputv3::~QWaylandTextInputv3()
 {
+    destroy();
 }
 
 namespace {

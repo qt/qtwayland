@@ -337,12 +337,10 @@ void QWaylandTextInputv3::updateState(Qt::InputMethodQueries queries, uint32_t f
 void QWaylandTextInputv3::setCursorInsidePreedit(int cursor)
 {
     Q_UNUSED(cursor);
-    qCWarning(qLcQpaWaylandTextInput) << "QWaylandTextInputV3: Input protocol \"text-input-unstable-v3\" does not support setting cursor inside preedit. Use qt-text-input-method-unstable-v1 instead for full support of Qt input method events.";
 }
 
 bool QWaylandTextInputv3::isInputPanelVisible() const
 {
-    qCWarning(qLcQpaWaylandTextInput) << "QWaylandTextInputV3: Input protocol \"text-input-unstable-v3\" does not support querying input method visibility. Use qt-text-input-method-unstable-v1 instead for full support of Qt input method events.";
     return false;
 }
 
@@ -354,13 +352,11 @@ QRectF QWaylandTextInputv3::keyboardRect() const
 
 QLocale QWaylandTextInputv3::locale() const
 {
-    qCWarning(qLcQpaWaylandTextInput) << "QWaylandTextInputV3: Input protocol \"text-input-unstable-v3\" does not support querying input language. Use qt-text-input-method-unstable-v1 instead for full support of Qt input method events.";
     return QLocale();
 }
 
 Qt::LayoutDirection QWaylandTextInputv3::inputDirection() const
 {
-    qCWarning(qLcQpaWaylandTextInput) << "QWaylandTextInputV3: Input protocol \"text-input-unstable-v3\" does not support querying input direction. Use qt-text-input-method-unstable-v1 instead for full support of Qt input method events.";
     return Qt::LeftToRight;
 }
 

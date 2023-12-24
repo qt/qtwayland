@@ -1350,8 +1350,8 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
     QMargins marg = frameMargins();
     QRect windowRect(0 + marg.left(),
                      0 + marg.top(),
-                     geometry().size().width() - marg.right(),
-                     geometry().size().height() - marg.bottom());
+                     geometry().size().width(),
+                     geometry().size().height());
     if (windowRect.contains(e.local.toPoint()) || mMousePressedInContentArea != Qt::NoButton) {
         const QPointF localTranslated = mapFromWlSurface(e.local);
         QPointF globalTranslated = e.global;

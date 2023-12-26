@@ -547,9 +547,7 @@ void QWaylandTabletToolV2::zwp_tablet_tool_v2_frame(uint32_t time)
         ulong timestamp = time;
         const QPointF localPosition = waylandWindow->mapFromWlSurface(m_pending.surfacePosition);
 
-        QPointF delta = localPosition - localPosition.toPoint();
-        QPointF globalPosition = window->mapToGlobal(localPosition.toPoint());
-        globalPosition += delta;
+        const QPointF globalPosition = waylandWindow->mapToGlobalF(localPosition);
 
         Qt::MouseButtons buttons = m_pending.down ? Qt::MouseButton::LeftButton : Qt::MouseButton::NoButton;
         buttons |= m_pending.buttons;
@@ -564,7 +562,7 @@ void QWaylandTabletToolV2::zwp_tablet_tool_v2_frame(uint32_t time)
         // but we need surface coordinates to include the decoration
         bool decorationHandledEvent = waylandWindow->handleTabletEventDecoration(
                 m_tabletSeat->seat(), m_pending.surfacePosition,
-                window->mapToGlobal(m_pending.surfacePosition) + delta, buttons,
+                window->mapToGlobal(m_pending.surfacePosition), buttons,
                 m_tabletSeat->seat()->modifiers());
 
         if (!decorationHandledEvent) {

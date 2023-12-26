@@ -83,8 +83,7 @@ void QWaylandTouchExtension::touch_extension_touch(uint32_t time,
     tp.area = QRectF(0, 0, fromFixed(width), fromFixed(height));
     // Got surface-relative coords but need a (virtual) screen position.
     QPointF relPos = QPointF(fromFixed(x), fromFixed(y));
-    QPointF delta = relPos - relPos.toPoint();
-    tp.area.moveCenter(mTargetWindow->mapToGlobal(relPos.toPoint()) + delta);
+    tp.area.moveCenter(mTargetWindow->mapToGlobal(relPos));
 
     tp.normalPosition.setX(fromFixed(normalized_x));
     tp.normalPosition.setY(fromFixed(normalized_y));

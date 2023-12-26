@@ -69,7 +69,7 @@
  * In addition to inheriting from the generated class, we also inherit the class
  * \l QWaylandCompositorExtensionTemplate which provides some additional convenience when dealing
  * with extensions, using the
- * l{https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern}{Curiously Recurring Template Pattern}.
+ * \l{https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern}{Curiously Recurring Template Pattern}.
  *
  * Note that the \l QWaylandCompositorExtensionTemplate must be first in the inheritance list, since
  * it is a \l{QObject}-based class.

@@ -88,7 +88,6 @@ QWaylandTextInputV3Private::QWaylandTextInputV3Private(QWaylandCompositor *compo
 
 void QWaylandTextInputV3Private::sendInputMethodEvent(QInputMethodEvent *event)
 {
-    Q_Q(QWaylandTextInputV3);
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
 
     if (!focusResource || !focusResource->handle)
@@ -134,8 +133,6 @@ void QWaylandTextInputV3Private::sendInputMethodEvent(QInputMethodEvent *event)
 void QWaylandTextInputV3Private::sendKeyEvent(QKeyEvent *event)
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
-
-    Q_Q(QWaylandTextInputV3);
 
     if (!focusResource || !focusResource->handle)
         return;
@@ -192,7 +189,6 @@ QVariant QWaylandTextInputV3Private::inputMethodQuery(Qt::InputMethodQuery prope
 void QWaylandTextInputV3Private::setFocus(QWaylandSurface *surface)
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
-    Q_Q(QWaylandTextInputV3);
 
     if (focusResource && focus) {
         // sync before leave
@@ -285,8 +281,6 @@ void QWaylandTextInputV3Private::zwp_text_input_v3_set_cursor_rectangle(Resource
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO << x << y << width << height;
 
-    Q_Q(QWaylandTextInputV3);
-
     if (resource != focusResource)
         return;
 
@@ -298,8 +292,6 @@ void QWaylandTextInputV3Private::zwp_text_input_v3_set_cursor_rectangle(Resource
 void QWaylandTextInputV3Private::zwp_text_input_v3_commit(Resource *resource)
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
-
-    Q_Q(QWaylandTextInputV3);
 
     if (resource != focusResource) {
         qCDebug(qLcWaylandCompositorTextInput) << "OBS: Disabled surface!!";

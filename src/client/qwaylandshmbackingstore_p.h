@@ -42,11 +42,14 @@ public:
     QImage *image() { return &mImage; }
 
     QImage *imageInsideMargins(const QMargins &margins);
+
+    QRegion &dirtyRegion() { return mDirtyRegion; }
 private:
     QImage mImage;
     struct wl_shm_pool *mShmPool = nullptr;
     QMargins mMargins;
     QImage *mMarginsImage = nullptr;
+    QRegion mDirtyRegion;
 };
 
 class Q_WAYLANDCLIENT_EXPORT QWaylandShmBackingStore : public QPlatformBackingStore
@@ -77,6 +80,7 @@ public:
 #endif
 
 private:
+    void updateDirtyStates(const QRegion &region);
     void updateDecorations();
     QWaylandShmBuffer *getBuffer(const QSize &size);
 

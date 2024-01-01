@@ -329,6 +329,9 @@ void QWaylandWindow::reset()
     mOpaqueArea = QRegion();
     mMask = QRegion();
 
+    mInputRegion = QRegion();
+    mTransparentInputRegion = false;
+
     if (mQueuedBuffer) {
         mQueuedBuffer->setBusy(false);
     }

@@ -110,7 +110,7 @@ void QWaylandEglWindow::updateSurface(bool create)
             if (mDisplay->supportsWindowDecoration())
                 fmt.setAlphaBufferSize(8);
             EGLConfig eglConfig = q_configFromGLFormat(m_clientBufferIntegration->eglDisplay(), fmt);
-            m_format = q_glFormatFromConfig(m_clientBufferIntegration->eglDisplay(), eglConfig);
+            m_format = q_glFormatFromConfig(m_clientBufferIntegration->eglDisplay(), eglConfig, fmt);
             m_eglSurface = eglCreateWindowSurface(m_clientBufferIntegration->eglDisplay(), eglConfig, eglw, 0);
             if (Q_UNLIKELY(m_eglSurface == EGL_NO_SURFACE))
                 qCWarning(lcQpaWayland, "Could not create EGL surface (EGL error 0x%x)\n", eglGetError());

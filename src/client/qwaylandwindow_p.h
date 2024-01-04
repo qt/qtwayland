@@ -238,6 +238,8 @@ public:
     virtual void reinit();
     void reset();
 
+    bool windowEvent(QEvent *event) override;
+
 public Q_SLOTS:
     void applyConfigure();
 

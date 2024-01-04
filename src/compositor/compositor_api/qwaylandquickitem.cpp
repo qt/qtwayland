@@ -946,6 +946,11 @@ void QWaylandQuickItem::setSubsurfaceHandler(QObject *handler)
 }
 
 /*!
+ * \qmlproperty WaylandOutput QtWayland.Compositor::WaylandQuickItem::output
+ *
+ * This property holds the output on which this item is displayed.
+ */
+/*!
  * \property QWaylandQuickItem::output
  *
  * This property holds the output on which this item is displayed.

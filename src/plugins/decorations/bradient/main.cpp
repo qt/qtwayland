@@ -57,9 +57,6 @@ private:
     QRectF maximizeButtonRect() const;
     QRectF minimizeButtonRect() const;
 
-    QColor m_foregroundColor;
-    QColor m_foregroundInactiveColor;
-    QColor m_backgroundColor;
     QStaticText m_windowTitle;
     Button m_clicking = None;
 };
@@ -68,11 +65,6 @@ private:
 
 QWaylandBradientDecoration::QWaylandBradientDecoration()
 {
-    QPalette palette;
-    m_foregroundColor = palette.color(QPalette::Active, QPalette::WindowText);
-    m_backgroundColor = palette.color(QPalette::Active, QPalette::Window);
-    m_foregroundInactiveColor = palette.color(QPalette::Disabled, QPalette::WindowText);
-
     QTextOption option(Qt::AlignHCenter | Qt::AlignVCenter);
     option.setWrapMode(QTextOption::NoWrap);
     m_windowTitle.setTextOption(option);
@@ -121,6 +113,11 @@ void QWaylandBradientDecoration::paint(QPaintDevice *device)
 
     QRect top = clips[0];
 
+    QPalette palette;
+    const QColor foregroundColor = palette.color(QPalette::Active, QPalette::WindowText);
+    const QColor backgroundColor = palette.color(QPalette::Active, QPalette::Window);
+    const QColor foregroundInactiveColor = palette.color(QPalette::Disabled, QPalette::WindowText);
+
     QPainter p(device);
     p.setRenderHint(QPainter::Antialiasing);
 
@@ -130,7 +127,7 @@ void QWaylandBradientDecoration::paint(QPaintDevice *device)
     for (int i = 0; i < 4; ++i) {
         p.save();
         p.setClipRect(clips[i]);
-        p.fillPath(roundedRect, m_backgroundColor);
+        p.fillPath(roundedRect, backgroundColor);
         p.restore();
     }
 
@@ -158,7 +155,7 @@ void QWaylandBradientDecoration::paint(QPaintDevice *device)
 
         p.save();
         p.setClipRect(titleBar);
-        p.setPen(active ? m_foregroundColor : m_foregroundInactiveColor);
+        p.setPen(active ? foregroundColor : foregroundInactiveColor);
         QSizeF size = m_windowTitle.size();
         int dx = (top.width() - size.width()) /2;
         int dy = (top.height()- size.height()) /2;
@@ -174,7 +171,7 @@ void QWaylandBradientDecoration::paint(QPaintDevice *device)
     QRectF rect;
 
     // Default pen
-    QPen pen(active ? m_foregroundColor : m_foregroundInactiveColor);
+    QPen pen(active ? foregroundColor : foregroundInactiveColor);
     p.setPen(pen);
 
     // Close button
@@ -198,7 +195,7 @@ void QWaylandBradientDecoration::paint(QPaintDevice *device)
         QRectF rect1 = rect.adjusted(inset, 0, 0, -inset);
         QRectF rect2 = rect.adjusted(0, inset, -inset, 0);
         p.drawRect(rect1);
-        p.setBrush(m_backgroundColor); // need to cover up some lines from the other rect
+        p.setBrush(backgroundColor); // need to cover up some lines from the other rect
         p.drawRect(rect2);
     } else {
         p.drawRect(rect);

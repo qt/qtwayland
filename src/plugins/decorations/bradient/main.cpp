@@ -142,7 +142,7 @@ void QWaylandBradientDecoration::paint(QPaintDevice *device)
     }
 
     // Window title
-    QString windowTitleText = window()->title();
+    QString windowTitleText = waylandWindow()->windowTitle();
     if (!windowTitleText.isEmpty()) {
         if (m_windowTitle.text() != windowTitleText) {
             m_windowTitle.setText(windowTitleText);

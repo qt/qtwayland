@@ -93,6 +93,7 @@ public:
     void setVisible(bool visible) override;
     void setParent(const QPlatformWindow *parent) override;
 
+    QString windowTitle() const;
     void setWindowTitle(const QString &title) override;
 
     inline QIcon windowIcon() const;
@@ -311,6 +312,7 @@ protected:
     qreal mScale = 1;
     QPlatformScreen *mLastReportedScreen = nullptr;
 
+    QString mWindowTitle;
     QIcon mWindowIcon;
 
     Qt::WindowFlags mFlags;

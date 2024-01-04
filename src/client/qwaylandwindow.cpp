@@ -362,25 +362,32 @@ void QWaylandWindow::setParent(const QPlatformWindow *parent)
     }
 }
 
+QString QWaylandWindow::windowTitle() const
+{
+    return mWindowTitle;
+}
+
 void QWaylandWindow::setWindowTitle(const QString &title)
 {
-    if (mShellSurface) {
-        const QString separator = QString::fromUtf8(" \xe2\x80\x94 "); // unicode character U+2014, EM DASH
-        const QString formatted = formatWindowTitle(title, separator);
+    const QString separator = QString::fromUtf8(" \xe2\x80\x94 "); // unicode character U+2014, EM DASH
+    const QString formatted = formatWindowTitle(title, separator);
 
-        const int libwaylandMaxBufferSize = 4096;
-        // Some parts of the buffer is used for metadata, so subtract 100 to be on the safe side.
-        // Also, QString is in utf-16, which means that in the worst case each character will be
-        // three bytes when converted to utf-8 (which is what libwayland uses), so divide by three.
-        const int maxLength = libwaylandMaxBufferSize / 3 - 100;
+    const int libwaylandMaxBufferSize = 4096;
+    // Some parts of the buffer is used for metadata, so subtract 100 to be on the safe side.
+    // Also, QString is in utf-16, which means that in the worst case each character will be
+    // three bytes when converted to utf-8 (which is what libwayland uses), so divide by three.
+    const int maxLength = libwaylandMaxBufferSize / 3 - 100;
 
-        auto truncated = QStringView{formatted}.left(maxLength);
-        if (truncated.size() < formatted.size()) {
-            qCWarning(lcQpaWayland) << "Window titles longer than" << maxLength << "characters are not supported."
-                                    << "Truncating window title (from" << formatted.size() << "chars)";
-        }
-        mShellSurface->setTitle(truncated.toString());
+    auto truncated = QStringView{formatted}.left(maxLength);
+    if (truncated.size() < formatted.size()) {
+        qCWarning(lcQpaWayland) << "Window titles longer than" << maxLength << "characters are not supported."
+                                << "Truncating window title (from" << formatted.size() << "chars)";
     }
+
+    mWindowTitle = truncated.toString();
+
+    if (mShellSurface)
+        mShellSurface->setTitle(mWindowTitle);
 
     if (mWindowDecorationEnabled && window()->isVisible())
         mWindowDecoration->update();

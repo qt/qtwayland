@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-  \qmlmodule QtWayland.Compositor 1.\QtMinorVersion
+  \qmlmodule QtWayland.Compositor
   \title Qt Wayland Compositor QML Types
   \ingroup qmlmodules
   \brief Provides QML types for writing custom Wayland display servers.

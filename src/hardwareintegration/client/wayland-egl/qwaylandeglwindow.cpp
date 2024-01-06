@@ -65,7 +65,7 @@ void QWaylandEglWindow::setGeometry(const QRect &rect)
 
 void QWaylandEglWindow::updateSurface(bool create)
 {
-    QMargins margins = mWindowDecoration ? frameMargins() : QMargins{};
+    QMargins margins = clientSideMargins();
     QRect rect = geometry();
     QSize sizeWithMargins = (rect.size() + QSize(margins.left() + margins.right(), margins.top() + margins.bottom())) * scale();
 
@@ -121,7 +121,7 @@ void QWaylandEglWindow::updateSurface(bool create)
 QRect QWaylandEglWindow::contentsRect() const
 {
     QRect r = geometry();
-    QMargins m = frameMargins();
+    QMargins m = clientSideMargins();
     return QRect(m.left(), m.bottom(), r.width(), r.height());
 }
 

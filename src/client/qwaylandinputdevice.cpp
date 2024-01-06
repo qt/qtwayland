@@ -1560,9 +1560,9 @@ void QWaylandInputDevice::Touch::touch_frame()
         const QWindowSystemInterface::TouchPoint &tp = mPendingTouchPoints.constLast();
         // When the touch event is received, the global pos is calculated with the margins
         // in mind. Now we need to adjust again to get the correct local pos back.
-        QMargins margins = window->frameMargins();
+        QMargins margins = mFocus->clientSideMargins();
         QPoint p = tp.area.center().toPoint();
-        QPointF localPos(window->mapFromGlobal(QPoint(p.x() + margins.left(), p.y() + margins.top())));
+        QPointF localPos(mFocus->mapFromGlobal(p) + QPoint(margins.left(), margins.top()));
         if (mFocus->touchDragDecoration(mParent, localPos, tp.area.center(), tp.state, mParent->modifiers()))
             return;
     }

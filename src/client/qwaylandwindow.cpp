@@ -1376,7 +1376,7 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
         return;
     }
 
-    QMargins marg = frameMargins();
+    QMargins marg = clientSideMargins();
     QRect windowRect(0 + marg.left(),
                      0 + marg.top(),
                      geometry().size().width(),

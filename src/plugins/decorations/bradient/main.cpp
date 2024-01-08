@@ -68,6 +68,7 @@ QWaylandBradientDecoration::QWaylandBradientDecoration()
     QTextOption option(Qt::AlignHCenter | Qt::AlignVCenter);
     option.setWrapMode(QTextOption::NoWrap);
     m_windowTitle.setTextOption(option);
+    m_windowTitle.setTextFormat(Qt::PlainText);
 }
 
 QRectF QWaylandBradientDecoration::closeButtonRect() const

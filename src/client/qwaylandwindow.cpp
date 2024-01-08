@@ -92,7 +92,7 @@ void QWaylandWindow::ensureSize()
 {
     if (mBackingStore) {
         setBackingStore(mBackingStore);
-        mBackingStore->ensureBackBuffer();
+        mBackingStore->recreateBackBufferIfNeeded();
     }
 }
 

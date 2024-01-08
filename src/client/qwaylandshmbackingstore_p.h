@@ -69,7 +69,7 @@ public:
     QMargins windowDecorationMargins() const;
     QImage *entireSurface() const;
     QImage *contentSurface() const;
-    void ensureBackBuffer();
+    bool recreateBackBufferIfNeeded();
 
     QWaylandWindow *waylandWindow() const;
     void iterateBuffer();
@@ -81,7 +81,7 @@ public:
 private:
     void updateDirtyStates(const QRegion &region);
     void updateDecorations();
-    QWaylandShmBuffer *getBuffer(const QSize &size);
+    QWaylandShmBuffer *getBuffer(const QSize &size, bool &bufferWasRecreated);
 
     QWaylandDisplay *mDisplay = nullptr;
     std::list<QWaylandShmBuffer *> mBuffers;

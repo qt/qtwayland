@@ -71,6 +71,7 @@ QWaylandShmBuffer::QWaylandShmBuffer(QWaylandDisplay *display,
         file->open(fd, QIODevice::ReadWrite | QIODevice::Unbuffered, QFile::AutoCloseHandle);
         filePointer.reset(file);
     }
+    // NOTE beginPaint assumes a new buffer be all zeroes, which QFile::resize does.
     if (!filePointer->isOpen() || !filePointer->resize(alloc)) {
         qWarning("QWaylandShmBuffer: failed: %s", qUtf8Printable(filePointer->errorString()));
         return;
@@ -144,9 +145,9 @@ QWaylandShmBackingStore::QWaylandShmBackingStore(QWindow *window, QWaylandDispla
         // contents from the back buffer
         mBuffers.clear();
         mFrontBuffer = nullptr;
-        // ensureBackBuffer always resets mBackBuffer
+        // recreateBackBufferIfNeeded always resets mBackBuffer
         if (mRequestedSize.isValid() && waylandWindow())
-            ensureBackBuffer();
+            recreateBackBufferIfNeeded();
         qDeleteAll(copy);
     });
 }
@@ -181,12 +182,15 @@ void QWaylandShmBackingStore::beginPaint(const QRegion &region)
 {
     mPainting = true;
     waylandWindow()->setBackingStore(this);
-    ensureBackBuffer();
+    const bool bufferWasRecreated = recreateBackBufferIfNeeded();
 
     const QMargins margins = windowDecorationMargins();
     updateDirtyStates(region.translated(margins.left(), margins.top()));
 
-    if (mBackBuffer->image()->hasAlphaChannel()) {
+    // Although undocumented, QBackingStore::beginPaint expects the painted region
+    // to be cleared before use if the window has a surface format with an alpha.
+    // Fresh QWaylandShmBuffer are already cleared, so we don't need to clear those.
+    if (!bufferWasRecreated && mBackBuffer->image()->hasAlphaChannel()) {
         QPainter p(paintDevice());
         p.setCompositionMode(QPainter::CompositionMode_Source);
         const QColor blank = Qt::transparent;
@@ -238,8 +242,10 @@ void QWaylandShmBackingStore::resize(const QSize &size, const QRegion &)
     mRequestedSize = size;
 }
 
-QWaylandShmBuffer *QWaylandShmBackingStore::getBuffer(const QSize &size)
+QWaylandShmBuffer *QWaylandShmBackingStore::getBuffer(const QSize &size, bool &bufferWasRecreated)
 {
+    bufferWasRecreated = false;
+
     const auto copy = mBuffers; // remove when ported to vector<unique_ptr> + remove_if
     for (QWaylandShmBuffer *b : copy) {
         if (!b->busy()) {
@@ -258,14 +264,16 @@ QWaylandShmBuffer *QWaylandShmBackingStore::getBuffer(const QSize &size)
     if (mBuffers.size() < MAX_BUFFERS) {
         QImage::Format format = QPlatformScreen::platformScreenForWindow(window())->format();
         QWaylandShmBuffer *b = new QWaylandShmBuffer(mDisplay, size, format, waylandWindow()->scale());
+        bufferWasRecreated = true;
         mBuffers.push_front(b);
         return b;
     }
     return nullptr;
 }
 
-void QWaylandShmBackingStore::ensureBackBuffer()
+bool QWaylandShmBackingStore::recreateBackBufferIfNeeded()
 {
+    bool bufferWasRecreated = false;
     QMargins margins = windowDecorationMargins();
     qreal scale = waylandWindow()->scale();
     const QSize sizeWithMargins = (mRequestedSize + QSize(margins.left() + margins.right(), margins.top() + margins.bottom())) * scale;
@@ -278,12 +286,12 @@ void QWaylandShmBackingStore::ensureBackBuffer()
     // You can exercise the different codepaths with weston, switching between the gl and the
     // pixman renderer. With the gl renderer release events are sent early so we can effectively
     // run single buffered, while with the pixman renderer we have to use two.
-    QWaylandShmBuffer *buffer = getBuffer(sizeWithMargins);
+    QWaylandShmBuffer *buffer = getBuffer(sizeWithMargins, bufferWasRecreated);
     while (!buffer) {
         qCDebug(lcWaylandBackingstore, "QWaylandShmBackingStore: stalling waiting for a buffer to be released from the compositor...");
 
         mDisplay->blockingReadEvents();
-        buffer = getBuffer(sizeWithMargins);
+        buffer = getBuffer(sizeWithMargins, bufferWasRecreated);
     }
 
     qsizetype oldSizeInBytes = mBackBuffer ? mBackBuffer->image()->sizeInBytes() : 0;
@@ -325,6 +333,8 @@ void QWaylandShmBackingStore::ensureBackBuffer()
         windowDecoration()->update();
 
     buffer->dirtyRegion() = QRegion();
+
+    return bufferWasRecreated;
 }
 
 QImage *QWaylandShmBackingStore::entireSurface() const

@@ -144,9 +144,9 @@ QWaylandShmBackingStore::QWaylandShmBackingStore(QWindow *window, QWaylandDispla
         // contents from the back buffer
         mBuffers.clear();
         mFrontBuffer = nullptr;
-        // resize always resets mBackBuffer
+        // ensureBackBuffer always resets mBackBuffer
         if (mRequestedSize.isValid() && waylandWindow())
-            resize(mRequestedSize);
+            ensureBackBuffer();
         qDeleteAll(copy);
     });
 }
@@ -180,7 +180,8 @@ void QWaylandShmBackingStore::updateDirtyStates(const QRegion &region)
 void QWaylandShmBackingStore::beginPaint(const QRegion &region)
 {
     mPainting = true;
-    ensureSize();
+    waylandWindow()->setBackingStore(this);
+    ensureBackBuffer();
 
     const QMargins margins = windowDecorationMargins();
     updateDirtyStates(region.translated(margins.left(), margins.top()));
@@ -199,12 +200,6 @@ void QWaylandShmBackingStore::endPaint()
     mPainting = false;
     if (mPendingFlush)
         flush(window(), mPendingRegion, QPoint());
-}
-
-void QWaylandShmBackingStore::ensureSize()
-{
-    waylandWindow()->setBackingStore(this);
-    resize(mRequestedSize);
 }
 
 void QWaylandShmBackingStore::flush(QWindow *window, const QRegion &region, const QPoint &offset)
@@ -269,11 +264,11 @@ QWaylandShmBuffer *QWaylandShmBackingStore::getBuffer(const QSize &size)
     return nullptr;
 }
 
-void QWaylandShmBackingStore::resize(const QSize &size)
+void QWaylandShmBackingStore::ensureBackBuffer()
 {
     QMargins margins = windowDecorationMargins();
     qreal scale = waylandWindow()->scale();
-    QSize sizeWithMargins = (size + QSize(margins.left()+margins.right(),margins.top()+margins.bottom())) * scale;
+    const QSize sizeWithMargins = (mRequestedSize + QSize(margins.left() + margins.right(), margins.top() + margins.bottom())) * scale;
 
     // We look for a free buffer to draw into. If the buffer is not the last buffer we used,
     // that is mBackBuffer, and the size is the same we copy the damaged content into the new

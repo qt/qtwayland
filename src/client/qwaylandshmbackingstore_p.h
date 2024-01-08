@@ -61,7 +61,6 @@ public:
     QPaintDevice *paintDevice() override;
     void flush(QWindow *window, const QRegion &region, const QPoint &offset) override;
     void resize(const QSize &size, const QRegion &staticContents) override;
-    void resize(const QSize &size);
     void beginPaint(const QRegion &region) override;
     void endPaint() override;
 
@@ -70,7 +69,7 @@ public:
     QMargins windowDecorationMargins() const;
     QImage *entireSurface() const;
     QImage *contentSurface() const;
-    void ensureSize();
+    void ensureBackBuffer();
 
     QWaylandWindow *waylandWindow() const;
     void iterateBuffer();

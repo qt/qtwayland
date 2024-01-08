@@ -90,8 +90,10 @@ QWaylandWindow::~QWaylandWindow()
 
 void QWaylandWindow::ensureSize()
 {
-    if (mBackingStore)
-        mBackingStore->ensureSize();
+    if (mBackingStore) {
+        setBackingStore(mBackingStore);
+        mBackingStore->ensureBackBuffer();
+    }
 }
 
 void QWaylandWindow::initWindow()

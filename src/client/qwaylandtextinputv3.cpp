@@ -22,9 +22,8 @@ namespace QtWaylandClient {
 QWaylandTextInputv3::QWaylandTextInputv3(QWaylandDisplay *display,
                                          struct ::zwp_text_input_v3 *text_input)
     : QtWayland::zwp_text_input_v3(text_input)
-    , m_display(display)
 {
-
+    Q_UNUSED(display)
 }
 
 QWaylandTextInputv3::~QWaylandTextInputv3()

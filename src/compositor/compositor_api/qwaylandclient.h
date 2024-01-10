@@ -41,6 +41,8 @@ public:
         TextInputV2 = 2,
         TextInputV3 = 4,
 
+        TextInputV4 = TextInputV3, // TextInputV4 was an experimental API that is now deprecated
+
         QtTextInputMethod = QtTextInputMethodV1,
         TextInput = TextInputV2
     };

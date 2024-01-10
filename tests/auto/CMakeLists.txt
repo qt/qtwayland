@@ -7,7 +7,7 @@ if(TARGET Qt::WaylandClient)
     add_subdirectory(client)
 endif()
 if(TARGET Qt::WaylandClient AND TARGET Qt::WaylandCompositor)
-    #add_subdirectory(cmake) # special case
+    add_subdirectory(cmake)
 endif()
 if(TARGET Qt::WaylandCompositor)
     add_subdirectory(compositor)

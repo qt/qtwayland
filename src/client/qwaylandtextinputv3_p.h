@@ -63,7 +63,6 @@ protected:
     void zwp_text_input_v3_done(uint32_t serial) override;
 
 private:
-    QWaylandDisplay *m_display;
     QWaylandInputMethodEventBuilder m_builder;
 
     ::wl_surface *m_surface = nullptr; // ### Here for debugging purposes

@@ -891,7 +891,12 @@ bool QWaylandDisplay::supportsWindowDecoration() const
     if (disabled)
         return false;
 
-    static bool integrationSupport = clientBufferIntegration() && clientBufferIntegration()->supportsWindowDecoration();
+    // Don't initialize client buffer integration just to check whether it can have a decoration.
+    if (!mWaylandIntegration->mClientBufferIntegrationInitialized)
+        return true;
+
+    // We can do software-rendered decorations, only disable them if the integration explicitly says it can't.
+    static bool integrationSupport = !clientBufferIntegration() || clientBufferIntegration()->supportsWindowDecoration();
     return integrationSupport;
 }
 

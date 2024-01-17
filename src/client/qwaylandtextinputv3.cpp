@@ -43,7 +43,7 @@ const Qt::InputMethodQueries supportedQueries3 = Qt::ImEnabled |
 
 void QWaylandTextInputv3::zwp_text_input_v3_enter(struct ::wl_surface *surface)
 {
-    qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO;
+    qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO << m_surface << surface;
 
     m_surface = surface;
 
@@ -183,21 +183,6 @@ void QWaylandTextInputv3::reset()
     qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO;
 
     m_pendingPreeditString.clear();
-}
-
-void QWaylandTextInputv3::enableSurface(::wl_surface *)
-{
-    qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO;
-}
-
-void QWaylandTextInputv3::disableSurface(::wl_surface *surface)
-{
-    qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO;
-
-    if (m_surface != surface) {
-        qCWarning(qLcQpaWaylandTextInput()) << Q_FUNC_INFO << "for surface" << surface << "focused surface" << m_surface;
-        return;
-    }
 }
 
 void QWaylandTextInputv3::commit()

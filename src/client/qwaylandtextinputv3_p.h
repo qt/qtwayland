@@ -49,8 +49,10 @@ public:
     QLocale locale() const override;
     Qt::LayoutDirection inputDirection() const override;
 
-    void enableSurface(::wl_surface *surface) override;
-    void disableSurface(::wl_surface *surface) override;
+    // doing nothing in zwp_text_input_v3.
+    // enter() and leave() takes the role to enable/disable the surface
+    void enableSurface(::wl_surface *) override {};
+    void disableSurface(::wl_surface *) override {};
 
 protected:
     void zwp_text_input_v3_enter(struct ::wl_surface *surface) override;

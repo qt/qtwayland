@@ -283,19 +283,21 @@ void QWaylandWindow::reset()
         mTopPopup = mTransientParent && (mTransientParent->window()->type() == Qt::Popup) ? mTransientParent : nullptr;
 
     if (mSurface) {
+        {
+            QWriteLocker lock(&mSurfaceLock);
+            invalidateSurface();
+            if (mTransientParent)
+                mTransientParent->removeChildPopup(this);
+            delete mShellSurface;
+            mShellSurface = nullptr;
+            delete mSubSurfaceWindow;
+            mSubSurfaceWindow = nullptr;
+            mTransientParent = nullptr;
+            mSurface.reset();
+            mViewport.reset();
+            mFractionalScale.reset();
+        }
         emit wlSurfaceDestroyed();
-        QWriteLocker lock(&mSurfaceLock);
-        invalidateSurface();
-        if (mTransientParent)
-            mTransientParent->removeChildPopup(this);
-        delete mShellSurface;
-        mShellSurface = nullptr;
-        delete mSubSurfaceWindow;
-        mSubSurfaceWindow = nullptr;
-        mTransientParent = nullptr;
-        mSurface.reset();
-        mViewport.reset();
-        mFractionalScale.reset();
     }
 
     {

@@ -538,19 +538,17 @@ void QWaylandSeat::sendKeyEvent(int qtKey, bool pressed)
 }
 
 /*!
- * \qmlmethod void QtWayland.Compositor::WaylandSeat::sendUnicodeKeyEvent(uint unicode, bool pressed)
+ * \qmlmethod void QtWayland.Compositor::WaylandSeat::sendUnicodeKeyPressEvent(uint unicode)
  * \since 6.7
  *
- * Sends a key press (if \a pressed is \c true) or release (if \a pressed is \c false)
- * event of a UCS4 \a unicode through a text-input protocol.
+ * Sends a key press event of a UCS4 \a unicode through a text-input protocol.
  *
  * \note This function will not work properly if the client does not support the
  * text-input protocol that the compositor supports.
  */
 
 /*!
- * Sends a key press (if \a pressed is \c true) or release (if \a pressed is \c false)
- * event of a UCS4 \a unicode through a text-input protocol.
+ * Sends a key press event of a UCS4 \a unicode through a text-input protocol.
  *
  * \note This function will not work properly if the client does not support the
  * text-input protocol that the compositor supports.
@@ -559,7 +557,42 @@ void QWaylandSeat::sendKeyEvent(int qtKey, bool pressed)
  *
  * \since 6.7
  */
-void QWaylandSeat::sendUnicodeKeyEvent(uint unicode, bool pressed)
+void QWaylandSeat::sendUnicodeKeyPressEvent(uint unicode)
+{
+    sendUnicodeKeyEvent(unicode, QEvent::KeyPress);
+}
+
+/*!
+ * \qmlmethod void QtWayland.Compositor::WaylandSeat::sendUnicodeKeyReleaseEvent(uint unicode)
+ * \since 6.7
+ *
+ * Sends a key release event of a UCS4 \a unicode through a text-input protocol.
+ *
+ * \note This function will not work properly if the client does not support the
+ * text-input protocol that the compositor supports.
+ */
+
+/*!
+ * Sends a key release event of a UCS4 \a unicode through a text-input protocol.
+ *
+ * \note This function will not work properly if the client does not support the
+ * text-input protocol that the compositor supports.
+ *
+ * \sa {sendFullKeyEvent} {sendKeyEvent}
+ *
+ * \since 6.7
+ */
+void QWaylandSeat::sendUnicodeKeyReleaseEvent(uint unicode)
+{
+    sendUnicodeKeyEvent(unicode, QEvent::KeyRelease);
+}
+
+/*!
+ * \internal
+ *
+ * Sends an \a eventType for the UCS4 \a unicode through a text-input protocol.
+ */
+void QWaylandSeat::sendUnicodeKeyEvent(uint unicode, QEvent::Type eventType)
 {
     if (!keyboardFocus()) {
         qWarning("Can't send a unicode key event, no keyboard focus, fix the compositor");
@@ -567,7 +600,6 @@ void QWaylandSeat::sendUnicodeKeyEvent(uint unicode, bool pressed)
     }
 
 #if QT_CONFIG(im)
-    auto eventType = pressed ? QEvent::KeyPress : QEvent::KeyRelease;
     // make a keysym value for the UCS4
     const uint keysym = 0x01000000 | unicode;
     auto text = QXkbCommon::lookupStringNoKeysymTransformations(keysym);
@@ -599,7 +631,7 @@ void QWaylandSeat::sendUnicodeKeyEvent(uint unicode, bool pressed)
     }
 #else
     Q_UNUSED(keysym);
-    Q_UNUSED(pressed);
+    Q_UNUSED(eventType);
     qWarning() << "Can't send a unicode key event: Unable to find a text-input protocol.";
 #endif
 }

@@ -204,7 +204,7 @@ public slots:
     void flushRequests();
 
 signals:
-    void reconnected();
+    void connected();
     void globalAdded(const RegistryGlobal &global);
     void globalRemoved(const RegistryGlobal &global);
 

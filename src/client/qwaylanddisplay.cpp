@@ -389,6 +389,8 @@ bool QWaylandDisplay::initialize()
 
     forceRoundTrip();
 
+    emit connected();
+
     if (!mWaitingScreens.isEmpty()) {
         // Give wl_output.done and zxdg_output_v1.done events a chance to arrive
         forceRoundTrip();
@@ -499,8 +501,6 @@ void QWaylandDisplay::reconnect()
     if (m_frameEventQueue)
         wl_event_queue_destroy(m_frameEventQueue);
     initEventThread();
-
-    emit reconnected();
 
     auto needsRecreate = [](QPlatformWindow *window) {
         return window && !static_cast<QWaylandWindow *>(window)->wlSurface();

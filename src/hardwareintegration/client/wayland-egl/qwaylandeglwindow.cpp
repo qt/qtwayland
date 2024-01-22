@@ -24,7 +24,7 @@ QWaylandEglWindow::QWaylandEglWindow(QWindow *window, QWaylandDisplay *display)
     , m_clientBufferIntegration(static_cast<QWaylandEglClientBufferIntegration *>(mDisplay->clientBufferIntegration()))
     , m_format(window->requestedFormat())
 {
-    connect(display, &QWaylandDisplay::reconnected, this, [this] {
+    connect(display, &QWaylandDisplay::connected, this, [this] {
         m_clientBufferIntegration = static_cast<QWaylandEglClientBufferIntegration *>(
                 mDisplay->clientBufferIntegration());
     });

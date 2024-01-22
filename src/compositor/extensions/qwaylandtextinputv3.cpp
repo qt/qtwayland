@@ -99,20 +99,15 @@ void QWaylandTextInputV3Private::sendInputMethodEvent(QInputMethodEvent *event)
 
     // Current cursor shape is only line. It means both cursorBegin
     // and cursorEnd will be the same values.
-    int32_t preeditCursorPos = newPreeditString.length();
+    int32_t preeditCursorPos = newPreeditString.toUtf8().size();
 
     if (event->replacementLength() > 0 || event->replacementStart() < 0) {
         if (event->replacementStart() <= 0 && (event->replacementLength() >= -event->replacementStart())) {
-            const int selectionStart = qMin(currentState->cursorPosition, currentState->anchorPosition);
-            const int selectionEnd = qMax(currentState->cursorPosition, currentState->anchorPosition);
-            const int before = QWaylandInputMethodEventBuilder::indexToWayland(currentState->surroundingText, -event->replacementStart(), selectionStart + event->replacementStart());
-            const int after = QWaylandInputMethodEventBuilder::indexToWayland(currentState->surroundingText, event->replacementLength() + event->replacementStart(), selectionEnd);
+            const int before = QWaylandInputMethodEventBuilder::indexToWayland(newPreeditString, -event->replacementStart());
+            const int after = QWaylandInputMethodEventBuilder::indexToWayland(newPreeditString, (event->replacementLength() + event->replacementStart()));
             send_delete_surrounding_text(focusResource->handle, before, after);
             needsDone = true;
-        } else {
-            qCWarning(qLcWaylandCompositorTextInput) << "Not yet supported case of replacement. Start:" << event->replacementStart() << "length:" << event->replacementLength();
         }
-        preeditCursorPos = event->replacementStart() + event->replacementLength();
     }
 
     if (currentPreeditString != newPreeditString) {

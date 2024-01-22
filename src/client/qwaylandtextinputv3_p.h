@@ -17,7 +17,6 @@
 
 #include "qwaylandtextinputinterface_p.h"
 #include <QtWaylandClient/private/qwayland-text-input-unstable-v3.h>
-#include <qwaylandinputmethodeventbuilder_p.h>
 #include <QLoggingCategory>
 
 struct wl_callback;
@@ -63,8 +62,6 @@ protected:
     void zwp_text_input_v3_done(uint32_t serial) override;
 
 private:
-    QWaylandInputMethodEventBuilder m_builder;
-
     ::wl_surface *m_surface = nullptr; // ### Here for debugging purposes
 
     struct PreeditInfo {
@@ -82,8 +79,8 @@ private:
     PreeditInfo m_pendingPreeditString;
     PreeditInfo m_currentPreeditString;
     QString m_pendingCommitString;
-    uint m_pendingDeleteBeforeText = 0;
-    uint m_pendingDeleteAfterText = 0;
+    uint m_pendingDeleteBeforeText = 0; // byte length
+    uint m_pendingDeleteAfterText = 0;  // byte length
 
     QString m_surroundingText;
     int m_cursor; // cursor position in QString

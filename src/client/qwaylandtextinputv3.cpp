@@ -80,8 +80,8 @@ void QWaylandTextInputv3::zwp_text_input_v3_preedit_string(const QString &text, 
         return;
 
     m_pendingPreeditString.text = text;
-    m_pendingPreeditString.cursorBegin = cursorBegin;
-    m_pendingPreeditString.cursorEnd = cursorEnd;
+    m_pendingPreeditString.cursorBegin = QWaylandInputMethodEventBuilder::indexFromWayland(text, cursorBegin);
+    m_pendingPreeditString.cursorEnd = QWaylandInputMethodEventBuilder::indexFromWayland(text, cursorEnd);
 }
 
 void QWaylandTextInputv3::zwp_text_input_v3_commit_string(const QString &text)
@@ -101,8 +101,8 @@ void QWaylandTextInputv3::zwp_text_input_v3_delete_surrounding_text(uint32_t bef
     if (!QGuiApplication::focusObject())
         return;
 
-    m_pendingDeleteBeforeText = QWaylandInputMethodEventBuilder::indexFromWayland(m_surroundingText, beforeText);
-    m_pendingDeleteAfterText = QWaylandInputMethodEventBuilder::indexFromWayland(m_surroundingText, afterText);
+    m_pendingDeleteBeforeText = beforeText;
+    m_pendingDeleteAfterText = afterText;
 }
 
 void QWaylandTextInputv3::zwp_text_input_v3_done(uint32_t serial)
@@ -157,14 +157,26 @@ void QWaylandTextInputv3::zwp_text_input_v3_done(uint32_t serial)
     qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO << "DELETE" << m_pendingDeleteBeforeText << m_pendingDeleteAfterText;
     qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO << "COMMIT" << m_pendingCommitString;
 
-    // A workaround for reselection
-    // It will disable redundant commit after reselection
-    if (m_pendingDeleteBeforeText != 0 || m_pendingDeleteAfterText != 0)
+    int replaceFrom = 0;
+    int replaceLength = 0;
+    if (m_pendingDeleteBeforeText != 0 || m_pendingDeleteAfterText != 0) {
+        // A workaround for reselection
+        // It will disable redundant commit after reselection
         m_condReselection = true;
+        const QByteArray &utf8 = QStringView{m_surroundingText}.toUtf8();
+        if (m_cursorPos < int(m_pendingDeleteBeforeText)) {
+            replaceFrom = -QString::fromUtf8(QByteArrayView{utf8}.first(m_pendingDeleteBeforeText)).size();
+            replaceLength = QString::fromUtf8(QByteArrayView{utf8}.first(m_pendingDeleteBeforeText + m_pendingDeleteAfterText)).size();
+        } else {
+            replaceFrom = -QString::fromUtf8(QByteArrayView{utf8}.sliced(m_cursorPos - m_pendingDeleteBeforeText, m_pendingDeleteBeforeText)).size();
+            replaceLength = QString::fromUtf8(QByteArrayView{utf8}.sliced(m_cursorPos - m_pendingDeleteBeforeText, m_pendingDeleteBeforeText + m_pendingDeleteAfterText)).size();
+        }
+    }
 
+    qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO << "DELETE from " << replaceFrom << " length " << replaceLength;
     event.setCommitString(m_pendingCommitString,
-                          -m_pendingDeleteBeforeText,
-                          m_pendingDeleteBeforeText + m_pendingDeleteAfterText);
+                          replaceFrom,
+                          replaceLength);
     m_currentPreeditString = m_pendingPreeditString;
     m_pendingPreeditString.clear();
     m_pendingCommitString.clear();
@@ -235,54 +247,63 @@ void QWaylandTextInputv3::updateState(Qt::InputMethodQueries queries, uint32_t f
         int cursor = event.value(Qt::ImCursorPosition).toInt();
         int anchor = event.value(Qt::ImAnchorPosition).toInt();
 
-        qCDebug(qLcQpaWaylandTextInput) << "Orginal surrounding_text from InputMethodQuery: " << text << cursor << anchor;
+        qCDebug(qLcQpaWaylandTextInput) << "Original surrounding_text from InputMethodQuery: " << text << cursor << anchor;
 
         // Make sure text is not too big
         // surround_text cannot exceed 4000byte in wayland protocol
         // The worst case will be supposed here.
         const int MAX_MESSAGE_SIZE = 4000;
 
-        if (text.toUtf8().size() > MAX_MESSAGE_SIZE) {
-            const int selectionStart = QWaylandInputMethodEventBuilder::indexToWayland(text, qMin(cursor, anchor));
-            const int selectionEnd = QWaylandInputMethodEventBuilder::indexToWayland(text, qMax(cursor, anchor));
+        const int textSize = text.toUtf8().size();
+        if (textSize > MAX_MESSAGE_SIZE) {
+            qCDebug(qLcQpaWaylandTextInput) << "SurroundText size is over "
+                                            << MAX_MESSAGE_SIZE
+                                            << " byte, some text will be clipped.";
+            const int selectionStart = qMin(cursor, anchor);
+            const int selectionEnd = qMax(cursor, anchor);
             const int selectionLength = selectionEnd - selectionStart;
+            const int selectionSize = QStringView{text}.sliced(selectionStart, selectionLength).toUtf8().size();
             // If selection is bigger than 4000 byte, it is fixed to 4000 byte.
             // anchor will be moved in the 4000 byte boundary.
-            if (selectionLength > MAX_MESSAGE_SIZE) {
+            if (selectionSize > MAX_MESSAGE_SIZE) {
                 if (anchor > cursor) {
-                    const int length = MAX_MESSAGE_SIZE;
-                    anchor = QWaylandInputMethodEventBuilder::trimmedIndexFromWayland(text, length, cursor);
-                    anchor -= cursor;
-                    text = text.mid(cursor, anchor);
                     cursor = 0;
+                    anchor = MAX_MESSAGE_SIZE;
+                    text = text.sliced(selectionStart, selectionLength);
                 } else {
-                    const int length = -MAX_MESSAGE_SIZE;
-                    anchor = QWaylandInputMethodEventBuilder::trimmedIndexFromWayland(text, length, cursor);
-                    cursor -= anchor;
-                    text = text.mid(anchor, cursor);
                     anchor = 0;
+                    cursor = MAX_MESSAGE_SIZE;
+                    text = text.sliced(selectionEnd - selectionLength, selectionLength);
                 }
             } else {
-                const int offset = (MAX_MESSAGE_SIZE - selectionLength) / 2;
-
-                int textStart = QWaylandInputMethodEventBuilder::trimmedIndexFromWayland(text, -offset, qMin(cursor, anchor));
-                int textEnd = QWaylandInputMethodEventBuilder::trimmedIndexFromWayland(text, MAX_MESSAGE_SIZE, textStart);
-
-                anchor -= textStart;
-                cursor -= textStart;
-                text = text.mid(textStart, textEnd - textStart);
+                // This is not optimal in some cases.
+                // For examples, if the cursor position and
+                // the selectionEnd are close to the end of the surround text,
+                // the tail of the text might always be clipped.
+                // However all the cases of over 4000 byte are just exceptions.
+                int selEndSize = QStringView{text}.first(selectionEnd).toUtf8().size();
+                cursor = QWaylandInputMethodEventBuilder::indexToWayland(text, cursor);
+                anchor = QWaylandInputMethodEventBuilder::indexToWayland(text, anchor);
+                if (selEndSize < MAX_MESSAGE_SIZE) {
+                    text = QString::fromUtf8(QByteArrayView{text.toUtf8()}.first(MAX_MESSAGE_SIZE));
+                } else {
+                    const int startOffset = selEndSize - MAX_MESSAGE_SIZE;
+                    text = QString::fromUtf8(QByteArrayView{text.toUtf8()}.sliced(startOffset, MAX_MESSAGE_SIZE));
+                    cursor -= startOffset;
+                    anchor -= startOffset;
+                }
             }
+        } else {
+            cursor = QWaylandInputMethodEventBuilder::indexToWayland(text, cursor);
+            anchor = QWaylandInputMethodEventBuilder::indexToWayland(text, anchor);
         }
         qCDebug(qLcQpaWaylandTextInput) << "Modified surrounding_text: " << text << cursor << anchor;
 
-        const int cursorPos = QWaylandInputMethodEventBuilder::indexToWayland(text, cursor);
-        const int anchorPos = QWaylandInputMethodEventBuilder::indexToWayland(text, anchor);
-
-        if (m_surroundingText != text || m_cursorPos != cursorPos || m_anchorPos != anchorPos) {
+        if (m_surroundingText != text || m_cursorPos != cursor || m_anchorPos != anchor) {
             qCDebug(qLcQpaWaylandTextInput) << "Current surrounding_text: " << m_surroundingText << m_cursorPos << m_anchorPos;
-            qCDebug(qLcQpaWaylandTextInput) << "New surrounding_text: " << text << cursorPos << anchorPos;
+            qCDebug(qLcQpaWaylandTextInput) << "New surrounding_text: " << text << cursor << anchor;
 
-            set_surrounding_text(text, cursorPos, anchorPos);
+            set_surrounding_text(text, cursor, anchor);
 
             // A workaround in the case of reselection
             // It will work when re-clicking a preedit text
@@ -294,8 +315,8 @@ void QWaylandTextInputv3::updateState(Qt::InputMethodQueries queries, uint32_t f
             }
 
             m_surroundingText = text;
-            m_cursorPos = cursorPos;
-            m_anchorPos = anchorPos;
+            m_cursorPos = cursor;
+            m_anchorPos = anchor;
             m_cursor = cursor;
         }
     }

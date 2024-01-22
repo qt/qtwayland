@@ -209,15 +209,7 @@ void QWaylandTextInputV3Private::setFocus(QWaylandSurface *surface)
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO << surface;
 
     if (focusResource && focus) {
-        // sync before leave
-        // IBUS commits by itself but qtvirtualkeyboard doesn't
-        // And when handling chinese input, it is required to commit
-        // before leaving the focus.
-        if (qgetenv("QT_IM_MODULE") != QByteArrayLiteral("ibus")
-                || qApp->inputMethod()->locale().language() == QLocale::Chinese) {
-            qApp->inputMethod()->commit();
-        }
-
+        qApp->inputMethod()->commit();
         qApp->inputMethod()->hide();
         inputPanelVisible = false;
         send_leave(focusResource->handle, focus->resource());
@@ -287,10 +279,8 @@ void QWaylandTextInputV3Private::zwp_text_input_v3_disable(QtWaylandServer::zwp_
     emit q->surfaceDisabled(s);
 
     // When reselecting a word by setFocus
-    if (qgetenv("QT_IM_MODULE") != QByteArrayLiteral("ibus")
-            || qApp->inputMethod()->locale().language() == QLocale::Chinese) {
-        qApp->inputMethod()->commit();
-    }
+    qApp->inputMethod()->commit();
+
     qApp->inputMethod()->reset();
     pendingState.reset(new QWaylandTextInputV3ClientState);
 }

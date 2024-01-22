@@ -93,9 +93,12 @@ void QWaylandTextInput::reset()
 void QWaylandTextInput::commit()
 {
     if (QObject *o = QGuiApplication::focusObject()) {
-        QInputMethodEvent event;
-        event.setCommitString(m_preeditCommit);
-        QCoreApplication::sendEvent(o, &event);
+        if (!m_preeditCommit.isEmpty()) {
+            QInputMethodEvent event;
+            event.setCommitString(m_preeditCommit);
+            m_preeditCommit = QString();
+            QCoreApplication::sendEvent(o, &event);
+        }
     }
 
     reset();
@@ -591,9 +594,7 @@ void QWaylandInputContext::ensureInitialized()
     }
 
     m_initialized = true;
-    const char *locale = setlocale(LC_CTYPE, "");
-    if (!locale)
-        locale = setlocale(LC_CTYPE, nullptr);
+    const char *const locale = setlocale(LC_CTYPE, nullptr);
     qCDebug(qLcQpaInputMethods) << "detected locale (LC_CTYPE):" << locale;
 
     m_composeTable = xkb_compose_table_new_from_locale(m_XkbContext, locale, XKB_COMPOSE_COMPILE_NO_FLAGS);

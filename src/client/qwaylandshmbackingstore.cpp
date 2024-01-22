@@ -136,7 +136,7 @@ QWaylandShmBackingStore::QWaylandShmBackingStore(QWindow *window, QWaylandDispla
     : QPlatformBackingStore(window)
     , mDisplay(display)
 {
-    QObject::connect(mDisplay, &QWaylandDisplay::reconnected, window, [this]() {
+    QObject::connect(mDisplay, &QWaylandDisplay::connected, window, [this]() {
         auto copy = mBuffers;
         // clear available buffers so we create new ones
         // actual deletion is deferred till after resize call so we can copy

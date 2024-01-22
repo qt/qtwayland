@@ -254,7 +254,7 @@ public Q_SLOTS:
     void flushRequests();
 
 Q_SIGNALS:
-    void reconnected();
+    void connected();
     void globalAdded(const RegistryGlobal &global);
     void globalRemoved(const RegistryGlobal &global);
 

@@ -373,6 +373,7 @@ QWaylandDisplay::~QWaylandDisplay(void)
 
     // Reset the globals manually since they need to be destroyed before the wl_display
     mGlobals = {};
+    mWindowManagerIntegration.reset();
 
     if (object())
         wl_registry_destroy(object());

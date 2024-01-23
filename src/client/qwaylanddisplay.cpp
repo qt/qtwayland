@@ -472,6 +472,8 @@ void QWaylandDisplay::reconnect()
         mSyncCallback = nullptr;
     }
 
+    if (object())
+        wl_registry_destroy(object());
     mDisplay = wl_display_connect(nullptr);
     if (!mDisplay)
         _exit(1);

@@ -1118,6 +1118,9 @@ bool QWaylandWindow::createDecoration()
         }
         setGeometry(geometry());
 
+        // creating a decoration changes our margins which in turn change size hints
+        propagateSizeHints();
+
         // This is a special case where the buffer is recreated, but since
         // the content rect remains the same, the widgets remain the same
         // size and are not redrawn, leaving the new buffer empty. As a simple

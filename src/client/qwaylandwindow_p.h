@@ -113,7 +113,6 @@ public:
     void damage(const QRect &rect);
 
     void safeCommit(QWaylandBuffer *buffer, const QRegion &damage);
-    void handleExpose(const QRegion &region);
     void commit(QWaylandBuffer *buffer, const QRegion &damage);
 
     void commit();

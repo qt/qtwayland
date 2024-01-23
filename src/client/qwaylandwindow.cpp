@@ -759,16 +759,6 @@ void QWaylandWindow::safeCommit(QWaylandBuffer *buffer, const QRegion &damage)
     }
 }
 
-void QWaylandWindow::handleExpose(const QRegion &region)
-{
-    QWindowSystemInterface::handleExposeEvent(window(), region);
-    if (mQueuedBuffer && !region.isEmpty()) {
-        commit(mQueuedBuffer, mQueuedBufferDamage);
-        mQueuedBuffer = nullptr;
-        mQueuedBufferDamage = QRegion();
-    }
-}
-
 void QWaylandWindow::commit(QWaylandBuffer *buffer, const QRegion &damage)
 {
     Q_ASSERT(isExposed());

@@ -126,7 +126,7 @@ void QWaylandTextInputV3Private::sendInputMethodEvent(QInputMethodEvent *event)
     }
 
     if (needsDone)
-        send_done(focusResource->handle, serial);
+        send_done(focusResource->handle, serials[focusResource]);
 }
 
 
@@ -139,7 +139,7 @@ void QWaylandTextInputV3Private::sendKeyEvent(QKeyEvent *event)
 
     send_commit_string(focusResource->handle, event->text());
 
-    send_done(focusResource->handle, serial);
+    send_done(focusResource->handle, serials[focusResource]);
 }
 
 QVariant QWaylandTextInputV3Private::inputMethodQuery(Qt::InputMethodQuery property, QVariant argument) const
@@ -188,7 +188,7 @@ QVariant QWaylandTextInputV3Private::inputMethodQuery(Qt::InputMethodQuery prope
 
 void QWaylandTextInputV3Private::setFocus(QWaylandSurface *surface)
 {
-    qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
+    qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO << surface;
 
     if (focusResource && focus) {
         // sync before leave
@@ -225,13 +225,14 @@ void QWaylandTextInputV3Private::zwp_text_input_v3_bind_resource(Resource *resou
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
 
-    Q_UNUSED(resource);
+    serials.insert(resource, 0);
 }
 
 void QWaylandTextInputV3Private::zwp_text_input_v3_destroy_resource(Resource *resource)
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
 
+    serials.remove(resource);
     if (focusResource == resource)
         focusResource = nullptr;
 }
@@ -254,7 +255,6 @@ void QWaylandTextInputV3Private::zwp_text_input_v3_enable(Resource *resource)
     enabledSurfaces.insert(resource, focus);
     emit q->surfaceEnabled(focus);
 
-    serial = 0;
     inputPanelVisible = true;
     qApp->inputMethod()->show();
 }
@@ -293,12 +293,7 @@ void QWaylandTextInputV3Private::zwp_text_input_v3_commit(Resource *resource)
 {
     qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
 
-    if (resource != focusResource) {
-        qCDebug(qLcWaylandCompositorTextInput) << "OBS: Disabled surface!!";
-        return;
-    }
-
-    serial = serial < UINT_MAX ? serial + 1U : 0U;
+    serials[resource] = serials[resource] < UINT_MAX ? serials[resource] + 1U : 0U;
 
     // Just increase serials and ignore empty commits
     if (!pendingState->changedState) {
@@ -488,7 +483,7 @@ bool QWaylandTextInputV3::isSurfaceEnabled(QWaylandSurface *surface) const
 
 void QWaylandTextInputV3::add(::wl_client *client, uint32_t id, int version)
 {
-    qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO;
+    qCDebug(qLcWaylandCompositorTextInput) << Q_FUNC_INFO << client << id << version;
 
     Q_D(QWaylandTextInputV3);
 

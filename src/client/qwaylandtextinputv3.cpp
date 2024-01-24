@@ -67,7 +67,6 @@ void QWaylandTextInputv3::zwp_text_input_v3_leave(struct ::wl_surface *surface)
     m_currentPreeditString.clear();
 
     m_surface = nullptr;
-    m_currentSerial = 0U;
 
     disable();
     qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO << "Done";

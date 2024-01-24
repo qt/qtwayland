@@ -73,9 +73,8 @@ public:
     QScopedPointer<QWaylandTextInputV3ClientState> currentState;
     QScopedPointer<QWaylandTextInputV3ClientState> pendingState;
 
-    uint32_t serial = 0;
-
-    QHash<Resource *, QWaylandSurface*> enabledSurfaces;
+    QHash<Resource *, uint32_t> serials;
+    QHash<Resource *, QWaylandSurface *> enabledSurfaces;
 
 protected:
     void zwp_text_input_v3_bind_resource(Resource *resource) override;

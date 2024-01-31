@@ -13,7 +13,7 @@
 #include "qwaylandabstractdecoration_p.h"
 #include "qwaylandsurface_p.h"
 
-#include <QtWaylandClient/private/qwayland-qt-toplevel-drag-v1.h>
+#include <QtWaylandClient/private/qwayland-xdg-toplevel-drag-v1.h>
 
 #include <QtCore/QMimeData>
 #include <QtGui/QGuiApplication>
@@ -153,8 +153,8 @@ bool QWaylandDataDevice::startDrag(QMimeData *mimeData, Qt::DropActions supporte
         offsetStream >> offset;
         if (auto waylandWindow = static_cast<QWaylandWindow *>(dockWindow->handle())) {
             if (auto toplevel = waylandWindow->surfaceRole<xdg_toplevel>()) {
-                m_toplevelDrag = new QtWayland::qt_toplevel_drag_v1(
-                        m_display->xdgToplevelDragManager()->get_qt_toplevel_drag(
+                m_toplevelDrag = new QtWayland::xdg_toplevel_drag_v1(
+                        m_display->xdgToplevelDragManager()->get_xdg_toplevel_drag(
                                 m_dragSource->object()));
                 m_toplevelDrag->attach(toplevel, offset.x(), offset.y());
             }

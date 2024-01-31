@@ -54,7 +54,7 @@ namespace QtWayland {
     class wp_cursor_shape_manager_v1;
     class wp_fractional_scale_manager_v1;
     class wp_viewporter;
-    class qt_toplevel_drag_manager_v1;
+    class xdg_toplevel_drag_manager_v1;
 }
 
 namespace QtWaylandClient {
@@ -125,7 +125,10 @@ public:
     QWaylandCursor *waylandCursor();
     QWaylandCursorTheme *loadCursorTheme(const QString &name, int pixelSize);
 #endif
-    struct wl_display *wl_display() const { return mDisplay; }
+    struct wl_display *wl_display() const
+    {
+        return mDisplay;
+    }
     struct ::wl_registry *wl_registry() { return object(); }
 
     QtWayland::wl_compositor *compositor()
@@ -202,7 +205,7 @@ public:
     {
         return mGlobals.cursorShapeManager.get();
     }
-    QtWayland::qt_toplevel_drag_manager_v1 *xdgToplevelDragManager() const
+    QtWayland::xdg_toplevel_drag_manager_v1 *xdgToplevelDragManager() const
     {
         return mGlobals.xdgToplevelDragManager.get();
     }
@@ -281,7 +284,6 @@ private:
         RegistryListener listener = nullptr;
         void *data = nullptr;
     };
-
     struct wl_display *mDisplay = nullptr;
     std::unique_ptr<EventThread> m_eventThread;
     wl_event_queue *m_frameEventQueue = nullptr;
@@ -341,7 +343,7 @@ private:
         std::unique_ptr<QtWayland::wp_viewporter> viewporter;
         std::unique_ptr<QtWayland::wp_fractional_scale_manager_v1> fractionalScaleManager;
         std::unique_ptr<QtWayland::wp_cursor_shape_manager_v1> cursorShapeManager;
-        std::unique_ptr<QtWayland::qt_toplevel_drag_manager_v1> xdgToplevelDragManager;
+        std::unique_ptr<QtWayland::xdg_toplevel_drag_manager_v1> xdgToplevelDragManager;
     } mGlobals;
     int mFd = -1;
     int mWritableNotificationFd = -1;

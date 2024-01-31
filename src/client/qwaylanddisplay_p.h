@@ -54,7 +54,7 @@ namespace QtWayland {
     class wp_cursor_shape_manager_v1;
     class wp_fractional_scale_manager_v1;
     class wp_viewporter;
-    class qt_toplevel_drag_manager_v1;
+    class xdg_toplevel_drag_manager_v1;
 }
 
 namespace QtWaylandClient {
@@ -125,7 +125,10 @@ public:
     QWaylandCursor *waylandCursor();
     QWaylandCursorTheme *loadCursorTheme(const QString &name, int pixelSize);
 #endif
-    struct wl_display *wl_display() const { return mDisplay; }
+    struct wl_display *wl_display() const
+    {
+        return mDisplay;
+    }
     struct ::wl_registry *wl_registry() { return object(); }
 
     const struct wl_compositor *wl_compositor() const { return mCompositor.object(); }
@@ -155,7 +158,7 @@ public:
     QtWayland::wp_fractional_scale_manager_v1 *fractionalScaleManager() const { return mFractionalScaleManager.data(); }
     QtWayland::wp_viewporter *viewporter() const { return mViewporter.data(); }
     QtWayland::wp_cursor_shape_manager_v1 *cursorShapeManager() const { return mCursorShapeManager.data();}
-    QtWayland::qt_toplevel_drag_manager_v1 *xdgToplevelDragManager() const { return mXdgToplevelDragManager.data();}
+    QtWayland::xdg_toplevel_drag_manager_v1 *xdgToplevelDragManager() const { return mXdgToplevelDragManager.data();}
 
     struct RegistryGlobal {
         uint32_t id;
@@ -226,7 +229,6 @@ private:
         RegistryListener listener = nullptr;
         void *data = nullptr;
     };
-
     struct wl_display *mDisplay = nullptr;
     std::unique_ptr<EventThread> m_eventThread;
     wl_event_queue *m_frameEventQueue = nullptr;
@@ -282,7 +284,7 @@ private:
     QScopedPointer<QtWayland::wp_viewporter> mViewporter;
     QScopedPointer<QtWayland::wp_fractional_scale_manager_v1> mFractionalScaleManager;
     QScopedPointer<QtWayland::wp_cursor_shape_manager_v1> mCursorShapeManager;
-    QScopedPointer<QtWayland::qt_toplevel_drag_manager_v1> mXdgToplevelDragManager;
+    QScopedPointer<QtWayland::xdg_toplevel_drag_manager_v1> mXdgToplevelDragManager;
     int mFd = -1;
     int mWritableNotificationFd = -1;
     QList<RegistryGlobal> mGlobals;

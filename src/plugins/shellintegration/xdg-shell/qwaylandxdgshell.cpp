@@ -711,9 +711,18 @@ QString QWaylandXdgSurface::externWindowHandle()
         return QString();
     }
     if (!m_toplevel->m_exported) {
-        m_toplevel->m_exported.reset(m_shell->exporter()->exportToplevel(m_window->wlSurface()));
+        auto *exporterWrapper = static_cast<zxdg_exporter_v2 *>(
+                wl_proxy_create_wrapper(m_shell->exporter()->object()));
+        auto exportQueue = wl_display_create_queue(m_shell->display()->wl_display());
+        wl_proxy_set_queue(reinterpret_cast<wl_proxy *>(exporterWrapper), exportQueue);
+        m_toplevel->m_exported.reset(new QWaylandXdgExportedV2(
+                zxdg_exporter_v2_export_toplevel(exporterWrapper, m_window->wlSurface())));
         // handle events is sent immediately
-        m_shell->display()->forceRoundTrip();
+        wl_display_roundtrip_queue(m_shell->display()->wl_display(), exportQueue);
+
+        wl_proxy_set_queue(reinterpret_cast<wl_proxy *>(m_toplevel->m_exported->object()), nullptr);
+        wl_proxy_wrapper_destroy(exporterWrapper);
+        wl_event_queue_destroy(exportQueue);
     }
     return m_toplevel->m_exported->handle();
 }

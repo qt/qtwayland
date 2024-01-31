@@ -36,12 +36,6 @@ QWaylandXdgExporterV2::~QWaylandXdgExporterV2()
 {
     destroy();
 }
-
-QtWaylandClient::QWaylandXdgExportedV2 *QWaylandXdgExporterV2::exportToplevel(wl_surface *surface)
-{
-    return new QWaylandXdgExportedV2(export_toplevel(surface));
-}
-
 }
 
 QT_END_NAMESPACE

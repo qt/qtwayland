@@ -40,7 +40,6 @@ class QWaylandXdgExporterV2 : public QtWayland::zxdg_exporter_v2
 public:
     QWaylandXdgExporterV2(wl_registry *registry, uint32_t id, int version);
     ~QWaylandXdgExporterV2() override;
-    QWaylandXdgExportedV2 *exportToplevel(wl_surface *surface);
 };
 
 }

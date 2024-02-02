@@ -247,11 +247,11 @@ static QtWayland::wp_cursor_shape_device_v1::shape qtCursorShapeToWaylandShape(Q
     case Qt::SizeFDiagCursor:
         return wp_cursor_shape_device_v1::shape_nwse_resize;
     case Qt::WaitCursor:
-        return wp_cursor_shape_device_v1::shape_progress;
+        return wp_cursor_shape_device_v1::shape_wait;
     case Qt::SizeAllCursor:
         return wp_cursor_shape_device_v1::shape_all_scroll;
     case Qt::BusyCursor:
-        return wp_cursor_shape_device_v1::shape_wait;
+        return wp_cursor_shape_device_v1::shape_progress;
     case Qt::SplitVCursor:
         return wp_cursor_shape_device_v1::shape_row_resize;
     case Qt::ForbiddenCursor:

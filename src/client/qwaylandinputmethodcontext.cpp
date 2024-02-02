@@ -362,6 +362,9 @@ void QWaylandInputMethodContext::setFocusObject(QObject *)
     if (inputMethod == nullptr)
         return;
 
+    if (inputMethod->isVisible() && !inputMethodAccepted())
+        inputMethod->hide_input_panel();
+
     QWindow *window = QGuiApplication::focusWindow();
 
     if (m_currentWindow != nullptr && m_currentWindow->handle() != nullptr) {

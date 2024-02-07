@@ -166,6 +166,8 @@ void QWaylandCompositorPrivate::init()
         const int socketArg = arguments.indexOf(QLatin1String("--wayland-socket-name"));
         if (socketArg != -1 && socketArg + 1 < arguments.size())
             socket_name = arguments.at(socketArg + 1).toLocal8Bit();
+        if (socket_name.isEmpty())
+            socket_name = qgetenv("WAYLAND_DISPLAY");
     }
     wl_compositor::init(display, 4);
     wl_subcompositor::init(display, 1);

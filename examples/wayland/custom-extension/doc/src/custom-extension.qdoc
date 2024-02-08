@@ -50,8 +50,8 @@
  * becomes a call to a virtual function which can be implemented to provide the actual response.
  *
  * In order to have \c qtwaylandscanner run automatically as part of the build, we use the
- * CMake functions \c qt6_generate_wayland_protocol_server_sources() and
- * \c qt6_generate_wayland_protocol_client_sources() for generating the server-side and
+ * CMake functions \l{qt_generate_wayland_protocol_server_sources}{qt_generate_wayland_protocol_server_sources()} and
+ * \l{qt_generate_wayland_protocol_client_sources}{qt_generate_wayland_protocol_client_sources()} for generating the server-side and
  * client-side glue code, respectively. (When using \c qmake, the \c WAYLANDSERVERSOURCES and
  * \c WAYLANDCLIENTSOURCES variables achieve the same.)
  *

@@ -1,0 +1,31 @@
+include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
+include($QT_INSTALL_DOCS/config/exampleurl-qtwayland.qdocconf)
+
+project                                                     = QtWaylandClient
+description                                                 = Qt Wayland Client Reference Documentation
+version                                                     = $QT_VERSION
+
+qhp.projects                                                = QtWaylandClient
+
+qhp.QtWaylandClient.file                                    = qtwaylandclient.qhp
+qhp.QtWaylandClient.namespace                               = org.qt-project.QtWaylandClient.$QT_VERSION_TAG
+qhp.QtWaylandClient.virtualFolder                           = QtWaylandClient
+qhp.QtWaylandClient.indexTitle                              = Qt Wayland Client
+qhp.QtWaylandClient.indexRoot                               =
+
+depends += qtcore \
+           qtqml \
+           qtquick \
+           qtdoc \
+           qtcmake \
+           qtwaylandcompositor
+
+headerdirs += \
+    ../
+sourcedirs += \
+    ../
+
+navigation.landingpage    = "Qt Wayland Client"
+
+# Enforce zero documentation warnings
+warninglimit = 0

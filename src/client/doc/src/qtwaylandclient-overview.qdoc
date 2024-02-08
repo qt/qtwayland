@@ -1,0 +1,36 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+  \page qtwaylandclient-index.html
+  \title Qt Wayland Client
+  \brief Library to enable connecting to a Wayland compositor as a client
+
+  The Qt Wayland Client library provides the necessary functions for an application to act
+  as a \l {https://wayland.freedesktop.org/}{Wayland} client and connect to a Wayland compositor.
+  For most use cases, the library is used automatically through the Wayland QPA plugin, and there is
+  no need for the application itself to use any functions from the library.
+
+  However, when paired with \l{Qt Wayland Compositor}, the cmake function
+  \l{qt_generate_wayland_protocol_client_sources}{qt_generate_wayland_protocol_client_sources()}
+  can be used to create custom protocol extensions.
+
+  \section1 Licenses and Attributions
+
+  Qt Wayland Compositor and the Qt Wayland integration plugin
+  are available under commercial licenses from \l{The Qt Company}.
+
+  In addition, Qt Wayland Compositor is available under the
+  \l{GNU General Public License, version 3}, while
+  the Qt Wayland integration plugin is available under the
+  \l{GNU Lesser General Public License, version 3} or the
+  \l{GNU General Public License, version 2}.
+
+  See \l{Qt Licensing} for further details.
+
+  Qt Wayland Compositor and the Qt Wayland integration plugin
+  use protocol definitions under following permissive licenses:
+
+  \generatelist{groupsbymodule attributions-qtwaylandcompositor}
+
+*/

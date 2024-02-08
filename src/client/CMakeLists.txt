@@ -163,5 +163,9 @@ qt_internal_extend_target(WaylandClient CONDITION QT_FEATURE_draganddrop
         qwaylanddnd.cpp qwaylanddnd_p.h
 )
 
+qt_internal_add_docs(WaylandClient
+    doc/qtwaylandclient.qdocconf
+)
+
 qt_record_extra_qt_main_tools_package_dependency(WaylandClient WaylandScannerTools "${PROJECT_VERSION}")
 qt_record_extra_qt_package_dependency(WaylandClient WaylandGlobalPrivate "${PROJECT_VERSION}")

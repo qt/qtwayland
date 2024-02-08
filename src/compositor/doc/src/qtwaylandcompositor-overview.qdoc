@@ -141,6 +141,9 @@
     \li \l{Qt Wayland Compositor C++ Classes}
   \endlist
 
+  In addition, the module provides the CMake function
+  \l{qt_generate_wayland_protocol_server_sources}{qt_generate_wayland_protocol_server_sources()}.
+
   \section1 Module Evolution
   \l{Porting to Qt 6 - Qt Wayland Compositor} lists important changes in the
   module API and functionality that were done for the Qt 6 series of Qt.

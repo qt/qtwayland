@@ -39,7 +39,8 @@ depends += qtcore \
            qtwidgets \
            qtvirtualkeyboard \
            qtcmake \
-           qtopengl
+           qtopengl \
+           qtwaylandclient
 
 exampledirs += ../../../examples/wayland
 headerdirs += \

@@ -153,7 +153,7 @@
   In addition, Qt Wayland Compositor is available under the
   \l{GNU General Public License, version 3}, while
   the Qt Wayland integration plugin is available under the
-  \l{GNU General Public License, version 3} or the
+  \l{GNU Lesser General Public License, version 3} or the
   \l{GNU General Public License, version 2}.
 
   See \l{Qt Licensing} for further details.

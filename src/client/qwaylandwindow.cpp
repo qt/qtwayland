@@ -547,7 +547,6 @@ QPlatformScreen *QWaylandWindow::calculateScreenFromSurfaceEvents() const
         if (auto *screen = mSurface->oldestEnteredScreen())
             return screen;
     }
-
     return QPlatformWindow::screen();
 }
 
@@ -1409,8 +1408,6 @@ void QWaylandWindow::handleScreensChanged()
     if (newScreen->screen() == window()->screen())
         return;
 
-    if (!newScreen->isPlaceholder() && !newScreen->QPlatformScreen::screen())
-        mDisplay->forceRoundTrip();
     QWindowSystemInterface::handleWindowScreenChanged(window(), newScreen->QPlatformScreen::screen());
 
     if (fixedToplevelPositions && !QPlatformWindow::parent() && window()->type() != Qt::Popup

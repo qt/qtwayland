@@ -15,6 +15,7 @@ QWaylandSurface::QWaylandSurface(QWaylandDisplay *display)
     : wl_surface(display->createSurface(this))
 {
     connect(qApp, &QGuiApplication::screenRemoved, this, &QWaylandSurface::handleScreenRemoved);
+    connect(qApp, &QGuiApplication::screenAdded, this, &QWaylandSurface::screensChanged);
 }
 
 QWaylandSurface::~QWaylandSurface()
@@ -24,7 +25,14 @@ QWaylandSurface::~QWaylandSurface()
 
 QWaylandScreen *QWaylandSurface::oldestEnteredScreen()
 {
-    return m_screens.value(0, nullptr);
+    for (auto *screen : std::as_const(m_screens)) {
+        // only report valid screens
+        // we can have some ouptuts waiting for xdg output information
+        // that are valid QPlatformScreens, but not valid QScreens
+        if (screen->screen())
+            return screen;
+    }
+    return nullptr;
 }
 
 QWaylandSurface *QWaylandSurface::fromWlSurface(::wl_surface *surface)

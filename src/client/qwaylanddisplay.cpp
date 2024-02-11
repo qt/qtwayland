@@ -558,13 +558,17 @@ void QWaylandDisplay::blockingReadEvents()
 void QWaylandDisplay::checkTextInputProtocol()
 {
     QStringList tips, timps; // for text input protocols and text input manager protocols
+    // zwp_text_input_v2 is preferred over zwp_text_input_v3 because:
+    // - Currently, v3 is not as feature rich as v2.
+    // - While v2 is not upstreamed, it is well supported by KWin since Plasma 5 and Plasma
+    //   Mobile uses some v2 only.
     tips << QLatin1String(QtWayland::qt_text_input_method_v1::interface()->name)
-         << QLatin1String(QtWayland::zwp_text_input_v3::interface()->name)
          << QLatin1String(QtWayland::zwp_text_input_v2::interface()->name)
+         << QLatin1String(QtWayland::zwp_text_input_v3::interface()->name)
          << QLatin1String(QtWayland::zwp_text_input_v1::interface()->name);
     timps << QLatin1String(QtWayland::qt_text_input_method_manager_v1::interface()->name)
-          << QLatin1String(QtWayland::zwp_text_input_manager_v3::interface()->name)
           << QLatin1String(QtWayland::zwp_text_input_manager_v2::interface()->name)
+          << QLatin1String(QtWayland::zwp_text_input_manager_v3::interface()->name)
           << QLatin1String(QtWayland::zwp_text_input_manager_v1::interface()->name);
 
     QString tiProtocols = QString::fromLocal8Bit(qgetenv("QT_WAYLAND_TEXT_INPUT_PROTOCOL"));

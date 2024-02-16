@@ -411,7 +411,8 @@ void QWaylandXdgSurface::propagateSizeHints()
 
 void QWaylandXdgSurface::setWindowGeometry(const QRect &rect)
 {
-    set_window_geometry(rect.x(), rect.y(), rect.width(), rect.height());
+    if (window()->isExposed())
+        set_window_geometry(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
 void QWaylandXdgSurface::setSizeHints()

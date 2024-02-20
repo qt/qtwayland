@@ -196,7 +196,7 @@ Scanner::WaylandEvent Scanner::readEvent(QXmlStreamReader &xml, bool request)
                 .type      = byteArrayValue(xml, "type"),
                 .interface = byteArrayValue(xml, "interface"),
                 .summary   = byteArrayValue(xml, "summary"),
-                .allowNull = boolValue(xml, "allowNull"),
+                .allowNull = boolValue(xml, "allow-null"),
             };
             event.arguments.push_back(std::move(argument));
         }
@@ -937,9 +937,12 @@ bool Scanner::process()
                     printf(",\n");
                     QByteArray cType = waylandToCType(a.type, a.interface);
                     QByteArray qtType = waylandToQtType(a.type, a.interface, e.request);
-                    if (a.type == "string")
-                        printf("            %s.toUtf8().constData()", a.name.constData());
-                    else if (a.type == "array")
+                    if (a.type == "string") {
+                        printf("            ");
+                        if (a.allowNull)
+                            printf("%s.isNull() ? nullptr : ", a.name.constData());
+                        printf("%s.toUtf8().constData()", a.name.constData());
+                    } else if (a.type == "array")
                         printf("            &%s_data", a.name.constData());
                     else if (cType == qtType)
                         printf("            %s", a.name.constData());
@@ -1225,9 +1228,12 @@ bool Scanner::process()
                     } else {
                         QByteArray cType = waylandToCType(a.type, a.interface);
                         QByteArray qtType = waylandToQtType(a.type, a.interface, e.request);
-                        if (a.type == "string")
-                            printf("            %s.toUtf8().constData()", a.name.constData());
-                        else if (a.type == "array")
+                        if (a.type == "string") {
+                            printf("            ");
+                            if (a.allowNull)
+                                printf("%s.isNull() ? nullptr : ", a.name.constData());
+                            printf("%s.toUtf8().constData()", a.name.constData());
+                        } else if (a.type == "array")
                             printf("            &%s_data", a.name.constData());
                         else if (cType == qtType)
                             printf("            %s", a.name.constData());

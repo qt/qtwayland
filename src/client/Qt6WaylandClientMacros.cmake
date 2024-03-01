@@ -1,8 +1,14 @@
+
 # Copyright (C) 2022 The Qt Company Ltd.
 # SPDX-License-Identifier: BSD-3-Clause
 
 function(qt6_generate_wayland_protocol_client_sources target)
-    cmake_parse_arguments(arg "NO_INCLUDE_CORE_ONLY" "__QT_INTERNAL_WAYLAND_INCLUDE_DIR" "FILES" ${ARGN})
+    cmake_parse_arguments(arg
+        "NO_INCLUDE_CORE_ONLY;PRIVATE_CODE;PUBLIC_CODE"
+        "__QT_INTERNAL_WAYLAND_INCLUDE_DIR"
+        "FILES"
+        ${ARGN})
+
     if(DEFINED arg_UNPARSED_ARGUMENTS)
         message(FATAL_ERROR "Unknown arguments were passed to qt6_generate_wayland_protocol_client_sources: (${arg_UNPARSED_ARGUMENTS}).")
     endif()
@@ -34,6 +40,14 @@ function(qt6_generate_wayland_protocol_client_sources target)
         if (NOT arg_NO_INCLUDE_CORE_ONLY)
             set(waylandscanner_extra_args "--include-core-only")
         endif()
+
+
+        if (arg_PRIVATE_CODE)
+            set(wayland_scanner_code_option "private-code")
+        else()
+            set(wayland_scanner_code_option "public-code")
+        endif()
+
         add_custom_command(
             OUTPUT "${waylandscanner_header_output}"
             #TODO: Maybe put the files in ${CMAKE_CURRENT_BINARY_DIR/wayland_generated instead?
@@ -43,7 +57,7 @@ function(qt6_generate_wayland_protocol_client_sources target)
 
         add_custom_command(
             OUTPUT "${waylandscanner_code_output}"
-            COMMAND Wayland::Scanner ${waylandscanner_extra_args} public-code < "${protocol_file}" > "${waylandscanner_code_output}"
+            COMMAND Wayland::Scanner ${waylandscanner_extra_args} ${wayland_scanner_code_option} < "${protocol_file}" > "${waylandscanner_code_output}"
             DEPENDS ${protocol_file} Wayland::Scanner
         )
 

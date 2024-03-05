@@ -462,23 +462,35 @@ void QWaylandIntegration::reconfigureInputContext()
         return;
     }
 
-    const QString &requested = QPlatformInputContextFactory::requested();
-    if (requested == QLatin1String("qtvirtualkeyboard"))
+    auto requested = QPlatformInputContextFactory::requested();
+    if (requested.contains(QLatin1String("qtvirtualkeyboard")))
         qCWarning(lcQpaWayland) << "qtvirtualkeyboard currently is not supported at client-side,"
-                                   " use QT_IM_MODULE=qtvirtualkeyboard at compositor-side.";
+                                   " use QT_IM_MODULES=qtvirtualkeyboard at compositor-side.";
 
-    if (!mDisplay->isClientSideInputContextRequested()) {
-        if (mDisplay->textInputMethodManager() != nullptr)
-            mInputContext.reset(new QWaylandInputMethodContext(mDisplay.data()));
-        else if (mDisplay->textInputManagerv1() != nullptr || mDisplay->textInputManagerv2() != nullptr || mDisplay->textInputManagerv3() != nullptr)
-            mInputContext.reset(new QWaylandInputContext(mDisplay.data()));
-    } else {
-        mInputContext.reset(QPlatformInputContextFactory::create(requested));
-    }
+    if (mDisplay->isWaylandInputContextRequested()
+        && !requested.contains(QLatin1String(WAYLAND_IM_KEY)))
+        requested.append(QLatin1String(WAYLAND_IM_KEY));
 
     const QString defaultInputContext(QStringLiteral("compose"));
-    if ((!mInputContext || !mInputContext->isValid()) && requested != defaultInputContext)
-        mInputContext.reset(QPlatformInputContextFactory::create(defaultInputContext));
+    if (!requested.contains(defaultInputContext))
+        requested.append(defaultInputContext);
+
+    for (const QString &imKey : requested) {
+        if (imKey == QLatin1String(WAYLAND_IM_KEY)) {
+            Q_ASSERT(mDisplay->isWaylandInputContextRequested());
+            if (mDisplay->textInputMethodManager() != nullptr)
+                mInputContext.reset(new QWaylandInputMethodContext(mDisplay.data()));
+            else if (mDisplay->textInputManagerv1() != nullptr
+                     || mDisplay->textInputManagerv2() != nullptr
+                     || mDisplay->textInputManagerv3() != nullptr)
+                mInputContext.reset(new QWaylandInputContext(mDisplay.data()));
+        } else {
+            mInputContext.reset(QPlatformInputContextFactory::create(imKey));
+        }
+
+        if (mInputContext && mInputContext->isValid())
+            break;
+    }
 
 #if QT_CONFIG(xkbcommon)
     QXkbCommon::setXkbContext(mInputContext.data(), mDisplay->xkbContext());

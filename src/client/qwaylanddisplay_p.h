@@ -40,6 +40,8 @@ struct wp_viewport;
 
 QT_BEGIN_NAMESPACE
 
+#define WAYLAND_IM_KEY "wayland"
+
 class QAbstractEventDispatcher;
 class QSocketNotifier;
 class QPlatformScreen;
@@ -253,7 +255,7 @@ public:
     wl_event_queue *frameEventQueue() { return m_frameEventQueue; };
 
     bool isKeyboardAvailable() const;
-    bool isClientSideInputContextRequested() const;
+    bool isWaylandInputContextRequested() const;
 
     void initEventThread();
 
@@ -357,9 +359,9 @@ private:
     static const wl_callback_listener syncCallbackListener;
     bool mWaylandTryReconnect = false;
 
-    bool mClientSideInputContextRequested = [] () {
-        const QString& requested = QPlatformInputContextFactory::requested();
-        return !requested.isEmpty() && requested != QLatin1String("wayland");
+    bool mWaylandInputContextRequested = [] () {
+        const auto requested = QPlatformInputContextFactory::requested();
+        return requested.isEmpty() || requested.contains(QLatin1String(WAYLAND_IM_KEY));
     }();
     QStringList mTextInputManagerList;
     int mTextInputManagerIndex = INT_MAX;

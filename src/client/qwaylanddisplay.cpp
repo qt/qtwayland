@@ -342,7 +342,7 @@ void QWaylandDisplay::setupConnection()
     if (!mXkbContext)
         qCWarning(lcQpaWayland, "failed to create xkb context");
 #endif
-    if (!mClientSideInputContextRequested)
+    if (mWaylandInputContextRequested)
         checkTextInputProtocol();
 }
 
@@ -397,7 +397,7 @@ bool QWaylandDisplay::initialize()
         // Give wl_output.done and zxdg_output_v1.done events a chance to arrive
         forceRoundTrip();
     }
-    if (!mClientSideInputContextRequested)
+    if (mWaylandInputContextRequested)
         mTextInputManagerIndex = INT_MAX;
 
     return qEnvironmentVariableIntValue("QT_WAYLAND_DONT_CHECK_SHELL_INTEGRATION") || shellIntegration();
@@ -1015,8 +1015,8 @@ bool QWaylandDisplay::isKeyboardAvailable() const
             [](const QWaylandInputDevice *device) { return device->keyboard() != nullptr; });
 }
 
-bool QWaylandDisplay::isClientSideInputContextRequested() const {
-    return mClientSideInputContextRequested;
+bool QWaylandDisplay::isWaylandInputContextRequested() const {
+    return mWaylandInputContextRequested;
 }
 
 #if QT_CONFIG(cursor)

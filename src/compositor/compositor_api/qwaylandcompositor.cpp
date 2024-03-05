@@ -41,6 +41,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QStringList>
 #include <QtCore/QSocketNotifier>
+#include <QStandardPaths>
 
 #include <QtGui/QDesktopServices>
 #include <QtGui/QScreen>
@@ -137,6 +138,9 @@ public:
 
 QWaylandCompositorPrivate::QWaylandCompositorPrivate(QWaylandCompositor *compositor)
 {
+    // Create XDG_RUNTIME_DIR, if it does not already exist
+    QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation);
+
     if (QGuiApplication::platformNativeInterface())
         display = static_cast<wl_display*>(QGuiApplication::platformNativeInterface()->nativeResourceForIntegration("server_wl_display"));
 

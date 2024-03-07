@@ -316,8 +316,6 @@ private:
     QScopedPointer<QWaylandCursor> mCursor;
 #endif
 
-    QScopedPointer<QWaylandWindowManagerIntegration> mWindowManagerIntegration;
-
     struct GlobalHolder
     {
         std::unique_ptr<QtWayland::wl_compositor> compositor;
@@ -346,6 +344,7 @@ private:
         std::unique_ptr<QtWayland::wp_fractional_scale_manager_v1> fractionalScaleManager;
         std::unique_ptr<QtWayland::wp_cursor_shape_manager_v1> cursorShapeManager;
         std::unique_ptr<QtWayland::xdg_toplevel_drag_manager_v1> xdgToplevelDragManager;
+        std::unique_ptr<QWaylandWindowManagerIntegration> windowManagerIntegration;
     } mGlobals;
     int mFd = -1;
     int mWritableNotificationFd = -1;

@@ -34,6 +34,7 @@ class QWaylandInputDeviceIntegration;
 class QWaylandInputDevice;
 class QWaylandScreen;
 class QWaylandCursor;
+class QWaylandPlatformServices;
 
 class Q_WAYLANDCLIENT_EXPORT QWaylandIntegration : public QPlatformIntegration
 {
@@ -136,6 +137,7 @@ private:
 #if QT_CONFIG(accessibility)
     mutable QScopedPointer<QPlatformAccessibility> mAccessibility;
 #endif
+    QScopedPointer<QWaylandPlatformServices> mPlatformServices;
     QMutex mClientBufferInitLock;
     bool mClientBufferIntegrationInitialized = false;
     bool mServerBufferIntegrationInitialized = false;

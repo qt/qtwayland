@@ -22,49 +22,26 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-class QWaylandWindowManagerIntegrationPrivate {
-public:
-    QWaylandWindowManagerIntegrationPrivate(QWaylandDisplay *waylandDisplay);
-    bool m_blockPropertyUpdates = false;
-    QWaylandDisplay *m_waylandDisplay = nullptr;
-    QHash<QWindow*, QVariantMap> m_queuedProperties;
-    bool m_showIsFullScreen = false;
-};
-
-QWaylandWindowManagerIntegrationPrivate::QWaylandWindowManagerIntegrationPrivate(QWaylandDisplay *waylandDisplay)
-    : m_waylandDisplay(waylandDisplay)
+QWaylandWindowManagerIntegration::QWaylandWindowManagerIntegration(QWaylandDisplay *waylandDisplay,
+                                                                   uint id, uint version)
+    : QtWayland::qt_windowmanager(waylandDisplay->object(), id, version),
+      m_waylandDisplay(waylandDisplay)
 {
-}
-
-QWaylandWindowManagerIntegration::QWaylandWindowManagerIntegration(QWaylandDisplay *waylandDisplay)
-    : d_ptr(new QWaylandWindowManagerIntegrationPrivate(waylandDisplay))
-{
-    waylandDisplay->addRegistryListener(&wlHandleListenerGlobal, this);
 }
 
 QWaylandWindowManagerIntegration::~QWaylandWindowManagerIntegration()
 {
-    if (object())
-        qt_windowmanager_destroy(object());
+    qt_windowmanager_destroy(object());
 }
 
 bool QWaylandWindowManagerIntegration::showIsFullScreen() const
 {
-    Q_D(const QWaylandWindowManagerIntegration);
-    return d->m_showIsFullScreen;
-}
-
-void QWaylandWindowManagerIntegration::wlHandleListenerGlobal(void *data, wl_registry *registry, uint32_t id, const QString &interface, uint32_t version)
-{
-    Q_UNUSED(version);
-    if (interface == QStringLiteral("qt_windowmanager"))
-        static_cast<QWaylandWindowManagerIntegration *>(data)->init(registry, id, 1);
+    return m_showIsFullScreen;
 }
 
 void QWaylandWindowManagerIntegration::windowmanager_hints(int32_t showIsFullScreen)
 {
-    Q_D(QWaylandWindowManagerIntegration);
-    d->m_showIsFullScreen = showIsFullScreen;
+    m_showIsFullScreen = showIsFullScreen;
 }
 
 void QWaylandWindowManagerIntegration::windowmanager_quit()
@@ -72,11 +49,9 @@ void QWaylandWindowManagerIntegration::windowmanager_quit()
     QGuiApplication::quit();
 }
 
-void QWaylandWindowManagerIntegration::openUrl_helper(const QUrl &url)
+void QWaylandWindowManagerIntegration::openUrl(const QUrl &url)
 {
-    Q_ASSERT(isInitialized());
     QString data = url.toString();
-
     static const int chunkSize = 128;
     while (!data.isEmpty()) {
         QString chunk = data.left(chunkSize);
@@ -87,36 +62,6 @@ void QWaylandWindowManagerIntegration::openUrl_helper(const QUrl &url)
         }
         open_url(!data.isEmpty(), chunk);
     }
-}
-
-bool QWaylandWindowManagerIntegration::openUrl(const QUrl &url)
-{
-    if (isInitialized()) {
-        openUrl_helper(url);
-        return true;
-    }
-    return QGenericUnixServices::openUrl(url);
-}
-
-bool QWaylandWindowManagerIntegration::openDocument(const QUrl &url)
-{
-    if (isInitialized()) {
-        openUrl_helper(url);
-        return true;
-    }
-    return QGenericUnixServices::openDocument(url);
-}
-
-QString QWaylandWindowManagerIntegration::portalWindowIdentifier(QWindow *window)
-{
-    if (window && window->handle()) {
-        auto shellSurface = static_cast<QWaylandWindow *>(window->handle())->shellSurface();
-        if (shellSurface) {
-            const QString handle = shellSurface->externWindowHandle();
-            return QLatin1String("wayland:") + handle;
-        }
-    }
-    return QString();
 }
 }
 

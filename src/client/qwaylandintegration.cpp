@@ -15,6 +15,7 @@
 #endif
 #include "qwaylanddnd_p.h"
 #include "qwaylandwindowmanagerintegration_p.h"
+#include "qwaylandplatformservices_p.h"
 #include "qwaylandscreen_p.h"
 #include "qwaylandcursor_p.h"
 
@@ -83,6 +84,7 @@ QWaylandIntegration::QWaylandIntegration()
 #endif
 {
     mDisplay.reset(new QWaylandDisplay(this));
+    mPlatformServices.reset(new QWaylandPlatformServices(mDisplay.data()));
 
     QWaylandWindow::fixedToplevelPositions =
             !qEnvironmentVariableIsSet("QT_WAYLAND_DISABLE_FIXED_POSITIONS");
@@ -246,7 +248,7 @@ QPlatformAccessibility *QWaylandIntegration::accessibility() const
 
 QPlatformServices *QWaylandIntegration::services() const
 {
-    return mDisplay->windowManagerIntegration();
+    return mPlatformServices.data();
 }
 
 QWaylandDisplay *QWaylandIntegration::display() const
@@ -525,8 +527,7 @@ void QWaylandIntegration::reset()
 
 void QWaylandIntegration::setApplicationBadge(qint64 number)
 {
-    auto unixServices = mDisplay->windowManagerIntegration();
-    unixServices->setApplicationBadge(number);
+    mPlatformServices->setApplicationBadge(number);
 }
 }
 

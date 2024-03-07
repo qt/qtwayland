@@ -16,9 +16,6 @@
 //
 
 #include <QtCore/QObject>
-#include <QtCore/QScopedPointer>
-
-#include <QtGui/private/qgenericunixservices_p.h>
 
 #include <QtWaylandClient/private/qwayland-qt-windowmanager.h>
 #include <QtWaylandClient/qtwaylandclientglobal.h>
@@ -27,35 +24,28 @@ QT_BEGIN_NAMESPACE
 
 namespace QtWaylandClient {
 
-class QWaylandWindow;
 class QWaylandDisplay;
 
 class QWaylandWindowManagerIntegrationPrivate;
 
-class Q_WAYLANDCLIENT_EXPORT QWaylandWindowManagerIntegration : public QObject, public QGenericUnixServices, public QtWayland::qt_windowmanager
+class Q_WAYLANDCLIENT_EXPORT QWaylandWindowManagerIntegration : public QtWayland::qt_windowmanager
 {
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(QWaylandWindowManagerIntegration)
-public:
-    explicit QWaylandWindowManagerIntegration(QWaylandDisplay *waylandDisplay);
-    ~QWaylandWindowManagerIntegration() override;
 
-    bool openUrl(const QUrl &url) override;
-    bool openDocument(const QUrl &url) override;
-    QString portalWindowIdentifier(QWindow *window) override;
+public:
+    explicit QWaylandWindowManagerIntegration(QWaylandDisplay *waylandDisplay, uint id,
+                                              uint version);
+    ~QWaylandWindowManagerIntegration();
+
+    void openUrl(const QUrl &url);
 
     bool showIsFullScreen() const;
 
 private:
-    static void wlHandleListenerGlobal(void *data, wl_registry *registry, uint32_t id,
-                                       const QString &interface, uint32_t version);
-
-    QScopedPointer<QWaylandWindowManagerIntegrationPrivate> d_ptr;
-
     void windowmanager_hints(int32_t showIsFullScreen) override;
     void windowmanager_quit() override;
 
-    void openUrl_helper(const QUrl &url);
+    QWaylandDisplay *m_waylandDisplay = nullptr;
+    bool m_showIsFullScreen = false;
 };
 
 QT_END_NAMESPACE

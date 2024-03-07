@@ -312,7 +312,7 @@ QWaylandClientBufferIntegration * QWaylandDisplay::clientBufferIntegration() con
 
 QWaylandWindowManagerIntegration *QWaylandDisplay::windowManagerIntegration() const
 {
-    return mWindowManagerIntegration.data();
+    return mGlobals.windowManagerIntegration.get();
 }
 
 QWaylandDisplay::QWaylandDisplay(QWaylandIntegration *waylandIntegration)
@@ -334,8 +334,6 @@ void QWaylandDisplay::setupConnection()
 {
     struct ::wl_registry *registry = wl_display_get_registry(mDisplay);
     init(registry);
-
-    mWindowManagerIntegration.reset(new QWaylandWindowManagerIntegration(this));
 
 #if QT_CONFIG(xkbcommon)
     mXkbContext.reset(xkb_context_new(XKB_CONTEXT_NO_FLAGS));
@@ -373,7 +371,6 @@ QWaylandDisplay::~QWaylandDisplay(void)
 
     // Reset the globals manually since they need to be destroyed before the wl_display
     mGlobals = {};
-    mWindowManagerIntegration.reset();
 
     if (object())
         wl_registry_destroy(object());
@@ -781,6 +778,9 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
         mGlobals.xdgToplevelDragManager.reset(
                 new WithDestructor<QtWayland::xdg_toplevel_drag_manager_v1,
                                    xdg_toplevel_drag_manager_v1_destroy>(registry, id, 1));
+    } else if (interface == QLatin1String(QtWayland::qt_windowmanager::interface()->name)) {
+        mGlobals.windowManagerIntegration.reset(
+                new QWaylandWindowManagerIntegration(this, id, version));
     }
 
     mRegistryGlobals.append(RegistryGlobal(id, interface, version, registry));

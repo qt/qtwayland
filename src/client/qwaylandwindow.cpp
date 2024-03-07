@@ -12,7 +12,7 @@
 #include "qwaylandshellsurface_p.h"
 #include "qwaylandsubsurface_p.h"
 #include "qwaylandabstractdecoration_p.h"
-#include "qwaylandwindowmanagerintegration_p.h"
+#include "qwaylandplatformservices_p.h"
 #include "qwaylandnativeinterface_p.h"
 #include "qwaylanddecorationfactory_p.h"
 #include "qwaylandshmbackingstore_p.h"

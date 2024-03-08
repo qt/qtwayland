@@ -234,9 +234,7 @@ public:
         uint32_t code;
         uint32_t time;
         QString text;
-        Qt::KeyboardModifiers modifiers;
         uint32_t nativeVirtualKey;
-        uint32_t nativeModifiers;
     } mRepeatKey;
 
     QTimer mRepeatTimer;

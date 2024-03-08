@@ -184,6 +184,8 @@ void QWaylandWindow::initWindow()
             // the user may have already set some window properties, so make sure to send them out
             for (auto it = m_properties.cbegin(); it != m_properties.cend(); ++it)
                 mShellSurface->sendProperty(it.key(), it.value());
+
+            emit surfaceRoleCreated();
         } else {
             qWarning("Could not create a shell surface object.");
         }
@@ -295,6 +297,7 @@ void QWaylandWindow::reset()
                 mTransientParent->removeChildPopup(this);
             delete mShellSurface;
             mShellSurface = nullptr;
+            emit surfaceRoleDestroyed();
             delete mSubSurfaceWindow;
             mSubSurfaceWindow = nullptr;
             mTransientParent = nullptr;

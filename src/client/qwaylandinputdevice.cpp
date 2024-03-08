@@ -69,11 +69,12 @@ QWaylandInputDevice::Keyboard::Keyboard(QWaylandInputDevice *p)
             return;
         }
         mRepeatTimer.setInterval(1000 / mRepeatRate);
-        handleKey(mRepeatKey.time, QEvent::KeyRelease, mRepeatKey.key, mRepeatKey.modifiers,
-                  mRepeatKey.code, mRepeatKey.nativeVirtualKey, mRepeatKey.nativeModifiers,
+        Qt::KeyboardModifiers modifiers = this->modifiers();
+        handleKey(mRepeatKey.time, QEvent::KeyRelease, mRepeatKey.key, modifiers,
+                  mRepeatKey.code, mRepeatKey.nativeVirtualKey, this->mNativeModifiers,
                   mRepeatKey.text, true);
-        handleKey(mRepeatKey.time, QEvent::KeyPress, mRepeatKey.key, mRepeatKey.modifiers,
-                  mRepeatKey.code, mRepeatKey.nativeVirtualKey, mRepeatKey.nativeModifiers,
+        handleKey(mRepeatKey.time, QEvent::KeyPress, mRepeatKey.key, modifiers,
+                  mRepeatKey.code, mRepeatKey.nativeVirtualKey, this->mNativeModifiers,
                   mRepeatKey.text, true);
     });
 }
@@ -1354,8 +1355,6 @@ void QWaylandInputDevice::Keyboard::keyboard_key(uint32_t serial, uint32_t time,
             mRepeatKey.code = code;
             mRepeatKey.time = time;
             mRepeatKey.text = text;
-            mRepeatKey.modifiers = modifiers;
-            mRepeatKey.nativeModifiers = mNativeModifiers;
             mRepeatKey.nativeVirtualKey = sym;
             mRepeatTimer.setInterval(mRepeatDelay);
             mRepeatTimer.start();

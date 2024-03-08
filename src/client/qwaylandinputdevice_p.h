@@ -237,9 +237,7 @@ public:
         uint32_t code = 0;
         uint32_t time = 0 ;
         QString text;
-        Qt::KeyboardModifiers modifiers;
         uint32_t nativeVirtualKey = 0;
-        uint32_t nativeModifiers = 0;
     } mRepeatKey;
 
     QTimer mRepeatTimer;

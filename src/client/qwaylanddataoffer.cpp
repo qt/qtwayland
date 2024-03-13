@@ -30,6 +30,11 @@ static QString mozUrl()
     return QStringLiteral("text/x-moz-url");
 }
 
+static QString portalFileTransfer()
+{
+    return QStringLiteral("application/vnd.portal.filetransfer");
+}
+
 static QByteArray convertData(const QString &originalMime, const QString &newMime, const QByteArray &data)
 {
     if (originalMime == newMime)
@@ -212,7 +217,9 @@ QVariant QWaylandMimeData::retrieveData_sys(const QString &mimeType, QMetaType t
 
     content = convertData(mimeType, mime, content);
 
-    m_data.insert(mimeType, content);
+    if (mimeType != portalFileTransfer())
+        m_data.insert(mimeType, content);
+
     return content;
 }
 

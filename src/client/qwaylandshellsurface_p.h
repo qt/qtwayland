@@ -70,6 +70,7 @@ public:
     virtual void setWindowPosition(const QPoint &position) { Q_UNUSED(position); }
 
     virtual bool requestActivate() { return false; }
+    virtual bool requestActivateOnShow() { return false; }
     virtual void setXdgActivationToken(const QString &token);
     virtual void requestXdgActivationToken(quint32 serial);
 

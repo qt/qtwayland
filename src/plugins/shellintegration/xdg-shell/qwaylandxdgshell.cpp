@@ -662,6 +662,18 @@ bool QWaylandXdgSurface::requestActivate()
     return false;
 }
 
+bool QWaylandXdgSurface::requestActivateOnShow()
+{
+    const Qt::WindowType type = m_window->window()->type();
+    if (type == Qt::ToolTip || type == Qt::Popup || type == Qt::SplashScreen)
+        return false;
+
+    if (m_window->window()->property("_q_showWithoutActivating").toBool())
+        return false;
+
+    return requestActivate();
+}
+
 void QWaylandXdgSurface::requestXdgActivationToken(quint32 serial)
 {
     if (auto *activation = m_shell->activation()) {

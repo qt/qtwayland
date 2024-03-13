@@ -64,6 +64,7 @@ public:
     void propagateSizeHints() override;
     void setWindowGeometry(const QRect &rect) override;
     bool requestActivate() override;
+    bool requestActivateOnShow() override;
     void setXdgActivationToken(const QString &token) override;
     void requestXdgActivationToken(quint32 serial) override;
     void setAlertState(bool enabled) override;

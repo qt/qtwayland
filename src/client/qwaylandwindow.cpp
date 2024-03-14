@@ -186,7 +186,9 @@ void QWaylandWindow::initWindow()
         }
     }
 
-    if (display()->viewporter()) {
+    // The fractional scale manager check is needed to work around Gnome < 36 where viewports don't work
+    // Right now viewports are only necessary when a fractional scale manager is used
+    if (display()->viewporter() && display()->fractionalScaleManager()) {
         mViewport.reset(new QWaylandViewport(display()->createViewport(this)));
     }
 

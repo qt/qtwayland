@@ -454,13 +454,13 @@ void QWaylandDisplay::reconnect()
 
     const auto windows = QGuiApplication::allWindows();
     for (auto window : windows) {
-        if (auto waylandWindow = dynamic_cast<QWaylandWindow *>(window->handle()))
+        if (auto waylandWindow = static_cast<QWaylandWindow *>(window->handle()))
             waylandWindow->closeChildPopups();
     }
     // Remove windows that do not need to be recreated and now closed popups
     QList<QWaylandWindow *> recreateWindows;
     for (auto window : std::as_const(windows)) {
-        auto waylandWindow = dynamic_cast<QWaylandWindow*>((window)->handle());
+        auto waylandWindow = static_cast<QWaylandWindow*>(window->handle());
         if (waylandWindow && waylandWindow->wlSurface()) {
             waylandWindow->reset();
             recreateWindows.push_back(waylandWindow);

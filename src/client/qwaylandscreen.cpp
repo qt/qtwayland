@@ -112,12 +112,19 @@ QString QWaylandScreen::model() const
 QRect QWaylandScreen::geometry() const
 {
     if (zxdg_output_v1::isInitialized()) {
-        return mXdgGeometry;
-    } else {
-        // Scale geometry for QScreen. This makes window and screen
-        // geometry be in the same coordinate system.
-        return QRect(mGeometry.topLeft(), mGeometry.size() / mScale);
+
+        // Workaround for Gnome bug
+        // https://gitlab.gnome.org/GNOME/mutter/-/issues/2631
+        // which sends an incorrect xdg geometry
+        const bool xdgGeometryIsBogus = mScale > 1 && mXdgGeometry.size() == mGeometry.size();
+
+        if (!xdgGeometryIsBogus) {
+            return mXdgGeometry;
+        }
     }
+    // Scale geometry for QScreen. This makes window and screen
+    // geometry be in the same coordinate system.
+    return QRect(mGeometry.topLeft(), mGeometry.size() / mScale);
 }
 
 int QWaylandScreen::depth() const

@@ -1,5 +1,5 @@
 // Copyright (C) 2021 David Edmundson <davidedmundson@kde.org>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
 
 #ifndef MOCKCOMPOSITOR_IVIAPPLICATION_H
 #define MOCKCOMPOSITOR_IVIAPPLICATION_H

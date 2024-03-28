@@ -1,5 +1,5 @@
 // Copyright (C) 2024 David Redondo <kde@david-redondo.de>
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
 
 #ifndef MOCKCOMPOSITOR_XDG_DIALOG_H
 #define MOCKCOMPOSITOR_XDG_DIALOG_H

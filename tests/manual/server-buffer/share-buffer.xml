@@ -2,7 +2,7 @@
 
     <copyright>
  Copyright (C) 2015 The Qt Company Ltd.
- SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
+ SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
     </copyright>
 
     <interface name="qt_share_buffer" version="1">

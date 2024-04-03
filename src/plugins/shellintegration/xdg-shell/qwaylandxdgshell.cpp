@@ -158,7 +158,7 @@ void QWaylandXdgSurface::Toplevel::xdg_toplevel_configure(int32_t width, int32_t
 
 void QWaylandXdgSurface::Toplevel::xdg_toplevel_close()
 {
-    m_xdgSurface->m_window->window()->close();
+    QWindowSystemInterface::handleCloseEvent(m_xdgSurface->m_window->window());
 }
 
 void QWaylandXdgSurface::Toplevel::requestWindowFlags(Qt::WindowFlags flags)

@@ -598,11 +598,10 @@ void QWaylandSeat::sendUnicodeKeyEvent(uint unicode, QEvent::Type eventType)
         qWarning("Can't send a unicode key event, no keyboard focus, fix the compositor");
         return;
     }
-
 #if QT_CONFIG(im)
-    // make a keysym value for the UCS4
-    const uint keysym = 0x01000000 | unicode;
-    auto text = QXkbCommon::lookupStringNoKeysymTransformations(keysym);
+    QString text;
+    text += QChar::fromUcs4(static_cast<char32_t>(unicode));
+
     QKeyEvent event(eventType, Qt::Key_unknown, Qt::KeyboardModifiers{}, text);
     if (keyboardFocus()->client()->textInputProtocols().testFlag(QWaylandClient::TextInputProtocol::TextInputV2)) {
         QWaylandTextInput *textInput = QWaylandTextInput::findIn(this);
@@ -630,7 +629,7 @@ void QWaylandSeat::sendUnicodeKeyEvent(uint unicode, QEvent::Type eventType)
         }
     }
 #else
-    Q_UNUSED(keysym);
+    Q_UNUSED(unicode);
     Q_UNUSED(eventType);
     qWarning() << "Can't send a unicode key event: Unable to find a text-input protocol.";
 #endif

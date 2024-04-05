@@ -288,7 +288,7 @@ void QWaylandXdgSurface::Popup::xdg_popup_configure(int32_t x, int32_t y, int32_
 
 void QWaylandXdgSurface::Popup::xdg_popup_popup_done()
 {
-    m_xdgSurface->m_window->window()->close();
+    QWindowSystemInterface::handleCloseEvent(m_xdgSurface->m_window->window());
 }
 
 QWaylandXdgSurface::QWaylandXdgSurface(QWaylandXdgShell *shell, ::xdg_surface *surface, QWaylandWindow *window)

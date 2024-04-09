@@ -9,6 +9,8 @@
 #endif
 #include <QtWaylandCompositor/private/qwaylandutils_p.h>
 
+#include "qwaylandxdgdialogv1_p.h"
+
 #include <QtWaylandCompositor/QWaylandCompositor>
 #include <QtWaylandCompositor/QWaylandSeat>
 #include <QtWaylandCompositor/QWaylandSurface>
@@ -181,6 +183,10 @@ void QWaylandXdgShell::initialize()
 
     connect(compositor, &QWaylandCompositor::defaultSeatChanged,
             this, &QWaylandXdgShell::handleSeatChanged);
+
+    // Support the dialog extension unconditionally.
+    QObject *dialogExtension = new QWaylandXdgDialogV1Global(compositor);
+    dialogExtension->setParent(this);
 }
 
 /*!
@@ -330,6 +336,9 @@ void QWaylandXdgSurfacePrivate::xdg_surface_get_toplevel(QtWaylandServer::xdg_su
     m_toplevel = new QWaylandXdgToplevel(q, topLevelResource);
     emit q->toplevelCreated();
     emit m_xdgShell->toplevelCreated(m_toplevel, q);
+    q->connect(m_toplevel, &QWaylandXdgToplevel::modalChanged, q, [q, this](){
+        q->setModal(m_toplevel->modal());
+    });
 }
 
 void QWaylandXdgSurfacePrivate::xdg_surface_get_popup(QtWaylandServer::xdg_surface::Resource *resource, uint32_t id, wl_resource *parentResource, wl_resource *positionerResource)
@@ -912,6 +921,34 @@ bool QWaylandXdgToplevel::activated() const
 {
     Q_D(const QWaylandXdgToplevel);
     return d->m_lastAckedConfigure.states.contains(QWaylandXdgToplevel::State::ActivatedState);
+}
+
+/*!
+ * \qmlproperty bool XdgToplevel::modal
+ *
+ * This property holds whether toplevel blocks other windows from receiving input.
+ * \since 6.8
+ */
+
+/*!
+ * \property QWaylandXdgToplevel::modal
+ *
+ * This property holds whether toplevel blocks other windows from receiving input.
+ * \since 6.8
+ */
+bool QWaylandXdgToplevel::modal() const
+{
+    Q_D(const QWaylandXdgToplevel);
+    return d->m_modal;
+}
+
+void QWaylandXdgToplevel::setModal(bool newModal)
+{
+    Q_D(QWaylandXdgToplevel);
+    if (d->m_modal == newModal)
+        return;
+    d->m_modal = newModal;
+    emit modalChanged();
 }
 
 /*!

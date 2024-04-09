@@ -4,7 +4,7 @@
 #ifndef QWAYLANDIVISURFACE_P_H
 #define QWAYLANDIVISURFACE_P_H
 
-#include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
+#include <QtWaylandCompositor/private/qwaylandshellsurface_p.h>
 #include <QtWaylandCompositor/private/qwayland-server-ivi-application.h>
 
 #include <QtWaylandCompositor/QWaylandIviSurface>
@@ -25,7 +25,7 @@
 QT_BEGIN_NAMESPACE
 
 class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandIviSurfacePrivate
-        : public QWaylandCompositorExtensionPrivate
+        : public QWaylandShellSurfacePrivate
         , public QtWaylandServer::ivi_surface
 {
     Q_DECLARE_PUBLIC(QWaylandIviSurface)

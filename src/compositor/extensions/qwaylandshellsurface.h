@@ -11,11 +11,15 @@ QT_BEGIN_NAMESPACE
 
 class QWaylandQuickShellIntegration;
 class QWaylandQuickShellSurfaceItem;
+class QWaylandShellSurfacePrivate;
 
 class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandShellSurface : public QWaylandCompositorExtension
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QWaylandShellSurface)
+
     Q_PROPERTY(Qt::WindowType windowType READ windowType NOTIFY windowTypeChanged)
+    Q_PROPERTY(bool modal READ modal NOTIFY modalChanged FINAL REVISION(6, 8))
     QML_NAMED_ELEMENT(ShellSurface)
     QML_UNCREATABLE("")
     QML_ADDED_IN_VERSION(1, 0)
@@ -23,15 +27,19 @@ public:
 #if QT_CONFIG(wayland_compositor_quick)
     virtual QWaylandQuickShellIntegration *createIntegration(QWaylandQuickShellSurfaceItem *item) = 0;
 #endif
-    QWaylandShellSurface(QWaylandObject *waylandObject) : QWaylandCompositorExtension(waylandObject) {}
+    QWaylandShellSurface(QWaylandObject *waylandObject);
     virtual Qt::WindowType windowType() const { return Qt::WindowType::Window; }
 
+    bool modal() const;
+
 protected:
-    QWaylandShellSurface(QWaylandCompositorExtensionPrivate &dd) : QWaylandCompositorExtension(dd){}
-    QWaylandShellSurface(QWaylandObject *container, QWaylandCompositorExtensionPrivate &dd) : QWaylandCompositorExtension(container, dd) {}
+    QWaylandShellSurface(QWaylandShellSurfacePrivate &dd);
+    QWaylandShellSurface(QWaylandObject *container, QWaylandShellSurfacePrivate &dd);
+    void setModal(bool newModal);
 
 Q_SIGNALS:
     void windowTypeChanged();
+    void modalChanged();
 };
 
 template <typename T>
@@ -54,11 +62,11 @@ public:
     }
 
 protected:
-    QWaylandShellSurfaceTemplate(QWaylandCompositorExtensionPrivate &dd)
+    QWaylandShellSurfaceTemplate(QWaylandShellSurfacePrivate &dd)
         : QWaylandShellSurface(dd)
     { }
 
-    QWaylandShellSurfaceTemplate(QWaylandObject *container, QWaylandCompositorExtensionPrivate &dd)
+    QWaylandShellSurfaceTemplate(QWaylandObject *container, QWaylandShellSurfacePrivate &dd)
         : QWaylandShellSurface(container,dd)
     { }
 };

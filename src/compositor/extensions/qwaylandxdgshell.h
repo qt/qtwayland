@@ -125,6 +125,7 @@ class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandXdgToplevel : public QObject
     Q_PROPERTY(bool fullscreen READ fullscreen NOTIFY fullscreenChanged)
     Q_PROPERTY(bool resizing READ resizing NOTIFY resizingChanged)
     Q_PROPERTY(bool activated READ activated NOTIFY activatedChanged)
+    Q_PROPERTY(bool modal READ modal NOTIFY modalChanged FINAL REVISION(6,8))
     Q_PROPERTY(enum DecorationMode decorationMode READ decorationMode NOTIFY decorationModeChanged)
 
 public:
@@ -171,6 +172,8 @@ public:
     static QWaylandSurfaceRole *role();
     static QWaylandXdgToplevel *fromResource(::wl_resource *resource);
 
+    bool modal() const;
+
 Q_SIGNALS:
     void parentToplevelChanged();
     void titleChanged();
@@ -194,8 +197,12 @@ Q_SIGNALS:
 
     void decorationModeChanged();
 
+    void modalChanged();
+
 private:
     QList<int> statesAsInts() const;
+    void setModal(bool newModal);
+    friend class QWaylandXdgDialogV1;
 };
 
 class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandXdgPopup : public QObject

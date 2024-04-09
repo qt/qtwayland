@@ -6,7 +6,7 @@
 
 #include <QtWaylandCompositor/qtwaylandcompositorglobal.h>
 #include <QtWaylandCompositor/qwaylandsurface.h>
-#include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
+#include <QtWaylandCompositor/private/qwaylandshellsurface_p.h>
 #include <QtWaylandCompositor/private/qwaylandshell_p.h>
 #include <QtWaylandCompositor/QWaylandWlShellSurface>
 #include <QtWaylandCompositor/QWaylandSeat>
@@ -52,7 +52,7 @@ protected:
 };
 
 class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandWlShellSurfacePrivate
-                                        : public QWaylandCompositorExtensionPrivate
+                                        : public QWaylandShellSurfacePrivate
                                         , public QtWaylandServer::wl_shell_surface
 {
     Q_DECLARE_PUBLIC(QWaylandWlShellSurface)

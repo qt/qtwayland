@@ -36,7 +36,7 @@ qt_internal_add_module(WaylandCompositor
         extensions/qwaylandqttextinputmethodmanager.cpp extensions/qwaylandqttextinputmethodmanager.h extensions/qwaylandqttextinputmethodmanager_p.h
         extensions/qwaylandqtwindowmanager.cpp extensions/qwaylandqtwindowmanager.h extensions/qwaylandqtwindowmanager_p.h
         extensions/qwaylandshell.cpp extensions/qwaylandshell.h extensions/qwaylandshell_p.h
-        extensions/qwaylandshellsurface.cpp extensions/qwaylandshellsurface.h
+        extensions/qwaylandshellsurface.cpp extensions/qwaylandshellsurface.h extensions/qwaylandshellsurface_p.h
         extensions/qwaylandtextinput.cpp extensions/qwaylandtextinput.h extensions/qwaylandtextinput_p.h
         extensions/qwaylandtextinputmanager.cpp extensions/qwaylandtextinputmanager.h extensions/qwaylandtextinputmanager_p.h
         extensions/qwaylandtextinputv3.cpp extensions/qwaylandtextinputv3.h extensions/qwaylandtextinputv3_p.h
@@ -118,6 +118,7 @@ qt6_generate_wayland_protocol_server_sources(WaylandCompositor
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-decoration-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-output-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-shell.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-dialog-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/hardware-integration.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-key-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-text-input-method-unstable-v1.xml
@@ -169,6 +170,7 @@ qt_internal_extend_target(WaylandCompositor CONDITION QT_FEATURE_wayland_composi
         extensions/qwaylandquickxdgoutputv1.cpp extensions/qwaylandquickxdgoutputv1.h
         extensions/qwaylandwlshellintegration.cpp extensions/qwaylandwlshellintegration_p.h
         extensions/qwaylandxdgshellintegration.cpp extensions/qwaylandxdgshellintegration_p.h
+        extensions/qwaylandxdgdialogv1.cpp extensions/qwaylandxdgdialogv1_p.h
         extensions/qwaylandpresentationtime.cpp extensions/qwaylandpresentationtime_p.h extensions/qwaylandpresentationtime_p_p.h
         global/qwaylandquickextension.cpp global/qwaylandquickextension.h
     LIBRARIES

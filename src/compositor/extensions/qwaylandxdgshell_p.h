@@ -4,7 +4,7 @@
 #ifndef QWAYLANDXDGSHELL_P_H
 #define QWAYLANDXDGSHELL_P_H
 
-#include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
+#include <QtWaylandCompositor/private/qwaylandshellsurface_p.h>
 #include <QtWaylandCompositor/private/qwaylandshell_p.h>
 #include <QtWaylandCompositor/private/qwayland-server-xdg-shell.h>
 
@@ -66,7 +66,7 @@ protected:
 };
 
 class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandXdgSurfacePrivate
-        : public QWaylandCompositorExtensionPrivate
+        : public QWaylandShellSurfacePrivate
         , public QtWaylandServer::xdg_surface
 {
     Q_DECLARE_PUBLIC(QWaylandXdgSurface)
@@ -153,6 +153,7 @@ public:
     QSize m_maxSize;
     QSize m_minSize = {0, 0};
     QWaylandXdgToplevelDecorationV1 *m_decoration = nullptr;
+    bool m_modal = false;
 
     static QWaylandSurfaceRole s_role;
 };

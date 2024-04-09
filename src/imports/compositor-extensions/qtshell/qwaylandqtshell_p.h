@@ -4,7 +4,7 @@
 #ifndef QWAYLANDQTSHELL_P_H
 #define QWAYLANDQTSHELL_P_H
 
-#include <QtWaylandCompositor/private/qwaylandcompositorextension_p.h>
+#include <QtWaylandCompositor/private/qwaylandshellsurface_p.h>
 #include <QtWaylandCompositor/QWaylandSurfaceRole>
 
 #include <QHash>
@@ -43,7 +43,7 @@ protected:
 };
 
 class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandQtShellSurfacePrivate
-    : public QWaylandCompositorExtensionPrivate
+    : public QWaylandShellSurfacePrivate
     , public QtWaylandServer::zqt_shell_surface_v1
 {
     Q_DECLARE_PUBLIC(QWaylandQtShellSurface)

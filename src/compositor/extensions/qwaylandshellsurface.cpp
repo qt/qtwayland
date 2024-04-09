@@ -1,7 +1,7 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
 
-#include <QtWaylandCompositor/QWaylandShellSurface>
+#include "qwaylandshellsurface_p.h"
 
 /*!
  * \class QWaylandShellSurfaceTemplate
@@ -92,7 +92,51 @@
  * This property holds the window type of the QWaylandShellSurface.
  */
 
+/*!
+ * \qmlproperty bool QtWayland.Compositor::ShellSurface::modal
+ *
+ * This property is true if the ShellSurface represents a modal dialog.
+ * \since 6.8
+ */
+
+/*!
+ * \property QWaylandShellSurface::modal
+ *
+ * This property is true if the ShellSurface represents a modal dialog.
+ * \since 6.8
+ */
+
 QT_BEGIN_NAMESPACE
+
+QWaylandShellSurface::QWaylandShellSurface(QWaylandShellSurfacePrivate &dd)
+    : QWaylandCompositorExtension(dd)
+{
+}
+
+QWaylandShellSurface::QWaylandShellSurface(QWaylandObject *container, QWaylandShellSurfacePrivate &dd)
+    : QWaylandCompositorExtension(container, dd)
+{
+}
+
+QWaylandShellSurface::QWaylandShellSurface(QWaylandObject *waylandObject)
+    : QWaylandCompositorExtension(waylandObject, *new QWaylandShellSurfacePrivate)
+{
+}
+
+bool QWaylandShellSurface::modal() const
+{
+    Q_D(const QWaylandShellSurface);
+    return d->modal;
+}
+
+void QWaylandShellSurface::setModal(bool newModal)
+{
+    Q_D(QWaylandShellSurface);
+    if (d->modal == newModal)
+        return;
+    d->modal = newModal;
+    emit modalChanged();
+}
 
 QT_END_NAMESPACE
 

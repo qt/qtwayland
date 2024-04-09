@@ -52,65 +52,64 @@ QT_BEGIN_NAMESPACE
 static const struct {
     const char * const vertexShaderSourceFile;
     const char * const fragmentShaderSourceFile;
-    GLenum textureTarget;
     int planeCount;
     bool canProvideTexture;
     QSGMaterial::Flags materialFlags;
     QSGMaterialType materialType;
 } bufferTypes[] = {
     // BufferFormatEgl_Null
-    { "", "", 0, 0, false, {}, {} },
+    { "", "", 0, false, {}, {} },
 
-    // BufferFormatEgl_RGB
+    // BufferFormatEgl_RGB (GL_TEXTURE_2D)
     {
         ":/qt-project.org/wayland/compositor/shaders/surface.vert.qsb",
         ":/qt-project.org/wayland/compositor/shaders/surface_rgbx.frag.qsb",
-        GL_TEXTURE_2D, 1, true,
+        1, true,
         QSGMaterial::Blending,
         {}
     },
 
-    // BufferFormatEgl_RGBA
+    // BufferFormatEgl_RGBA (GL_TEXTURE_2D)
     {
         ":/qt-project.org/wayland/compositor/shaders/surface.vert.qsb",
         ":/qt-project.org/wayland/compositor/shaders/surface_rgba.frag.qsb",
-        GL_TEXTURE_2D, 1, true,
+        1, true,
         QSGMaterial::Blending,
         {}
     },
 
-    // BufferFormatEgl_EXTERNAL_OES
+    // BufferFormatEgl_EXTERNAL_OES (GL_TEXTURE_EXTERNAL_OES)
     {
         ":/qt-project.org/wayland/compositor/shaders/surface.vert.qsb",
         ":/qt-project.org/wayland/compositor/shaders/surface_oes_external.frag",
-        GL_TEXTURE_EXTERNAL_OES, 1, false,
+        1, false,
         QSGMaterial::Blending,
         {}
     },
 
-    // BufferFormatEgl_Y_U_V
+    // BufferFormatEgl_Y_U_V (GL_TEXTURE_2D)
     {
         ":/qt-project.org/wayland/compositor/shaders/surface.vert.qsb",
         ":/qt-project.org/wayland/compositor/shaders/surface_y_u_v.frag.qsb",
-        GL_TEXTURE_2D, 3, false,
+        3, false,
         QSGMaterial::Blending,
         {}
     },
 
-    // BufferFormatEgl_Y_UV
+    // BufferFormatEgl_Y_UV (GL_TEXTURE_2D)
     {
         ":/qt-project.org/wayland/compositor/shaders/surface.vert.qsb",
         ":/qt-project.org/wayland/compositor/shaders/surface_y_uv.frag.qsb",
-        GL_TEXTURE_2D, 2, false,
+        2, false,
         QSGMaterial::Blending,
         {}
     },
 
-    // BufferFormatEgl_Y_XUXV
+    // BufferFormatEgl_Y_XUXV (GL_TEXTURE_2D)
     {
         ":/qt-project.org/wayland/compositor/shaders/surface.vert.qsb",
         ":/qt-project.org/wayland/compositor/shaders/surface_y_xuxv.frag.qsb",
-        GL_TEXTURE_2D, 2, false,
+        2, false,
         QSGMaterial::Blending,
         {}
     }

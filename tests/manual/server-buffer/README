@@ -18,7 +18,7 @@ The compositor broadcasts the name of the server buffer integration to
 all clients through the hardware integration extension. Therefore,
 all you need to do is to start the client with
 
-$ ./cpp-client -platform wayland
+$ ./server-buffer-cpp-client -platform wayland
 
 The client will show all the buffers shared by the compositor.
 

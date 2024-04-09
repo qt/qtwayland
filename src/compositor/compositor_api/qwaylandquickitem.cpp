@@ -157,9 +157,9 @@ void QWaylandBufferMaterialShader::setupExternalOESShader(const QString &shaderF
     descData->inVars = { texCoordInput };
 
     QShaderDescription::InOutVariable fragColorOutput;
-    texCoordInput.name = "gl_FragColor";
-    texCoordInput.type = QShaderDescription::Vec4;
-    texCoordInput.location = 0;
+    fragColorOutput.name = "gl_FragColor";
+    fragColorOutput.type = QShaderDescription::Vec4;
+    fragColorOutput.location = 0;
 
     descData->outVars = { fragColorOutput };
 

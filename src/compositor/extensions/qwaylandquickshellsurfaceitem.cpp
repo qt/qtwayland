@@ -102,6 +102,9 @@ void QWaylandQuickShellSurfaceItem::setShellSurface(QWaylandShellSurface *shellS
     if (d->m_shellSurface == shellSurface)
         return;
 
+    if (Q_UNLIKELY(d->m_shellSurface))
+        disconnect(d->m_shellSurface, &QWaylandShellSurface::modalChanged, this, nullptr);
+
     d->m_shellSurface = shellSurface;
 
     if (d->m_shellIntegration) {
@@ -114,6 +117,9 @@ void QWaylandQuickShellSurfaceItem::setShellSurface(QWaylandShellSurface *shellS
         d->m_shellIntegration = shellSurface->createIntegration(this);
         installEventFilter(d->m_shellIntegration);
     }
+
+    connect(shellSurface, &QWaylandShellSurface::modalChanged, this,
+            [d](){ if (d->m_shellSurface->modal()) d->raise(); });
 
     emit shellSurfaceChanged();
 }
@@ -299,11 +305,22 @@ static QWaylandQuickShellSurfaceItem *findSurfaceItemFromMoveItem(QQuickItem *mo
     return nullptr;
 }
 
+static inline bool onTop(QWaylandQuickShellSurfaceItem *surf)
+{
+    return surf->staysOnTop() || surf->shellSurface()->modal();
+}
+
+static inline bool onBottom(QWaylandQuickShellSurfaceItem *surf)
+{
+    return surf->staysOnBottom() && !surf->shellSurface()->modal();
+}
+
 /*
     To raise a surface, find the topmost suitable surface and place above that.
     We start from the top and:
     If we don't have staysOnTop, skip all surfaces with staysOnTop
     If we have staysOnBottom, skip all surfaces that don't have staysOnBottom
+    A modal dialog is handled as if it had staysOnTop
   */
 void QWaylandQuickShellSurfaceItemPrivate::raise()
 {
@@ -312,10 +329,13 @@ void QWaylandQuickShellSurfaceItemPrivate::raise()
     QQuickItem *parent = moveItem->parentItem();
     if (!parent)
         return;
+    const bool putOnTop = staysOnTop || m_shellSurface->modal();
+    const bool putOnBottom = staysOnBottom && !m_shellSurface->modal();
+
     auto it = parent->childItems().crbegin();
-    auto skip = [this](QQuickItem *item) {
+    auto skip = [=](QQuickItem *item) {
         if (auto *surf = findSurfaceItemFromMoveItem(item))
-            return (!staysOnTop && surf->staysOnTop()) || (staysOnBottom && !surf->staysOnBottom());
+            return (!putOnTop && onTop(surf)) || (putOnBottom && !onBottom(surf));
         return true; // ignore any other Quick items that may be there
     };
     auto end = parent->childItems().crend();
@@ -333,6 +353,7 @@ void QWaylandQuickShellSurfaceItemPrivate::raise()
     We start from the bottom and:
     If we don't have staysOnBottom, skip all surfaces with staysOnBottom
     If we have staysOnTop, skip all surfaces that don't have staysOnTop
+    A modal dialog is handled as if it had staysOnTop
   */
 void QWaylandQuickShellSurfaceItemPrivate::lower()
 {
@@ -341,11 +362,13 @@ void QWaylandQuickShellSurfaceItemPrivate::lower()
     QQuickItem *parent = moveItem->parentItem();
     if (!parent)
         return;
-    auto it = parent->childItems().cbegin();
+    const bool putOnTop = staysOnTop || m_shellSurface->modal();
+    const bool putOnBottom = staysOnBottom && !m_shellSurface->modal();
 
-    auto skip = [this](QQuickItem *item) {
+    auto it = parent->childItems().cbegin();
+    auto skip = [=](QQuickItem *item) {
         if (auto *surf = findSurfaceItemFromMoveItem(item))
-            return (!staysOnBottom && surf->staysOnBottom()) || (staysOnTop && !surf->staysOnTop());
+            return (!putOnBottom && onBottom(surf)) || (putOnTop && !onTop(surf));
         return true; // ignore any other Quick items that may be there
     };
     while (skip(*it))

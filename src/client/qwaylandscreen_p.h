@@ -63,6 +63,8 @@ public:
     QDpi logicalDpi() const override;
     QList<QPlatformScreen *> virtualSiblings() const override;
 
+    QWindow *topLevelAt(const QPoint &point) const override;
+
     Qt::ScreenOrientation orientation() const override;
     int scale() const;
     qreal devicePixelRatio() const override;

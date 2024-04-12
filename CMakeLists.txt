@@ -25,11 +25,11 @@ endif()
 
 find_package(Qt6 ${PROJECT_VERSION} CONFIG REQUIRED COMPONENTS
     Core
-    Gui
 )
 
 find_package(Qt6 ${PROJECT_VERSION} QUIET CONFIG OPTIONAL_COMPONENTS
     DBus
+    Gui
     OpenGL
     Quick
     Svg
@@ -42,4 +42,8 @@ find_package(Qt6 ${PROJECT_VERSION} QUIET CONFIG OPTIONAL_COMPONENTS
 #    return()
 #endif()
 # special case end
+if(NOT TARGET Qt::Gui)
+    message(NOTICE "Skipping the build as the condition \"TARGET Qt::Gui\" is not met.")
+    return()
+endif()
 qt_build_repo()

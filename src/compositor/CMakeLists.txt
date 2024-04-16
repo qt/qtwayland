@@ -46,6 +46,7 @@ qt_internal_add_module(WaylandCompositor
         extensions/qwaylandxdgdecorationv1.cpp extensions/qwaylandxdgdecorationv1.h extensions/qwaylandxdgdecorationv1_p.h
         extensions/qwaylandxdgoutputv1.cpp extensions/qwaylandxdgoutputv1.h extensions/qwaylandxdgoutputv1_p.h
         extensions/qwaylandxdgshell.cpp extensions/qwaylandxdgshell.h extensions/qwaylandxdgshell_p.h
+        extensions/qwaylandxdgdialogv1.cpp extensions/qwaylandxdgdialogv1_p.h
         extensions/qwlqtkey.cpp extensions/qwlqtkey_p.h
         extensions/qwlqttouch.cpp extensions/qwlqttouch_p.h
         global/qtwaylandcompositorglobal.h global/qtwaylandcompositorglobal_p.h
@@ -170,7 +171,6 @@ qt_internal_extend_target(WaylandCompositor CONDITION QT_FEATURE_wayland_composi
         extensions/qwaylandquickxdgoutputv1.cpp extensions/qwaylandquickxdgoutputv1.h
         extensions/qwaylandwlshellintegration.cpp extensions/qwaylandwlshellintegration_p.h
         extensions/qwaylandxdgshellintegration.cpp extensions/qwaylandxdgshellintegration_p.h
-        extensions/qwaylandxdgdialogv1.cpp extensions/qwaylandxdgdialogv1_p.h
         extensions/qwaylandpresentationtime.cpp extensions/qwaylandpresentationtime_p.h extensions/qwaylandpresentationtime_p_p.h
         global/qwaylandquickextension.cpp global/qwaylandquickextension.h
     LIBRARIES

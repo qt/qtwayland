@@ -268,6 +268,6 @@ qt_configure_end_summary_section() # end of "Qt Wayland Decoration Plugins" sect
 
 qt_configure_add_report_entry(
     TYPE ERROR
-    MESSAGE "Qt Wayland Client requires QtGui to be build with support for wayland"
+    MESSAGE "Qt Gui has been built without 'wayland' feature. This feature is required for building Qt Wayland Client."
     CONDITION NOT QT_FEATURE_wayland AND QT_FEATURE_wayland_client
 )

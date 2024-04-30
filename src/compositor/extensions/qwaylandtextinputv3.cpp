@@ -101,13 +101,38 @@ void QWaylandTextInputV3Private::sendInputMethodEvent(QInputMethodEvent *event)
     // and cursorEnd will be the same values.
     int32_t preeditCursorPos = newPreeditString.toUtf8().size();
 
-    if (event->replacementLength() > 0 || event->replacementStart() < 0) {
-        if (event->replacementStart() <= 0 && (event->replacementLength() >= -event->replacementStart())) {
-            const int before = QWaylandInputMethodEventBuilder::indexToWayland(newPreeditString, -event->replacementStart());
-            const int after = QWaylandInputMethodEventBuilder::indexToWayland(newPreeditString, (event->replacementLength() + event->replacementStart()));
-            send_delete_surrounding_text(focusResource->handle, before, after);
-            needsDone = true;
+    if (event->replacementLength() > 0) {
+        int replacementStart = event->replacementStart();
+        int replacementLength = event->replacementLength();
+        const int cursorPos = currentState->cursorPosition;
+        if (currentState->cursorPosition < -event->replacementStart()) {
+            qCWarning(qLcWaylandCompositorTextInput)
+                << Q_FUNC_INFO
+                << "Invalid replacementStart :" << replacementStart
+                << "on the cursorPosition :" << cursorPos;
+            replacementStart = -cursorPos;
         }
+        auto targetText = QStringView{currentState->surroundingText}.sliced(cursorPos + replacementStart);
+        if (targetText.length() < replacementLength) {
+            qCWarning(qLcWaylandCompositorTextInput)
+                << Q_FUNC_INFO
+                << "Invalid replacementLength :" << replacementLength
+                << "for the surrounding text :" << targetText;
+            replacementLength = targetText.length();
+        }
+        const int before = targetText.first(-replacementStart).toUtf8().size();
+        const int after = targetText.first(replacementLength).toUtf8().size() - before;
+
+        send_delete_surrounding_text(focusResource->handle, before, after);
+        needsDone = true;
+
+        // The commit will also be applied here
+        currentState->surroundingText.replace(cursorPos + replacementStart,
+                                              replacementLength,
+                                              event->commitString());
+        currentState->cursorPosition = cursorPos + replacementStart + event->commitString().length();
+        currentState->anchorPosition = cursorPos + replacementStart + event->commitString().length();
+        qApp->inputMethod()->update(Qt::ImSurroundingText | Qt::ImCursorPosition | Qt::ImAnchorPosition);
     }
 
     if (currentPreeditString != newPreeditString) {

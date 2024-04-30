@@ -887,8 +887,10 @@ public:
     WheelEvent(QWaylandWindow *surface, Qt::ScrollPhase phase, ulong timestamp, const QPointF &local,
                const QPointF &global, const QPoint &pixelDelta, const QPoint &angleDelta,
                Qt::MouseEventSource source, Qt::KeyboardModifiers modifiers, bool inverted)
-        : QWaylandPointerEvent(QEvent::Wheel, phase, surface, timestamp,
-                               local, global, pixelDelta, angleDelta, source, modifiers, inverted)
+        : QWaylandPointerEvent(QEvent::Wheel, phase, surface, timestamp, local, global,
+                               modifiers & Qt::AltModifier ? pixelDelta.transposed() : pixelDelta,
+                               modifiers & Qt::AltModifier ? angleDelta.transposed() : angleDelta,
+                               source, modifiers, inverted)
     {
     }
 };

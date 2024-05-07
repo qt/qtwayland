@@ -111,7 +111,7 @@ public:
     explicit XdgDecorationCompositor()
     {
         exec([this] {
-            m_config.autoConfigure = true;
+            m_config.autoConfigure = false;
             add<XdgDecorationManagerV1>(xdgDecorationVersion);
         });
     }

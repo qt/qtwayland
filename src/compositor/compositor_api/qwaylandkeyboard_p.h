@@ -88,6 +88,7 @@ public:
     void keyEvent(uint code, uint32_t state);
     void sendKeyEvent(uint code, uint32_t state);
     void updateModifierState(uint code, uint32_t state);
+    void checkAndRepairModifierState(QKeyEvent *ke);
     void maybeUpdateKeymap();
 
     void checkFocusResource(Resource *resource);
@@ -118,6 +119,12 @@ private:
     uint32_t modsLatched = 0;
     uint32_t modsLocked = 0;
     uint32_t group = 0;
+
+    uint32_t shiftIndex = 0;
+    uint32_t controlIndex = 0;
+    uint32_t altIndex = 0;
+
+    Qt::KeyboardModifiers currentModifierState;
 
     bool pendingKeymap = false;
 #if QT_CONFIG(xkbcommon)

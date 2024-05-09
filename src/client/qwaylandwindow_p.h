@@ -311,7 +311,6 @@ protected:
     bool mSentInitialResize = false;
     QPoint mOffset;
     std::optional<qreal> mScale = 1;
-    QPlatformScreen *mLastReportedScreen = nullptr;
 
     QString mWindowTitle;
     QIcon mWindowIcon;

@@ -1437,14 +1437,13 @@ void QWaylandWindow::handleScreensChanged()
 {
     QPlatformScreen *newScreen = calculateScreenFromSurfaceEvents();
 
-    if (newScreen == mLastReportedScreen)
+    if (newScreen->screen() == window()->screen())
         return;
 
     if (!newScreen->isPlaceholder() && !newScreen->QPlatformScreen::screen())
         mDisplay->forceRoundTrip();
     QWindowSystemInterface::handleWindowScreenChanged(window(), newScreen->QPlatformScreen::screen());
 
-    mLastReportedScreen = newScreen;
     if (fixedToplevelPositions && !QPlatformWindow::parent() && window()->type() != Qt::Popup
         && window()->type() != Qt::ToolTip
         && geometry().topLeft() != newScreen->geometry().topLeft()) {
@@ -1474,7 +1473,7 @@ void QWaylandWindow::updateScale()
         return;
     }
 
-    int scale = mLastReportedScreen->isPlaceholder() ? 1 : static_cast<QWaylandScreen *>(mLastReportedScreen)->scale();
+    int scale = screen()->isPlaceholder() ? 1 : static_cast<QWaylandScreen *>(screen())->scale();
     setScale(scale);
 }
 

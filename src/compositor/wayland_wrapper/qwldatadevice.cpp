@@ -50,6 +50,9 @@ void DataDevice::sourceDestroyed(DataSource *source)
 {
     if (m_selectionSource == source)
         m_selectionSource = nullptr;
+
+    if (m_dragDataSource == source)
+        m_dragDataSource = nullptr;
 }
 
 #if QT_CONFIG(draganddrop)
@@ -79,9 +82,11 @@ void DataDevice::setDragFocus(QWaylandSurface *focus, const QPointF &localPositi
     if (m_dragDataSource && !offer)
         return;
 
-    send_enter(resource->handle, serial, focus->resource(),
-               wl_fixed_from_double(localPosition.x()), wl_fixed_from_double(localPosition.y()),
-               offer->resource()->handle);
+    if (offer) {
+        send_enter(resource->handle, serial, focus->resource(),
+                   wl_fixed_from_double(localPosition.x()), wl_fixed_from_double(localPosition.y()),
+                   offer->resource()->handle);
+    }
 
     m_dragFocus = focus;
     m_dragFocusResource = resource;
@@ -113,7 +118,7 @@ void DataDevice::drop()
     if (m_dragFocusResource) {
         send_drop(m_dragFocusResource->handle);
         setDragFocus(nullptr, QPoint());
-    } else {
+    } else if (m_dragDataSource) {
         m_dragDataSource->cancel();
     }
     m_dragOrigin = nullptr;
@@ -129,6 +134,8 @@ void DataDevice::data_device_start_drag(Resource *resource, struct ::wl_resource
 {
     m_dragClient = resource->client();
     m_dragDataSource = source ? DataSource::fromResource(source) : nullptr;
+    if (m_dragDataSource)
+        m_dragDataSource->setDevice(this);
     m_dragOrigin = QWaylandSurface::fromResource(origin);
     QWaylandDrag *drag = m_seat->drag();
     setDragIcon(icon ? QWaylandSurface::fromResource(icon) : nullptr);

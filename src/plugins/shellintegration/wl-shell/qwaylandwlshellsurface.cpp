@@ -8,7 +8,6 @@
 #include <QtWaylandClient/private/qwaylandinputdevice_p.h>
 #include <QtWaylandClient/private/qwaylandabstractdecoration_p.h>
 #include <QtWaylandClient/private/qwaylandscreen_p.h>
-#include <QtWaylandClient/private/qwaylandextendedsurface_p.h>
 
 #include <QtCore/QDebug>
 
@@ -21,9 +20,6 @@ QWaylandWlShellSurface::QWaylandWlShellSurface(struct ::wl_shell_surface *shell_
     , QtWayland::wl_shell_surface(shell_surface)
     , m_window(window)
 {
-    if (window->display()->windowExtension())
-        m_extendedWindow = new QWaylandExtendedSurface(window);
-
     Qt::WindowType type = window->window()->type();
     auto *transientParent = window->transientParent();
     if (type == Qt::Popup && transientParent && transientParent->wlSurface())
@@ -37,7 +33,6 @@ QWaylandWlShellSurface::QWaylandWlShellSurface(struct ::wl_shell_surface *shell_
 QWaylandWlShellSurface::~QWaylandWlShellSurface()
 {
     wl_shell_surface_destroy(object());
-    delete m_extendedWindow;
 }
 
 bool QWaylandWlShellSurface::resize(QWaylandInputDevice *inputDevice, Qt::Edges edges)
@@ -62,36 +57,6 @@ void QWaylandWlShellSurface::setTitle(const QString & title)
 void QWaylandWlShellSurface::setAppId(const QString & appId)
 {
     return QtWayland::wl_shell_surface::set_class(appId);
-}
-
-void QWaylandWlShellSurface::raise()
-{
-    if (m_extendedWindow)
-        m_extendedWindow->raise();
-}
-
-void QWaylandWlShellSurface::lower()
-{
-    if (m_extendedWindow)
-        m_extendedWindow->lower();
-}
-
-void QWaylandWlShellSurface::setContentOrientationMask(Qt::ScreenOrientations orientation)
-{
-    if (m_extendedWindow)
-        m_extendedWindow->setContentOrientationMask(orientation);
-}
-
-void QWaylandWlShellSurface::setWindowFlags(Qt::WindowFlags flags)
-{
-    if (m_extendedWindow)
-        m_extendedWindow->setWindowFlags(flags);
-}
-
-void QWaylandWlShellSurface::sendProperty(const QString &name, const QVariant &value)
-{
-    if (m_extendedWindow)
-        m_extendedWindow->updateGenericProperty(name, value);
 }
 
 void QWaylandWlShellSurface::applyConfigure()

@@ -3,7 +3,6 @@
 
 #include "qwaylandshellsurface_p.h"
 #include "qwaylandwindow_p.h"
-#include "qwaylandextendedsurface_p.h"
 #include "qwaylandinputdevice_p.h"
 
 QT_BEGIN_NAMESPACE

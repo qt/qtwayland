@@ -30,7 +30,6 @@ qt_internal_add_module(WaylandClient
         qwaylanddecorationfactory.cpp qwaylanddecorationfactory_p.h
         qwaylanddecorationplugin.cpp qwaylanddecorationplugin_p.h
         qwaylanddisplay.cpp qwaylanddisplay_p.h
-        qwaylandextendedsurface.cpp qwaylandextendedsurface_p.h
         qwaylandfractionalscale.cpp qwaylandfractionalscale_p.h
         qwaylandinputcontext.cpp qwaylandinputcontext_p.h
         qwaylandtextinputv1.cpp qwaylandtextinputv1_p.h
@@ -99,7 +98,6 @@ qt6_generate_wayland_protocol_client_sources(WaylandClient
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-key-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-text-input-method-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-windowmanager.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/surface-extension.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/touch-extension.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/hardwareintegration/../../extensions/hardware-integration.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/hardwareintegration/../../extensions/server-buffer-extension.xml

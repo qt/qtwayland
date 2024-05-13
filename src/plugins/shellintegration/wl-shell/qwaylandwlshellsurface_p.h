@@ -48,12 +48,6 @@ public:
     void setTitle(const QString & title) override;
     void setAppId(const QString &appId) override;
 
-    void raise() override;
-    void lower() override;
-    void setContentOrientationMask(Qt::ScreenOrientations orientation) override;
-    void setWindowFlags(Qt::WindowFlags flags) override;
-    void sendProperty(const QString &name, const QVariant &value) override;
-
     void applyConfigure() override;
     bool wantsDecorations() const override;
 

@@ -34,7 +34,6 @@
 #include "qwaylandshellintegration_p.h"
 #include "qwaylandclientbufferintegration_p.h"
 
-#include "qwaylandextendedsurface_p.h"
 #include "qwaylandpointergestures_p.h"
 #include "qwaylandsubsurface_p.h"
 #include "qwaylandtouch_p.h"
@@ -642,10 +641,6 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
     } else if (interface == QLatin1String(QWaylandDataDeviceManager::interface()->name)) {
         mGlobals.dndSelectionHandler.reset(new QWaylandDataDeviceManager(this, version, id));
 #endif
-    } else if (interface == QLatin1String(QtWayland::qt_surface_extension::interface()->name)) {
-        mGlobals.surfaceExtension.reset(
-                new WithDestructor<QtWayland::qt_surface_extension, qt_surface_extension_destroy>(
-                        registry, id, 1));
     } else if (interface == QLatin1String(QtWayland::wl_subcompositor::interface()->name)) {
         mGlobals.subCompositor.reset(
                 new WithDestructor<QtWayland::wl_subcompositor, wl_subcompositor_destroy>(registry,

@@ -14,7 +14,6 @@ namespace QtWaylandClient {
 
 class QWaylandWindow;
 class QWaylandInputDevice;
-class QWaylandExtendedSurface;
 
 class Q_WAYLANDCLIENT_EXPORT QWaylandIviSurface : public QtWayland::ivi_surface
         , public QWaylandShellSurface, public QtWayland::ivi_controller_surface
@@ -35,7 +34,6 @@ private:
     void ivi_controller_surface_visibility(int32_t visibility) override;
 
     QWaylandWindow *m_window = nullptr;
-    QWaylandExtendedSurface *m_extendedWindow = nullptr;
     QSize m_pendingSize = {0, 0};
 };
 

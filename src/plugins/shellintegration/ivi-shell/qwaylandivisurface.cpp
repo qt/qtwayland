@@ -6,7 +6,6 @@
 #include <QtWaylandClient/private/qwaylanddisplay_p.h>
 #include <QtWaylandClient/private/qwaylandwindow_p.h>
 #include <QtWaylandClient/private/qwaylandscreen_p.h>
-#include <QtWaylandClient/private/qwaylandextendedsurface_p.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -17,7 +16,6 @@ QWaylandIviSurface::QWaylandIviSurface(struct ::ivi_surface *ivi_surface, QWayla
     , QWaylandShellSurface(window)
     , m_window(window)
 {
-    createExtendedSurface(window);
 }
 
 QWaylandIviSurface::QWaylandIviSurface(struct ::ivi_surface *ivi_surface, QWaylandWindow *window,
@@ -27,7 +25,6 @@ QWaylandIviSurface::QWaylandIviSurface(struct ::ivi_surface *ivi_surface, QWayla
     , QtWayland::ivi_controller_surface(iviControllerSurface)
     , m_window(window)
 {
-    createExtendedSurface(window);
 }
 
 QWaylandIviSurface::~QWaylandIviSurface()
@@ -35,19 +32,11 @@ QWaylandIviSurface::~QWaylandIviSurface()
     ivi_surface::destroy();
     if (QtWayland::ivi_controller_surface::object())
         QtWayland::ivi_controller_surface::destroy(0);
-
-    delete m_extendedWindow;
 }
 
 void QWaylandIviSurface::applyConfigure()
 {
     m_window->resizeFromApplyConfigure(m_pendingSize);
-}
-
-void QWaylandIviSurface::createExtendedSurface(QWaylandWindow *window)
-{
-    if (window->display()->windowExtension())
-        m_extendedWindow = new QWaylandExtendedSurface(window);
 }
 
 void QWaylandIviSurface::ivi_surface_configure(int32_t width, int32_t height)

@@ -6,7 +6,6 @@
 #include "qwaylandwindow_p.h"
 #include "qwaylandshellintegration_p.h"
 #include "qwaylandsubsurface_p.h"
-#include "qwaylandextendedsurface_p.h"
 #include "qwaylandintegration_p.h"
 #include "qwaylanddisplay_p.h"
 #include "qwaylandwindowmanagerintegration_p.h"

@@ -48,7 +48,6 @@ class QPlatformScreen;
 class QPlatformPlaceholderScreen;
 
 namespace QtWayland {
-    class qt_surface_extension;
     class zwp_text_input_manager_v1;
     class zwp_text_input_manager_v2;
     class zwp_text_input_manager_v3;
@@ -153,10 +152,6 @@ public:
         return mGlobals.primarySelectionManager.get();
     }
 #endif
-    QtWayland::qt_surface_extension *windowExtension() const
-    {
-        return mGlobals.surfaceExtension.get();
-    }
 #if QT_CONFIG(tabletevent)
     QWaylandTabletManagerV2 *tabletManager() const
     {
@@ -323,7 +318,6 @@ private:
 #if QT_CONFIG(wayland_datadevice)
         std::unique_ptr<QWaylandDataDeviceManager> dndSelectionHandler;
 #endif
-        std::unique_ptr<QtWayland::qt_surface_extension> surfaceExtension;
         std::unique_ptr<QtWayland::wl_subcompositor> subCompositor;
         std::unique_ptr<QWaylandTouchExtension> touchExtension;
         std::unique_ptr<QWaylandQtKeyExtension> qtKeyExtension;

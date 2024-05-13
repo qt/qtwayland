@@ -24,8 +24,7 @@ namespace QtWaylandClient {
 
 QWaylandWindowManagerIntegration::QWaylandWindowManagerIntegration(QWaylandDisplay *waylandDisplay,
                                                                    uint id, uint version)
-    : QtWayland::qt_windowmanager(waylandDisplay->object(), id, version),
-      m_waylandDisplay(waylandDisplay)
+    : QtWayland::qt_windowmanager(waylandDisplay->object(), id, version)
 {
 }
 

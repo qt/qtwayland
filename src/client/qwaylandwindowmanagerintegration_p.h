@@ -44,7 +44,6 @@ private:
     void windowmanager_hints(int32_t showIsFullScreen) override;
     void windowmanager_quit() override;
 
-    QWaylandDisplay *m_waylandDisplay = nullptr;
     bool m_showIsFullScreen = false;
 };
 

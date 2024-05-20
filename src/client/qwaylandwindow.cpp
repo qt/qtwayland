@@ -1185,8 +1185,13 @@ QWaylandWindow *QWaylandWindow::guessTransientParent() const
     if (auto transientParent = closestShellSurfaceWindow(window()->transientParent()))
         return transientParent;
 
-    if (QGuiApplication::focusWindow() && (window()->type() == Qt::ToolTip || window()->type() == Qt::Popup))
-        return closestShellSurfaceWindow(QGuiApplication::focusWindow());
+    if (window()->type() == Qt::Popup) {
+        if (mTopPopup)
+            return mTopPopup;
+    }
+
+    if (window()->type() == Qt::ToolTip || window()->type() == Qt::Popup)
+        return display()->lastInputWindow();
 
     return nullptr;
 }

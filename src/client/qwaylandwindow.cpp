@@ -877,6 +877,7 @@ QMargins QWaylandWindow::clientSideMargins() const
 void QWaylandWindow::setCustomMargins(const QMargins &margins) {
     const QMargins oldMargins = mCustomMargins;
     mCustomMargins = margins;
+    propagateSizeHints();
     setGeometry(geometry().marginsRemoved(oldMargins).marginsAdded(margins));
 }
 

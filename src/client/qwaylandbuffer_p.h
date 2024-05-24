@@ -43,12 +43,15 @@ public:
     void setCommitted() { mCommitted = true; }
     bool committed() const { return mCommitted; }
 
+    void setDeleteOnRelease(bool deleteOnRelease);
+
 protected:
     struct wl_buffer *mBuffer = nullptr;
 
 private:
     bool mBusy = false;
     bool mCommitted = false;
+    bool mDeleteOnRelease = false;
 
     static void release(void *data, wl_buffer *);
     static const wl_buffer_listener listener;

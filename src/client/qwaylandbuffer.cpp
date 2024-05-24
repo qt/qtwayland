@@ -31,6 +31,13 @@ void QWaylandBuffer::release(void *data, wl_buffer *)
     QWaylandBuffer *self = static_cast<QWaylandBuffer *>(data);
     self->mBusy = false;
     self->mCommitted = false;
+    if (self->mDeleteOnRelease)
+        delete self;
+}
+
+void QWaylandBuffer::setDeleteOnRelease(bool deleteOnRelease)
+{
+    mDeleteOnRelease = deleteOnRelease;
 }
 
 const wl_buffer_listener QWaylandBuffer::listener = {

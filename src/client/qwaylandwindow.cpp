@@ -850,7 +850,7 @@ bool QWaylandWindow::waitForFrameSync(int timeout)
         qCDebug(lcWaylandBackingstore) << "Didn't receive frame callback in time, window should now be inexposed";
         mFrameCallbackTimedOut = true;
         mWaitingForUpdate = false;
-        updateExposure();
+        QMetaObject::invokeMethod(this, &QWaylandWindow::updateExposure, Qt::QueuedConnection);
     }
 
     return !mWaitingForFrameCallback;

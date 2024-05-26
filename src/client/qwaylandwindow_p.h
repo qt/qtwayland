@@ -232,7 +232,10 @@ public:
     void endFrame();
 
     void closeChildPopups();
-    void sendRecursiveExposeEvent();
+
+    // should be invoked whenever a property that potentially affects
+    // exposure changes
+    void updateExposure();
 
     virtual void reinit();
     void reset();
@@ -249,6 +252,9 @@ Q_SIGNALS:
 protected:
     virtual void doHandleFrameCallback();
     virtual QRect defaultGeometry() const;
+
+    // this should be called directly for buffer size changes only
+    // use updateExposure for anything affecting the on/off state
     void sendExposeEvent(const QRect &rect);
 
     QWaylandDisplay *mDisplay = nullptr;
@@ -299,6 +305,7 @@ protected:
 
     // True when we have called deliverRequestUpdate, but the client has not yet attached a new buffer
     bool mWaitingForUpdate = false;
+    bool mExposed = false;
 
     QRecursiveMutex mResizeLock;
     bool mWaitingToApplyConfigure = false;
@@ -349,6 +356,7 @@ private:
     bool isOpaque() const;
     void updateInputRegion();
     void updateViewport();
+    bool calculateExposure() const;
 
     void handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e);
     void handleScreensChanged();

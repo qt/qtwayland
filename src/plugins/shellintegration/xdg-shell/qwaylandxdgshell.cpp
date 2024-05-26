@@ -406,8 +406,6 @@ bool QWaylandXdgSurface::handleExpose(const QRegion &region)
 
 void QWaylandXdgSurface::applyConfigure()
 {
-    bool wasExposed = isExposed();
-
     // It is a redundant ack_configure, so skipped.
     if (m_pendingConfigureSerial == m_appliedConfigureSerial)
         return;
@@ -421,8 +419,7 @@ void QWaylandXdgSurface::applyConfigure()
     m_configured = true;
     ack_configure(m_appliedConfigureSerial);
 
-    if (!wasExposed && isExposed())
-        m_window->sendRecursiveExposeEvent();
+    window()->updateExposure();
 }
 
 bool QWaylandXdgSurface::wantsDecorations() const

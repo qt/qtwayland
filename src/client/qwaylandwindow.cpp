@@ -326,7 +326,7 @@ void QWaylandWindow::reset()
     mCanResize = true;
     mResizeDirty = false;
     mScale = std::nullopt;
-
+    mExposed = false;
     mOpaqueArea = QRegion();
     mMask = QRegion();
 
@@ -544,11 +544,12 @@ void QWaylandWindow::resizeFromApplyConfigure(const QSize &sizeWithMargins, cons
 
 void QWaylandWindow::sendExposeEvent(const QRect &rect)
 {
-    if (!(mShellSurface && mShellSurface->handleExpose(rect)))
+    if (!(mShellSurface && mShellSurface->handleExpose(rect))) {
         QWindowSystemInterface::handleExposeEvent(window(), rect);
+        mLastExposeGeometry = rect;
+    }
     else
         qCDebug(lcQpaWayland) << "sendExposeEvent: intercepted by shell extension, not sending";
-    mLastExposeGeometry = rect;
 }
 
 QPlatformScreen *QWaylandWindow::calculateScreenFromSurfaceEvents() const
@@ -572,6 +573,7 @@ void QWaylandWindow::setVisible(bool visible)
         initWindow();
 
         setGeometry(windowGeometry());
+        updateExposure();
         // Don't flush the events here, or else the newly visible window may start drawing, but since
         // there was no frame before it will be stuck at the waitForFrameSync() in
         // QWaylandShmBackingStore::beginPaint().
@@ -579,6 +581,8 @@ void QWaylandWindow::setVisible(bool visible)
         if (mShellSurface)
             mShellSurface->requestActivateOnShow();
     } else {
+        // make sure isExposed is false during the next event dispatch
+        mExposed = false;
         sendExposeEvent(QRect());
         reset();
     }
@@ -654,6 +658,8 @@ void QWaylandWindow::doApplyConfigure()
         mShellSurface->applyConfigure();
 
     mWaitingToApplyConfigure = false;
+
+    sendExposeEvent(QRect(QPoint(), geometry().size()));
 }
 
 void QWaylandWindow::doApplyConfigureFromOtherThread()
@@ -662,7 +668,6 @@ void QWaylandWindow::doApplyConfigureFromOtherThread()
     if (!mCanResize || !mWaitingToApplyConfigure)
         return;
     doApplyConfigure();
-    sendRecursiveExposeEvent();
 }
 
 void QWaylandWindow::setCanResize(bool canResize)
@@ -678,13 +683,11 @@ void QWaylandWindow::setCanResize(bool canResize)
             bool inGuiThread = QThread::currentThreadId() == QThreadData::get2(thread())->threadId.loadRelaxed();
             if (inGuiThread) {
                 doApplyConfigure();
-                sendRecursiveExposeEvent();
             } else {
                 QMetaObject::invokeMethod(this, &QWaylandWindow::doApplyConfigureFromOtherThread, Qt::QueuedConnection);
             }
         } else if (mResizeDirty) {
             mResizeDirty = false;
-            sendExposeEvent(QRect(QPoint(), geometry().size()));
         }
     }
 }
@@ -697,21 +700,7 @@ void QWaylandWindow::applyConfigure()
         doApplyConfigure();
 
     lock.unlock();
-    sendRecursiveExposeEvent();
     QWindowSystemInterface::flushWindowSystemEvents();
-}
-
-void QWaylandWindow::sendRecursiveExposeEvent()
-{
-    if (!isExposed())
-        sendExposeEvent(QRect());
-    else
-        sendExposeEvent(QRect(QPoint(), geometry().size()));
-
-    for (QWaylandSubSurface *subSurface : std::as_const(mChildren)) {
-        auto subWindow = subSurface->window();
-        subWindow->sendRecursiveExposeEvent();
-    }
 }
 
 void QWaylandWindow::attach(QWaylandBuffer *buffer, int x, int y)
@@ -843,8 +832,8 @@ void QWaylandWindow::doHandleFrameCallback()
     mWaitingForUpdateDelivery.storeRelease(false);
     bool wasExposed = isExposed();
     mFrameCallbackTimedOut = false;
-    if (!wasExposed && isExposed()) // Did setting mFrameCallbackTimedOut make the window exposed?
-        sendExposeEvent(QRect(QPoint(), geometry().size()));
+    // Did setting mFrameCallbackTimedOut make the window exposed?
+    updateExposure();
     if (wasExposed && hasPendingUpdateRequest())
         deliverUpdateRequest();
 
@@ -861,7 +850,7 @@ bool QWaylandWindow::waitForFrameSync(int timeout)
         qCDebug(lcWaylandBackingstore) << "Didn't receive frame callback in time, window should now be inexposed";
         mFrameCallbackTimedOut = true;
         mWaitingForUpdate = false;
-        sendExposeEvent(QRect());
+        updateExposure();
     }
 
     return !mWaitingForFrameCallback;
@@ -1517,7 +1506,7 @@ void QWaylandWindow::requestActivateWindow()
         mShellSurface->requestActivate();
 }
 
-bool QWaylandWindow::isExposed() const
+bool QWaylandWindow::calculateExposure() const
 {
     if (!window()->isVisible())
         return false;
@@ -1532,6 +1521,30 @@ bool QWaylandWindow::isExposed() const
         return mSubSurfaceWindow->parent()->isExposed();
 
     return !(shouldCreateShellSurface() || shouldCreateSubSurface());
+}
+
+void QWaylandWindow::updateExposure()
+{
+    bool exposed = calculateExposure();
+    if (exposed == mExposed)
+        return;
+
+    mExposed = exposed;
+
+    if (!exposed)
+        sendExposeEvent(QRect());
+    else
+        sendExposeEvent(QRect(QPoint(), geometry().size()));
+
+    for (QWaylandSubSurface *subSurface : std::as_const(mChildren)) {
+        auto subWindow = subSurface->window();
+        subWindow->updateExposure();
+    }
+}
+
+bool QWaylandWindow::isExposed() const
+{
+    return mExposed;
 }
 
 bool QWaylandWindow::isActive() const
@@ -1647,7 +1660,7 @@ void QWaylandWindow::timerEvent(QTimerEvent *event)
     qCDebug(lcWaylandBackingstore) << "Didn't receive frame callback in time, window should now be inexposed";
     mFrameCallbackTimedOut = true;
     mWaitingForUpdate = false;
-    sendExposeEvent(QRect());
+    updateExposure();
 }
 
 void QWaylandWindow::requestUpdate()

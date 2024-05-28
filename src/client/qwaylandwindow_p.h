@@ -310,7 +310,7 @@ protected:
 
     bool mSentInitialResize = false;
     QPoint mOffset;
-    std::optional<qreal> mScale = 1;
+    std::optional<qreal> mScale = std::nullopt;
 
     QString mWindowTitle;
     QIcon mWindowIcon;

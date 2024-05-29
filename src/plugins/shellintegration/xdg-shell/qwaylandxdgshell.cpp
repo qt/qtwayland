@@ -400,7 +400,7 @@ bool QWaylandXdgSurface::handleExpose(const QRegion &region)
     if (!isExposed() && !region.isEmpty()) {
         return true;
     }
-    setWindowGeometry(window()->windowContentGeometry());
+    setContentGeometry(window()->windowContentGeometry());
     return false;
 }
 
@@ -435,7 +435,7 @@ void QWaylandXdgSurface::propagateSizeHints()
     setSizeHints();
 }
 
-void QWaylandXdgSurface::setWindowGeometry(const QRect &rect)
+void QWaylandXdgSurface::setContentGeometry(const QRect &rect)
 {
     if (window()->isExposed())
         set_window_geometry(rect.x(), rect.y(), rect.width(), rect.height());

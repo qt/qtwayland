@@ -62,7 +62,7 @@ public:
     void applyConfigure() override;
     bool wantsDecorations() const override;
     void propagateSizeHints() override;
-    void setWindowGeometry(const QRect &rect) override;
+    void setContentGeometry(const QRect &rect) override;
     bool requestActivate() override;
     bool requestActivateOnShow() override;
     void setXdgActivationToken(const QString &token) override;

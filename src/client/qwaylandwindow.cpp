@@ -431,6 +431,16 @@ void QWaylandWindow::setGeometry_helper(const QRect &rect)
 
 void QWaylandWindow::setGeometry(const QRect &r)
 {
+    if (mShellSurface) {
+        if (!mInResizeFromApplyConfigure) {
+            const QRect frameGeometry = r.marginsAdded(clientSideMargins()).marginsRemoved(windowContentMargins());
+            if (qt_window_private(window())->positionAutomatic)
+                mShellSurface->setWindowSize(frameGeometry.size());
+            else
+                mShellSurface->setWindowGeometry(frameGeometry);
+        }
+    }
+
     auto rect = r;
     if (fixedToplevelPositions && !QPlatformWindow::parent() && window()->type() != Qt::Popup
         && window()->type() != Qt::ToolTip) {
@@ -454,11 +464,8 @@ void QWaylandWindow::setGeometry(const QRect &r)
     if (isExposed() && !mInResizeFromApplyConfigure && exposeGeometry != mLastExposeGeometry)
         sendExposeEvent(exposeGeometry);
 
-    if (mShellSurface) {
-        mShellSurface->setWindowGeometry(windowContentGeometry());
-        if (!qt_window_private(window())->positionAutomatic && !mInResizeFromApplyConfigure)
-            mShellSurface->setWindowPosition(windowGeometry().topLeft());
-    }
+    if (mShellSurface)
+        mShellSurface->setContentGeometry(windowContentGeometry());
 
     if (isOpaque() && mMask.isEmpty())
         setOpaqueArea(QRect(QPoint(0, 0), rect.size()));

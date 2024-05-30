@@ -77,8 +77,10 @@ void Surface::surface_attach(Resource *resource, wl_resource *buffer, int32_t x,
             m_image = QImage();
     } else {
         QPoint offset(x, y);
+        if (resource->version() < 5)
+            m_pending.commitSpecific.attachOffset = offset;
+
         m_pending.buffer = fromResource<Buffer>(buffer);
-        m_pending.commitSpecific.attachOffset = offset;
         m_pending.commitSpecific.attached = true;
 
         emit attach(buffer, offset);
@@ -141,6 +143,13 @@ void Surface::surface_frame(Resource *resource, uint32_t callback)
         auto *frame = new Callback(resource->client(), callback, 1);
         m_pending.commitSpecific.frame = frame;
     }
+}
+
+void Surface::surface_offset(Resource *resource, int32_t x, int32_t y)
+{
+    Q_UNUSED(resource);
+    QPoint offset(x, y);
+    m_pending.commitSpecific.attachOffset = offset;
 }
 
 bool WlCompositor::isClean() {

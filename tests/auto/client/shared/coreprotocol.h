@@ -146,7 +146,7 @@ class WlCompositor : public Global, public QtWaylandServer::wl_compositor
 {
     Q_OBJECT
 public:
-    explicit WlCompositor(CoreCompositor *compositor, int version = 5)
+    explicit WlCompositor(CoreCompositor *compositor, int version = 6)
         : QtWaylandServer::wl_compositor(compositor->m_display, version)
         , m_compositor(compositor)
     {}

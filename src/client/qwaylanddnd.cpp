@@ -28,6 +28,11 @@ QWaylandDrag::~QWaylandDrag()
 
 void QWaylandDrag::startDrag()
 {
+    // Some compositors do not send a pointer leave before starting a drag, some do.
+    // This is discussed upstream at: https://gitlab.freedesktop.org/wayland/wayland/-/issues/444
+    // For consistency between compositors we emit the leave event here, upon drag start.
+    m_display->currentInputDevice()->handleStartDrag();
+
     QBasicDrag::startDrag();
     QWaylandWindow *icon = static_cast<QWaylandWindow *>(shapedPixmapWindow()->handle());
     if (m_display->currentInputDevice()->dataDevice()->startDrag(drag()->mimeData(), drag()->supportedActions(), icon)) {

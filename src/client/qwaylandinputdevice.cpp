@@ -528,6 +528,12 @@ void QWaylandInputDevice::handleEndDrag()
         mPointer->releaseButtons();
 }
 
+void QWaylandInputDevice::handleStartDrag()
+{
+    if (mPointer)
+        mPointer->leavePointers();
+}
+
 #if QT_CONFIG(wayland_datadevice)
 void QWaylandInputDevice::setDataDevice(QWaylandDataDevice *device)
 {
@@ -882,6 +888,14 @@ void QWaylandInputDevice::Pointer::releaseButtons()
 
     if (auto *window = focusWindow()) {
         ReleaseEvent e(focusWindow(), mParent->mTime, mSurfacePos, mGlobalPos, mButtons, mLastButton, mParent->modifiers());
+        window->handleMouse(mParent, e);
+    }
+}
+
+void QWaylandInputDevice::Pointer::leavePointers()
+{
+    if (auto *window = focusWindow()) {
+        LeaveEvent e(focusWindow(), mSurfacePos, mGlobalPos);
         window->handleMouse(mParent, e);
     }
 }

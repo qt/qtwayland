@@ -92,6 +92,7 @@ public:
 #if QT_CONFIG(cursor)
     void setCursor(const QCursor *cursor, const QSharedPointer<QWaylandBuffer> &cachedBuffer = {}, int fallbackOutputScale = 1);
 #endif
+    void handleStartDrag();
     void handleEndDrag();
 
 #if QT_CONFIG(wayland_datadevice)
@@ -320,6 +321,7 @@ private:
 
 public:
     void releaseButtons();
+    void leavePointers();
 
     QWaylandInputDevice *mParent = nullptr;
     QPointer<QWaylandSurface> mFocus;

@@ -39,7 +39,7 @@ protected:
 
 Q_SIGNALS:
     void windowTypeChanged();
-    void modalChanged();
+    Q_REVISION(6, 8) void modalChanged();
 };
 
 template <typename T>

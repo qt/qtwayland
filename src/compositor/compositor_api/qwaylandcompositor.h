@@ -34,10 +34,10 @@ class QWaylandTouch;
 class QWaylandSurfaceGrabber;
 class QWaylandBufferRef;
 
-Q_WAYLANDCOMPOSITOR_EXPORT Q_DECLARE_LOGGING_CATEGORY(qLcWaylandCompositor)
-Q_WAYLANDCOMPOSITOR_EXPORT Q_DECLARE_LOGGING_CATEGORY(qLcWaylandCompositorHardwareIntegration)
-Q_DECLARE_LOGGING_CATEGORY(qLcWaylandCompositorInputMethods)
-Q_DECLARE_LOGGING_CATEGORY(qLcWaylandCompositorTextInput)
+Q_WAYLANDCOMPOSITOR_EXPORT const QLoggingCategory &qLcWaylandCompositor();
+Q_WAYLANDCOMPOSITOR_EXPORT const QLoggingCategory &qLcWaylandCompositorHardwareIntegration();
+const QLoggingCategory &qLcWaylandCompositorInputMethods();
+const QLoggingCategory &qLcWaylandCompositorTextInput();
 
 class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandCompositor : public QWaylandObject
 {

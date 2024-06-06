@@ -60,10 +60,19 @@
 
 QT_BEGIN_NAMESPACE
 
-Q_LOGGING_CATEGORY(qLcWaylandCompositor, "qt.waylandcompositor")
-Q_LOGGING_CATEGORY(qLcWaylandCompositorHardwareIntegration, "qt.waylandcompositor.hardwareintegration")
-Q_LOGGING_CATEGORY(qLcWaylandCompositorInputMethods, "qt.waylandcompositor.inputmethods")
-Q_LOGGING_CATEGORY(qLcWaylandCompositorTextInput, "qt.waylandcompositor.textinput")
+// These logging categories are public symbols. To remain binary-compatible we cannot hide them in
+// a namespace like we do for all Qt-internal logging categories.
+#define Q_PUBLIC_LOGGING_CATEGORY(name, ...) \
+    const QLoggingCategory &name() \
+    { \
+        static const QLoggingCategory category(__VA_ARGS__); \
+        return category; \
+    }
+
+Q_PUBLIC_LOGGING_CATEGORY(qLcWaylandCompositor, "qt.waylandcompositor")
+Q_PUBLIC_LOGGING_CATEGORY(qLcWaylandCompositorHardwareIntegration, "qt.waylandcompositor.hardwareintegration")
+Q_PUBLIC_LOGGING_CATEGORY(qLcWaylandCompositorInputMethods, "qt.waylandcompositor.inputmethods")
+Q_PUBLIC_LOGGING_CATEGORY(qLcWaylandCompositorTextInput, "qt.waylandcompositor.textinput")
 
 namespace QtWayland {
 

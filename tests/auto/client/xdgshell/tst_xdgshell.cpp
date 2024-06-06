@@ -27,7 +27,6 @@
 ****************************************************************************/
 
 #include "mockcompositor.h"
-#include <QtOpenGL/QOpenGLWindow>
 #include <QtGui/QRasterWindow>
 #include <QtGui/qpa/qplatformnativeinterface.h>
 #include <QtWaylandClient/private/wayland-wayland-client-protocol.h>

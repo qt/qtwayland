@@ -4,6 +4,10 @@
 ## tst_client Test:
 #####################################################################
 
+if(QT_FEATURE_opengl)
+    set(optional_libraries Qt::OpenGL)
+endif()
+
 qt_internal_add_test(tst_client
     SOURCES
         ../shared_old/mockcompositor.cpp ../shared_old/mockcompositor.h
@@ -21,7 +25,7 @@ qt_internal_add_test(tst_client
         Qt::CorePrivate
         Qt::Gui
         Qt::GuiPrivate
-        Qt::OpenGL
+        ${optional_libraries}
         Qt::WaylandClientPrivate
         Wayland::Client
         Wayland::Server

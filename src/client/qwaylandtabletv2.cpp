@@ -272,9 +272,11 @@ void QWaylandTabletToolV2::zwp_tablet_tool_v2_frame(uint32_t time)
         qreal tangentialPressure = m_pending.slider;
         qreal rotation = m_pending.rotation;
         int z = int(m_pending.distance);
-        QWindowSystemInterface::handleTabletEvent(window, timestamp, localPosition, globalPosition,
-                                                  int(m_tabletDevice), int(m_pointerType), buttons, pressure,
-                                                  xTilt, yTilt, tangentialPressure, rotation, z, m_uid);
+
+        QWindowSystemInterface::handleTabletEvent(
+                window, timestamp, localPosition, globalPosition, int(m_tabletDevice),
+                int(m_pointerType), buttons, pressure, xTilt, yTilt, tangentialPressure, rotation,
+                z, m_uid, m_tabletSeat->seat()->modifiers());
     }
 
     if (!m_pending.proximitySurface && m_applied.enteredSurface) {

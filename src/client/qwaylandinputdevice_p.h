@@ -193,6 +193,7 @@ protected:
     friend class QWaylandPointerGestureSwipe;
     friend class QWaylandPointerGesturePinch;
     friend class QWaylandWindow;
+    friend class QWaylandTabletToolV2;
 };
 
 inline uint32_t QWaylandInputDevice::serial() const

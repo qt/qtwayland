@@ -148,7 +148,9 @@ void QWaylandTabletToolV2::zwp_tablet_tool_v2_removed()
 void QWaylandTabletToolV2::zwp_tablet_tool_v2_proximity_in(uint32_t serial, zwp_tablet_v2 *tablet, wl_surface *surface)
 {
     Q_UNUSED(tablet);
-    Q_UNUSED(serial);
+
+    m_tabletSeat->seat()->mSerial = serial;
+
     if (Q_UNLIKELY(!surface)) {
         qCDebug(lcQpaWayland) << "Ignoring zwp_tablet_tool_v2_proximity_v2 with no surface";
         return;
@@ -166,6 +168,8 @@ void QWaylandTabletToolV2::zwp_tablet_tool_v2_proximity_out()
 void QWaylandTabletToolV2::zwp_tablet_tool_v2_down(uint32_t serial)
 {
     m_pending.down = true;
+
+    m_tabletSeat->seat()->mSerial = serial;
 
     if (m_pending.proximitySurface) {
         if (QWaylandWindow *window = m_pending.proximitySurface->waylandWindow()) {
@@ -225,7 +229,8 @@ static Qt::MouseButton mouseButtonFromTablet(uint button)
 
 void QWaylandTabletToolV2::zwp_tablet_tool_v2_button(uint32_t serial, uint32_t button, uint32_t state)
 {
-    Q_UNUSED(serial);
+    m_tabletSeat->seat()->mSerial = serial;
+
     Qt::MouseButton mouseButton = mouseButtonFromTablet(button);
     if (state == button_state_pressed)
         m_pending.buttons |= mouseButton;

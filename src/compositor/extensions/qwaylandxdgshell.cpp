@@ -337,7 +337,7 @@ void QWaylandXdgSurfacePrivate::xdg_surface_get_toplevel(QtWaylandServer::xdg_su
     emit q->toplevelCreated();
     emit m_xdgShell->toplevelCreated(m_toplevel, q);
     q->connect(m_toplevel, &QWaylandXdgToplevel::modalChanged, q, [q, this](){
-        q->setModal(m_toplevel->modal());
+        q->setModal(m_toplevel->isModal());
     });
 }
 
@@ -936,7 +936,7 @@ bool QWaylandXdgToplevel::activated() const
  * This property holds whether toplevel blocks other windows from receiving input.
  * \since 6.8
  */
-bool QWaylandXdgToplevel::modal() const
+bool QWaylandXdgToplevel::isModal() const
 {
     Q_D(const QWaylandXdgToplevel);
     return d->m_modal;

@@ -119,7 +119,7 @@ void QWaylandQuickShellSurfaceItem::setShellSurface(QWaylandShellSurface *shellS
     }
 
     connect(shellSurface, &QWaylandShellSurface::modalChanged, this,
-            [d](){ if (d->m_shellSurface->modal()) d->raise(); });
+            [d](){ if (d->m_shellSurface->isModal()) d->raise(); });
 
     emit shellSurfaceChanged();
 }
@@ -307,12 +307,12 @@ static QWaylandQuickShellSurfaceItem *findSurfaceItemFromMoveItem(QQuickItem *mo
 
 static inline bool onTop(QWaylandQuickShellSurfaceItem *surf)
 {
-    return surf->staysOnTop() || surf->shellSurface()->modal();
+    return surf->staysOnTop() || surf->shellSurface()->isModal();
 }
 
 static inline bool onBottom(QWaylandQuickShellSurfaceItem *surf)
 {
-    return surf->staysOnBottom() && !surf->shellSurface()->modal();
+    return surf->staysOnBottom() && !surf->shellSurface()->isModal();
 }
 
 /*
@@ -329,8 +329,8 @@ void QWaylandQuickShellSurfaceItemPrivate::raise()
     QQuickItem *parent = moveItem->parentItem();
     if (!parent)
         return;
-    const bool putOnTop = staysOnTop || m_shellSurface->modal();
-    const bool putOnBottom = staysOnBottom && !m_shellSurface->modal();
+    const bool putOnTop = staysOnTop || m_shellSurface->isModal();
+    const bool putOnBottom = staysOnBottom && !m_shellSurface->isModal();
 
     auto it = parent->childItems().crbegin();
     auto skip = [=](QQuickItem *item) {
@@ -362,8 +362,8 @@ void QWaylandQuickShellSurfaceItemPrivate::lower()
     QQuickItem *parent = moveItem->parentItem();
     if (!parent)
         return;
-    const bool putOnTop = staysOnTop || m_shellSurface->modal();
-    const bool putOnBottom = staysOnBottom && !m_shellSurface->modal();
+    const bool putOnTop = staysOnTop || m_shellSurface->isModal();
+    const bool putOnBottom = staysOnBottom && !m_shellSurface->isModal();
 
     auto it = parent->childItems().cbegin();
     auto skip = [=](QQuickItem *item) {

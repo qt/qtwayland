@@ -19,7 +19,7 @@ class Q_WAYLANDCOMPOSITOR_EXPORT QWaylandShellSurface : public QWaylandComposito
     Q_DECLARE_PRIVATE(QWaylandShellSurface)
 
     Q_PROPERTY(Qt::WindowType windowType READ windowType NOTIFY windowTypeChanged)
-    Q_PROPERTY(bool modal READ modal NOTIFY modalChanged FINAL REVISION(6, 8))
+    Q_PROPERTY(bool modal READ isModal NOTIFY modalChanged FINAL REVISION(6, 8))
     QML_NAMED_ELEMENT(ShellSurface)
     QML_UNCREATABLE("")
     QML_ADDED_IN_VERSION(1, 0)
@@ -30,7 +30,7 @@ public:
     QWaylandShellSurface(QWaylandObject *waylandObject);
     virtual Qt::WindowType windowType() const { return Qt::WindowType::Window; }
 
-    bool modal() const;
+    bool isModal() const;
 
 protected:
     QWaylandShellSurface(QWaylandShellSurfacePrivate &dd);

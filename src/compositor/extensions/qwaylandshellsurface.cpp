@@ -123,7 +123,7 @@ QWaylandShellSurface::QWaylandShellSurface(QWaylandObject *waylandObject)
 {
 }
 
-bool QWaylandShellSurface::modal() const
+bool QWaylandShellSurface::isModal() const
 {
     Q_D(const QWaylandShellSurface);
     return d->modal;

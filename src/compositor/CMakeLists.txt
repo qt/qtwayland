@@ -77,6 +77,18 @@ qt_internal_add_module(WaylandCompositor
         Qt::WaylandGlobalPrivate
     PRIVATE_HEADER_FILTERS
         "^qwayland-.*\.h|^wayland-.*-protocol\.h"
+    ATTRIBUTION_FILE_DIR_PATHS
+        ../3rdparty/protocol/ivi
+        ../3rdparty/protocol/presentation-time
+        ../3rdparty/protocol/scaler
+        ../3rdparty/protocol/text-input/v2
+        ../3rdparty/protocol/text-input/v3
+        ../3rdparty/protocol/viewporter
+        ../3rdparty/protocol/wayland
+        ../3rdparty/protocol/xdg-decoration
+        ../3rdparty/protocol/xdg-output
+        ../3rdparty/protocol/xdg-shell
+        ../3rdparty/protocol/xdg-dialog
 )
 
 # all those macros define structs with Q_OBJECT macros, and should be picked up by moc

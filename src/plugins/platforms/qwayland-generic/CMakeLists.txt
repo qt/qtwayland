@@ -17,6 +17,7 @@ qt_internal_add_plugin(QWaylandIntegrationPlugin
         Qt::Core
         Qt::Gui
         Qt::WaylandClientPrivate
+    QT_LICENSE_ID QT_COMMERCIAL_OR_LGPL3
 )
 
 #### Keys ignored in scope 1:.:.:qwayland-generic.pro:<TRUE>:

@@ -18,6 +18,7 @@ qt_internal_add_plugin(QWaylandAdwaitaDecorationPlugin
         Qt::Svg
         Qt::WaylandClientPrivate
         Wayland::Client
+    QT_LICENSE_ID QT_COMMERCIAL_OR_LGPL3
 )
 
 #### Keys ignored in scope 1:.:.:bradient.pro:<TRUE>:

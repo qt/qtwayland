@@ -18,6 +18,7 @@ qt_internal_add_plugin(QWaylandEglPlatformIntegrationPlugin
         Qt::Gui
         Qt::WaylandClientPrivate
         Qt::WaylandEglClientHwIntegrationPrivate
+    QT_LICENSE_ID QT_COMMERCIAL_OR_LGPL3
 )
 
 #### Keys ignored in scope 1:.:.:qwayland-egl.pro:<TRUE>:

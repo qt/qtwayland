@@ -20,6 +20,9 @@ qt_internal_add_module(WlShellIntegrationPrivate
     PRIVATE_HEADER_FILTERS
         "^qwayland-.*\.h|^wayland-.*-protocol\.h"
     NO_GENERATE_CPP_EXPORTS
+    QT_LICENSE_ID QT_COMMERCIAL_OR_LGPL3
+    ATTRIBUTION_FILE_DIR_PATHS
+        ../../../3rdparty/protocol/wayland
 )
 
 qt6_generate_wayland_protocol_client_sources(WlShellIntegrationPrivate

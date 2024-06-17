@@ -24,6 +24,13 @@ qt_internal_add_plugin(QWaylandXdgShellIntegrationPlugin
         Qt::GuiPrivate
         Qt::WaylandClientPrivate
         Wayland::Client
+    QT_LICENSE_ID QT_COMMERCIAL_OR_LGPL3
+    ATTRIBUTION_FILE_DIR_PATHS
+        ../../../3rdparty/protocol/xdg-decoration
+        ../../../3rdparty/protocol/xdg-shell
+        ../../../3rdparty/protocol/xdg-activation
+        ../../../3rdparty/protocol/xdg-foreign
+        ../../../3rdparty/protocol/xdg-dialog
 )
 
 qt6_generate_wayland_protocol_client_sources(QWaylandXdgShellIntegrationPlugin

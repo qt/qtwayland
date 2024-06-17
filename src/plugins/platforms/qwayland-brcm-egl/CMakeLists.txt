@@ -24,6 +24,7 @@ qt_internal_add_plugin(QWaylandBrcmEglPlatformIntegrationPlugin
         Qt::Gui
         Qt::WaylandClientPrivate
         Wayland::Client
+    QT_LICENSE_ID QT_COMMERCIAL_OR_LGPL3
 )
 
 qt6_generate_wayland_protocol_client_sources(QWaylandBrcmEglPlatformIntegrationPlugin

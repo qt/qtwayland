@@ -24,6 +24,8 @@ qt_internal_add_plugin(QWaylandDmabufClientBufferIntegrationPlugin
         Qt::GuiPrivate
         Qt::WaylandCompositor
         Qt::WaylandCompositorPrivate
+    ATTRIBUTION_FILE_DIR_PATHS
+        ../../../../3rdparty/protocol/linux-dmabuf
 )
 
 qt6_generate_wayland_protocol_server_sources(QWaylandDmabufClientBufferIntegrationPlugin

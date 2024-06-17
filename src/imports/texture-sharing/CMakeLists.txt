@@ -33,6 +33,7 @@ qt_internal_add_qml_module(WaylandTextureSharing
     PRIVATE_HEADER_FILTERS
         "^qwayland-.*\.h|^wayland-.*-protocol\.h"
     NO_GENERATE_CPP_EXPORTS
+    QT_LICENSE_ID QT_COMMERCIAL_OR_LGPL3
 )
 
 qt6_generate_wayland_protocol_client_sources(WaylandTextureSharing

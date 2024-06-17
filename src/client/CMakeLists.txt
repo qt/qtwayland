@@ -78,6 +78,19 @@ qt_internal_add_module(WaylandClient
         Qt::WaylandGlobalPrivate
     PRIVATE_HEADER_FILTERS
         "^qwayland-.*\.h|^wayland-.*-protocol\.h"
+    QT_LICENSE_ID QT_COMMERCIAL_OR_LGPL3
+    ATTRIBUTION_FILE_DIR_PATHS
+        ../3rdparty/protocol/pointer-gestures
+        ../3rdparty/protocol/tablet
+        ../3rdparty/protocol/text-input/v1
+        ../3rdparty/protocol/text-input/v2
+        ../3rdparty/protocol/text-input/v3
+        ../3rdparty/protocol/wayland
+        ../3rdparty/protocol/wp-primary-selection
+        ../3rdparty/protocol/xdg-output
+        ../3rdparty/protocol/fractional-scale
+        ../3rdparty/protocol/viewporter
+        ../3rdparty/protocol/xdg-shell
 )
 
 qt6_generate_wayland_protocol_client_sources(WaylandClient

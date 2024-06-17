@@ -1,6 +1,6 @@
 CONFIG += wayland-scanner
 WAYLANDSERVERSOURCES += \
-    ../3rdparty/protocol/wayland.xml
+    ../3rdparty/protocol/wayland/wayland.xml
 
 HEADERS += \
     wayland_wrapper/qwlbuffermanager_p.h \

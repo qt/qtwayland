@@ -82,19 +82,19 @@ qt_internal_add_module(WaylandClient
 
 qt6_generate_wayland_protocol_client_sources(WaylandClient
     FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/cursor-shape-v1.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/pointer-gestures-unstable-v1.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/tablet-unstable-v2.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input-unstable-v1.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input-unstable-v2.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input-unstable-v3.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/wayland.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/wp-primary-selection-unstable-v1.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-output-unstable-v1.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/fractional-scale-v1.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/viewporter.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-shell.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-toplevel-drag-v1.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/cursor-shape/cursor-shape-v1.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/pointer-gestures/pointer-gestures-unstable-v1.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/tablet/tablet-unstable-v2.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input/v1/text-input-unstable-v1.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input/v2/text-input-unstable-v2.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/text-input/v3/text-input-unstable-v3.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/wayland/wayland.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/wp-primary-selection/wp-primary-selection-unstable-v1.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-output/xdg-output-unstable-v1.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/fractional-scale/fractional-scale-v1.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/viewporter/viewporter.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-shell/xdg-shell.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/xdg-toplevel-drag/xdg-toplevel-drag-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-key-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-text-input-method-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../extensions/qt-windowmanager.xml

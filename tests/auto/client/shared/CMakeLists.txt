@@ -41,20 +41,20 @@ add_library(SharedClientTest
 
 qt6_generate_wayland_protocol_server_sources(SharedClientTest
     FILES
-        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/cursor-shape-v1.xml
-        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/fullscreen-shell-unstable-v1.xml
-        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/ivi-application.xml
-        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/wp-primary-selection-unstable-v1.xml
-        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/tablet-unstable-v2.xml
-        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/text-input-unstable-v2.xml
+        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/cursor-shape/cursor-shape-v1.xml
+        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/fullscreen-shell/fullscreen-shell-unstable-v1.xml
+        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/ivi/ivi-application.xml
+        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/wp-primary-selection/wp-primary-selection-unstable-v1.xml
+        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/tablet/tablet-unstable-v2.xml
+        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/text-input/v2/text-input-unstable-v2.xml
         ${PROJECT_SOURCE_DIR}/src/extensions/qt-text-input-method-unstable-v1.xml
-        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/fractional-scale-v1.xml
-        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/viewporter.xml
-        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/wayland.xml
-        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/xdg-decoration-unstable-v1.xml
-        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/xdg-dialog-v1.xml
-        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/xdg-output-unstable-v1.xml
-        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/xdg-shell.xml
+        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/fractional-scale/fractional-scale-v1.xml
+        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/viewporter/viewporter.xml
+        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/wayland/wayland.xml
+        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/xdg-decoration/xdg-decoration-unstable-v1.xml
+        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/xdg-dialog/xdg-dialog-v1.xml
+        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/xdg-output/xdg-output-unstable-v1.xml
+        ${PROJECT_SOURCE_DIR}/src/3rdparty/protocol/xdg-shell/xdg-shell.xml
 )
 
 if(QT_FEATURE_opengl)

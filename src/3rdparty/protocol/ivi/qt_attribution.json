@@ -1,0 +1,18 @@
+[
+    {
+        "Id": "wayland-ivi-extension-protocol",
+        "Name": "Wayland IVI Extension Protocol",
+        "QDocModule": "qtwaylandcompositor",
+        "QtUsage": "Used in the Qt Wayland Compositor, and the Qt Wayland platform plugin.",
+        "Files": "ivi-controller.xml ivi-application.xml",
+
+        "Description": "\"Wayland IVI Extension\" is forked from IVI Layer Management to define a common set of APIs by wayland style protocol and provide reference implementation which can be loaded on Weston.",
+        "Homepage": "https://at.projects.genivi.org/wiki/display/WIE/Wayland+IVI+Extension+Home",
+        "Version": "1.9.1",
+        "DownloadLocation": "https://github.com/GENIVI/wayland-ivi-extension/releases/tag/1.9.1",
+        "LicenseId": "MIT",
+        "License": "MIT License",
+        "LicenseFile": "../MIT_LICENSE.txt",
+        "Copyright": "Copyright (C) 2013 DENSO CORPORATION\nCopyright (c) 2013 BMW Car IT GmbH"
+    }
+]

@@ -3,10 +3,10 @@ CONFIG += testcase wayland-scanner
 QMAKE_USE += wayland-server
 
 WAYLANDSERVERSOURCES += \
-    $$PWD/../../../../src/3rdparty/protocol/wayland.xml \
-    $$PWD/../../../../src/3rdparty/protocol/xdg-output-unstable-v1.xml \
-    $$PWD/../../../../src/3rdparty/protocol/xdg-shell.xml \
-    $$PWD/../../../../src/3rdparty/protocol/text-input-unstable-v2.xml
+    $$PWD/../../../../src/3rdparty/protocol/wayland/wayland.xml \
+    $$PWD/../../../../src/3rdparty/protocol/xdg-output/xdg-output-unstable-v1.xml \
+    $$PWD/../../../../src/3rdparty/protocol/xdg-shell/xdg-shell.xml \
+    $$PWD/../../../../src/3rdparty/protocol/text-input/text-input-unstable-v2.xml
 
 INCLUDEPATH += ../shared
 

@@ -9,16 +9,16 @@ WAYLANDSERVERSOURCES += \
     ../extensions/qt-key-unstable-v1.xml \
     ../extensions/qt-windowmanager.xml \
     ../extensions/qt-text-input-method-unstable-v1.xml \
-    ../3rdparty/protocol/text-input-unstable-v2.xml \
-    ../3rdparty/protocol/viewporter.xml \
-    ../3rdparty/protocol/scaler.xml \
-    ../3rdparty/protocol/xdg-shell.xml \
-    ../3rdparty/protocol/xdg-decoration-unstable-v1.xml \
-    ../3rdparty/protocol/xdg-output-unstable-v1.xml \
-    ../3rdparty/protocol/ivi-application.xml \
-    ../3rdparty/protocol/idle-inhibit-unstable-v1.xml \
+    ../3rdparty/protocol/text-input/text-input-unstable-v2.xml \
+    ../3rdparty/protocol/viewporter/viewporter.xml \
+    ../3rdparty/protocol/scaler/scaler.xml \
+    ../3rdparty/protocol/xdg-shell/xdg-shell.xml \
+    ../3rdparty/protocol/xdg-decoration/xdg-decoration-unstable-v1.xml \
+    ../3rdparty/protocol/xdg-output/xdg-output-unstable-v1.xml \
+    ../3rdparty/protocol/ivi/ivi-application.xml \
+    ../3rdparty/protocol/idle-inhibit/idle-inhibit-unstable-v1.xml \
     ../extensions/qt-texture-sharing-unstable-v1.xml \
-    ../3rdparty/protocol/presentation-time.xml \
+    ../3rdparty/protocol/presentation-time/presentation-time.xml \
 
 HEADERS += \
     extensions/qwlqttouch_p.h \

@@ -30,12 +30,12 @@ qt_internal_add_test(tst_compositor
 
 qt6_generate_wayland_protocol_client_sources(tst_compositor
     FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../src/3rdparty/protocol/idle-inhibit-unstable-v1.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../src/3rdparty/protocol/ivi-application.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../src/3rdparty/protocol/viewporter.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../src/3rdparty/protocol/wayland.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../src/3rdparty/protocol/xdg-output-unstable-v1.xml
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../src/3rdparty/protocol/xdg-shell.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../src/3rdparty/protocol/idle-inhibit/idle-inhibit-unstable-v1.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../src/3rdparty/protocol/ivi/ivi-application.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../src/3rdparty/protocol/viewporter/viewporter.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../src/3rdparty/protocol/wayland/wayland.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../src/3rdparty/protocol/xdg-output/xdg-output-unstable-v1.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../src/3rdparty/protocol/xdg-shell/xdg-shell.xml
 )
 
 ## Scopes:

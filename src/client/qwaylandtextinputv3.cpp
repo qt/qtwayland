@@ -238,7 +238,6 @@ void QWaylandTextInputv3::updateState(Qt::InputMethodQueries queries, uint32_t f
         if (surfaceRect != m_cursorRect) {
             set_cursor_rectangle(surfaceRect.x(), surfaceRect.y(), surfaceRect.width(), surfaceRect.height());
             m_cursorRect = surfaceRect;
-            needsCommit = true;
         }
     }
 

@@ -327,8 +327,6 @@ protected:
     ToplevelWindowTilingStates mLastReportedToplevelWindowTilingStates = WindowNoState;
 
     QWaylandShmBackingStore *mBackingStore = nullptr;
-    QWaylandBuffer *mQueuedBuffer = nullptr;
-    QRegion mQueuedBufferDamage;
 
     QMargins mCustomMargins;
 

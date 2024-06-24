@@ -333,12 +333,6 @@ void QWaylandWindow::reset()
     mInputRegion = QRegion();
     mTransparentInputRegion = false;
 
-    if (mQueuedBuffer) {
-        mQueuedBuffer->setBusy(false);
-    }
-    mQueuedBuffer = nullptr;
-    mQueuedBufferDamage = QRegion();
-
     mDisplay->handleWindowDestroyed(this);
 }
 
@@ -763,12 +757,7 @@ void QWaylandWindow::safeCommit(QWaylandBuffer *buffer, const QRegion &damage)
     if (isExposed()) {
         commit(buffer, damage);
     } else {
-        if (mQueuedBuffer) {
-            mQueuedBuffer->setBusy(false);
-        }
-        mQueuedBuffer = buffer;
-        mQueuedBuffer->setBusy(true);
-        mQueuedBufferDamage = damage;
+        buffer->setBusy(false);
     }
 }
 

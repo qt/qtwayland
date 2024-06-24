@@ -150,6 +150,9 @@ void tst_surface::negotiateShmFormat()
 
 void tst_surface::createSubsurface()
 {
+    m_config.autoFrameCallback = true;
+    auto autoFrameCallback = qScopeGuard([&] { m_config.autoFrameCallback = false; });
+
     QRasterWindow window;
     window.setObjectName("main");
     window.resize(200, 200);

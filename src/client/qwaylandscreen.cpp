@@ -163,16 +163,6 @@ QList<QPlatformScreen *> QWaylandScreen::virtualSiblings() const
     return list;
 }
 
-QWindow *QWaylandScreen::topLevelAt(const QPoint & pos) const
-{
-    if (QWaylandWindow::fixedToplevelPositions) {
-        Q_UNUSED(pos);
-        return nullptr;
-    }
-
-    return QPlatformScreen::topLevelAt(pos);
-}
-
 Qt::ScreenOrientation QWaylandScreen::orientation() const
 {
     return m_orientation;

@@ -60,7 +60,13 @@ private:
     mutable QOpenGLFramebufferObject *m_contentFBO = nullptr;
 
     QSurfaceFormat m_format;
+    // Size used in the last call to wl_egl_window_resize
     QSize m_requestedSize;
+
+    // Size of the buffer used by QWaylandWindow
+    // This is always written to from the main thread, potentially read from the rendering thread
+    QReadWriteLock m_bufferSizeLock;
+    QSize m_bufferSize;
 };
 
 }

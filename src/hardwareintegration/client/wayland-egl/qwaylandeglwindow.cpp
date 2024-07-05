@@ -50,6 +50,15 @@ QWaylandWindow::WindowType QWaylandEglWindow::windowType() const
 
 void QWaylandEglWindow::ensureSize()
 {
+    // this is always called on the main thread
+    QMargins margins = mWindowDecoration ? frameMargins() : QMargins{};
+    QRect rect = geometry();
+    QSize sizeWithMargins = (rect.size() + QSize(margins.left() + margins.right(), margins.top() + margins.bottom())) * scale();
+    {
+        QWriteLocker lock(&m_bufferSizeLock);
+        m_bufferSize = sizeWithMargins;
+    }
+
     updateSurface(false);
 }
 
@@ -60,14 +69,17 @@ void QWaylandEglWindow::setGeometry(const QRect &rect)
     // we're now getting a resize we don't want to create it again.
     // Just resize the wl_egl_window, the EGLSurface will be created
     // the next time makeCurrent is called.
-    updateSurface(false);
+    ensureSize();
 }
 
 void QWaylandEglWindow::updateSurface(bool create)
 {
-    QMargins margins = mWindowDecoration ? frameMargins() : QMargins{};
-    QRect rect = geometry();
-    QSize sizeWithMargins = (rect.size() + QSize(margins.left() + margins.right(), margins.top() + margins.bottom())) * scale();
+
+    QSize sizeWithMargins;
+    {
+        QReadLocker lock(&m_bufferSizeLock);
+        sizeWithMargins = m_bufferSize;
+    }
 
     // wl_egl_windows must have both width and height > 0
     // mesa's egl returns NULL if we try to create a, invalid wl_egl_window, however not all EGL

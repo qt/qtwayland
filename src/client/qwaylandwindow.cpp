@@ -60,8 +60,6 @@ QWaylandWindow::QWaylandWindow(QWindow *window, QWaylandDisplay *display)
             mFrameCallbackTimeout = frameCallbackTimeout;
     }
 
-    static WId id = 1;
-    mWindowId = id++;
     initializeWlSurface();
 
     connect(this, &QWaylandWindow::wlSurfaceCreated, this,
@@ -351,7 +349,7 @@ QWaylandWindow *QWaylandWindow::fromWlSurface(::wl_surface *surface)
 
 WId QWaylandWindow::winId() const
 {
-    return mWindowId;
+    return reinterpret_cast<WId>(wlSurface());
 }
 
 void QWaylandWindow::setParent(const QPlatformWindow *parent)

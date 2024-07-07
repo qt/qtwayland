@@ -382,10 +382,19 @@ void QWaylandTabletToolV2::zwp_tablet_tool_v2_frame(uint32_t time)
         qreal rotation = m_pending.rotation;
         int z = int(m_pending.distance);
 
-        QWindowSystemInterface::handleTabletEvent(window, timestamp, this, localPosition, globalPosition,
-                                                  buttons, pressure,
-                                                  xTilt, yTilt, tangentialPressure, rotation, z,
-                                                  m_tabletSeat->seat()->modifiers());
+        // do not use localPosition here since that is in Qt window coordinates
+        // but we need surface coordinates to include the decoration
+        bool decorationHandledEvent = waylandWindow->handleTabletEventDecoration(
+                m_tabletSeat->seat(), m_pending.surfacePosition,
+                window->mapToGlobal(m_pending.surfacePosition) + delta, buttons,
+                m_tabletSeat->seat()->modifiers());
+
+        if (!decorationHandledEvent) {
+            QWindowSystemInterface::handleTabletEvent(window, timestamp, this, localPosition, globalPosition,
+                                                      buttons, pressure,
+                                                      xTilt, yTilt, tangentialPressure, rotation, z,
+                                                      m_tabletSeat->seat()->modifiers());
+        }
     }
 
     m_applied = m_pending;

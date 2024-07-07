@@ -657,6 +657,9 @@ void QWaylandDisplay::registry_global(uint32_t id, const QString &interface, uin
 #if QT_CONFIG(tabletevent)
     } else if (interface == QLatin1String(QWaylandTabletManagerV2::interface()->name)) {
         mGlobals.tabletManager.reset(new QWaylandTabletManagerV2(this, id, qMin(1, int(version))));
+        for (QWaylandInputDevice *inputDevice : std::as_const(mInputDevices))
+            inputDevice->setTabletSeat(
+                    new QWaylandTabletSeatV2(mGlobals.tabletManager.get(), inputDevice));
 #endif
     } else if (interface == QLatin1String(QWaylandPointerGestures::interface()->name)) {
         mGlobals.pointerGestures.reset(new QWaylandPointerGestures(this, id, 1));

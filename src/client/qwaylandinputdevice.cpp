@@ -558,6 +558,18 @@ void QWaylandInputDevice::setTextInput(QWaylandTextInputInterface *textInput)
     mTextInput.reset(textInput);
 }
 
+#if QT_CONFIG(tabletevent)
+void QWaylandInputDevice::setTabletSeat(QWaylandTabletSeatV2 *tabletSeat)
+{
+    mTabletSeat.reset(tabletSeat);
+}
+
+QWaylandTabletSeatV2 *QWaylandInputDevice::tabletSeat() const
+{
+    return mTabletSeat.get();
+}
+#endif
+
 void QWaylandInputDevice::setTextInputMethod(QWaylandTextInputMethod *textInputMethod)
 {
     mTextInputMethod.reset(textInputMethod);

@@ -13,16 +13,6 @@ namespace QtWaylandClient {
 QWaylandTabletManagerV2::QWaylandTabletManagerV2(QWaylandDisplay *display, uint id, uint version)
     : zwp_tablet_manager_v2(display->wl_registry(), id, qMin(version, uint(1)))
 {
-    // Create tabletSeats for all seats.
-    // This only works if we get the manager after all seats
-    const auto seats = display->inputDevices();
-    for (auto *seat : seats)
-        createTabletSeat(seat);
-}
-
-QWaylandTabletSeatV2 *QWaylandTabletManagerV2::createTabletSeat(QWaylandInputDevice *seat)
-{
-    return new QWaylandTabletSeatV2(this, seat);
 }
 
 QWaylandTabletSeatV2::QWaylandTabletSeatV2(QWaylandTabletManagerV2 *manager, QWaylandInputDevice *seat)

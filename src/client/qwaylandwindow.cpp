@@ -1360,6 +1360,16 @@ bool QWaylandWindow::touchDragDecoration(QWaylandInputDevice *inputDevice, const
     return mWindowDecoration->handleTouch(inputDevice, local, global, state, mods);
 }
 
+bool QWaylandWindow::handleTabletEventDecoration(QWaylandInputDevice *inputDevice,
+                                                 const QPointF &local, const QPointF &global,
+                                                 Qt::MouseButtons buttons,
+                                                 Qt::KeyboardModifiers modifiers)
+{
+    if (!mWindowDecorationEnabled)
+        return false;
+    return mWindowDecoration->handleMouse(inputDevice, local, global, buttons, modifiers);
+}
+
 void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e)
 {
     if (mMousePressedInContentArea == Qt::NoButton &&

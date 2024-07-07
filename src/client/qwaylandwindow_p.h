@@ -180,6 +180,9 @@ public:
 
     bool touchDragDecoration(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,
                              QEventPoint::State state, Qt::KeyboardModifiers mods);
+    bool handleTabletEventDecoration(QWaylandInputDevice *inputDevice, const QPointF &local,
+                                     const QPointF &global, Qt::MouseButtons buttons,
+                                     Qt::KeyboardModifiers modifiers);
 
     bool createDecoration();
 

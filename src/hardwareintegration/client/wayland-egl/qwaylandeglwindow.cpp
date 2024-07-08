@@ -100,20 +100,28 @@ void QWaylandEglWindow::updateSurface(bool create)
                 m_resize = true;
             }
         } else if (create && mSurface) {
-            m_waylandEglWindow = wl_egl_window_create(mSurface->object(), sizeWithMargins.width(), sizeWithMargins.height());
-            m_requestedSize = sizeWithMargins;
-        }
+            wl_egl_window *eglWindow = wl_egl_window_create(mSurface->object(), sizeWithMargins.width(), sizeWithMargins.height());
+            if (Q_UNLIKELY(!eglWindow)) {
+                qCWarning(lcQpaWayland, "Could not create wl_egl_window with size %dx%d\n", sizeWithMargins.width(), sizeWithMargins.height());
+                return;
+            }
 
-        if (!m_eglSurface && m_waylandEglWindow && create) {
-            EGLNativeWindowType eglw = (EGLNativeWindowType) m_waylandEglWindow;
             QSurfaceFormat fmt = window()->requestedFormat();
             if (mDisplay->supportsWindowDecoration())
                 fmt.setAlphaBufferSize(8);
             EGLConfig eglConfig = q_configFromGLFormat(m_clientBufferIntegration->eglDisplay(), fmt);
             m_format = q_glFormatFromConfig(m_clientBufferIntegration->eglDisplay(), eglConfig, fmt);
-            m_eglSurface = eglCreateWindowSurface(m_clientBufferIntegration->eglDisplay(), eglConfig, eglw, 0);
-            if (Q_UNLIKELY(m_eglSurface == EGL_NO_SURFACE))
+
+            EGLSurface eglSurface = eglCreateWindowSurface(m_clientBufferIntegration->eglDisplay(), eglConfig, (EGLNativeWindowType) eglWindow, 0);
+            if (Q_UNLIKELY(eglSurface == EGL_NO_SURFACE)) {
                 qCWarning(lcQpaWayland, "Could not create EGL surface (EGL error 0x%x)\n", eglGetError());
+                wl_egl_window_destroy(eglWindow);
+                return;
+            }
+
+            m_waylandEglWindow = eglWindow;
+            m_eglSurface = eglSurface;
+            m_requestedSize = sizeWithMargins;
         }
     }
 }

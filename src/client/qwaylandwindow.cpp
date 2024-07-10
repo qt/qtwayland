@@ -1428,7 +1428,7 @@ void QWaylandWindow::handleScreensChanged()
 {
     QPlatformScreen *newScreen = calculateScreenFromSurfaceEvents();
 
-    if (newScreen->screen() == window()->screen())
+    if (!newScreen || newScreen->screen() == window()->screen())
         return;
 
     QWindowSystemInterface::handleWindowScreenChanged(window(), newScreen->QPlatformScreen::screen());

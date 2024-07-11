@@ -10,14 +10,14 @@
 
 \summary {Generates client-side C++ bindings for a Wayland protocol .XML file}
 
-\cmakecommandsince 6.0
-
 The command is defined in the \c WaylandClient component of the \c Qt6 package, which
 can be loaded like so:
 
 \badcode
 find_package(Qt6 REQUIRED COMPONENTS WaylandClient)
 \endcode
+
+\cmakecommandsince 6.0
 
 \section1 Synopsis
 

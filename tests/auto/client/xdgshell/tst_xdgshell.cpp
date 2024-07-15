@@ -111,11 +111,30 @@ void tst_xdgshell::configureSize()
 
     const QSize configureSize(60, 40);
 
+    int pendingSerial;
     exec([&] {
         xdgToplevel()->sendCompleteConfigure(configureSize);
+        pendingSerial = xdgSurface()->m_pendingConfigureSerials.last();
     });
 
     QTRY_COMPARE(configureSpy.size(), 1);
+    QCOMPARE(configureSpy.last()[0].toInt(), pendingSerial);
+
+    exec([&] {
+        Buffer *buffer = xdgToplevel()->surface()->m_committed.buffer;
+        QVERIFY(buffer);
+        QCOMPARE(buffer->size(), configureSize);
+    });
+
+    // clients should always respond with a new ack configure + commit
+    // even if nothing changed
+    exec([&] {
+        xdgToplevel()->sendCompleteConfigure(configureSize);
+        pendingSerial = xdgSurface()->m_pendingConfigureSerials.last();
+    });
+
+    QTRY_COMPARE(configureSpy.size(), 2);
+    QCOMPARE(configureSpy.last()[0].toInt(), pendingSerial);
 
     exec([&] {
         Buffer *buffer = xdgToplevel()->surface()->m_committed.buffer;

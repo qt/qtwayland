@@ -59,13 +59,23 @@ XdgSurface::XdgSurface(XdgWmBase *xdgWmBase, Surface *surface, wl_client *client
     QVERIFY(!surface->m_pending.buffer);
     QVERIFY(!surface->m_committed.buffer);
     connect(this, &XdgSurface::toplevelCreated, xdgWmBase, &XdgWmBase::toplevelCreated, Qt::DirectConnection);
-    connect(surface, &Surface::attach, this, &XdgSurface::verifyConfigured);
+    connect(surface, &Surface::attach, this, [this]  (void *buffer) {
+        if (buffer)
+            verifyConfigured();
+    });
     connect(surface, &Surface::commit, this, [this] {
         m_committed = m_pending;
 
         if (m_ackedConfigureSerial != m_committedConfigureSerial) {
             m_committedConfigureSerial = m_ackedConfigureSerial;
             emit configureCommitted(m_committedConfigureSerial);
+        }
+    });
+    connect(surface, &Surface::bufferCommitted, this, [this] {
+        if (m_surface->m_committed.buffer && (m_toplevel || m_popup)) {
+            m_surface->map();
+        } else {
+            m_surface->unmap();
         }
     });
 }

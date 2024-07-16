@@ -84,6 +84,7 @@ public:
     void send_leave(::wl_resource *output) = delete;
 
     void map();
+    void unmap();
     bool isMapped() const { return m_mapped; }
     WlShellSurface *wlShellSurface() const { return m_wlShellSurface; }
 

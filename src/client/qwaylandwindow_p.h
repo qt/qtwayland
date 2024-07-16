@@ -354,6 +354,7 @@ private:
     void initializeWlSurface();
     bool shouldCreateShellSurface() const;
     bool shouldCreateSubSurface() const;
+    void resetSurfaceRole();
     QPlatformScreen *calculateScreenFromSurfaceEvents() const;
     void setOpaqueArea(const QRegion &opaqueArea);
     bool isOpaque() const;

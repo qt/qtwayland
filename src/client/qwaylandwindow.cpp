@@ -73,9 +73,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window, QWaylandDisplay *display)
 QWaylandWindow::~QWaylandWindow()
 {
     mWindowDecoration.reset();
-
-    if (mSurface)
-        reset();
+    reset();
 
     const QWindow *parent = window();
     const auto tlw = QGuiApplication::topLevelWindows();
@@ -99,19 +97,18 @@ void QWaylandWindow::ensureSize()
 
 void QWaylandWindow::initWindow()
 {
+    /**
+     * Cleanup window state just before showing.
+     * This is necessary because a render could still have been running and commit
+     * after the window was last hidden and the last null was attached
+     *
+     * When we port to synchronous delivery it should be possible to drop this
+     */
+    mSurface->attach(nullptr, 0, 0);
+    mSurface->commit();
+
     if (window()->type() == Qt::Desktop)
         return;
-
-    if (!mSurface) {
-        initializeWlSurface();
-    }
-
-    if (mDisplay->fractionalScaleManager() && qApp->highDpiScaleFactorRoundingPolicy() == Qt::HighDpiScaleFactorRoundingPolicy::PassThrough) {
-        mFractionalScale.reset(new QWaylandFractionalScale(mDisplay->fractionalScaleManager()->get_fractional_scale(mSurface->object())));
-
-        connect(mFractionalScale.data(), &QWaylandFractionalScale::preferredScaleChanged,
-                this, &QWaylandWindow::updateScale);
-    }
 
     if (shouldCreateSubSurface()) {
         Q_ASSERT(!mSubSurfaceWindow);
@@ -189,12 +186,6 @@ void QWaylandWindow::initWindow()
         }
     }
 
-    // The fractional scale manager check is needed to work around Gnome < 36 where viewports don't work
-    // Right now viewports are only necessary when a fractional scale manager is used
-    if (display()->viewporter() && display()->fractionalScaleManager()) {
-        mViewport.reset(new QWaylandViewport(display()->createViewport(this)));
-    }
-
     // Enable high-dpi rendering. Scale() returns the screen scale factor and will
     // typically be integer 1 (normal-dpi) or 2 (high-dpi). Call set_buffer_scale()
     // to inform the compositor that high-resolution buffers will be provided.
@@ -236,6 +227,18 @@ void QWaylandWindow::initializeWlSurface()
         mSurface->m_window = this;
     }
     emit wlSurfaceCreated();
+
+    if (mDisplay->fractionalScaleManager() && qApp->highDpiScaleFactorRoundingPolicy() == Qt::HighDpiScaleFactorRoundingPolicy::PassThrough) {
+        mFractionalScale.reset(new QWaylandFractionalScale(mDisplay->fractionalScaleManager()->get_fractional_scale(mSurface->object())));
+
+        connect(mFractionalScale.data(), &QWaylandFractionalScale::preferredScaleChanged,
+                this, &QWaylandWindow::updateScale);
+    }
+    // The fractional scale manager check is needed to work around Gnome < 36 where viewports don't work
+    // Right now viewports are only necessary when a fractional scale manager is used
+    if (display()->viewporter() && display()->fractionalScaleManager()) {
+        mViewport.reset(new QWaylandViewport(display()->createViewport(this)));
+    }
 }
 
 void QWaylandWindow::setShellIntegration(QWaylandShellIntegration *shellIntegration)
@@ -282,23 +285,12 @@ void QWaylandWindow::endFrame()
 
 void QWaylandWindow::reset()
 {
-    closeChildPopups();
-
-    if (mTopPopup == this)
-        mTopPopup = mTransientParent && (mTransientParent->window()->type() == Qt::Popup) ? mTransientParent : nullptr;
+    resetSurfaceRole();
 
     if (mSurface) {
         {
             QWriteLocker lock(&mSurfaceLock);
             invalidateSurface();
-            if (mTransientParent)
-                mTransientParent->removeChildPopup(this);
-            delete mShellSurface;
-            mShellSurface = nullptr;
-            emit surfaceRoleDestroyed();
-            delete mSubSurfaceWindow;
-            mSubSurfaceWindow = nullptr;
-            mTransientParent = nullptr;
             mSurface.reset();
             mViewport.reset();
             mFractionalScale.reset();
@@ -306,27 +298,8 @@ void QWaylandWindow::reset()
         emit wlSurfaceDestroyed();
     }
 
-    {
-        QMutexLocker lock(&mFrameSyncMutex);
-        if (mFrameCallback) {
-            wl_callback_destroy(mFrameCallback);
-            mFrameCallback = nullptr;
-        }
 
-        mFrameCallbackElapsedTimer.invalidate();
-        mWaitingForFrameCallback = false;
-    }
-    if (mFrameCallbackCheckIntervalTimerId != -1) {
-        killTimer(mFrameCallbackCheckIntervalTimerId);
-        mFrameCallbackCheckIntervalTimerId = -1;
-    }
-
-    mFrameCallbackTimedOut = false;
-    mWaitingToApplyConfigure = false;
-    mCanResize = true;
-    mResizeDirty = false;
     mScale = std::nullopt;
-    mExposed = false;
     mOpaqueArea = QRegion();
     mMask = QRegion();
 
@@ -334,6 +307,39 @@ void QWaylandWindow::reset()
     mTransparentInputRegion = false;
 
     mDisplay->handleWindowDestroyed(this);
+}
+
+void QWaylandWindow::resetSurfaceRole()
+{
+     // Old Reset
+    closeChildPopups();
+
+    if (mTopPopup == this)
+        mTopPopup = mTransientParent && (mTransientParent->window()->type() == Qt::Popup) ? mTransientParent : nullptr;
+    if (mTransientParent)
+        mTransientParent->removeChildPopup(this);
+    mTransientParent = nullptr;
+    delete std::exchange(mShellSurface, nullptr);
+    delete std::exchange(mSubSurfaceWindow, nullptr);
+    emit surfaceRoleDestroyed();
+    {
+        QMutexLocker lock(&mFrameSyncMutex);
+        if (mFrameCallback) {
+            wl_callback_destroy(mFrameCallback);
+            mFrameCallback = nullptr;
+        }
+        mFrameCallbackElapsedTimer.invalidate();
+        mWaitingForFrameCallback = false;
+    }
+    if (mFrameCallbackCheckIntervalTimerId != -1) {
+        killTimer(mFrameCallbackCheckIntervalTimerId);
+        mFrameCallbackCheckIntervalTimerId = -1;
+    }
+    mFrameCallbackTimedOut = false;
+    mWaitingToApplyConfigure = false;
+    mCanResize = true;
+    mResizeDirty = false;
+    mExposed = false;
 }
 
 QWaylandWindow *QWaylandWindow::fromWlSurface(::wl_surface *surface)
@@ -584,7 +590,9 @@ void QWaylandWindow::setVisible(bool visible)
         // make sure isExposed is false during the next event dispatch
         mExposed = false;
         sendExposeEvent(QRect());
-        reset();
+        resetSurfaceRole();
+        mSurface->attach(nullptr, 0, 0);
+        mSurface->commit();
     }
 }
 
@@ -1826,12 +1834,13 @@ void QWaylandWindow::removeChildPopup(QWaylandWindow *child)
 void QWaylandWindow::closeChildPopups() {
     while (!mChildPopups.isEmpty()) {
         auto popup = mChildPopups.takeLast();
-        popup->reset();
+        popup->resetSurfaceRole();
     }
 }
 
 void QWaylandWindow::reinit()
 {
+    initializeWlSurface();
     if (window()->isVisible()) {
         initWindow();
         if (hasPendingUpdateRequest())

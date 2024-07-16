@@ -270,7 +270,7 @@ protected:
     QWaylandSubSurface *mSubSurfaceWindow = nullptr;
     QList<QWaylandSubSurface *> mChildren;
 
-    QWaylandAbstractDecoration *mWindowDecoration = nullptr;
+    std::unique_ptr<QWaylandAbstractDecoration> mWindowDecoration;
     bool mWindowDecorationEnabled = false;
     bool mMouseEventsInContentArea = false;
     Qt::MouseButtons mMousePressedInContentArea = Qt::NoButton;

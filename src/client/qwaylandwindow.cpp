@@ -72,7 +72,7 @@ QWaylandWindow::QWaylandWindow(QWindow *window, QWaylandDisplay *display)
 
 QWaylandWindow::~QWaylandWindow()
 {
-    delete mWindowDecoration;
+    mWindowDecoration.reset();
 
     if (mSurface)
         reset();
@@ -1064,8 +1064,7 @@ bool QWaylandWindow::createDecoration()
     if (decoration && !decorationPluginFailed) {
         if (!mWindowDecorationEnabled) {
             if (mWindowDecoration) {
-                delete mWindowDecoration;
-                mWindowDecoration = nullptr;
+                mWindowDecoration.reset();
             }
 
             QStringList decorations = QWaylandDecorationFactory::keys();
@@ -1104,8 +1103,7 @@ bool QWaylandWindow::createDecoration()
             if (targetKey.isEmpty())
                 targetKey = decorations.first(); // first come, first served.
 
-
-            mWindowDecoration = QWaylandDecorationFactory::create(targetKey, QStringList());
+            mWindowDecoration.reset(QWaylandDecorationFactory::create(targetKey, QStringList()));
             if (!mWindowDecoration) {
                 qWarning() << "Could not create decoration from factory! Running with no decorations.";
                 decorationPluginFailed = true;
@@ -1137,12 +1135,12 @@ bool QWaylandWindow::createDecoration()
         window()->requestUpdate();
     }
 
-    return mWindowDecoration;
+    return mWindowDecoration.get();
 }
 
 QWaylandAbstractDecoration *QWaylandWindow::decoration() const
 {
-    return mWindowDecorationEnabled ? mWindowDecoration : nullptr;
+    return mWindowDecorationEnabled ? mWindowDecoration.get() : nullptr;
 }
 
 static QWaylandWindow *closestShellSurfaceWindow(QWindow *window)

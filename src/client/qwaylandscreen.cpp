@@ -346,7 +346,7 @@ void QWaylandScreen::zxdg_output_v1_logical_size(int32_t width, int32_t height)
 void QWaylandScreen::zxdg_output_v1_done()
 {
     if (Q_UNLIKELY(mWaylandDisplay->xdgOutputManager()->version() >= 3))
-        qWarning(lcQpaWayland) << "zxdg_output_v1.done received on version 3 or newer, this is most likely a bug in the compositor";
+        qCWarning(lcQpaWayland) << "zxdg_output_v1.done received on version 3 or newer, this is most likely a bug in the compositor";
 
     mProcessedEvents |= XdgOutputDoneEvent;
     if (mInitialized)
@@ -358,7 +358,7 @@ void QWaylandScreen::zxdg_output_v1_done()
 void QWaylandScreen::zxdg_output_v1_name(const QString &name)
 {
     if (Q_UNLIKELY(mInitialized))
-        qWarning(lcQpaWayland) << "zxdg_output_v1.name received after output has been initialized, this is most likely a bug in the compositor";
+        qCWarning(lcQpaWayland) << "zxdg_output_v1.name received after output has been initialized, this is most likely a bug in the compositor";
 
     mOutputName = name;
     mProcessedEvents |= XdgOutputNameEvent;

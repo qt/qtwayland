@@ -234,7 +234,7 @@ QWaylandGLContext::QWaylandGLContext(EGLDisplay eglDisplay, QWaylandDisplay *dis
             m_supportNonBlockingSwap = supportNonBlockingSwap != 0;
     }
     if (!m_supportNonBlockingSwap) {
-        qWarning(lcQpaWayland) << "Non-blocking swap buffers not supported."
+        qCWarning(lcQpaWayland) << "Non-blocking swap buffers not supported."
                                << "Subsurface rendering can be affected."
                                << "It may also cause the event loop to freeze in some situations";
     }

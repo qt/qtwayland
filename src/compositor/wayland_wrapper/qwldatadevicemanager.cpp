@@ -59,8 +59,10 @@ void DataDeviceManager::setCurrentSelectionSource(DataSource *source)
 
 void DataDeviceManager::sourceDestroyed(DataSource *source)
 {
-    if (m_current_selection_source == source)
+    if (m_current_selection_source == source) {
         finishReadFromClient();
+        m_current_selection_source = nullptr;
+    }
 }
 
 void DataDeviceManager::retain()
@@ -162,6 +164,15 @@ void DataDeviceManager::overrideSelection(const QMimeData &mimeData)
 
     m_compositorOwnsSelection = true;
 
+    if (m_current_selection_source) {
+        finishReadFromClient();
+        m_current_selection_source->cancel();
+        // wl_data_source::cancelled will destroy it and
+        // it will make m_current_selection_source as nullptr.
+        // But it will immediately affect the selection here.
+        m_current_selection_source = nullptr;
+    }
+
     QWaylandSeat *dev = m_compositor->defaultSeat();
     QWaylandSurface *focusSurface = dev->keyboardFocus();
     if (focusSurface)
@@ -175,7 +186,7 @@ bool DataDeviceManager::offerFromCompositorToClient(wl_resource *clientDataDevic
         return false;
 
     wl_client *client = wl_resource_get_client(clientDataDeviceResource);
-    //qDebug("compositor offers %d types to %p", m_retainedData.formats().count(), client);
+    //qDebug("compositor offers %d types to %p", int(m_retainedData.formats().count()), client);
 
     struct wl_resource *selectionOffer =
              wl_resource_create(client, &wl_data_offer_interface, -1, 0);

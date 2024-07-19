@@ -14,19 +14,26 @@ qhp.QtWaylandCompositor.virtualFolder                       = qtwaylandcomposito
 qhp.QtWaylandCompositor.indexTitle                          = Qt Wayland Compositor
 qhp.QtWaylandCompositor.indexRoot                           =
 
-qhp.QtWaylandCompositor.subprojects                         = qmltypes classes examples
+qhp.QtWaylandCompositor.subprojects = manual examples qmltypes classes
+
 qhp.QtWaylandCompositor.subprojects.qmltypes.title          = QML Types
 qhp.QtWaylandCompositor.subprojects.qmltypes.indexTitle     = Qt Wayland Compositor QML Types
 qhp.QtWaylandCompositor.subprojects.qmltypes.selectors      = qmlclass
 qhp.QtWaylandCompositor.subprojects.qmltypes.sortPages      = true
+
 qhp.QtWaylandCompositor.subprojects.classes.title           = C++ Classes
 qhp.QtWaylandCompositor.subprojects.classes.indexTitle      = Qt Wayland Compositor C++ Classes
 qhp.QtWaylandCompositor.subprojects.classes.selectors       = class fake:headerfile
 qhp.QtWaylandCompositor.subprojects.classes.sortPages       = true
+
 qhp.QtWaylandCompositor.subprojects.examples.title          = Examples
 qhp.QtWaylandCompositor.subprojects.examples.indexTitle     = Qt Wayland Compositor Examples
-qhp.QtWaylandCompositor.subprojects.examples.selectors      = fake:example
+qhp.QtWaylandCompositor.subprojects.examples.selectors      = example
 qhp.QtWaylandCompositor.subprojects.examples.sortPages      = true
+
+qhp.QtWaylandCompositor.subprojects.manual.title = Qt Wayland Compositor
+qhp.QtWaylandCompositor.subprojects.manual.indexTitle = Qt Wayland Compositor module topics
+qhp.QtWaylandCompositor.subprojects.manual.type = manual
 
 depends += qtcore \
            qtqml \
@@ -63,6 +70,9 @@ manifestmeta.highlighted.names = \
 navigation.landingpage    = "Qt Wayland Compositor"
 navigation.qmltypespage   = "Qt Wayland Compositor QML Types"
 navigation.cppclassespage = "Qt Wayland Compositor C++ Classes"
+# Auto-generate navigation linking based on "Qt Wayland Compositor module topics":
+navigation.toctitles = "Qt Wayland Compositor module topics"
+navigation.toctitles.inclusive = false
 
 # Enforce zero documentation warnings
 warninglimit = 0

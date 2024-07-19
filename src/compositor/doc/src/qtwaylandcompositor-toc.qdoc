@@ -1,0 +1,16 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page qtwaylandcompositor-toc.html
+    \title Qt Wayland Compositor module topics
+
+    The following list has links to all the individual topics (HTML files)
+    in the Qt Wayland Compositor module.
+
+    \list
+    \li \l {Shell Extensions - Qt Wayland Compositor}{Shell Extensions}
+    \li \l {Porting to Qt 6 - Qt Wayland Compositor}{Upgrading from Qt 5}
+    \endlist
+
+*/

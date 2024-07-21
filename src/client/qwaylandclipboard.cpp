@@ -76,13 +76,11 @@ void QWaylandClipboard::setMimeData(QMimeData *data, QClipboard::Mode mode)
     if (data && data->hasFormat(plain) && !data->hasFormat(utf8))
         data->setData(utf8, data->data(plain));
 
-    if (m_clientClipboard[mode]) {
-        if (m_clientClipboard[QClipboard::Clipboard] != m_clientClipboard[QClipboard::Selection])
-            delete m_clientClipboard[mode];
-        m_clientClipboard[mode] = nullptr;
-    }
-
-    m_clientClipboard[mode] = data;
+    auto oldMimeData = std::exchange(m_clientClipboard[mode], data);
+    const auto otherMode = mode == QClipboard::Clipboard ? QClipboard::Selection
+                                                         : QClipboard::Clipboard;
+    if (oldMimeData != m_clientClipboard[otherMode])
+        delete oldMimeData;
 
     switch (mode) {
     case QClipboard::Clipboard:

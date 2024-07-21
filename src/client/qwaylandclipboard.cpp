@@ -67,6 +67,9 @@ void QWaylandClipboard::setMimeData(QMimeData *data, QClipboard::Mode mode)
         return;
     }
 
+    if (data && m_clientClipboard[mode] == data) // Already set before?
+        return;
+
     static const QString plain = QStringLiteral("text/plain");
     static const QString utf8 = QStringLiteral("text/plain;charset=utf-8");
 

@@ -98,7 +98,8 @@ void QWaylandEglWindow::updateSurface(bool create)
     } else {
         QReadLocker locker(&mSurfaceLock);
         if (m_waylandEglWindow) {
-            int current_width, current_height;
+            int current_width = 0;
+            int current_height = 0;
             static bool disableResizeCheck = qgetenv("QT_WAYLAND_DISABLE_RESIZECHECK").toInt();
 
             if (!disableResizeCheck) {

@@ -431,6 +431,13 @@ void QWaylandWindow::setGeometry_helper(const QRect &rect)
 
 void QWaylandWindow::setGeometry(const QRect &r)
 {
+    auto rect = r;
+    if (fixedToplevelPositions && !QPlatformWindow::parent() && window()->type() != Qt::Popup
+        && window()->type() != Qt::ToolTip) {
+        rect.moveTo(screen()->geometry().topLeft());
+    }
+    setGeometry_helper(rect);
+
     if (mShellSurface) {
         if (!mInResizeFromApplyConfigure) {
             const QRect frameGeometry = r.marginsAdded(clientSideMargins()).marginsRemoved(windowContentMargins());
@@ -440,13 +447,6 @@ void QWaylandWindow::setGeometry(const QRect &r)
                 mShellSurface->setWindowGeometry(frameGeometry);
         }
     }
-
-    auto rect = r;
-    if (fixedToplevelPositions && !QPlatformWindow::parent() && window()->type() != Qt::Popup
-        && window()->type() != Qt::ToolTip) {
-        rect.moveTo(screen()->geometry().topLeft());
-    }
-    setGeometry_helper(rect);
 
     if (window()->isVisible() && rect.isValid()) {
         if (mWindowDecorationEnabled)

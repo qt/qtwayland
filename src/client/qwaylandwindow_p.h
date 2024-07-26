@@ -93,7 +93,7 @@ public:
     void setVisible(bool visible) override;
     void setParent(const QPlatformWindow *parent) override;
 
-    QString windowTitle() const;
+    QString windowTitle() const override;
     void setWindowTitle(const QString &title) override;
 
     inline QIcon windowIcon() const;

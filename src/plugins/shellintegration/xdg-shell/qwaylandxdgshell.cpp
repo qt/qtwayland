@@ -105,7 +105,9 @@ void QWaylandXdgSurface::Toplevel::applyConfigure()
     if (!surfaceSize.isEmpty())
         m_xdgSurface->m_window->resizeFromApplyConfigure(surfaceSize.grownBy(m_xdgSurface->m_window->windowContentMargins()));
 
-    qCDebug(lcQpaWayland) << "Applied pending xdg_toplevel configure event:" << m_applied.size << m_applied.states;
+    qCDebug(lcQpaWayland) << "Applied pending xdg_toplevel configure event:" << m_applied.size
+                          << "and" << m_applied.states
+                          << ", suspended " << m_applied.suspended;
 }
 
 bool QWaylandXdgSurface::Toplevel::wantsDecorations()
@@ -164,7 +166,8 @@ void QWaylandXdgSurface::Toplevel::xdg_toplevel_configure(int32_t width, int32_t
         }
     }
     qCDebug(lcQpaWayland) << "Received xdg_toplevel.configure with" << m_pending.size
-                          << "and" << m_pending.states;
+                          << "and" << m_pending.states
+                          << ", suspended " << m_pending.suspended;
 }
 
 void QWaylandXdgSurface::Toplevel::xdg_toplevel_close()

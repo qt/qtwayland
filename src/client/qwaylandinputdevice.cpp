@@ -826,15 +826,7 @@ void QWaylandInputDevice::Pointer::invalidateFocus()
 
 void QWaylandInputDevice::Pointer::releaseButtons()
 {
-    if (mButtons == Qt::NoButton)
-        return;
-
-    mButtons = Qt::NoButton;
-
-    if (auto *window = focusWindow()) {
-        ReleaseEvent e(focusWindow(), mParent->mTime, mSurfacePos, mGlobalPos, mButtons, mLastButton, mParent->modifiers());
-        window->handleMouse(mParent, e);
-    }
+    setFrameEvent(new ReleaseEvent(nullptr, mParent->mTime, mSurfacePos, mGlobalPos, Qt::NoButton, Qt::NoButton, mParent->modifiers()));
 }
 
 void QWaylandInputDevice::Pointer::leavePointers()

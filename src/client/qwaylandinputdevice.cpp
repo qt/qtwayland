@@ -735,12 +735,12 @@ public:
     {}
 };
 
-void QWaylandInputDevice::Pointer::pointer_leave(uint32_t time, struct wl_surface *surface)
+void QWaylandInputDevice::Pointer::pointer_leave(uint32_t serial, struct wl_surface *surface)
 {
     invalidateFocus();
     mButtons = Qt::NoButton;
 
-    mParent->mTime = time;
+    mParent->mSerial = serial;
 
     // The event may arrive after destroying the window, indicated by
     // a null surface.
@@ -1266,9 +1266,9 @@ void QWaylandInputDevice::Keyboard::keyboard_keymap(uint32_t format, int32_t fd,
 #endif
 }
 
-void QWaylandInputDevice::Keyboard::keyboard_enter(uint32_t time, struct wl_surface *surface, struct wl_array *keys)
+void QWaylandInputDevice::Keyboard::keyboard_enter(uint32_t serial, struct wl_surface *surface, struct wl_array *keys)
 {
-    Q_UNUSED(time);
+    Q_UNUSED(serial);
     Q_UNUSED(keys);
 
     if (!surface) {
@@ -1292,9 +1292,9 @@ void QWaylandInputDevice::Keyboard::keyboard_enter(uint32_t time, struct wl_surf
     mParent->mQDisplay->handleKeyboardFocusChanged(mParent);
 }
 
-void QWaylandInputDevice::Keyboard::keyboard_leave(uint32_t time, struct wl_surface *surface)
+void QWaylandInputDevice::Keyboard::keyboard_leave(uint32_t serial, struct wl_surface *surface)
 {
-    Q_UNUSED(time);
+    Q_UNUSED(serial);
 
     if (!surface) {
         // Either a compositor bug, or a race condition with wl_surface.destroy, ignore the event.

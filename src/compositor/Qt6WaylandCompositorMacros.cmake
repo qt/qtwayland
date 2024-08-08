@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 function(qt6_generate_wayland_protocol_server_sources target)
-    cmake_parse_arguments(arg "" "__QT_INTERNAL_WAYLAND_INCLUDE_DIR" "FILES" ${ARGN})
+    cmake_parse_arguments(arg "PUBLIC_CODE;PRIVATE_CODE" "__QT_INTERNAL_WAYLAND_INCLUDE_DIR" "FILES" ${ARGN})
     if(DEFINED arg_UNPARSED_ARGUMENTS)
         message(FATAL_ERROR "Unknown arguments were passed to qt6_generate_wayland_protocol_server_sources: (${arg_UNPARSED_ARGUMENTS}).")
     endif()
@@ -22,6 +22,12 @@ function(qt6_generate_wayland_protocol_server_sources target)
     string(REPLACE "." "_" module_define_infix "${module_define_infix}")
     set(build_macro "QT_BUILD_${module_define_infix}_LIB")
 
+    if (arg_PRIVATE_CODE)
+        set(wayland_scanner_code_option "private-code")
+    else()
+        set(wayland_scanner_code_option "public-code")
+    endif()
+
     foreach(protocol_file IN LISTS arg_FILES)
         get_filename_component(protocol_name "${protocol_file}" NAME_WLE)
 
@@ -38,7 +44,7 @@ function(qt6_generate_wayland_protocol_server_sources target)
         )
         add_custom_command(
             OUTPUT "${waylandscanner_code_output}"
-            COMMAND Wayland::Scanner --include-core-only public-code < "${protocol_file}" > "${waylandscanner_code_output}"
+            COMMAND Wayland::Scanner --include-core-only ${wayland_scanner_code_option} < "${protocol_file}" > "${waylandscanner_code_output}"
             DEPENDS ${protocol_file} Wayland::Scanner
         )
 

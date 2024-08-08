@@ -25,9 +25,10 @@ qt_internal_add_plugin(LibHybrisEglServerBufferIntegrationPlugin
         Qt::WaylandCompositorPrivate
 )
 
-qt6_generate_wayland_protocol_server_sources(LibHybrisEglServerBufferIntegrationPlugin
+_qt_internal_generate_wayland_protocol_server_sources(LibHybrisEglServerBufferIntegrationPlugin
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../hardwareintegration/compositor/libhybris-egl-server/../../../extensions/libhybris-egl-server-buffer.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../extensions/server-buffer-extension.xml
 )
 
 #### Keys ignored in scope 1:.:.:libhybris-egl-server.pro:<TRUE>:

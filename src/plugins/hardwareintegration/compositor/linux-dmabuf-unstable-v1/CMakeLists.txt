@@ -26,7 +26,7 @@ qt_internal_add_plugin(QWaylandDmabufClientBufferIntegrationPlugin
         Qt::WaylandCompositorPrivate
 )
 
-qt6_generate_wayland_protocol_server_sources(QWaylandDmabufClientBufferIntegrationPlugin
+_qt_internal_generate_wayland_protocol_server_sources(QWaylandDmabufClientBufferIntegrationPlugin
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../hardwareintegration/compositor/linux-dmabuf-unstable-v1/../../../3rdparty/protocol/linux-dmabuf-unstable-v1.xml
 )

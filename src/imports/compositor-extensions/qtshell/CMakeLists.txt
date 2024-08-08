@@ -29,7 +29,7 @@ qt_internal_add_qml_module(WaylandCompositorQtShell
         Qt::WaylandCompositorPrivate
 )
 
-qt6_generate_wayland_protocol_server_sources(WaylandCompositorQtShell
+_qt_internal_generate_wayland_protocol_server_sources(WaylandCompositorQtShell
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../extensions/qt-shell-unstable-v1.xml
 )

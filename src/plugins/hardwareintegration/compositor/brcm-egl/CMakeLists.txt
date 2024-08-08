@@ -25,7 +25,7 @@ qt_internal_add_plugin(QWaylandBrcmClientBufferIntegrationPlugin
         Qt::WaylandCompositorPrivate
 )
 
-qt6_generate_wayland_protocol_server_sources(QWaylandBrcmClientBufferIntegrationPlugin
+_qt_internal_generate_wayland_protocol_server_sources(QWaylandBrcmClientBufferIntegrationPlugin
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../hardwareintegration/compositor/brcm-egl/../../../extensions/brcm.xml
 )

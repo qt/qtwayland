@@ -24,9 +24,10 @@ qt_internal_add_plugin(DrmEglServerBufferIntegrationPlugin
         Wayland::Server
 )
 
-qt6_generate_wayland_protocol_server_sources(DrmEglServerBufferIntegrationPlugin
+_qt_internal_generate_wayland_protocol_server_sources(DrmEglServerBufferIntegrationPlugin
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../hardwareintegration/compositor/drm-egl-server/../../../extensions/drm-egl-server-buffer.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../extensions/server-buffer-extension.xml
 )
 
 #### Keys ignored in scope 1:.:.:drm-egl-server.pro:<TRUE>:

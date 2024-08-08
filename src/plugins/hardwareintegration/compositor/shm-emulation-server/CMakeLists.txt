@@ -23,9 +23,10 @@ qt_internal_add_plugin(ShmServerBufferIntegrationPlugin
         Wayland::Server
 )
 
-qt6_generate_wayland_protocol_server_sources(ShmServerBufferIntegrationPlugin
+_qt_internal_generate_wayland_protocol_server_sources(ShmServerBufferIntegrationPlugin
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../hardwareintegration/compositor/shm-emulation-server/../../../extensions/shm-emulation-server-buffer.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../extensions/server-buffer-extension.xml
 )
 
 #### Keys ignored in scope 1:.:.:shm-emulation-server.pro:<TRUE>:

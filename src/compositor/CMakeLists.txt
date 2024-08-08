@@ -105,7 +105,7 @@ qt_internal_add_resource(WaylandCompositor "compositor"
         ${compositor_resource_files}
 )
 
-qt6_generate_wayland_protocol_server_sources(WaylandCompositor
+_qt_internal_generate_wayland_protocol_server_sources(WaylandCompositor
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/idle-inhibit-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/ivi-application.xml

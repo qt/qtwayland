@@ -61,3 +61,6 @@ tests/auto/compositor/compositor/tst_compositor
 *.pro.user*
 *.qmlproject.user*
 CMakeLists.txt.user*
+
+# VSCode config files
+.vscode/

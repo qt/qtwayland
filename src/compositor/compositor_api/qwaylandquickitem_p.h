@@ -118,6 +118,9 @@ public:
         inputEventsEnabled = enable;
     }
 
+    void handleDragEnded(QWaylandSeat *seat);
+    void handleDragUpdate(QWaylandSeat *seat, const QPointF &globalPosition);
+
     bool shouldSendInputEvents() const { return view->surface() && inputEventsEnabled; }
     qreal scaleFactor() const;
 

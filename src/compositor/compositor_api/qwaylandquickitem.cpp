@@ -423,6 +423,35 @@ private:
     QWaylandBufferRef m_ref;
 };
 
+void QWaylandQuickItemPrivate::handleDragUpdate(QWaylandSeat *seat, const QPointF &globalPosition)
+{
+#if QT_CONFIG(draganddrop)
+    Q_Q(QWaylandQuickItem);
+    QWaylandQuickOutput *currentOutput = qobject_cast<QWaylandQuickOutput *>(q->view()->output());
+    //TODO: also check if dragging onto other outputs
+    QWaylandQuickItem *targetItem = qobject_cast<QWaylandQuickItem *>(currentOutput->pickClickableItem(q->mapToScene(globalPosition)));
+    QWaylandSurface *targetSurface = targetItem ? targetItem->surface() : nullptr;
+    if (targetSurface) {
+        QPointF position = q->mapToItem(targetItem, globalPosition);
+        QPointF surfacePosition = targetItem->mapToSurface(position);
+        seat->drag()->dragMove(targetSurface, surfacePosition);
+    }
+#else
+    Q_UNUSED(seat);
+    Q_UNUSED(globalPosition);
+#endif // QT_CONFIG(draganddrop)
+}
+
+void QWaylandQuickItemPrivate::handleDragEnded(QWaylandSeat *seat)
+{
+#if QT_CONFIG(draganddrop)
+    isDragging = false;
+    seat->drag()->drop();
+#else
+    Q_UNUSED(seat);
+#endif // QT_CONFIG(draganddrop)
+}
+
 /*!
  * \qmltype WaylandQuickItem
  * \instantiates QWaylandQuickItem
@@ -609,20 +638,9 @@ void QWaylandQuickItem::mouseMoveEvent(QMouseEvent *event)
     Q_D(QWaylandQuickItem);
     if (d->shouldSendInputEvents()) {
         QWaylandSeat *seat = compositor()->seatFor(event);
-#if QT_CONFIG(draganddrop)
         if (d->isDragging) {
-            QWaylandQuickOutput *currentOutput = qobject_cast<QWaylandQuickOutput *>(view()->output());
-            //TODO: also check if dragging onto other outputs
-            QWaylandQuickItem *targetItem = qobject_cast<QWaylandQuickItem *>(currentOutput->pickClickableItem(mapToScene(event->position())));
-            QWaylandSurface *targetSurface = targetItem ? targetItem->surface() : nullptr;
-            if (targetSurface) {
-                QPointF position = mapToItem(targetItem, event->position());
-                QPointF surfacePosition = targetItem->mapToSurface(position);
-                seat->drag()->dragMove(targetSurface, surfacePosition);
-            }
-        } else
-#endif // QT_CONFIG(draganddrop)
-        {
+            d->handleDragUpdate(seat, event->position());
+        } else {
             seat->sendMouseMoveEvent(d->view.data(), mapToSurface(event->position()), event->scenePosition());
             d->hoverPos = event->position();
         }
@@ -640,15 +658,10 @@ void QWaylandQuickItem::mouseReleaseEvent(QMouseEvent *event)
     Q_D(QWaylandQuickItem);
     if (d->shouldSendInputEvents()) {
         QWaylandSeat *seat = compositor()->seatFor(event);
-#if QT_CONFIG(draganddrop)
-        if (d->isDragging) {
-            d->isDragging = false;
-            seat->drag()->drop();
-        } else
-#endif
-        {
+        if (d->isDragging)
+            d->handleDragEnded(seat);
+        else
             seat->sendMouseReleaseEvent(event->button());
-        }
     } else {
         emit mouseRelease();
         event->ignore();
@@ -786,6 +799,9 @@ void QWaylandQuickItem::touchEvent(QTouchEvent *event)
             return;
         }
 
+        if (event->type() == QEvent::TouchUpdate && d->isDragging)
+            d->handleDragUpdate(seat, pointPos);
+
         event->accept();
         if (seat->mouseFocus() != d->view.data()) {
             seat->sendMouseMoveEvent(d->view.data(), pointPos, mapToScene(pointPos));
@@ -795,6 +811,8 @@ void QWaylandQuickItem::touchEvent(QTouchEvent *event)
         if (event->type() == QEvent::TouchBegin) {
             d->touchingSeats.append(seat);
         } else if (event->type() == QEvent::TouchEnd || event->type() == QEvent::TouchCancel) {
+            if (d->isDragging)
+                d->handleDragEnded(seat);
             d->touchingSeats.removeOne(seat);
         }
 

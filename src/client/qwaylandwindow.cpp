@@ -1442,8 +1442,8 @@ void QWaylandWindow::handleScreensChanged()
 void QWaylandWindow::updateScale()
 {
     if (mFractionalScale) {
-        auto preferredScale = mFractionalScale->preferredScale().value_or(1.0);
-        preferredScale = std::max(1.0, preferredScale);
+        qreal preferredScale = mFractionalScale->preferredScale().value_or(1.0);
+        preferredScale = std::max<qreal>(1.0, preferredScale);
         Q_ASSERT(mViewport);
         setScale(preferredScale);
         return;

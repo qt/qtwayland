@@ -36,9 +36,9 @@ qt_generate_wayland_protocol_server_sources() creates the build steps to run \c{
 code in C and C++ for implementing the protocols, and the resulting files will be built as part
 of the \c target.
 
-The options \c{PUBLIC_CODE} and \c{PRIVATE_CODE} correspond to the \c{public-code} and
-\c{private-code} options of \c{wayland-scanner}. For backwards compatibility \c{PUBLIC_CODE} is the
-default but generally \c{PRIVATE_CODE} is strongly recommended.
+The options \c{PUBLIC_CODE} and \c{PRIVATE_CODE} (added in Qt 6.8) correspond to the \c{public-code}
+and \c{private-code} options of \c{wayland-scanner}. For backwards compatibility \c{PUBLIC_CODE} is
+the default but generally \c{PRIVATE_CODE} is strongly recommended.
 
 qt_generate_wayland_protocol_server_sources() will trigger generation of the files needed to
 implement the compositor side of the protocol.

@@ -12,7 +12,7 @@ QT_BEGIN_NAMESPACE
 
 /*!
  * \qmltype XdgOutputManagerV1
- * \instantiates QWaylandXdgOutputManagerV1
+ * \nativetype QWaylandXdgOutputManagerV1
  * \inqmlmodule QtWayland.Compositor.XdgShell
  * \since 5.14
  * \brief Provides an extension for describing outputs in a desktop oriented fashion.

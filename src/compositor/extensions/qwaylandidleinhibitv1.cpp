@@ -25,7 +25,7 @@ QT_BEGIN_NAMESPACE
 
 /*!
     \qmltype IdleInhibitManagerV1
-    \instantiates QWaylandIdleInhibitManagerV1
+    \nativetype QWaylandIdleInhibitManagerV1
     \inqmlmodule QtWayland.Compositor
     \since 5.14
     \brief Provides an extension that allows to inhibit the idle behavior of the compositor.

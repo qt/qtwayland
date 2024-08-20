@@ -39,7 +39,7 @@ void QWaylandTextInputManagerV3Private::zwp_text_input_manager_v3_get_text_input
   \preliminary
 
   \qmltype TextInputManagerV3
-  \instantiates QWaylandTextInputManagerV3
+  \nativetype QWaylandTextInputManagerV3
   \inqmlmodule QtWayland.Compositor
   \brief Provides access to input methods in the compositor.
 

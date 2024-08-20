@@ -92,7 +92,7 @@ void QWaylandQtShellChromePrivate::updateDecorationInteraction(quint8 flags,
 
 /*!
  * \qmltype QtShellChrome
- * \instantiates QWaylandQtShellChrome
+ * \nativetype QWaylandQtShellChrome
  * \inqmlmodule QtWayland.Compositor.QtShell
  * \since 6.3
  * \brief Provides default window manager functionality for use with the \c qt-shell extension.

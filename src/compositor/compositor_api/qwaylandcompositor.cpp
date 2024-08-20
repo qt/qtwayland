@@ -478,7 +478,7 @@ QWaylandSeat *QWaylandCompositorPrivate::seatFor(QInputEvent *inputEvent)
 
 /*!
   \qmltype WaylandCompositor
-  \instantiates QWaylandCompositor
+  \nativetype QWaylandCompositor
   \inqmlmodule QtWayland.Compositor
   \since 5.8
   \brief Manages the Wayland display server.

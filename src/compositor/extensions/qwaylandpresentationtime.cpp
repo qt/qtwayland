@@ -13,7 +13,7 @@ QT_BEGIN_NAMESPACE
 
 /*!
  * \qmltype PresentationTime
- * \instantiates QWaylandPresentationTime
+ * \nativetype QWaylandPresentationTime
  * \inqmlmodule QtWayland.Compositor.PresentationTime
  * \since 6.3
  * \brief Provides tracking the timing when a frame is presented on screen.

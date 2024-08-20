@@ -40,7 +40,7 @@
 
 /*!
  * \qmltype ShellSurface
- * \instantiates QWaylandShellSurface
+ * \nativetype QWaylandShellSurface
  * \inqmlmodule QtWayland.Compositor
  * \since 5.8
  * \brief Provides a common interface for surface roles specified by shell extensions.

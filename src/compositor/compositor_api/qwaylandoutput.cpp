@@ -223,7 +223,7 @@ QWaylandOutput::QWaylandOutput()
 
 /*!
    \qmltype WaylandOutput
-   \instantiates QWaylandOutput
+   \nativetype QWaylandOutput
    \inqmlmodule QtWayland.Compositor
    \since 5.8
    \brief Provides access to a displayable area managed by the compositor.

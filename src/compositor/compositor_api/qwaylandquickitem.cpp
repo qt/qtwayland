@@ -454,7 +454,7 @@ void QWaylandQuickItemPrivate::handleDragEnded(QWaylandSeat *seat)
 
 /*!
  * \qmltype WaylandQuickItem
- * \instantiates QWaylandQuickItem
+ * \nativetype QWaylandQuickItem
  * \inqmlmodule QtWayland.Compositor
  * \since 5.8
  * \brief Provides a Qt Quick item that represents a WaylandView.

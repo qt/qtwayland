@@ -110,7 +110,7 @@ void QWaylandXdgShellPrivate::xdg_wm_base_pong(Resource *resource, uint32_t seri
 
 /*!
  * \qmltype XdgShell
- * \instantiates QWaylandXdgShell
+ * \nativetype QWaylandXdgShell
  * \inqmlmodule QtWayland.Compositor.XdgShell
  * \since 5.12
  * \brief Provides an extension for desktop-style user interfaces.
@@ -438,7 +438,7 @@ void QWaylandXdgSurfacePrivate::xdg_surface_set_window_geometry(QtWaylandServer:
 
 /*!
  * \qmltype XdgSurface
- * \instantiates QWaylandXdgSurface
+ * \nativetype QWaylandXdgSurface
  * \inqmlmodule QtWayland.Compositor.XdgShell
  * \since 5.12
  * \brief XdgSurface provides desktop-style compositor-specific features to an xdg surface.
@@ -688,7 +688,7 @@ QWaylandQuickShellIntegration *QWaylandXdgSurface::createIntegration(QWaylandQui
 
 /*!
  * \qmltype XdgToplevel
- * \instantiates QWaylandXdgToplevel
+ * \nativetype QWaylandXdgToplevel
  * \inqmlmodule QtWayland.Compositor.XdgShell
  * \since 5.12
  * \brief XdgToplevel represents the toplevel window specific parts of an xdg surface.
@@ -1554,7 +1554,7 @@ void QWaylandXdgToplevelPrivate::xdg_toplevel_set_minimized(QtWaylandServer::xdg
 
 /*!
  * \qmltype XdgPopup
- * \instantiates QWaylandXdgPopup
+ * \nativetype QWaylandXdgPopup
  * \inqmlmodule QtWayland.Compositor.XdgShell
  * \since 5.12
  * \brief XdgPopup represents the popup specific parts of and xdg surface.

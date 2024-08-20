@@ -24,7 +24,7 @@ QT_BEGIN_NAMESPACE
 
 /*!
  * \qmltype QtShell
- * \instantiates QWaylandQtShell
+ * \nativetype QWaylandQtShell
  * \inqmlmodule QtWayland.Compositor.QtShell
  * \since 6.3
  * \brief Provides a shell extension for Qt applications running on a Qt Wayland Compositor.
@@ -206,7 +206,7 @@ QWaylandSurfaceRole QWaylandQtShellSurfacePrivate::s_role("qt_shell_surface");
 
 /*!
  * \qmltype QtShellSurface
- * \instantiates QWaylandQtShellSurface
+ * \nativetype QWaylandQtShellSurface
  * \inqmlmodule QtWayland.Compositor.QtShell
  * \since 6.3
  * \brief Provides a simple way to identify and resize a surface.

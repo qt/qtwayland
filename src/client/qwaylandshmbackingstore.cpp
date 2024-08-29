@@ -208,16 +208,23 @@ void QWaylandShmBackingStore::endPaint()
 
 void QWaylandShmBackingStore::flush(QWindow *window, const QRegion &region, const QPoint &offset)
 {
+    Q_UNUSED(offset)
     // Invoked when the window is of type RasterSurface or when the window is
     // RasterGLSurface and there are no child widgets requiring OpenGL composition.
 
     // For the case of RasterGLSurface + having to compose, the composeAndFlush() is
     // called instead. The default implementation from QPlatformBackingStore is sufficient
     // however so no need to reimplement that.
-
-
-    Q_UNUSED(window);
-    Q_UNUSED(offset);
+    if (window != this->window()) {
+        auto waylandWindow = static_cast<QWaylandWindow *>(window->handle());
+        auto newBuffer = new QWaylandShmBuffer(mDisplay, window->size(), mBackBuffer->image()->format(), mBackBuffer->scale());
+        newBuffer->setDeleteOnRelease(true);
+        QRect sourceRect(window->position(), window->size());
+        QPainter painter(newBuffer->image());
+        painter.drawImage(QPoint(0, 0), *mBackBuffer->image(), sourceRect);
+        waylandWindow->safeCommit(newBuffer, region);
+        return;
+    }
 
     if (mPainting) {
         mPendingRegion |= region;

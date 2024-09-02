@@ -446,7 +446,7 @@ void QWaylandInputDevice::seat_capabilities(uint32_t caps)
             mTouchPadDevice = new QPointingDevice(
                         QLatin1String("touchpad"), 0, QInputDevice::DeviceType::TouchPad,
                         QPointingDevice::PointerType::Finger, QInputDevice::Capability::Position,
-                        MaxTouchPoints, 0, QString(), QPointingDeviceUniqueId(), this);
+                        MaxTouchPoints, 0, mSeatName, QPointingDeviceUniqueId(), this);
             QWindowSystemInterface::registerInputDevice(mTouchPadDevice);
             mPointerGesturePinch.reset(pointerGestures->createPointerGesturePinch(this));
             mPointerGesturePinch->init(pointerGestures->get_pinch_gesture(mPointer->object()));
@@ -467,7 +467,7 @@ void QWaylandInputDevice::seat_capabilities(uint32_t caps)
             mTouchDevice = new QPointingDevice(
                         QLatin1String("some touchscreen"), 0, QInputDevice::DeviceType::TouchScreen,
                         QPointingDevice::PointerType::Finger, QInputDevice::Capability::Position,
-                        MaxTouchPoints, 0,QString(), QPointingDeviceUniqueId(), this);
+                        MaxTouchPoints, 0, mSeatName, QPointingDeviceUniqueId(), this);
             QWindowSystemInterface::registerInputDevice(mTouchDevice);
         }
     } else if (!(caps & WL_SEAT_CAPABILITY_TOUCH) && mTouch) {

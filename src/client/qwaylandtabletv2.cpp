@@ -348,10 +348,13 @@ void QWaylandTabletToolV2::zwp_tablet_tool_v2_button(uint32_t serial, uint32_t b
 void QWaylandTabletToolV2::zwp_tablet_tool_v2_frame(uint32_t time)
 {
     if (!m_pending.proximitySurface) {
-        qCWarning(lcQpaWayland) << "Can't send tablet event with no proximity surface, ignoring";
         if (m_applied.enteredSurface) {
+            // leaving proximity
             QWindowSystemInterface::handleTabletEnterLeaveProximityEvent(nullptr, this, false);
             m_pending = State(); // Don't leave pressure etc. lying around when we enter the next surface
+            m_applied = State();
+        } else {
+            qCWarning(lcQpaWayland) << "Can't send tablet event with no proximity surface, ignoring";
         }
         return;
     }

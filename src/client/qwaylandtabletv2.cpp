@@ -95,7 +95,7 @@ void QWaylandTabletSeatV2::zwp_tablet_seat_v2_pad_added(zwp_tablet_pad_v2 *id)
 QWaylandTabletV2::QWaylandTabletV2(::zwp_tablet_v2 *tablet, const QString &seatName)
     : QPointingDevice(u"unknown"_s, -1, DeviceType::Stylus, PointerType::Pen,
                       Capability::Position | Capability::Hover,
-                      1, 1)
+                      1, 1, seatName)
     , QtWayland::zwp_tablet_v2(tablet)
 {
     qCDebug(lcQpaInputDevices) << "new tablet on seat" << seatName;
@@ -142,7 +142,7 @@ void QWaylandTabletV2::zwp_tablet_v2_removed()
 QWaylandTabletToolV2::QWaylandTabletToolV2(QWaylandTabletSeatV2 *tabletSeat, ::zwp_tablet_tool_v2 *tool)
     : QPointingDevice(u"tool"_s, -1, DeviceType::Stylus, PointerType::Pen,
                       Capability::Position | Capability::Hover,
-                      1, 1)
+                      1, 1, tabletSeat->seat()->seatname())
     , QtWayland::zwp_tablet_tool_v2(tool)
     , m_tabletSeat(tabletSeat)
 {

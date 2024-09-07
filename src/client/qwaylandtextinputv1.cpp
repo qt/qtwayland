@@ -4,6 +4,7 @@
 
 #include "qwaylandtextinputv1_p.h"
 
+#include "qwaylandinputcontext_p.h"
 #include "qwaylandwindow_p.h"
 #include "qwaylandinputmethodeventbuilder_p.h"
 
@@ -20,8 +21,6 @@
 #include <QLocale>
 
 QT_BEGIN_NAMESPACE
-
-Q_DECLARE_LOGGING_CATEGORY(qLcQpaInputMethods)
 
 namespace QtWaylandClient {
 

@@ -4,7 +4,6 @@
 
 #include "qwaylandinputcontext_p.h"
 
-#include <QLoggingCategory>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QTextCharFormat>
 #include <QtGui/QWindow>

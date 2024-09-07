@@ -18,6 +18,7 @@
 
 #include <qpa/qplatforminputcontext.h>
 
+#include <QLoggingCategory>
 #include <QPointer>
 
 #include "qwaylandtextinputinterface_p.h"
@@ -30,6 +31,8 @@ struct wl_callback;
 struct wl_callback_listener;
 
 QT_BEGIN_NAMESPACE
+
+Q_DECLARE_LOGGING_CATEGORY(qLcQpaInputMethods)
 
 namespace QtWaylandClient {
 

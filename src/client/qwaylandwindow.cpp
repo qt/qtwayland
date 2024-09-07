@@ -1087,8 +1087,8 @@ bool QWaylandWindow::createDecoration()
             if (targetKey.isEmpty()) {
                 auto unixServices = dynamic_cast<QGenericUnixServices *>(
                     QGuiApplicationPrivate::platformIntegration()->services());
-                const QByteArray currentDesktop = unixServices->desktopEnvironment();
-                if (currentDesktop == "GNOME") {
+                const QList<QByteArray> desktopNames = unixServices->desktopEnvironment().split(':');
+                if (desktopNames.contains("GNOME")) {
                     if (decorations.contains("adwaita"_L1))
                         targetKey = "adwaita"_L1;
                     else if (decorations.contains("gnome"_L1))

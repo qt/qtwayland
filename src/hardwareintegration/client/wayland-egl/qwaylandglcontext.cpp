@@ -261,6 +261,31 @@ void QWaylandGLContext::destroyTemporaryOffscreenSurface(EGLSurface eglSurface)
     m_wlSurface = nullptr;
 }
 
+void QWaylandGLContext::runGLChecks()
+{
+    bool ok;
+    const int doneCurrentWorkAround = qEnvironmentVariableIntValue("QT_WAYLAND_ENABLE_DONECURRENT_WORKAROUND", &ok);
+    if (ok) {
+        m_doneCurrentWorkAround = doneCurrentWorkAround != 0;
+        if (m_doneCurrentWorkAround)
+            qCDebug(lcQpaWayland) << "Enabling doneCurrent() workaround on request.";
+        else
+            qCDebug(lcQpaWayland) << "Disabling doneCurrent() workaround on request.";
+
+    } else {
+        // Note that even though there is an EGL context current here,
+        // QOpenGLContext and QOpenGLFunctions are not yet usable at this stage.
+        const char *renderer = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+        if (renderer && strstr(renderer, "Mali")) {
+            qCDebug(lcQpaWayland) << "Enabling doneCurrent() workaround for Mali GPU."
+                                  << "Set QT_WAYLAND_ENABLE_DONECURRENT_WORKAROUND=0 to disable.";
+            m_doneCurrentWorkAround = true;
+        }
+    }
+
+    QEGLPlatformContext::runGLChecks();
+}
+
 QWaylandGLContext::~QWaylandGLContext()
 {
     QObject::disconnect(m_reconnectionWatcher);
@@ -280,6 +305,11 @@ void QWaylandGLContext::beginFrame()
 void QWaylandGLContext::endFrame()
 {
     Q_ASSERT(m_currentWindow != nullptr);
+    if (m_doneCurrentWorkAround) {
+        doneCurrent();
+        QOpenGLContextPrivate::setCurrentContext(nullptr);
+    }
+
     if (m_supportNonBlockingSwap)
         m_currentWindow->endFrame();
 }

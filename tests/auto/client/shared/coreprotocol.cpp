@@ -240,8 +240,9 @@ void Output::output_bind_resource(QtWaylandServer::wl_output::Resource *resource
 }
 
 // Seat stuff
-Seat::Seat(CoreCompositor *compositor, uint capabilities, int version) //TODO: check version
+Seat::Seat(CoreCompositor *compositor, uint capabilities, int version, const QString &seatName) //TODO: check version
     : QtWaylandServer::wl_seat(compositor->m_display, version)
+    , m_seatName(seatName)
     , m_compositor(compositor)
 {
     setCapabilities(capabilities);

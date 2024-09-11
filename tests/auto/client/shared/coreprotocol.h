@@ -302,12 +302,14 @@ class Seat : public Global, public QtWaylandServer::wl_seat
 {
     Q_OBJECT
 public:
-    explicit Seat(CoreCompositor *compositor, uint capabilities = Seat::capability_pointer | Seat::capability_keyboard | Seat::capability_touch, int version = 9);
+    explicit Seat(CoreCompositor *compositor, uint capabilities = Seat::capability_pointer | Seat::capability_keyboard | Seat::capability_touch, int version = 9, const QString &seatName = QLatin1String("seat0"));
     ~Seat() override;
     void send_capabilities(Resource *resource, uint capabilities) = delete; // Use wrapper instead
     void send_capabilities(uint capabilities) = delete; // Use wrapper instead
     void setCapabilities(uint capabilities);
 
+
+    QString m_seatName;
     CoreCompositor *m_compositor = nullptr;
 
     Pointer* m_pointer = nullptr;
@@ -325,6 +327,7 @@ protected:
     void seat_bind_resource(Resource *resource) override
     {
         wl_seat::send_capabilities(resource->handle, m_capabilities);
+        wl_seat::send_name(resource->handle, m_seatName); // in any normal world this is would be set before capabilities. Weston does it after
     }
 
     void seat_get_pointer(Resource *resource, uint32_t id) override;

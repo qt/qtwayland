@@ -1495,7 +1495,7 @@ void QWaylandWindow::setScale(qreal newScale)
 #if QT_CONFIG(cursor)
 void QWaylandWindow::setMouseCursor(QWaylandInputDevice *device, const QCursor &cursor)
 {
-    int fallbackBufferScale = int(devicePixelRatio());
+    int fallbackBufferScale = qCeil(devicePixelRatio());
     device->setCursor(&cursor, {}, fallbackBufferScale);
 }
 

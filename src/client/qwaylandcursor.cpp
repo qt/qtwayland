@@ -317,7 +317,7 @@ void QWaylandCursor::changeCursor(QCursor *cursor, QWindow *window)
     if (cursor && cursor->shape() == Qt::BitmapCursor)
         bitmapBuffer = cursorBitmapBuffer(mDisplay, cursor);
 
-    int fallbackOutputScale = int(window->devicePixelRatio());
+    int fallbackOutputScale = qCeil(window->handle()->devicePixelRatio());
     const auto seats = mDisplay->inputDevices();
     for (auto *seat : seats)
         seat->setCursor(cursor, bitmapBuffer, fallbackOutputScale);

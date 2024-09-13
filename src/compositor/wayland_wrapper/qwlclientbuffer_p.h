@@ -19,6 +19,7 @@
 #include <QtGui/qopengl.h>
 #include <QImage>
 #include <QAtomicInt>
+#include <QScopedPointer>
 
 #include <QtWaylandCompositor/QWaylandSurface>
 #include <QtWaylandCompositor/QWaylandBufferRef>
@@ -107,7 +108,7 @@ public:
     QOpenGLTexture *toOpenGlTexture(int plane = 0) override;
 
 private:
-    QOpenGLTexture *m_shmTexture = nullptr;
+    QScopedPointer<QOpenGLTexture> m_shmTexture;
 #endif
 };
 

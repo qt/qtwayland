@@ -128,7 +128,7 @@ QOpenGLTexture *SharedMemoryBuffer::toOpenGlTexture(int plane)
     Q_UNUSED(plane);
     if (isSharedMemory()) {
         if (!m_shmTexture) {
-            m_shmTexture = new QOpenGLTexture(QOpenGLTexture::Target2D);
+            m_shmTexture.reset(new QOpenGLTexture(QOpenGLTexture::Target2D));
             m_shmTexture->create();
         }
         if (m_textureDirty) {
@@ -153,7 +153,7 @@ QOpenGLTexture *SharedMemoryBuffer::toOpenGlTexture(int plane)
             if (isCommitted())
                 sendRelease();
         }
-        return m_shmTexture;
+        return m_shmTexture.data();
     }
     return nullptr;
 }

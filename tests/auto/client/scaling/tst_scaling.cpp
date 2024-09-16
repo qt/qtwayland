@@ -70,6 +70,8 @@ void tst_scaling::scaledWindow()
         QCOMPARE(vp->m_destination, QSize(200, 200));
     });
 
+    surfaceCommitSpy.clear();
+
     // dynamic scale change
     exec([&] {
         QVERIFY(fractionalScale());
@@ -77,8 +79,8 @@ void tst_scaling::scaledWindow()
     });
     QTRY_COMPARE(window.devicePixelRatio(), 2.5);
     QCOMPARE(window.size(), QSize(200,200));
+    QTRY_VERIFY(surfaceCommitSpy.count());
 
-    QVERIFY(surfaceCommitSpy.wait());
     exec([&] {
         Buffer *buffer = xdgToplevel()->surface()->m_committed.buffer;
         QVERIFY(buffer);

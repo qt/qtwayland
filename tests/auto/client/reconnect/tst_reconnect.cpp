@@ -128,6 +128,8 @@ void tst_WaylandReconnect::triggerReconnect()
 {
     const int socketFd = wl_socket_get_fd(m_socket);
     m_comp.reset(new DefaultCompositor(CoreCompositor::Default, dup(socketFd)));
+    m_comp->m_config.autoEnter = false;
+
     QTest::qWait(50); //we need to spin the main loop to actually reconnect
 }
 

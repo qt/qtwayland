@@ -94,7 +94,8 @@ private:
 # endif
 #endif
     QScopedPointer<QWaylandKeymap> keymap;
-
+    int name = 0;
+    static int max_name;
 };
 
 QT_END_NAMESPACE

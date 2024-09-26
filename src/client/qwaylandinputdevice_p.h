@@ -149,7 +149,6 @@ protected:
     uint32_t mId = -1;
     uint32_t mCaps = 0;
     QString mSeatName;
-    bool mSeatNameKnown = false;
 
 #if QT_CONFIG(cursor)
     struct CursorState {
@@ -187,7 +186,6 @@ protected:
 
     void seat_capabilities(uint32_t caps) override;
     void seat_name(const QString &name) override;
-    void maybeRegisterInputDevices();
     void handleTouchPoint(int id, QEventPoint::State state, const QPointF &surfacePosition = QPoint());
 
     QPointingDevice *mTouchDevice = nullptr;

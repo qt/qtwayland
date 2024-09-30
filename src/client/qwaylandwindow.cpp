@@ -1188,6 +1188,9 @@ QWaylandWindow *QWaylandWindow::guessTransientParent() const
 
 void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e)
 {
+    // There's currently no way to get info about the actual hardware device in use.
+    // At least we get the correct seat.
+    const QPointingDevice *device = QPointingDevice::primaryPointingDevice(inputDevice->seatname());
     if (e.type == QEvent::Leave) {
         if (mWindowDecorationEnabled) {
             if (mMouseEventsInContentArea)
@@ -1211,10 +1214,10 @@ void QWaylandWindow::handleMouse(QWaylandInputDevice *inputDevice, const QWaylan
             case QEvent::MouseButtonPress:
             case QEvent::MouseButtonRelease:
             case QEvent::MouseMove:
-                QWindowSystemInterface::handleMouseEvent(window(), e.timestamp, e.local, e.global, e.buttons, e.button, e.type, e.modifiers);
+                QWindowSystemInterface::handleMouseEvent(window(), e.timestamp, device, e.local, e.global, e.buttons, e.button, e.type, e.modifiers);
                 break;
             case QEvent::Wheel:
-                QWindowSystemInterface::handleWheelEvent(window(), e.timestamp, e.local, e.global,
+                QWindowSystemInterface::handleWheelEvent(window(), e.timestamp, device, e.local, e.global,
                                                          e.pixelDelta, e.angleDelta, e.modifiers,
                                                          e.phase, e.source, e.inverted);
                 break;
@@ -1378,6 +1381,9 @@ bool QWaylandWindow::handleTabletEventDecoration(QWaylandInputDevice *inputDevic
 
 void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDevice, const QWaylandPointerEvent &e)
 {
+    // There's currently no way to get info about the actual hardware device in use.
+    // At least we get the correct seat.
+    const QPointingDevice *device = QPointingDevice::primaryPointingDevice(inputDevice->seatname());
     if (mMousePressedInContentArea == Qt::NoButton &&
         mWindowDecoration->handleMouse(inputDevice, e.local, e.global, e.buttons, e.modifiers)) {
         if (mMouseEventsInContentArea) {
@@ -1411,10 +1417,10 @@ void QWaylandWindow::handleMouseEventWithDecoration(QWaylandInputDevice *inputDe
             case QEvent::MouseButtonPress:
             case QEvent::MouseButtonRelease:
             case QEvent::MouseMove:
-                QWindowSystemInterface::handleMouseEvent(window(), e.timestamp, localTranslated, globalTranslated, e.buttons, e.button, e.type, e.modifiers);
+                QWindowSystemInterface::handleMouseEvent(window(), e.timestamp, device, localTranslated, globalTranslated, e.buttons, e.button, e.type, e.modifiers);
                 break;
             case QEvent::Wheel: {
-                QWindowSystemInterface::handleWheelEvent(window(), e.timestamp,
+                QWindowSystemInterface::handleWheelEvent(window(), e.timestamp, device,
                                                          localTranslated, globalTranslated,
                                                          e.pixelDelta, e.angleDelta, e.modifiers,
                                                          e.phase, e.source, e.inverted);

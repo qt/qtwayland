@@ -129,6 +129,14 @@ void QWaylandTextInputv3::zwp_text_input_v3_done(uint32_t serial)
         return;
     }
 
+    if ((m_pendingPreeditString == m_currentPreeditString)
+           && (m_pendingCommitString.isEmpty() && m_pendingDeleteBeforeText == 0
+                                               && m_pendingDeleteAfterText == 0)) {
+        // Current done doesn't need additional updates
+        m_pendingPreeditString.clear();
+        return;
+    }
+
     qCDebug(qLcQpaWaylandTextInput) << Q_FUNC_INFO << "PREEDIT" << m_pendingPreeditString.text << m_pendingPreeditString.cursorBegin;
 
     QList<QInputMethodEvent::Attribute> attributes;

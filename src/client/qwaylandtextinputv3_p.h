@@ -74,6 +74,11 @@ private:
             cursorBegin = 0;
             cursorEnd = 0;
         }
+        friend bool operator==(const PreeditInfo& lhs, const PreeditInfo& rhs) {
+            return (lhs.text == rhs.text)
+                    && (lhs.cursorBegin == rhs.cursorBegin)
+                    && (lhs.cursorEnd == rhs.cursorEnd);
+        }
     };
 
     PreeditInfo m_pendingPreeditString;

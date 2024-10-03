@@ -28,6 +28,7 @@ QWaylandEglWindow::QWaylandEglWindow(QWindow *window, QWaylandDisplay *display)
         m_clientBufferIntegration = static_cast<QWaylandEglClientBufferIntegration *>(
                 mDisplay->clientBufferIntegration());
     });
+    ensureSize();
 }
 
 QWaylandEglWindow::~QWaylandEglWindow()

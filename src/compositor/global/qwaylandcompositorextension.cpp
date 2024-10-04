@@ -171,6 +171,8 @@ void QWaylandObject::addExtension(QWaylandCompositorExtension *extension)
 
 void QWaylandObject::removeExtension(QWaylandCompositorExtension *extension)
 {
+    if (!extension->isInitialized())
+        return;
     Q_ASSERT(extension_vector.contains(extension));
     extension_vector.removeOne(extension);
 }

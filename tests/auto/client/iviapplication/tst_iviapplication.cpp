@@ -69,7 +69,7 @@ void tst_WaylandClientIviApplication::configure()
     // Unconfigured ivi surfaces decide their own size
     QTRY_COMPARE(window.frameGeometry(), QRect(QPoint(), QSize(32, 32)));
 
-    exec([=] {
+    exec([&] {
         iviSurface()->send_configure(123, 456);
     });
     QTRY_COMPARE(window.frameGeometry(), QRect(QPoint(), QSize(123, 456)));
@@ -87,7 +87,7 @@ void tst_WaylandClientIviApplication::uniqueIviIds()
 
     QCOMPOSITOR_TRY_VERIFY(iviSurface(0));
     QCOMPOSITOR_TRY_VERIFY(iviSurface(1));
-       exec([=] {
+       exec([&] {
             QVERIFY(iviSurface(0)->m_iviId != iviSurface(1)->m_iviId);
     });
 }

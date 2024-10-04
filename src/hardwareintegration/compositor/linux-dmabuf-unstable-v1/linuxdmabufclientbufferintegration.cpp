@@ -266,6 +266,12 @@ LinuxDmabufClientBufferIntegration::LinuxDmabufClientBufferIntegration()
 LinuxDmabufClientBufferIntegration::~LinuxDmabufClientBufferIntegration()
 {
     m_importedBuffers.clear();
+
+    if (egl_unbind_wayland_display != nullptr && m_displayBound) {
+        Q_ASSERT(m_wlDisplay != nullptr);
+        if (!egl_unbind_wayland_display(m_eglDisplay, m_wlDisplay))
+            qCWarning(qLcWaylandCompositorHardwareIntegration) << "eglUnbindWaylandDisplayWL failed";
+    }
 }
 
 void LinuxDmabufClientBufferIntegration::initializeHardware(struct ::wl_display *display)
@@ -327,6 +333,7 @@ void LinuxDmabufClientBufferIntegration::initializeHardware(struct ::wl_display 
                 return;
             }
         }
+        m_wlDisplay = display;
     }
 
     // request and sent formats/modifiers only after egl_display is bound

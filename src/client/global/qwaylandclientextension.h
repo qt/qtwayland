@@ -84,7 +84,8 @@ public:
         // developer and the version specified in the protocol and also the
         // compositor version.
         if (this->version() > T::interface()->version) {
-            qWarning("Supplied protocol version to QWaylandClientExtensionTemplate is higher than the version of the protocol, using protocol version instead.");
+            qWarning("Supplied protocol version to QWaylandClientExtensionTemplate is higher than the version of the protocol, using protocol version instead. interface.name: %s",
+                     T::interface()->name);
         }
         int minVersion = qMin(ver, qMin(T::interface()->version, this->version()));
         setVersion(minVersion);

@@ -34,6 +34,7 @@ qt_internal_add_plugin(QWaylandXdgShellIntegrationPlugin
 )
 
 qt6_generate_wayland_protocol_client_sources(QWaylandXdgShellIntegrationPlugin
+    PRIVATE_CODE
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../3rdparty/protocol/xdg-decoration/xdg-decoration-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../3rdparty/protocol/xdg-shell/xdg-shell.xml

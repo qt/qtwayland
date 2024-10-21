@@ -23,6 +23,7 @@ qt_internal_add_manual_test(cpp-client
 )
 
 qt6_generate_wayland_protocol_client_sources(cpp-client
+    PRIVATE_CODE
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../src/extensions/qt-texture-sharing-unstable-v1.xml
 )

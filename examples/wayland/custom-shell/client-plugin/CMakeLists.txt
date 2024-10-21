@@ -22,6 +22,7 @@ target_sources(exampleshellplugin PRIVATE
 )
 
 qt6_generate_wayland_protocol_client_sources(exampleshellplugin
+    PRIVATE_CODE
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../protocol/example-shell.xml
 )

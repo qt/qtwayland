@@ -94,6 +94,7 @@ qt_internal_add_module(WaylandClient
 )
 
 qt6_generate_wayland_protocol_client_sources(WaylandClient
+    PRIVATE_CODE
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/cursor-shape/cursor-shape-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/protocol/pointer-gestures/pointer-gestures-unstable-v1.xml

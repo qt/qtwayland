@@ -22,6 +22,7 @@ qt_internal_add_plugin(QWaylandQtShellIntegrationPlugin
 )
 
 qt6_generate_wayland_protocol_client_sources(QWaylandQtShellIntegrationPlugin
+    PRIVATE_CODE
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../extensions/qt-shell-unstable-v1.xml
 )

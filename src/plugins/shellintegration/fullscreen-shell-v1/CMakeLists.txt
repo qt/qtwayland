@@ -26,6 +26,7 @@ qt_internal_add_plugin(QWaylandFullScreenShellV1IntegrationPlugin
 )
 
 qt6_generate_wayland_protocol_client_sources(QWaylandFullScreenShellV1IntegrationPlugin
+    PRIVATE_CODE
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../3rdparty/protocol/fullscreen-shell/fullscreen-shell-unstable-v1.xml
 )

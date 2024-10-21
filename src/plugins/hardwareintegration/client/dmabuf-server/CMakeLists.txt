@@ -26,8 +26,10 @@ qt_internal_add_plugin(DmaBufServerBufferPlugin
 )
 
 qt6_generate_wayland_protocol_client_sources(DmaBufServerBufferPlugin
+    PRIVATE_CODE
     FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../hardwareintegration/client/dmabuf-server/../../../extensions/qt-dmabuf-server-buffer.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../extensions/qt-dmabuf-server-buffer.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../extensions/server-buffer-extension.xml
 )
 
 #### Keys ignored in scope 1:.:.:dmabuf-server.pro:<TRUE>:

@@ -25,6 +25,7 @@ qt_internal_add_plugin(LibHybrisEglServerBufferPlugin
 )
 
 qt6_generate_wayland_protocol_client_sources(LibHybrisEglServerBufferPlugin
+    PRIVATE_CODE
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../hardwareintegration/client/libhybris-egl-server/../../../extensions/libhybris-egl-server-buffer.xml
 )

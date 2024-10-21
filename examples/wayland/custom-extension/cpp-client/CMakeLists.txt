@@ -20,6 +20,7 @@ qt_add_executable(custom-extension-cpp-client
 )
 
 qt6_generate_wayland_protocol_client_sources(custom-extension-cpp-client
+    PRIVATE_CODE
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../protocol/custom.xml
 )

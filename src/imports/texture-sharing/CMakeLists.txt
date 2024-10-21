@@ -37,8 +37,10 @@ qt_internal_add_qml_module(WaylandTextureSharing
 )
 
 qt6_generate_wayland_protocol_client_sources(WaylandTextureSharing
+    PRIVATE_CODE
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../extensions/qt-texture-sharing-unstable-v1.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../extensions/server-buffer-extension.xml
 )
 
 qt_internal_add_autogen_sync_header_dependencies(WaylandTextureSharing WaylandCompositor)

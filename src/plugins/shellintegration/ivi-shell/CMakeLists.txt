@@ -26,6 +26,7 @@ qt_internal_add_plugin(QWaylandIviShellIntegrationPlugin
 )
 
 qt6_generate_wayland_protocol_client_sources(QWaylandIviShellIntegrationPlugin
+    PRIVATE_CODE
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../3rdparty/protocol/ivi/ivi-application.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../3rdparty/protocol/ivi/ivi-controller.xml

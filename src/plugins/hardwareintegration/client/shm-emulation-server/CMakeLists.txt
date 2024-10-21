@@ -25,8 +25,10 @@ qt_internal_add_plugin(ShmServerBufferPlugin
 )
 
 qt6_generate_wayland_protocol_client_sources(ShmServerBufferPlugin
+    PRIVATE_CODE
     FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../hardwareintegration/client/shm-emulation-server/../../../extensions/shm-emulation-server-buffer.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../extensions/server-buffer-extension.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../extensions/shm-emulation-server-buffer.xml
 )
 
 #### Keys ignored in scope 1:.:.:shm-emulation-server.pro:<TRUE>:

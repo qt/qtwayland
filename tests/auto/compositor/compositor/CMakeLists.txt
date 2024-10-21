@@ -29,6 +29,7 @@ qt_internal_add_test(tst_compositor
 )
 
 qt6_generate_wayland_protocol_client_sources(tst_compositor
+    PRIVATE_CODE
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../src/3rdparty/protocol/idle-inhibit/idle-inhibit-unstable-v1.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../../src/3rdparty/protocol/ivi/ivi-application.xml

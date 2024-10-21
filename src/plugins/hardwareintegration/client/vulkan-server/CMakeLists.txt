@@ -25,8 +25,11 @@ qt_internal_add_plugin(VulkanServerBufferPlugin
 )
 
 qt6_generate_wayland_protocol_client_sources(VulkanServerBufferPlugin
+    PRIVATE_CODE
     FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../hardwareintegration/client/vulkan-server/../../../extensions/qt-vulkan-server-buffer-unstable-v1.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../extensions/qt-vulkan-server-buffer-unstable-v1.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../../extensions/server-buffer-extension.xml
+
 )
 
 #### Keys ignored in scope 1:.:.:vulkan-server.pro:<TRUE>:

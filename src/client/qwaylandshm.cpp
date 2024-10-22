@@ -10,13 +10,17 @@ QT_BEGIN_NAMESPACE
 namespace QtWaylandClient {
 
 QWaylandShm::QWaylandShm(QWaylandDisplay *display, int version, uint32_t id)
-    : QtWayland::wl_shm(display->wl_registry(), id, qMin(version, 1))
+    : QtWayland::wl_shm(display->wl_registry(), id, qMin(version, 2))
 {
 }
 
 QWaylandShm::~QWaylandShm()
 {
-    wl_shm_destroy(object());
+    if (version() < WL_SHM_RELEASE_SINCE_VERSION) {
+        wl_shm_destroy(object());
+    } else {
+        wl_shm_release(object());
+    }
 }
 
 void QWaylandShm::shm_format(uint32_t format)

@@ -76,14 +76,6 @@ void QWaylandXdgShellPrivate::xdg_wm_base_get_xdg_surface(Resource *resource, ui
     Q_Q(QWaylandXdgShell);
     QWaylandSurface *surface = QWaylandSurface::fromResource(surfaceResource);
 
-    if (surface->role() != nullptr) {
-        wl_resource_post_error(resource->handle, XDG_WM_BASE_ERROR_ROLE,
-                               "wl_surface@%d, already has role %s\n",
-                               wl_resource_get_id(surface->resource()),
-                               surface->role()->name().constData());
-        return;
-    }
-
     if (surface->hasContent()) {
         //TODO: According to the spec, this is a client error, but there's no appropriate error code
         qWarning() << "get_xdg_surface requested on a xdg_surface with content";

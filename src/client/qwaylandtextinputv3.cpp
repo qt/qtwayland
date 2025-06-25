@@ -54,6 +54,12 @@ void QWaylandTextInputv3::enableSurface(::wl_surface *surface)
     m_pendingCommitString.clear();
     m_pendingDeleteBeforeText = 0;
     m_pendingDeleteAfterText = 0;
+    m_surroundingText.clear();
+    m_cursor = 0;
+    m_cursorPos = 0;
+    m_anchorPos = 0;
+    m_contentHint = 0;
+    m_contentPurpose = 0;
     m_cursorRect = QRect();
 
     enable();
@@ -385,8 +391,7 @@ void QWaylandTextInputv3::updateState(Qt::InputMethodQueries queries, uint32_t f
         }
     }
 
-    if (flags == update_state_enter
-            || (flags == update_state_change && needsCommit))
+    if (needsCommit)
         commit();
 }
 

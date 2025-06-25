@@ -1166,6 +1166,9 @@ void QWaylandInputDevice::Keyboard::keyboard_keymap(uint32_t format, int32_t fd,
 {
     mKeymapFormat = format;
 #if QT_CONFIG(xkbcommon)
+    if (format == WL_KEYBOARD_KEYMAP_FORMAT_NO_KEYMAP)
+        return;
+
     if (format != WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1) {
         qCWarning(lcQpaWayland) << "unknown keymap format:" << format;
         close(fd);

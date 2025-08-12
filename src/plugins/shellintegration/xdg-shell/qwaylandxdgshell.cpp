@@ -314,7 +314,7 @@ QWaylandXdgSurface::QWaylandXdgSurface(QWaylandXdgShell *shell, ::xdg_surface *s
 
     if (type == Qt::ToolTip && transientParent) {
         setPopup(transientParent);
-    } else if (type == Qt::Popup && transientParent && display->lastInputDevice()) {
+    } else if ((type == Qt::Popup || type == Qt::Tool) && transientParent && display->lastInputDevice()) {
         setGrabPopup(transientParent, display->lastInputDevice(), display->lastInputSerial());
     } else {
         setToplevel();
@@ -587,8 +587,8 @@ bool QWaylandXdgSurface::requestActivate()
 
 bool QWaylandXdgSurface::requestActivateOnShow()
 {
-    const Qt::WindowType type = m_window->window()->type();
-    if (type == Qt::ToolTip || type == Qt::Popup || type == Qt::SplashScreen)
+    const Qt::WindowFlags flags = m_window->window()->flags();
+    if (flags.testFlag(Qt::Popup))
         return false;
 
     if (m_window->window()->property("_q_showWithoutActivating").toBool())

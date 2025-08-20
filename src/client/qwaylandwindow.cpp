@@ -394,7 +394,8 @@ void QWaylandWindow::setGeometry_helper(const QRect &rect)
 void QWaylandWindow::setGeometry(const QRect &r)
 {
     auto rect = r;
-    if (fixedToplevelPositions && !QPlatformWindow::parent() && !window()->flags().testFlag(Qt::Popup)) {
+    if (fixedToplevelPositions && !QPlatformWindow::parent() && window()->type() != Qt::Popup
+        && window()->type() != Qt::ToolTip && window()->type() != Qt::Tool) {
         rect.moveTo(screen()->geometry().topLeft());
     }
     setGeometry_helper(rect);
@@ -1056,7 +1057,7 @@ QWaylandWindow *QWaylandWindow::transientParent() const
     if (auto transientParent = closestShellSurfaceWindow(window()->transientParent()))
         return transientParent;
 
-    if (QGuiApplication::focusWindow() && (window()->type() == Qt::ToolTip || window()->type() == Qt::Popup || window()->type() == Qt::Tool))
+    if (QGuiApplication::focusWindow() && (window()->type() == Qt::ToolTip || window()->type() == Qt::Popup))
         return closestShellSurfaceWindow(QGuiApplication::focusWindow());
 
     return nullptr;
@@ -1310,7 +1311,8 @@ void QWaylandWindow::handleScreensChanged()
     QWindowSystemInterface::handleWindowScreenChanged(window(), newScreen->QPlatformScreen::screen());
 
     mLastReportedScreen = newScreen;
-    if (fixedToplevelPositions && !QPlatformWindow::parent() && !window()->flags().testFlag(Qt::Popup)
+    if (fixedToplevelPositions && !QPlatformWindow::parent() && window()->type() != Qt::Popup
+        && window()->type() != Qt::ToolTip && window()->type() != Qt::Tool
         && geometry().topLeft() != newScreen->geometry().topLeft()) {
         auto geometry = this->geometry();
         geometry.moveTo(newScreen->geometry().topLeft());
@@ -1390,7 +1392,7 @@ qreal QWaylandWindow::devicePixelRatio() const
 
 bool QWaylandWindow::setMouseGrabEnabled(bool grab)
 {
-    if (window()->type() != Qt::Popup && window()->type() != Qt::Tool) {
+    if (window()->type() != Qt::Popup) {
         qWarning("This plugin supports grabbing the mouse only for popup windows");
         return false;
     }

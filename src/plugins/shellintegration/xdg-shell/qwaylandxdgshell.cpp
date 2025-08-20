@@ -293,7 +293,7 @@ QWaylandXdgSurface::QWaylandXdgSurface(QWaylandXdgShell *shell, ::xdg_surface *s
 
     if (type == Qt::ToolTip && transientParent) {
         setPopup(transientParent);
-    } else if ((type == Qt::Popup || type == Qt::Tool) && transientParent && display->lastInputDevice()) {
+    } else if (type == Qt::Popup && transientParent && display->lastInputDevice()) {
         setGrabPopup(transientParent, display->lastInputDevice(), display->lastInputSerial());
     } else {
         setToplevel();

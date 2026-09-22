@@ -31,7 +31,7 @@
             ],
             "ir": "$(env:IRNAME)",
             "plugin_files": [
-                "build/qml/QtWayland/Compositor/*.so"
+                "build/qml/QtWayland/Compositor/*.so.ir"
             ]
         }
     },

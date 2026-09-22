@@ -11,13 +11,6 @@ SPDX-FileCopyrightText = "Copyright (C) The Qt Company Ltd."
 SPDX-License-Identifier = "LicenseRef-Qt-Commercial OR GPL-3.0-only"
 
 [[annotations]]
-path = ["tests/auto/client/client/run-with-all-shells.sh"]
-precedence = "closest"
-comment = "tools and utils"
-SPDX-FileCopyrightText = "Copyright (C) The Qt Company Ltd."
-SPDX-License-Identifier = "LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0"
-
-[[annotations]]
 path = ["src/compositor/shaders/**.qsb", "src/compositor/shaders/compile", "src/plugins/**.json"]
 precedence = "closest"
 comment = "module and plugins"

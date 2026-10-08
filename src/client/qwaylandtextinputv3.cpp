@@ -54,6 +54,13 @@ void QWaylandTextInputv3::enableSurface(::wl_surface *surface)
     m_pendingCommitString.clear();
     m_pendingDeleteBeforeText = 0;
     m_pendingDeleteAfterText = 0;
+    m_surroundingText.clear();
+    m_cursor = 0;
+    m_cursorPos = 0;
+    m_anchorPos = 0;
+    m_contentHint = 0;
+    m_contentPurpose = 0;
+    m_cursorRect = QRect();
 
     enable();
     updateState(supportedQueries3, update_state_enter);
@@ -302,7 +309,8 @@ void QWaylandTextInputv3::updateState(Qt::InputMethodQueries queries, uint32_t f
         // The worst case will be supposed here.
         const int MAX_MESSAGE_SIZE = 4000;
 
-        const int textSize = text.toUtf8().size();
+        const QByteArray utf8 = text.toUtf8();
+        const int textSize = utf8.size();
         if (textSize > MAX_MESSAGE_SIZE) {
             qCDebug(qLcQpaWaylandTextInput) << "SurroundText size is over "
                                             << MAX_MESSAGE_SIZE
@@ -310,18 +318,19 @@ void QWaylandTextInputv3::updateState(Qt::InputMethodQueries queries, uint32_t f
             const int selectionStart = qMin(cursor, anchor);
             const int selectionEnd = qMax(cursor, anchor);
             const int selectionLength = selectionEnd - selectionStart;
-            const int selectionSize = QStringView{text}.sliced(selectionStart, selectionLength).toUtf8().size();
+            QByteArray selection = QStringView{text}.sliced(selectionStart, selectionLength).toUtf8();
+            const int selectionSize = selection.size();
             // If selection is bigger than 4000 byte, it is fixed to 4000 byte.
             // anchor will be moved in the 4000 byte boundary.
             if (selectionSize > MAX_MESSAGE_SIZE) {
                 if (anchor > cursor) {
                     cursor = 0;
                     anchor = MAX_MESSAGE_SIZE;
-                    text = text.sliced(selectionStart, selectionLength);
+                    text = QString::fromUtf8(QByteArrayView{selection}.sliced(0, MAX_MESSAGE_SIZE));
                 } else {
                     anchor = 0;
                     cursor = MAX_MESSAGE_SIZE;
-                    text = text.sliced(selectionEnd - selectionLength, selectionLength);
+                    text = QString::fromUtf8(QByteArrayView{selection}.sliced(selectionSize - MAX_MESSAGE_SIZE, MAX_MESSAGE_SIZE));
                 }
             } else {
                 // This is not optimal in some cases.
@@ -333,10 +342,10 @@ void QWaylandTextInputv3::updateState(Qt::InputMethodQueries queries, uint32_t f
                 cursor = QWaylandInputMethodEventBuilder::indexToWayland(text, cursor);
                 anchor = QWaylandInputMethodEventBuilder::indexToWayland(text, anchor);
                 if (selEndSize < MAX_MESSAGE_SIZE) {
-                    text = QString::fromUtf8(QByteArrayView{text.toUtf8()}.first(MAX_MESSAGE_SIZE));
+                    text = QString::fromUtf8(QByteArrayView{utf8}.first(MAX_MESSAGE_SIZE));
                 } else {
                     const int startOffset = selEndSize - MAX_MESSAGE_SIZE;
-                    text = QString::fromUtf8(QByteArrayView{text.toUtf8()}.sliced(startOffset, MAX_MESSAGE_SIZE));
+                    text = QString::fromUtf8(QByteArrayView{utf8}.sliced(startOffset, MAX_MESSAGE_SIZE));
                     cursor -= startOffset;
                     anchor -= startOffset;
                 }
@@ -384,8 +393,7 @@ void QWaylandTextInputv3::updateState(Qt::InputMethodQueries queries, uint32_t f
         }
     }
 
-    if (flags == update_state_enter
-            || (flags == update_state_change && needsCommit))
+    if (needsCommit)
         commit();
 }
 

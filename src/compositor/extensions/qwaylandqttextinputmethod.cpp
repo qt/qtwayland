@@ -311,8 +311,13 @@ void QWaylandQtTextInputMethod::sendInputMethodEvent(QInputMethodEvent *event)
                                    event->replacementStart(),
                                    event->replacementLength());
 
-    while (d->waitingForSync)
+    while (d->waitingForSync) {
         d->compositor->processWaylandEvents();
+        // We might get into a situation where the client is waiting for us to
+        // until we confirm the frame is rendered until that he cannot answer
+        // our input events.
+        QCoreApplication::processEvents();
+    }
 
     Qt::InputMethodQueries queries;
     if (d->surroundingText != oldSurroundText)

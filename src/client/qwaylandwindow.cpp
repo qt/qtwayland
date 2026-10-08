@@ -147,7 +147,7 @@ void QWaylandWindow::initWindow()
         mShellSurface = mShellIntegration->createShellSurface(this);
         if (mShellSurface) {
             if (mTransientParent) {
-                if (window()->type() == Qt::ToolTip || window()->type() == Qt::Popup)
+                if (window()->type() == Qt::ToolTip || window()->type() == Qt::Popup || window()->type() == Qt::Tool)
                     mTransientParent->addChildPopup(this);
             }
 
@@ -434,7 +434,7 @@ void QWaylandWindow::setGeometry(const QRect &r)
 {
     auto rect = r;
     if (fixedToplevelPositions && !QPlatformWindow::parent() && window()->type() != Qt::Popup
-        && window()->type() != Qt::ToolTip) {
+        && window()->type() != Qt::ToolTip && window()->type() != Qt::Tool) {
         rect.moveTo(screen()->geometry().topLeft());
     }
     setGeometry_helper(rect);
@@ -1458,7 +1458,7 @@ void QWaylandWindow::handleScreensChanged()
     QWindowSystemInterface::handleWindowScreenChanged(window(), newScreen->QPlatformScreen::screen());
 
     if (fixedToplevelPositions && !QPlatformWindow::parent() && window()->type() != Qt::Popup
-        && window()->type() != Qt::ToolTip
+        && window()->type() != Qt::ToolTip && window()->type() != Qt::Tool
         && geometry().topLeft() != newScreen->geometry().topLeft()) {
         auto geometry = this->geometry();
         geometry.moveTo(newScreen->geometry().topLeft());

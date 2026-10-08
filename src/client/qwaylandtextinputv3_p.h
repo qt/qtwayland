@@ -86,9 +86,9 @@ private:
     uint m_pendingDeleteAfterText = 0;  // byte length
 
     QString m_surroundingText;
-    int m_cursor; // cursor position in QString
-    int m_cursorPos; // cursor position in wayland index
-    int m_anchorPos; // anchor position in wayland index
+    int m_cursor = 0; // cursor position in QString
+    int m_cursorPos = 0; // cursor position in wayland index
+    int m_anchorPos = 0; // anchor position in wayland index
     uint32_t m_contentHint = 0;
     uint32_t m_contentPurpose = 0;
     QRect m_cursorRect;

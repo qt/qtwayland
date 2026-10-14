@@ -321,6 +321,9 @@ protected:
 
     QList<QPointer<QWaylandWindow>> mChildPopups;
 
+private slots:
+    void doApplyConfigureFromOtherThread();
+
 private:
     void setGeometry_helper(const QRect &rect);
     void initWindow();

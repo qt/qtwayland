@@ -99,7 +99,10 @@ public:
 
 protected:
     QMargins margins(MarginsType marginsType = Full) const override;
-    void paint(QPaintDevice *device) override;
+    void paintTop(QPainter *painter) override;
+    void paintLeft(QPainter *painter) override;
+    void paintRight(QPainter *painter) override;
+    void paintBottom(QPainter *painter) override;
     bool handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,
                      Qt::MouseButtons b, Qt::KeyboardModifiers mods) override;
     bool handleTouch(QWaylandInputDevice *inputDevice, const QPointF &local, const QPointF &global,
@@ -115,6 +118,11 @@ private:
     void updateColors(bool isDark);
     // Updates titlebar layout with position and button order
     void updateTitlebarLayout(const QString &layout);
+
+    // Returns the rect of the full decorated surface, including shadows
+    QRect surfaceRect() const;
+    // Draws the window border and background, clipped to the given rect
+    void paintFrame(QPainter *painter, const QRect &clip);
 
     // Returns a bounding rect for a given button type
     QRectF buttonRect(Button button) const;

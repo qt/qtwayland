@@ -31,6 +31,7 @@
 #include <QtSvg/QSvgRenderer>
 
 // QtWayland
+#include <QtWaylandClient/private/qwaylandinputdevice_p.h>
 #include <QtWaylandClient/private/qwaylandshmbackingstore_p.h>
 #include <QtWaylandClient/private/qwaylandwindow_p.h>
 
@@ -118,12 +119,16 @@ QMargins QWaylandAdwaitaDecoration::margins(QWaylandAbstractDecoration::MarginsT
                     tilingStates & QWaylandWindow::WindowTiledBottom ? 0 : sideMargins);
 }
 
-void QWaylandAdwaitaDecoration::paint(QPaintDevice *device)
+QRect QWaylandAdwaitaDecoration::surfaceRect() const
 {
-    const QRect surfaceRect = waylandWindow()->windowContentGeometry() + margins(ShadowsOnly);
+    return QRect(QPoint(), waylandWindow()->geometry().marginsAdded(margins()).size());
+}
 
-    QPainter p(device);
-    p.setRenderHint(QPainter::Antialiasing);
+void QWaylandAdwaitaDecoration::paintFrame(QPainter *p, const QRect &clip)
+{
+    const QRect surfaceRect = this->surfaceRect();
+
+    p->setRenderHint(QPainter::Antialiasing);
 
     /*
      * Titlebar and window border
@@ -154,11 +159,19 @@ void QWaylandAdwaitaDecoration::paint(QPaintDevice *device)
         path.closeSubpath();
     }
 
-    p.save();
-    p.setPen(color(Border));
-    p.fillPath(path.simplified(), color(Background));
-    p.drawPath(path);
-    p.restore();
+    p->save();
+    p->setClipRect(clip);
+    p->setPen(color(Border));
+    p->fillPath(path.simplified(), color(Background));
+    p->drawPath(path);
+    p->restore();
+}
+
+void QWaylandAdwaitaDecoration::paintTop(QPainter *p)
+{
+    const QRect surfaceRect = this->surfaceRect();
+
+    paintFrame(p, QRect(0, 0, surfaceRect.width(), margins().top()));
 
     /*
      * Window title
@@ -181,16 +194,16 @@ void QWaylandAdwaitaDecoration::paint(QPaintDevice *device)
             titleBar.setRight(surfaceRect.width() - margins().right());
         }
 
-        p.save();
-        p.setClipRect(titleBar);
-        p.setPen(color(Foreground));
+        p->save();
+        p->setClipRect(titleBar);
+        p->setPen(color(Foreground));
         QSize size = m_windowTitle.size().toSize();
         int dx = (top.width() - size.width()) / 2;
         int dy = (top.height() - size.height()) / 2;
-        p.setFont(*m_font);
+        p->setFont(*m_font);
         QPoint windowTitlePoint(top.topLeft().x() + dx, top.topLeft().y() + dy);
-        p.drawStaticText(windowTitlePoint, m_windowTitle);
-        p.restore();
+        p->drawStaticText(windowTitlePoint, m_windowTitle);
+        p->restore();
     }
 
 
@@ -198,14 +211,46 @@ void QWaylandAdwaitaDecoration::paint(QPaintDevice *device)
      * Buttons
      */
     if (m_buttons.contains(Close))
-        drawButton(Close, &p);
+        drawButton(Close, p);
 
     if (m_buttons.contains(Maximize))
-        drawButton(Maximize, &p);
+        drawButton(Maximize, p);
 
     if (m_buttons.contains(Minimize))
-        drawButton(Minimize, &p);
+        drawButton(Minimize, p);
 }
+
+void QWaylandAdwaitaDecoration::paintLeft(QPainter *p)
+{
+    const QRect surfaceRect = this->surfaceRect();
+    const QMargins m = margins();
+    paintFrame(p, QRect(0, m.top(), m.left(), surfaceRect.height() - m.top() - m.bottom()));
+}
+
+void QWaylandAdwaitaDecoration::paintRight(QPainter *p)
+{
+    const QRect surfaceRect = this->surfaceRect();
+    const QMargins m = margins();
+    paintFrame(p, QRect(surfaceRect.width() - m.right(), m.top(), m.right(),
+                        surfaceRect.height() - m.top() - m.bottom()));
+}
+
+void QWaylandAdwaitaDecoration::paintBottom(QPainter *p)
+{
+    const QRect surfaceRect = this->surfaceRect();
+    const QMargins m = margins();
+    paintFrame(p, QRect(0, surfaceRect.height() - m.bottom(), surfaceRect.width(), m.bottom()));
+}
+
+#if QT_CONFIG(cursor)
+// The decoration is painted on subsurfaces, so QWaylandWindow::applyCursor() would
+// reject these since the pointer focus is not on the main surface.
+static void applyCursor(QWaylandInputDevice *inputDevice, Qt::CursorShape shape)
+{
+    QCursor cursor(shape);
+    inputDevice->setCursor(&cursor, {}, 1);
+}
+#endif
 
 bool QWaylandAdwaitaDecoration::handleMouse(QWaylandInputDevice *inputDevice, const QPointF &local,
                                             const QPointF &global, Qt::MouseButtons b,
@@ -217,7 +262,7 @@ bool QWaylandAdwaitaDecoration::handleMouse(QWaylandInputDevice *inputDevice, co
         updateButtonHoverState(Button::None);
 
     // Figure out what area mouse is in
-    QRect surfaceRect = waylandWindow()->windowContentGeometry() + margins(ShadowsOnly);
+    QRect surfaceRect = this->surfaceRect();
     if (local.y() <= surfaceRect.top() + margins().top())
         processMouseTop(inputDevice, local, b, mods);
     else if (local.y() > surfaceRect.bottom() - margins().bottom())
@@ -226,11 +271,6 @@ bool QWaylandAdwaitaDecoration::handleMouse(QWaylandInputDevice *inputDevice, co
         processMouseLeft(inputDevice, local, b, mods);
     else if (local.x() > surfaceRect.right() - margins().right())
         processMouseRight(inputDevice, local, b, mods);
-    else {
-#if QT_CONFIG(cursor)
-        waylandWindow()->restoreMouseCursor(inputDevice);
-#endif
-    }
 
     // Reset clicking state in case a button press is released outside
     // the button area
@@ -435,7 +475,7 @@ QRectF QWaylandAdwaitaDecoration::buttonRect(Button button) const
     int yPos;
     const int btnPos = m_buttons.value(button);
 
-    const QRect surfaceRect = waylandWindow()->windowContentGeometry() + margins(QWaylandAbstractDecoration::ShadowsOnly);
+    const QRect surfaceRect = this->surfaceRect();
     if (m_placement == Right) {
         xPos = surfaceRect.width();
         xPos -= ceButtonWidth * btnPos;
@@ -620,7 +660,7 @@ void QWaylandAdwaitaDecoration::processMouseTop(QWaylandInputDevice *inputDevice
     Q_UNUSED(mods)
 
     QDateTime currentDateTime = QDateTime::currentDateTime();
-    QRect surfaceRect = waylandWindow()->windowContentGeometry() + margins(ShadowsOnly);
+    QRect surfaceRect = this->surfaceRect();
 
     if (!buttonRect(Close).contains(local) && !buttonRect(Maximize).contains(local)
         && !buttonRect(Minimize).contains(local))
@@ -630,19 +670,19 @@ void QWaylandAdwaitaDecoration::processMouseTop(QWaylandInputDevice *inputDevice
         if (local.x() <= margins().left()) {
             // top left bit
 #if QT_CONFIG(cursor)
-            waylandWindow()->applyCursor(inputDevice, Qt::SizeFDiagCursor);
+            applyCursor(inputDevice, Qt::SizeFDiagCursor);
 #endif
             startResize(inputDevice, Qt::TopEdge | Qt::LeftEdge, b);
         } else if (local.x() > surfaceRect.right() - margins().left()) {
             // top right bit
 #if QT_CONFIG(cursor)
-            waylandWindow()->applyCursor(inputDevice, Qt::SizeBDiagCursor);
+            applyCursor(inputDevice, Qt::SizeBDiagCursor);
 #endif
             startResize(inputDevice, Qt::TopEdge | Qt::RightEdge, b);
         } else {
             // top resize bit
 #if QT_CONFIG(cursor)
-            waylandWindow()->applyCursor(inputDevice, Qt::SizeVerCursor);
+            applyCursor(inputDevice, Qt::SizeVerCursor);
 #endif
             startResize(inputDevice, Qt::TopEdge, b);
         }
@@ -675,7 +715,7 @@ void QWaylandAdwaitaDecoration::processMouseTop(QWaylandInputDevice *inputDevice
         if (b == Qt::MouseButton::RightButton)
             waylandWindow()->shellSurface()->showWindowMenu(inputDevice);
 #if QT_CONFIG(cursor)
-        waylandWindow()->restoreMouseCursor(inputDevice);
+        applyCursor(inputDevice, Qt::ArrowCursor);
 #endif
         startMove(inputDevice, b);
     }
@@ -688,19 +728,19 @@ void QWaylandAdwaitaDecoration::processMouseBottom(QWaylandInputDevice *inputDev
     if (local.x() <= margins().left()) {
         // bottom left bit
 #if QT_CONFIG(cursor)
-        waylandWindow()->applyCursor(inputDevice, Qt::SizeBDiagCursor);
+        applyCursor(inputDevice, Qt::SizeBDiagCursor);
 #endif
         startResize(inputDevice, Qt::BottomEdge | Qt::LeftEdge, b);
     } else if (local.x() > window()->width() + margins().right()) {
         // bottom right bit
 #if QT_CONFIG(cursor)
-        waylandWindow()->applyCursor(inputDevice, Qt::SizeFDiagCursor);
+        applyCursor(inputDevice, Qt::SizeFDiagCursor);
 #endif
         startResize(inputDevice, Qt::BottomEdge | Qt::RightEdge, b);
     } else {
         // bottom bit
 #if QT_CONFIG(cursor)
-        waylandWindow()->applyCursor(inputDevice, Qt::SizeVerCursor);
+        applyCursor(inputDevice, Qt::SizeVerCursor);
 #endif
         startResize(inputDevice, Qt::BottomEdge, b);
     }
@@ -712,7 +752,7 @@ void QWaylandAdwaitaDecoration::processMouseLeft(QWaylandInputDevice *inputDevic
     Q_UNUSED(local)
     Q_UNUSED(mods)
 #if QT_CONFIG(cursor)
-    waylandWindow()->applyCursor(inputDevice, Qt::SizeHorCursor);
+    applyCursor(inputDevice, Qt::SizeHorCursor);
 #endif
     startResize(inputDevice, Qt::LeftEdge, b);
 }
@@ -723,7 +763,7 @@ void QWaylandAdwaitaDecoration::processMouseRight(QWaylandInputDevice *inputDevi
     Q_UNUSED(local)
     Q_UNUSED(mods)
 #if QT_CONFIG(cursor)
-    waylandWindow()->applyCursor(inputDevice,  Qt::SizeHorCursor);
+    applyCursor(inputDevice, Qt::SizeHorCursor);
 #endif
     startResize(inputDevice, Qt::RightEdge, b);
 }

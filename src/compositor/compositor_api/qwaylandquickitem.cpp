@@ -33,6 +33,7 @@
 #include <QtQuick/qsgtexture.h>
 
 #include <QtCore/QFile>
+#include <QtCore/qendian.h>
 #include <QtCore/QMutexLocker>
 #include <QtCore/QMutex>
 
@@ -369,6 +370,36 @@ void QWaylandBufferMaterial::setBufferRef(QWaylandQuickItem *surfaceItem, const 
 
 QMutex *QWaylandQuickItemPrivate::mutex = nullptr;
 
+// The X byte of WL_SHM_FORMAT_XRGB8888/XBGR8888 is undefined, but QImage's
+// Format_RGB32/Format_RGBX8888 (which they map to) requires 0xff, and the
+// scene graph uploads them as-is. Since the image wraps client memory, make
+// a copy with the alpha byte set.
+static QImage withValidAlpha(const QImage &image)
+{
+    quint32 alphaMask;
+    switch (image.format()) {
+    case QImage::Format_RGB32:
+        alphaMask = 0xff000000u;
+        break;
+    case QImage::Format_RGBX8888:
+        alphaMask = qFromLittleEndian<quint32>(0xff000000u);
+        break;
+    default:
+        return image;
+    }
+
+    QImage result(image.size(), image.format());
+    if (result.isNull())
+        return image;
+    for (int y = 0; y < image.height(); ++y) {
+        const auto *src = reinterpret_cast<const quint32 *>(image.constScanLine(y));
+        auto *dst = reinterpret_cast<quint32 *>(result.scanLine(y));
+        for (int x = 0; x < image.width(); ++x)
+            dst[x] = src[x] | alphaMask;
+    }
+    return result;
+}
+
 class QWaylandSurfaceTextureProvider : public QSGTextureProvider
 {
 public:
@@ -401,7 +432,7 @@ public:
         m_sgTex = nullptr;
         if (m_ref.hasBuffer()) {
             if (buffer.isSharedMemory()) {
-                m_sgTex = surfaceItem->window()->createTextureFromImage(buffer.image());
+                m_sgTex = surfaceItem->window()->createTextureFromImage(withValidAlpha(buffer.image()));
             } else {
 #if QT_CONFIG(opengl)
                 QQuickWindow::CreateTextureOptions opt;

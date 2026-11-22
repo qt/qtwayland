@@ -148,7 +148,7 @@ function(qt6_generate_wayland_protocol_server_sources target)
             COMMAND Qt6::qtwaylandscanner server-header
                 "${protocol_file}"
                 --build-macro=${build_macro}
-                --header-path='${wayland_include_dir}'
+                --header-path="${wayland_include_dir}"
                 > "${qtwaylandscanner_header_output}"
             DEPENDS ${protocol_file} Qt6::qtwaylandscanner
         )
@@ -158,7 +158,7 @@ function(qt6_generate_wayland_protocol_server_sources target)
             COMMAND Qt6::qtwaylandscanner server-code
                 "${protocol_file}"
                 --build-macro=${build_macro}
-                --header-path='${wayland_include_dir}'
+                --header-path="${wayland_include_dir}"
                 > "${qtwaylandscanner_code_output}"
             DEPENDS ${protocol_file} Qt6::qtwaylandscanner
         )

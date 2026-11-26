@@ -33,10 +33,6 @@ configure the module on targets that are missing dependencies.")
     return()
 endif()
 
-# special case begin
-# TODO: Ideally these macros would be part of the qtwaylandscanner tool, and not the compositor/client
-#special case end
-
 if (QT_FEATURE_wayland_server)
     add_subdirectory(compositor)
 endif()

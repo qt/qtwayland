@@ -1150,20 +1150,22 @@ void QWaylandSurfacePrivate::Subsurface::subsurface_set_desync(wl_subsurface::Re
  */
 
 /*!
- * \fn void damaged(const QRegion &rect)
+ * \fn void QWaylandSurface::damaged(const QRegion &rect)
  *
  * This signal is emitted when the client tells the compositor that a particular part of, or
  * possibly the entire surface has been updated, so the compositor can redraw that part.
+ * \a rect is the updated region of the surface.
  *
  * While the compositor APIs take care of redrawing automatically, this function may be useful
  * if you require a specific, custom behavior.
  */
 
 /*!
- * \fn void parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent)
+ * \fn void QWaylandSurface::parentChanged(QWaylandSurface *newParent, QWaylandSurface *oldParent)
  *
  * This signal is emitted when the client has requested that this surface should be a
- * subsurface of \a newParent.
+ * subsurface of \a newParent. \a oldParent is the previous parent surface, or \nullptr if
+ * the surface had no parent.
  */
 
 QT_END_NAMESPACE
